@@ -1,4 +1,5 @@
 'use client'
+import { Suspense } from 'react'
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../src/lib/supabase'
@@ -47,7 +48,7 @@ const otherCategories = [
   'Marketing', 'Healthcare', 'Creative', 'Other'
 ]
 
-export default function PostFeaturedPage() {
+function PostFeaturedPage() {
   const searchParams = useSearchParams()
   const isTeaching = searchParams.get('category') !== 'other'
 
@@ -117,7 +118,6 @@ export default function PostFeaturedPage() {
     setMsgLoading(false)
   }
 
-  // STEP 3 — Done
   if (step === 'done') return (
     <main style={{ textAlign: 'center', padding: '80px 24px', maxWidth: '600px', margin: '0 auto' }}>
       <div style={{ fontSize: '64px', marginBottom: '24px' }}>✅</div>
@@ -130,7 +130,6 @@ export default function PostFeaturedPage() {
     </main>
   )
 
-  // STEP 2 — Contact form
   if (step === 'message') return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -152,31 +151,26 @@ export default function PostFeaturedPage() {
         <p style={{ color: '#666', marginBottom: '32px' }}>We will reply with payment details as soon as possible</p>
 
         <div style={{ background: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Your Name *</label>
             <input name="name" value={msgForm.name} onChange={handleMsgChange} placeholder="Your name"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Your Email *</label>
             <input name="email" value={msgForm.email} onChange={handleMsgChange} type="email" placeholder="your@email.com"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '28px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Message</label>
             <textarea name="message" value={msgForm.message} onChange={handleMsgChange} rows={4}
               placeholder={`Hi, I'd like to arrange payment for my featured listing "${form.title}" at ${form.company}. Please send me payment details.`}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <button onClick={handleMessageSubmit} disabled={msgLoading}
             style={{ width: '100%', background: msgLoading ? '#ccc' : '#E85D26', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer' }}>
             {msgLoading ? 'Sending...' : 'Send Message →'}
           </button>
-
           <button onClick={() => setStep('done')}
             style={{ width: '100%', marginTop: '12px', background: 'none', border: 'none', color: '#999', fontSize: '13px', cursor: 'pointer' }}>
             Skip for now — I'll contact you later
@@ -186,7 +180,6 @@ export default function PostFeaturedPage() {
     </main>
   )
 
-  // STEP 1 — Job form
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
@@ -209,14 +202,12 @@ export default function PostFeaturedPage() {
         <p style={{ color: '#666', marginBottom: '40px' }}>Fill in your job details — then send us a message to arrange payment</p>
 
         <div style={{ background: 'white', borderRadius: '12px', padding: '40px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Title *</label>
             <input name="title" value={form.title} onChange={handleChange}
               placeholder={isTeaching ? 'e.g. English Teacher, Kindergarten Teacher' : 'e.g. Hotel Manager, Web Developer'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
               {isTeaching ? 'School / Company Name *' : 'Company Name *'}
@@ -225,7 +216,6 @@ export default function PostFeaturedPage() {
               placeholder={isTeaching ? 'e.g. Bangkok International School' : 'e.g. Phuket Resort & Spa'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
               {isTeaching ? 'Teaching Level / Type *' : 'Job Category *'}
@@ -237,7 +227,6 @@ export default function PostFeaturedPage() {
               ))}
             </select>
           </div>
-
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
             <div style={{ flex: 1 }}>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Province / Location *</label>
@@ -255,57 +244,57 @@ export default function PostFeaturedPage() {
               </select>
             </div>
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Salary</label>
             <input name="salary" value={form.salary} onChange={handleChange} placeholder="e.g. 40,000 - 60,000 THB"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Description *</label>
             <textarea name="description" value={form.description} onChange={handleChange} rows={5}
               placeholder="Describe the role and responsibilities..."
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Requirements</label>
             <textarea name="requirements" value={form.requirements} onChange={handleChange} rows={4}
               placeholder={isTeaching ? 'e.g. Bachelor degree, TEFL certificate...' : 'e.g. 3 years experience, relevant degree...'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Benefits</label>
             <textarea name="benefits" value={form.benefits} onChange={handleChange} rows={4}
               placeholder="e.g. Work permit, health insurance, flight allowance..."
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Contact Email *</label>
             <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="jobs@yourcompany.com"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '32px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" name="visa_sponsor" checked={form.visa_sponsor} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
               <span style={{ fontWeight: 'bold', color: '#333' }}>We provide visa sponsorship / work permit</span>
             </label>
           </div>
-
           <button onClick={handleJobSubmit} disabled={jobLoading}
             style={{ width: '100%', background: jobLoading ? '#ccc' : '#E85D26', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer' }}>
             {jobLoading ? 'Saving...' : 'Next — Arrange Payment →'}
           </button>
-
           <p style={{ textAlign: 'center', color: '#999', fontSize: '13px', marginTop: '12px' }}>
             Your job is saved but won't go live until payment is confirmed
           </p>
         </div>
       </div>
     </main>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>}>
+      <PostFeaturedPage />
+    </Suspense>
   )
 }
