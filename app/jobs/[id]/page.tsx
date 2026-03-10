@@ -1,28 +1,27 @@
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
+
 export default async function JobDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { data: job } = await supabase
-    .from('jobs')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const { data: job } = await supabase.from('jobs').select('*').eq('id', id).single()
 
   if (!job) {
     return (
       <main style={{ textAlign: 'center', padding: '80px 24px' }}>
         <h1 style={{ fontSize: '32px', marginBottom: '16px' }}>Job not found</h1>
-        <Link href="/jobs" style={{ color: '#E85D26' }}>← Back to all jobs</Link>
+        <Link href="/jobs" style={{ color: '#E85D26' }}>Back to all jobs</Link>
       </main>
     )
   }
+
+  const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=' + job.email + '&su=Job Application - ' + encodeURIComponent(job.title) + '&body=Dear Hiring Manager,%0A%0AI am writing to apply for the ' + encodeURIComponent(job.title) + ' position at ' + encodeURIComponent(job.company) + '.%0A%0APlease find my CV attached.%0A%0AKind regards'
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
 
         <Link href="/jobs" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '24px' }}>
-          ← Back to all jobs
+          Back to all jobs
         </Link>
 
         <div style={{ background: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
@@ -67,9 +66,13 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
         <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center' }}>
           <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
           <p style={{ color: '#ccc', marginBottom: '24px', fontSize: '15px' }}>Send your CV directly to the employer</p>
-          <a href={`mailto:${job.email}`} style={{ background: '#E85D26', color: 'white', padding: '14px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
-            Apply Now → {job.email}
+          <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
+            style={{ background: '#E85D26', color: 'white', padding: '14px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+            Apply Now →
           </a>
+          <div style={{ color: '#aaa', fontSize: '13px', marginTop: '16px' }}>
+            or email directly: <span style={{ color: 'white' }}>{job.email}</span>
+          </div>
         </div>
 
       </div>
