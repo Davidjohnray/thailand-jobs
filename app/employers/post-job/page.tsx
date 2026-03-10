@@ -1,4 +1,5 @@
 'use client'
+import { Suspense } from 'react'
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../src/lib/supabase'
@@ -47,7 +48,7 @@ const otherCategories = [
   'Marketing', 'Healthcare', 'Creative', 'Other'
 ]
 
-export default function PostJobPage() {
+function PostJobPage() {
   const searchParams = useSearchParams()
   const isTeaching = searchParams.get('category') !== 'other'
 
@@ -103,14 +104,12 @@ export default function PostJobPage() {
         <p style={{ color: '#666', marginBottom: '40px' }}>Your listing will appear on the jobs page for 2 weeks</p>
 
         <div style={{ background: 'white', borderRadius: '12px', padding: '40px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Title *</label>
             <input name="title" value={form.title} onChange={handleChange}
               placeholder={isTeaching ? 'e.g. English Teacher, Kindergarten Teacher' : 'e.g. Hotel Manager, Web Developer'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
               {isTeaching ? 'School / Company Name *' : 'Company Name *'}
@@ -119,7 +118,6 @@ export default function PostJobPage() {
               placeholder={isTeaching ? 'e.g. Bangkok International School' : 'e.g. Phuket Resort & Spa'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
               {isTeaching ? 'Teaching Level / Type *' : 'Job Category *'}
@@ -131,7 +129,6 @@ export default function PostJobPage() {
               ))}
             </select>
           </div>
-
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
             <div style={{ flex: 1 }}>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Province / Location *</label>
@@ -149,47 +146,40 @@ export default function PostJobPage() {
               </select>
             </div>
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Salary</label>
             <input name="salary" value={form.salary} onChange={handleChange} placeholder="e.g. 40,000 - 60,000 THB"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Description *</label>
             <textarea name="description" value={form.description} onChange={handleChange} rows={5}
               placeholder="Describe the role and responsibilities..."
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Requirements</label>
             <textarea name="requirements" value={form.requirements} onChange={handleChange} rows={4}
               placeholder={isTeaching ? 'e.g. Bachelor degree, TEFL certificate, experience with young learners...' : 'e.g. 3 years experience, relevant degree...'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Benefits</label>
             <textarea name="benefits" value={form.benefits} onChange={handleChange} rows={4}
               placeholder="e.g. Work permit, health insurance, flight allowance..."
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Contact Email *</label>
             <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="jobs@yourcompany.com"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '32px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" name="visa_sponsor" checked={form.visa_sponsor} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
               <span style={{ fontWeight: 'bold', color: '#333' }}>We provide visa sponsorship / work permit</span>
             </label>
           </div>
-
           <button onClick={handleSubmit} disabled={loading}
             style={{ width: '100%', background: loading ? '#ccc' : isTeaching ? '#E85D26' : '#2D6BE4', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer' }}>
             {loading ? 'Posting...' : 'Post Free Job →'}
@@ -197,5 +187,13 @@ export default function PostJobPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>}>
+      <PostJobPage />
+    </Suspense>
   )
 }
