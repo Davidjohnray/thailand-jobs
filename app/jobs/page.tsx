@@ -83,7 +83,10 @@ export default async function JobsPage() {
                       {job.featured && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Featured</span>}
                       {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>}
                     </div>
-                    <div style={{ color: '#666', fontSize: '14px', marginBottom: '8px' }}>{job.company} • {job.location}</div>
+                    <div style={{ color: '#666', fontSize: '14px', marginBottom: '4px' }}>{job.company} • {job.location}</div>
+                    <div style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
+                      Posted: {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
                     <span style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>{job.category}</span>
                   </div>
                   <div style={{ textAlign: 'right' }}>
