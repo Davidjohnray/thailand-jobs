@@ -167,7 +167,10 @@ export default function TeachingJobsPage() {
                             {job.featured && <span style={{ background: '#E85D26', color: 'white', fontSize: '10px', padding: '2px 7px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Featured</span>}
                             {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '10px', padding: '2px 7px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>}
                           </div>
-                          <div style={{ color: '#666', fontSize: '13px', marginBottom: '6px' }}>{job.company} • {job.location}</div>
+                          <div style={{ color: '#666', fontSize: '13px', marginBottom: '2px' }}>{job.company} • {job.location}</div>
+                          <div style={{ color: '#999', fontSize: '12px', marginBottom: '6px' }}>
+                            Posted: {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </div>
                           <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '11px', padding: '3px 8px', borderRadius: '20px' }}>🏫 {job.category}</span>
                         </div>
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>

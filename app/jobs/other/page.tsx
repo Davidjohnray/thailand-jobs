@@ -74,7 +74,6 @@ export default function OtherJobsPage() {
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px', display: 'flex', gap: '32px' }}>
 
         <aside style={{ width: '240px', flexShrink: 0 }}>
-
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '16px' }}>
             <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '12px' }}>Province / Location</h3>
             <select value={location} onChange={e => setLocation(e.target.value)}
@@ -129,7 +128,10 @@ export default function OtherJobsPage() {
                         {job.featured && <span style={{ background: '#2D6BE4', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Featured</span>}
                         {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>}
                       </div>
-                      <div style={{ color: '#666', fontSize: '14px', marginBottom: '8px' }}>{job.company} • {job.location}</div>
+                      <div style={{ color: '#666', fontSize: '14px', marginBottom: '2px' }}>{job.company} • {job.location}</div>
+                      <div style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
+                        Posted: {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </div>
                       <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>💼 {job.category}</span>
                     </div>
                     <div style={{ textAlign: 'right' }}>
