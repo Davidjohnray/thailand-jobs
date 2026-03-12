@@ -49,7 +49,7 @@ export default async function Home() {
               {featuredJobs.map((job: any) => (
                 <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
                   <div style={{ background: 'white', border: '2px solid #E85D26', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(232,93,38,0.08)', cursor: 'pointer' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                    <div className="job-card-inner" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
                           <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{job.title}</span>
@@ -59,7 +59,7 @@ export default async function Home() {
                         <div style={{ color: '#555', fontSize: '14px', marginBottom: '8px', fontWeight: '500' }}>{job.company} • {job.location}</div>
                         <span style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>{job.category}</span>
                       </div>
-                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div className="job-card-right" style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>{job.salary}</div>
                         <div style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', display: 'inline-block' }}>{job.job_type}</div>
                       </div>
@@ -77,7 +77,7 @@ export default async function Home() {
 
           {/* MOBILE ADS */}
           <div className="mobile-ads" style={{ flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
-            <a href="https://thaiexpatservices.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <Link href="/coming-soon" style={{ textDecoration: 'none' }}>
               <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', border: '2px solid #E85D26' }}>
                 <div style={{ background: '#E85D26', padding: '8px', textAlign: 'center' }}>
                   <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Partner Site</div>
@@ -89,7 +89,7 @@ export default async function Home() {
                   <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>Visit Site →</div>
                 </div>
               </div>
-            </a>
+            </Link>
 
             <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '20px', textAlign: 'center' }}>
               <div style={{ fontSize: '32px', marginBottom: '8px' }}>✈️</div>
@@ -114,7 +114,7 @@ export default async function Home() {
         {/* AD SIDEBAR COLUMN 1 */}
         <div className="ad-sidebar" style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
-          <a href="https://thaiexpatservices.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+          <Link href="/coming-soon" style={{ textDecoration: 'none' }}>
             <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #E85D26' }}>
               <div style={{ background: '#E85D26', padding: '10px', textAlign: 'center' }}>
                 <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Partner Site</div>
@@ -126,7 +126,7 @@ export default async function Home() {
                 <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>Visit Site →</div>
               </div>
             </div>
-          </a>
+          </Link>
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>📚</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
@@ -170,7 +170,7 @@ export default async function Home() {
       <section style={{ padding: '60px 24px', background: '#f9f9f9', textAlign: 'center' }}>
         <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '8px' }}>Browse by Category</h2>
         <p style={{ color: '#666', marginBottom: '40px' }}>Find jobs that match your skills</p>
-        <div className="category-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', maxWidth: '900px', margin: '0 auto' }}>
           {[
             { icon: '🏫', label: 'Teaching / ESL', href: '/jobs/teaching' },
             { icon: '🏨', label: 'Hospitality', href: '/jobs/other' },
@@ -180,7 +180,7 @@ export default async function Home() {
             { icon: '📚', label: 'Education', href: '/jobs/teaching' },
           ].map((cat) => (
             <Link href={cat.href} key={cat.label} style={{ textDecoration: 'none' }}>
-              <div className="category-card" style={{ background: 'white', border: '1px solid #eee', borderRadius: '12px', padding: '20px 24px', minWidth: '130px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+              <div style={{ background: 'white', border: '1px solid #eee', borderRadius: '12px', padding: '20px 24px', minWidth: '130px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>{cat.icon}</div>
                 <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#333' }}>{cat.label}</div>
               </div>
