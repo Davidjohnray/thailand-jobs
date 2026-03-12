@@ -5,12 +5,20 @@ import VisitorCounter from '../components/VisitorCounter'
 
 export const metadata: Metadata = {
   title: 'Thailand Jobs',
-  description: 'Find jobs in Thailand',
+  description: 'Find teaching and other jobs in Thailand',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#E85D26" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Thailand Jobs" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+      </head>
       <body style={{ margin: 0, fontFamily: 'Arial, sans-serif', background: '#f9f9f9' }}>
         <Navbar />
         {children}
