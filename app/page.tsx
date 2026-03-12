@@ -14,19 +14,6 @@ export default async function Home() {
 
   return (
     <main>
-      <style>{`
-        @media (max-width: 768px) {
-          .ad-sidebar { display: none !important; }
-          .main-content { flex-direction: column !important; }
-          .hero-title { font-size: 28px !important; }
-          .hero-sub { font-size: 15px !important; }
-          .search-bar { flex-direction: column !important; border-radius: 8px !important; }
-          .search-input { border-radius: 8px 8px 0 0 !important; }
-          .search-btn { border-radius: 0 0 8px 8px !important; width: 100% !important; }
-          .category-grid { gap: 10px !important; }
-          .category-card { min-width: 100px !important; padding: 14px 16px !important; }
-        }
-      `}</style>
 
       {/* HERO */}
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
@@ -87,6 +74,41 @@ export default async function Home() {
               <Link href="/employers" style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>Be the first to feature your job →</Link>
             </div>
           )}
+
+          {/* MOBILE ADS */}
+          <div className="mobile-ads" style={{ flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
+            <a href="https://thaiexpatservices.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', border: '2px solid #E85D26' }}>
+                <div style={{ background: '#E85D26', padding: '8px', textAlign: 'center' }}>
+                  <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Partner Site</div>
+                </div>
+                <div style={{ padding: '16px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>🇹🇭</div>
+                  <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>Thai Expat Services</div>
+                  <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '12px' }}>Visas, work permits & expat services in Thailand</div>
+                  <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>Visit Site →</div>
+                </div>
+              </div>
+            </a>
+
+            <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>✈️</div>
+              <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '4px' }}>Advertise Here</div>
+              <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '12px' }}>Travel & relocation services</div>
+              <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
+                Get in Touch
+              </Link>
+            </div>
+
+            <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏠</div>
+              <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '4px' }}>Advertise Here</div>
+              <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '12px' }}>Housing & accommodation in Thailand</div>
+              <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
+                Get in Touch
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* AD SIDEBAR COLUMN 1 */}

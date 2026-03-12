@@ -8,7 +8,7 @@ export default function Navbar() {
         Thailand Jobs
       </Link>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         <Link href="/jobs/teaching" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
           🏫 Teaching Jobs
         </Link>
@@ -18,13 +18,14 @@ export default function Navbar() {
         <Link href="/jobs" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
           All Jobs
         </Link>
-        
         <Link href="/employers" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', border: '1px solid white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold' }}>
           Post a Job
         </Link>
-        <Link href="/admin" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', background: 'white' }}>
-          🔐 Admin
-        </Link>
+        <span className="admin-desktop-only">
+          <Link href="/admin" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', background: 'white' }}>
+            🔐 Admin
+          </Link>
+        </span>
       </div>
 
     </nav>
