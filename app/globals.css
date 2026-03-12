@@ -24,6 +24,11 @@ body {
   .search-btn { border-radius: 0 0 8px 8px !important; width: 100% !important; }
   .admin-desktop-only { display: none !important; }
   .mobile-ads { display: flex !important; }
+  .mobile-only { display: block !important; }
+  .mobile-stack { flex-direction: column !important; }
+  .mobile-hide-sidebar { display: none !important; }
+  .mobile-full { width: 100% !important; }
+  .mobile-gap { gap: 8px !important; }
 }
 
 .mobile-ads { display: none; }

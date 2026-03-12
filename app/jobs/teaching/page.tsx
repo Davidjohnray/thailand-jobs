@@ -69,7 +69,9 @@ export default function TeachingJobsPage() {
       j.title?.toLowerCase().includes(search.toLowerCase()) ||
       j.company?.toLowerCase().includes(search.toLowerCase())
     )
-    if (location !== 'All Locations') result = result.filter(j => j.location === location)
+    if (location !== 'All Locations') result = result.filter(j =>
+      j.location?.toLowerCase().trim() === location.toLowerCase().trim()
+    )
     if (jobType.length > 0) result = result.filter(j => jobType.includes(j.job_type))
     if (visaOnly) result = result.filter(j => j.visa_sponsor)
     setFiltered(result)
@@ -122,13 +124,13 @@ export default function TeachingJobsPage() {
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
 
-      <section style={{ background: '#1a1a2e', padding: '40px 24px', textAlign: 'center' }} className="mobile-padding">
+      <section style={{ background: '#1a1a2e', padding: '40px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: '40px', marginBottom: '8px' }}>🏫</div>
         <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', marginBottom: '8px' }}>Teaching Jobs in Thailand</h1>
         <p style={{ color: '#ccc', fontSize: '15px' }}>{filtered.length} teaching jobs available</p>
       </section>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }} className="mobile-padding">
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
 
         <button
           className="mobile-only"
