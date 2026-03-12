@@ -29,6 +29,8 @@ body {
   .mobile-hide-sidebar { display: none !important; }
   .mobile-full { width: 100% !important; }
   .mobile-gap { gap: 8px !important; }
+  .job-card-inner { flex-direction: column !important; align-items: flex-start !important; }
+  .job-card-right { text-align: left !important; margin-top: 8px; }
 }
 
 .mobile-ads { display: none; }
