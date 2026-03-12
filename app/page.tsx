@@ -14,20 +14,33 @@ export default async function Home() {
 
   return (
     <main>
+      <style>{`
+        @media (max-width: 768px) {
+          .ad-sidebar { display: none !important; }
+          .main-content { flex-direction: column !important; }
+          .hero-title { font-size: 28px !important; }
+          .hero-sub { font-size: 15px !important; }
+          .search-bar { flex-direction: column !important; border-radius: 8px !important; }
+          .search-input { border-radius: 8px 8px 0 0 !important; }
+          .search-btn { border-radius: 0 0 8px 8px !important; width: 100% !important; }
+          .category-grid { gap: 10px !important; }
+          .category-card { min-width: 100px !important; padding: 14px 16px !important; }
+        }
+      `}</style>
 
       {/* HERO */}
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
-        <h1 style={{ color: 'white', fontSize: '44px', fontWeight: 'bold', marginBottom: '16px' }}>
+        <h1 className="hero-title" style={{ color: 'white', fontSize: '44px', fontWeight: 'bold', marginBottom: '16px' }}>
           Find Your Dream Job in Thailand
         </h1>
-        <p style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
+        <p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
           Teaching jobs, hospitality, tech and more — all across Thailand
         </p>
-        <div style={{ display: 'flex', justifyContent: 'center', maxWidth: '600px', margin: '0 auto' }}>
-          <input type="text" placeholder="Job title, keyword..."
+        <div className="search-bar" style={{ display: 'flex', justifyContent: 'center', maxWidth: '600px', margin: '0 auto' }}>
+          <input type="text" placeholder="Job title, keyword..." className="search-input"
             style={{ flex: 1, padding: '16px', fontSize: '16px', border: 'none', borderRadius: '8px 0 0 8px', outline: 'none' }} />
           <Link href="/jobs">
-            <button style={{ background: '#E85D26', color: 'white', padding: '16px 32px', fontSize: '16px', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', fontWeight: 'bold' }}>
+            <button className="search-btn" style={{ background: '#E85D26', color: 'white', padding: '16px 32px', fontSize: '16px', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', fontWeight: 'bold' }}>
               Search Jobs
             </button>
           </Link>
@@ -35,7 +48,7 @@ export default async function Home() {
       </section>
 
       {/* MAIN CONTENT */}
-      <section style={{ maxWidth: '1300px', margin: '0 auto', padding: '40px 16px', display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+      <section className="main-content" style={{ maxWidth: '1300px', margin: '0 auto', padding: '40px 16px', display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
 
         {/* FEATURED JOBS */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -77,9 +90,8 @@ export default async function Home() {
         </div>
 
         {/* AD SIDEBAR COLUMN 1 */}
-        <div style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="ad-sidebar" style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
-
           <a href="https://thaiexpatservices.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #E85D26' }}>
               <div style={{ background: '#E85D26', padding: '10px', textAlign: 'center' }}>
@@ -93,55 +105,40 @@ export default async function Home() {
               </div>
             </div>
           </a>
-
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>📚</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
             <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>TEFL courses, visa services, expat resources</div>
-            <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-              Get in Touch
-            </Link>
+            <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
           </div>
-
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>🎓</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
             <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Reach thousands of expats and job seekers</div>
-            <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-              Get in Touch
-            </Link>
+            <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
           </div>
         </div>
 
         {/* AD SIDEBAR COLUMN 2 */}
-        <div style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="ad-sidebar" style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
-
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>✈️</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
             <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Travel & relocation services</div>
-            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-              Get in Touch
-            </Link>
+            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
           </div>
-
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>🏠</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
             <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Housing & accommodation in Thailand</div>
-            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-              Get in Touch
-            </Link>
+            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
           </div>
-
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>💊</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
             <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Health insurance & medical services</div>
-            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-              Get in Touch
-            </Link>
+            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
           </div>
         </div>
 
@@ -151,7 +148,7 @@ export default async function Home() {
       <section style={{ padding: '60px 24px', background: '#f9f9f9', textAlign: 'center' }}>
         <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '8px' }}>Browse by Category</h2>
         <p style={{ color: '#666', marginBottom: '40px' }}>Find jobs that match your skills</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', maxWidth: '900px', margin: '0 auto' }}>
+        <div className="category-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', maxWidth: '900px', margin: '0 auto' }}>
           {[
             { icon: '🏫', label: 'Teaching / ESL', href: '/jobs/teaching' },
             { icon: '🏨', label: 'Hospitality', href: '/jobs/other' },
@@ -161,7 +158,7 @@ export default async function Home() {
             { icon: '📚', label: 'Education', href: '/jobs/teaching' },
           ].map((cat) => (
             <Link href={cat.href} key={cat.label} style={{ textDecoration: 'none' }}>
-              <div style={{ background: 'white', border: '1px solid #eee', borderRadius: '12px', padding: '20px 24px', minWidth: '130px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+              <div className="category-card" style={{ background: 'white', border: '1px solid #eee', borderRadius: '12px', padding: '20px 24px', minWidth: '130px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>{cat.icon}</div>
                 <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#333' }}>{cat.label}</div>
               </div>
