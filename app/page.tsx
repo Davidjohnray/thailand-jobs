@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { supabase } from '../src/lib/supabase'
 
+export const revalidate = 0
+
 export default async function Home() {
   const now = new Date().toISOString()
 
