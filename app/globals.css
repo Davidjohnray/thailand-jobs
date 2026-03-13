@@ -31,6 +31,7 @@ body {
   .mobile-gap { gap: 8px !important; }
   .job-card-inner { flex-direction: column !important; align-items: flex-start !important; }
   .job-card-right { text-align: left !important; margin-top: 8px; }
+  .hero-side-ad { display: none !important; }
 }
 
 .mobile-ads { display: none; }

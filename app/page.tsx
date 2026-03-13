@@ -19,20 +19,49 @@ export default async function Home() {
 
       {/* HERO */}
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
-        <h1 className="hero-title" style={{ color: 'white', fontSize: '44px', fontWeight: 'bold', marginBottom: '16px' }}>
-          Find Your Dream Job in Thailand
-        </h1>
-        <p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
-          Teaching jobs, hospitality, tech and more — all across Thailand
-        </p>
-        <div className="search-bar" style={{ display: 'flex', justifyContent: 'center', maxWidth: '600px', margin: '0 auto' }}>
-          <input type="text" placeholder="Job title, keyword..." className="search-input"
-            style={{ flex: 1, padding: '16px', fontSize: '16px', border: 'none', borderRadius: '8px 0 0 8px', outline: 'none' }} />
-          <Link href="/jobs">
-            <button className="search-btn" style={{ background: '#E85D26', color: 'white', padding: '16px 32px', fontSize: '16px', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', fontWeight: 'bold' }}>
-              Search Jobs
-            </button>
-          </Link>
+
+        {/* HERO SIDE ADS */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginBottom: '24px' }}>
+
+          {/* LEFT AD BOX */}
+          <a href="/contact" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
+            <div style={{ width: '250px', height: '250px', background: 'rgba(255,255,255,0.08)', border: '2px dashed rgba(255,255,255,0.25)', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ fontSize: '28px', marginBottom: '8px' }}>📢</div>
+              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>Advertise Here</div>
+              <div style={{ color: '#aaa', fontSize: '11px', marginBottom: '12px' }}>250 x 250px</div>
+              <div style={{ background: '#E85D26', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Get in Touch</div>
+            </div>
+          </a>
+
+          {/* HERO TEXT */}
+          <div style={{ flex: 1, maxWidth: '600px' }}>
+            <h1 className="hero-title" style={{ color: 'white', fontSize: '44px', fontWeight: 'bold', marginBottom: '16px' }}>
+              Find Your Dream Job in Thailand
+            </h1>
+            <p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
+              Teaching jobs, hospitality, tech and more — all across Thailand
+            </p>
+            <div className="search-bar" style={{ display: 'flex', justifyContent: 'center' }}>
+              <input type="text" placeholder="Job title, keyword..." className="search-input"
+                style={{ flex: 1, padding: '16px', fontSize: '16px', border: 'none', borderRadius: '8px 0 0 8px', outline: 'none' }} />
+              <Link href="/jobs">
+                <button className="search-btn" style={{ background: '#E85D26', color: 'white', padding: '16px 32px', fontSize: '16px', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', fontWeight: 'bold' }}>
+                  Search Jobs
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* RIGHT AD BOX */}
+          <a href="/contact" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
+            <div style={{ width: '250px', height: '250px', background: 'rgba(255,255,255,0.08)', border: '2px dashed rgba(255,255,255,0.25)', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ fontSize: '28px', marginBottom: '8px' }}>📢</div>
+              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>Advertise Here</div>
+              <div style={{ color: '#aaa', fontSize: '11px', marginBottom: '12px' }}>250 x 250px</div>
+              <div style={{ background: '#E85D26', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Get in Touch</div>
+            </div>
+          </a>
+
         </div>
       </section>
 
