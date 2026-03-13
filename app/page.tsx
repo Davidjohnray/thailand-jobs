@@ -92,23 +92,17 @@ export default async function Home() {
                 </div>
               </div>
             </Link>
-
             <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '20px', textAlign: 'center' }}>
               <div style={{ fontSize: '32px', marginBottom: '8px' }}>✈️</div>
               <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '4px' }}>Advertise Here</div>
               <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '12px' }}>Travel & relocation services</div>
-              <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-                Get in Touch
-              </Link>
+              <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
             </div>
-
             <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '20px', textAlign: 'center' }}>
               <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏠</div>
               <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '4px' }}>Advertise Here</div>
               <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '12px' }}>Housing & accommodation in Thailand</div>
-              <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-                Get in Touch
-              </Link>
+              <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
             </div>
           </div>
         </div>
@@ -191,6 +185,20 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* CONTACT SECTION */}
+      <section style={{ background: 'white', padding: '60px 24px', textAlign: 'center', borderTop: '1px solid #eee' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+          <h2 style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '12px', color: '#1a1a2e' }}>Get in Touch</h2>
+          <p style={{ color: '#666', fontSize: '16px', marginBottom: '32px', lineHeight: '1.6' }}>
+            Have a question about a job, want to advertise, or just want to say hello? We'd love to hear from you!
+          </p>
+          <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '16px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '18px', display: 'inline-block' }}>
+            Send us a Message
+          </Link>
+        </div>
+      </section>
+
       {/* EMPLOYER CTA */}
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
         <h2 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', marginBottom: '16px' }}>Hiring in Thailand?</h2>
@@ -207,7 +215,7 @@ export default async function Home() {
             <Link href="/jobs/teaching" style={{ color: '#888', textDecoration: 'none', margin: '0 12px', fontSize: '14px' }}>Teaching Jobs</Link>
             <Link href="/jobs/other" style={{ color: '#888', textDecoration: 'none', margin: '0 12px', fontSize: '14px' }}>Other Jobs</Link>
             <Link href="/employers" style={{ color: '#888', textDecoration: 'none', margin: '0 12px', fontSize: '14px' }}>Post a Job</Link>
-            <Link href="/contact" style={{ color: '#888', textDecoration: 'none', margin: '0 12px', fontSize: '14px' }}>Advertise</Link>
+            <Link href="/contact" style={{ color: '#888', textDecoration: 'none', margin: '0 12px', fontSize: '14px' }}>Contact</Link>
           </div>
           <div style={{ color: '#555', fontSize: '13px' }}>
             © {new Date().getFullYear()} Thailand Jobs · All rights reserved
