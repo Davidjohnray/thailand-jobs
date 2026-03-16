@@ -19,7 +19,10 @@ export default function Navbar() {
           All Jobs
         </Link>
         <Link href="/training" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
-          🎓 Training Courses
+          🎓 Training
+        </Link>
+        <Link href="/cv-builder" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'white', fontWeight: 'bold' }}>
+          📄 CV Builder
         </Link>
         <Link href="/contact" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
           💬 Contact
