@@ -31,7 +31,7 @@ export default function CVBuilderPage() {
               <div style={{ color: '#999', fontSize: '14px' }}>forever</div>
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {['1 CV template', 'All basic sections', 'Download as PDF', 'Watermark on CV'].map(item => (
+              {['1 CV template', 'All basic sections', 'Download as PDF'].map(item => (
                 <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#444' }}>
                   <span style={{ color: '#22c55e', fontWeight: 'bold' }}>✓</span> {item}
                 </li>
@@ -74,7 +74,7 @@ export default function CVBuilderPage() {
               <div style={{ color: '#999', fontSize: '14px' }}>per month</div>
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {['Everything in Standard', '15+ CV templates', 'Unlimited saved CVs', 'Cover letter builder', 'LinkedIn import', 'Priority support'].map(item => (
+              {['Everything in Standard', '15+ CV templates', 'Unlimited saved CVs', 'Cover letter builder', 'LinkedIn import'].map(item => (
                 <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#444' }}>
                   <span style={{ color: '#2D6BE4', fontWeight: 'bold' }}>✓</span> {item}
                 </li>
