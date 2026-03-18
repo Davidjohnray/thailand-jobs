@@ -160,10 +160,11 @@ export default function AdminPage() {
                       Mark Unread
                     </button>
                   )}
-                  <a href={`mailto:${msg.email}`}
-                    style={{ background: '#1a1a2e', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-                    Reply by Email
-                  </a>
+                  <a href={`https://mail.google.com/mail/?view=cm&to=${msg.email}&su=Re: Your message to Jobs in Thailand&body=Hi ${encodeURIComponent(msg.name)},%0A%0AThank you for getting in touch!%0A%0A`}
+  target="_blank" rel="noopener noreferrer"
+  style={{ background: '#1a1a2e', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
+  📧 Reply via Gmail
+</a>
                   <button onClick={() => deleteMessage(msg.id)}
                     style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>
                     Delete
