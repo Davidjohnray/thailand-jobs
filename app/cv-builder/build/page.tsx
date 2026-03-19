@@ -1,5 +1,6 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
 
 export default function CVBuildPage() {
   const [cv, setCv] = useState({
@@ -10,6 +11,19 @@ export default function CVBuildPage() {
     skills: '',
   })
   const printRef = useRef<HTMLDivElement>(null)
+  const [downloadCount, setDownloadCount] = useState<number>(35)
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      const { data } = await supabase.from('stats').select('count').eq('id', 'cv_downloads').single()
+      if (data) setDownloadCount(data.count)
+    }
+    fetchCount()
+  }, [])
 
   const updateField = (field: string, value: string) => setCv(prev => ({ ...prev, [field]: value }))
 
@@ -29,17 +43,18 @@ export default function CVBuildPage() {
   const addEducation = () => setCv(prev => ({ ...prev, education: [...prev.education, { degree: '', school: '', dates: '' }] }))
 
   const handlePrint = async () => {
-  const { createClient } = await import('@supabase/supabase-js')
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-  const { data } = await supabase.from('stats').select('count').eq('id', 'cv_downloads').single()
-  if (data) {
-    await supabase.from('stats').update({ count: data.count + 1 }).eq('id', 'cv_downloads')
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    const { data } = await supabase.from('stats').select('count').eq('id', 'cv_downloads').single()
+    if (data) {
+      const newCount = data.count + 1
+      await supabase.from('stats').update({ count: newCount }).eq('id', 'cv_downloads')
+      setDownloadCount(newCount)
+    }
+    window.print()
   }
-  window.print()
-}
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
@@ -47,18 +62,28 @@ export default function CVBuildPage() {
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          .print-only { display: block !important; }
           body { background: white; }
+          nav { display: none !important; }
+          header { display: none !important; }
+          footer { display: none !important; }
+          body > *:not(main) { display: none !important; }
+          main > *:not(.cv-print-area) { display: none !important; }
+          .cv-print-area { display: block !important; width: 100% !important; box-shadow: none !important; }
+          @page { margin: 1cm; }
         }
-        .print-only { display: none; }
       `}</style>
 
       <div className="no-print" style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📄 CV Builder — Free Plan</h1>
-        <button onClick={handlePrint}
-          style={{ background: '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
-          ⬇ Download PDF
-        </button>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '8px' }}>
+            📥 <strong style={{ color: 'white' }}>{downloadCount.toLocaleString()}</strong> CVs downloaded so far!
+          </div>
+          <button onClick={handlePrint}
+            style={{ background: '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
+            ⬇ Download PDF
+          </button>
+        </div>
       </div>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 16px', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
@@ -66,7 +91,6 @@ export default function CVBuildPage() {
         {/* FORM */}
         <div className="no-print" style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-          {/* PERSONAL INFO */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' }}>👤 Personal Information</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -87,7 +111,6 @@ export default function CVBuildPage() {
             </div>
           </div>
 
-          {/* SUMMARY */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' }}>📝 Professional Summary</h3>
             <textarea value={cv.summary} onChange={e => updateField('summary', e.target.value)}
@@ -96,7 +119,6 @@ export default function CVBuildPage() {
               style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
           </div>
 
-          {/* EXPERIENCE */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' }}>💼 Work Experience</h3>
             {cv.experience.map((exp, i) => (
@@ -121,7 +143,6 @@ export default function CVBuildPage() {
             </button>
           </div>
 
-          {/* EDUCATION */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' }}>🎓 Education</h3>
             {cv.education.map((edu, i) => (
@@ -142,7 +163,6 @@ export default function CVBuildPage() {
             </button>
           </div>
 
-          {/* SKILLS */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' }}>🛠 Skills</h3>
             <textarea value={cv.skills} onChange={e => updateField('skills', e.target.value)}
@@ -158,9 +178,8 @@ export default function CVBuildPage() {
           <div className="no-print" style={{ background: '#E85D26', color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
             LIVE PREVIEW
           </div>
-          <div ref={printRef} style={{ background: 'white', padding: '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '800px' }}>
+          <div ref={printRef} className="cv-print-area" style={{ background: 'white', padding: '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '800px' }}>
 
-            {/* HEADER */}
             <div style={{ borderBottom: '3px solid #E85D26', paddingBottom: '16px', marginBottom: '20px' }}>
               <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 6px' }}>{cv.name || 'Your Name'}</h1>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '13px', color: '#555' }}>
@@ -171,7 +190,6 @@ export default function CVBuildPage() {
               </div>
             </div>
 
-            {/* SUMMARY */}
             {cv.summary && (
               <div style={{ marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E85D26', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Professional Summary</h2>
@@ -179,7 +197,6 @@ export default function CVBuildPage() {
               </div>
             )}
 
-            {/* EXPERIENCE */}
             {cv.experience.some(e => e.title || e.company) && (
               <div style={{ marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E85D26', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Work Experience</h2>
@@ -198,7 +215,6 @@ export default function CVBuildPage() {
               </div>
             )}
 
-            {/* EDUCATION */}
             {cv.education.some(e => e.degree || e.school) && (
               <div style={{ marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E85D26', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Education</h2>
@@ -216,7 +232,6 @@ export default function CVBuildPage() {
               </div>
             )}
 
-            {/* SKILLS */}
             {cv.skills && (
               <div>
                 <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E85D26', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Skills</h2>
