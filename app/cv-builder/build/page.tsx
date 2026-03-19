@@ -28,7 +28,18 @@ export default function CVBuildPage() {
   const addExperience = () => setCv(prev => ({ ...prev, experience: [...prev.experience, { title: '', company: '', dates: '', description: '' }] }))
   const addEducation = () => setCv(prev => ({ ...prev, education: [...prev.education, { degree: '', school: '', dates: '' }] }))
 
-  const handlePrint = () => window.print()
+  const handlePrint = async () => {
+  const { createClient } = await import('@supabase/supabase-js')
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const { data } = await supabase.from('stats').select('count').eq('id', 'cv_downloads').single()
+  if (data) {
+    await supabase.from('stats').update({ count: data.count + 1 }).eq('id', 'cv_downloads')
+  }
+  window.print()
+}
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
