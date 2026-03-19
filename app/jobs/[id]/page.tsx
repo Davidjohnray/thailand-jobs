@@ -70,9 +70,6 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
             style={{ background: '#E85D26', color: 'white', padding: '14px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
             Apply Now →
           </a>
-          <div style={{ color: '#aaa', fontSize: '13px', marginTop: '16px' }}>
-            or email directly: <span style={{ color: 'white' }}>{job.email}</span>
-          </div>
         </div>
 
       </div>
