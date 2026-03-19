@@ -14,7 +14,7 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
     )
   }
 
-  const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=' + job.email + '&su=Job Application - ' + encodeURIComponent(job.title) + '&body=Dear Hiring Manager,%0A%0AI am writing to apply for the ' + encodeURIComponent(job.title) + ' position at ' + encodeURIComponent(job.company) + '.%0A%0APlease find my CV attached.%0A%0AKind regards'
+  const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=' + job.email + '&su=Job Application - ' + encodeURIComponent(job.title) + '&body=Dear Hiring Manager,%0A%0AI am writing to apply for the ' + encodeURIComponent(job.title) + ' position at ' + encodeURIComponent(job.company) + '.%0A%0APlease find my CV attached.%0A%0AKind regards%0A%0A---%0AThis application was made via Jobs in Thailand%0Awww.jobsinthailand.net'
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
