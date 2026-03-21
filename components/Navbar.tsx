@@ -1,12 +1,27 @@
+'use client'
 import Link from 'next/link'
 
 export default function Navbar() {
+
+  const handleNotifications = () => {
+    if (typeof window !== 'undefined' && (window as any).OneSignal) {
+      (window as any).OneSignal.Notifications.requestPermission()
+    }
+  }
+
   return (
     <nav style={{ background: '#E85D26', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
-      <Link href="/" style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', textDecoration: 'none' }}>
-        Thailand Jobs
-      </Link>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <Link href="/" style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', textDecoration: 'none' }}>
+          Thailand Jobs
+        </Link>
+        <button onClick={handleNotifications}
+          title="Get job notifications"
+          style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '18px', color: 'white' }}>
+          🔔
+        </button>
+      </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         <Link href="/jobs/teaching" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
