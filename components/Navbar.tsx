@@ -4,10 +4,20 @@ import Link from 'next/link'
 export default function Navbar() {
 
   const handleNotifications = () => {
-    if (typeof window !== 'undefined' && (window as any).OneSignal) {
-      (window as any).OneSignal.Notifications.requestPermission()
+  if (typeof window !== 'undefined') {
+    const OS = (window as any).OneSignal
+    const deferred = (window as any).OneSignalDeferred
+    if (OS) {
+      OS.Notifications.requestPermission()
+    } else if (deferred) {
+      deferred.push((OneSignal: any) => {
+        OneSignal.Notifications.requestPermission()
+      })
+    } else {
+      alert('Please allow notifications when prompted by your browser!')
     }
   }
+}
 
   return (
     <nav style={{ background: '#E85D26', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

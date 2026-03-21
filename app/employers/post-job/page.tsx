@@ -77,7 +77,14 @@ function PostJobPage() {
       featured: false,
       expires_at: expiryDate.toISOString()
     }])
-    if (error) { alert('Error: ' + error.message) } else { setSuccess(true) }
+    if (error) { alert('Error: ' + error.message) } else {
+      await fetch('/api/notify-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: form.title, location: form.location }),
+      })
+      setSuccess(true)
+    }
     setLoading(false)
   }
 
