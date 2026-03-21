@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   const { title, location } = await req.json()
-  await fetch('https://onesignal.com/api/v1/notifications', {
+  const res = await fetch('https://onesignal.com/api/v1/notifications', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`,
+      'Authorization': `Key ${process.env.ONESIGNAL_REST_API_KEY}`,
     },
     body: JSON.stringify({
       app_id: '4cb638c8-5ea4-46ca-9235-a10ffc51428e',
@@ -16,5 +16,7 @@ export async function POST(req: Request) {
       url: 'https://www.jobsinthailand.net/jobs',
     }),
   })
-  return NextResponse.json({ ok: true })
+  const data = await res.json()
+  console.log('OneSignal:', data)
+  return NextResponse.json(data)
 }
