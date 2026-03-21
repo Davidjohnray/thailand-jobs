@@ -1,22 +1,32 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../src/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
-const ADMIN_PASSWORD = 'thailand2024'  // 👈 change this to whatever you want
+const ADMIN_PASSWORD = 'thailand2024'
+
+const adminSupabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
   const [password, setPassword] = useState('')
   const [wrongPassword, setWrongPassword] = useState(false)
   const [messages, setMessages] = useState<any[]>([])
+  const [memberMessages, setMemberMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members'>('unread')
+  const [replyText, setReplyText] = useState<Record<number, string>>({})
+  const [replying, setReplying] = useState<number | null>(null)
 
   const handleLogin = (e: any) => {
     e.preventDefault()
     if (password === ADMIN_PASSWORD) {
       setAuthed(true)
       loadMessages()
+      loadMemberMessages()
     } else {
       setWrongPassword(true)
     }
@@ -24,12 +34,14 @@ export default function AdminPage() {
 
   const loadMessages = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: false })
+    const { data } = await supabase.from('messages').select('*').order('created_at', { ascending: false })
     setMessages(data || [])
     setLoading(false)
+  }
+
+  const loadMemberMessages = async () => {
+    const { data } = await adminSupabase.from('member_messages').select('*').order('created_at', { ascending: false })
+    setMemberMessages(data || [])
   }
 
   const markRead = async (id: number) => {
@@ -48,8 +60,29 @@ export default function AdminPage() {
     setMessages(prev => prev.filter(m => m.id !== id))
   }
 
+  const sendReply = async (id: number) => {
+    const reply = replyText[id]
+    if (!reply?.trim()) return
+    setReplying(id)
+    await adminSupabase.from('member_messages').update({
+      reply,
+      replied_at: new Date().toISOString(),
+      read_by_admin: true,
+      read_by_user: false,
+    }).eq('id', id)
+    setReplyText(prev => ({ ...prev, [id]: '' }))
+    setReplying(null)
+    loadMemberMessages()
+  }
+
+  const markMemberRead = async (id: number) => {
+    await adminSupabase.from('member_messages').update({ read_by_admin: true }).eq('id', id)
+    setMemberMessages(prev => prev.map(m => m.id === id ? { ...m, read_by_admin: true } : m))
+  }
+
   const unreadCount = messages.filter(m => !m.read).length
-  const displayed = activeTab === 'unread' ? messages.filter(m => !m.read) : messages
+  const unreadMemberCount = memberMessages.filter(m => !m.read_by_admin).length
+  const displayed = activeTab === 'unread' ? messages.filter(m => !m.read) : activeTab === 'all' ? messages : memberMessages
 
   if (!authed) return (
     <main style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -73,16 +106,15 @@ export default function AdminPage() {
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
 
-      {/* Header */}
       <div style={{ background: '#1a1a2e', padding: '20px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', margin: 0 }}>🔐 Admin Panel</h1>
           <p style={{ color: '#ccc', fontSize: '13px', margin: 0 }}>Thailand Jobs</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          {unreadCount > 0 && (
+          {(unreadCount > 0 || unreadMemberCount > 0) && (
             <span style={{ background: '#E85D26', color: 'white', borderRadius: '20px', padding: '4px 12px', fontSize: '13px', fontWeight: 'bold' }}>
-              {unreadCount} unread
+              {unreadCount + unreadMemberCount} unread
             </span>
           )}
           <button onClick={() => setAuthed(false)}
@@ -96,84 +128,154 @@ export default function AdminPage() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>💬 Messages</h2>
-          <button onClick={loadMessages}
+          <button onClick={() => { loadMessages(); loadMemberMessages() }}
             style={{ background: 'white', border: '1px solid #ddd', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', color: '#555' }}>
             🔄 Refresh
           </button>
         </div>
 
-        {/* Tabs */}
+        {/* TABS */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-          {(['unread', 'all'] as const).map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
-              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: activeTab === tab ? 'bold' : 'normal', background: activeTab === tab ? '#1a1a2e' : 'white', color: activeTab === tab ? 'white' : '#555', fontSize: '14px' }}>
-              {tab === 'unread' ? `Unread (${unreadCount})` : `All (${messages.length})`}
+          {[
+            { id: 'unread', label: `Unread (${unreadCount})` },
+            { id: 'all', label: `All Contact (${messages.length})` },
+            { id: 'members', label: `Member Messages (${memberMessages.length})${unreadMemberCount > 0 ? ` 🔴` : ''}` },
+          ].map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
+              style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: activeTab === tab.id ? 'bold' : 'normal', background: activeTab === tab.id ? '#1a1a2e' : 'white', color: activeTab === tab.id ? 'white' : '#555', fontSize: '14px' }}>
+              {tab.label}
             </button>
           ))}
         </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
-        ) : displayed.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
-            <p>{activeTab === 'unread' ? 'No unread messages' : 'No messages yet'}</p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {displayed.map(msg => (
-              <div key={msg.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: msg.read ? '1px solid #eee' : '2px solid #E85D26' }}>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                      <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{msg.name}</span>
-                      {!msg.read && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>NEW</span>}
+        {/* CONTACT FORM MESSAGES */}
+        {activeTab !== 'members' && (
+          loading ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
+          ) : displayed.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
+              <p>{activeTab === 'unread' ? 'No unread messages' : 'No messages yet'}</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {displayed.map(msg => (
+                <div key={msg.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: msg.read ? '1px solid #eee' : '2px solid #E85D26' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{msg.name}</span>
+                        {!msg.read && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>NEW</span>}
+                      </div>
+                      <div style={{ color: '#666', fontSize: '14px' }}>{msg.email}</div>
                     </div>
-                    <div style={{ color: '#666', fontSize: '14px' }}>{msg.email}</div>
+                    <div style={{ color: '#999', fontSize: '12px' }}>
+                      {new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
-                  <div style={{ color: '#999', fontSize: '12px' }}>
-                    {new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                </div>
-
-                {msg.job_title && (
-                  <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', fontSize: '13px' }}>
-                    <span style={{ color: '#E85D26', fontWeight: 'bold' }}>⭐ Featured job: </span>
-                    <span style={{ color: '#555' }}>{msg.job_title} — {msg.company}</span>
-                  </div>
-                )}
-
-                <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>
-                  {msg.message}
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {!msg.read ? (
-                    <button onClick={() => markRead(msg.id)}
-                      style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
-                      ✓ Mark as Read
-                    </button>
-                  ) : (
-                    <button onClick={() => markUnread(msg.id)}
-                      style={{ background: '#f0f0f0', color: '#666', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
-                      Mark Unread
-                    </button>
+                  {msg.job_title && (
+                    <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', fontSize: '13px' }}>
+                      <span style={{ color: '#E85D26', fontWeight: 'bold' }}>⭐ Featured job: </span>
+                      <span style={{ color: '#555' }}>{msg.job_title} — {msg.company}</span>
+                    </div>
                   )}
-                  <a href={`https://mail.google.com/mail/?view=cm&to=${msg.email}&su=Re: Your message to Jobs in Thailand&body=Hi ${encodeURIComponent(msg.name)},%0A%0AThank you for getting in touch!%0A%0A`}
-  target="_blank" rel="noopener noreferrer"
-  style={{ background: '#1a1a2e', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
-  📧 Reply via Gmail
-</a>
-                  <button onClick={() => deleteMessage(msg.id)}
-                    style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>
-                    Delete
-                  </button>
+                  <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>
+                    {msg.message}
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {!msg.read ? (
+                      <button onClick={() => markRead(msg.id)}
+                        style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                        ✓ Mark as Read
+                      </button>
+                    ) : (
+                      <button onClick={() => markUnread(msg.id)}
+                        style={{ background: '#f0f0f0', color: '#666', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+                        Mark Unread
+                      </button>
+                    )}
+                    <a href={`https://mail.google.com/mail/?view=cm&to=${msg.email}&su=Re: Your message to Jobs in Thailand&body=Hi ${encodeURIComponent(msg.name)},%0A%0AThank you for getting in touch!%0A%0A`}
+                      target="_blank" rel="noopener noreferrer"
+                      style={{ background: '#1a1a2e', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>
+                      📧 Reply via Gmail
+                    </a>
+                    <button onClick={() => deleteMessage(msg.id)}
+                      style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )
         )}
+
+        {/* MEMBER MESSAGES */}
+        {activeTab === 'members' && (
+          memberMessages.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
+              <p>No member messages yet</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {memberMessages.map(msg => (
+                <div key={msg.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: !msg.read_by_admin ? '2px solid #E85D26' : '1px solid #eee' }}>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{msg.subject}</span>
+                        {!msg.read_by_admin && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>NEW</span>}
+                      </div>
+                      <div style={{ color: '#666', fontSize: '13px' }}>👤 {msg.user_email}</div>
+                    </div>
+                    <div style={{ color: '#999', fontSize: '12px' }}>
+                      {new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>
+                    {msg.message}
+                  </div>
+
+                  {msg.reply && (
+                    <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '14px', marginBottom: '16px', border: '1px solid #ffd4b8' }}>
+                      <div style={{ fontWeight: 'bold', color: '#E85D26', fontSize: '13px', marginBottom: '6px' }}>Your reply:</div>
+                      <div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6' }}>{msg.reply}</div>
+                    </div>
+                  )}
+
+                  {/* REPLY BOX */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <textarea
+                      value={replyText[msg.id] || ''}
+                      onChange={e => setReplyText(prev => ({ ...prev, [msg.id]: e.target.value }))}
+                      placeholder={msg.reply ? 'Update your reply...' : 'Type your reply here — member will see this in their account...'}
+                      rows={3}
+                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => sendReply(msg.id)}
+                        disabled={replying === msg.id || !replyText[msg.id]?.trim()}
+                        style={{ background: replying === msg.id ? '#ccc' : '#E85D26', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: replying === msg.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
+                        {replying === msg.id ? 'Sending...' : msg.reply ? '📝 Update Reply' : '📨 Send Reply to Member'}
+                      </button>
+                      {!msg.read_by_admin && (
+                        <button onClick={() => markMemberRead(msg.id)}
+                          style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                          ✓ Mark Read
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
       </div>
     </main>
   )

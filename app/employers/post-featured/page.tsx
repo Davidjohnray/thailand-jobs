@@ -53,9 +53,7 @@ const STRIPE_FEATURED_LINK = 'https://buy.stripe.com/8x26oA9RF8AH4tjblua7C02'
 function PostFeaturedPage() {
   const searchParams = useSearchParams()
   const isTeaching = searchParams.get('category') !== 'other'
-
   const [jobLoading, setJobLoading] = useState(false)
-
   const [form, setForm] = useState({
     title: '', company: '', location: '', salary: '',
     job_type: 'Full Time',
@@ -89,7 +87,6 @@ function PostFeaturedPage() {
       setJobLoading(false)
       return
     }
-    // Redirect to Stripe with job ID so webhook can activate it after payment
     window.location.href = `${STRIPE_FEATURED_LINK}?client_reference_id=${data.id}`
   }
 
@@ -104,6 +101,16 @@ function PostFeaturedPage() {
             <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>Pay securely via Stripe — your job goes live instantly after payment</div>
           </div>
           <div style={{ fontSize: '36px' }}>🚀</div>
+        </div>
+
+        {/* ACCOUNT PROMPT */}
+        <div style={{ background: '#f0f7ff', border: '1px solid #2D6BE4', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
+          <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>💡 Have a question or problem?</p>
+          <p style={{ color: '#555', fontSize: '13px', margin: '0 0 10px' }}>Create a free member account to message us directly and track replies — no email needed!</p>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <a href="/account/register" style={{ background: '#2D6BE4', color: 'white', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Create Account</a>
+            <a href="/account/login" style={{ background: 'white', color: '#2D6BE4', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', border: '1px solid #2D6BE4' }}>Login</a>
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>

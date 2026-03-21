@@ -219,17 +219,13 @@ export default function PremiumBuilderPage() {
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
       <style>{`
-        @media print {
-          .no-print { display: none !important; }
-          body { background: white; }
-          nav { display: none !important; }
-          header { display: none !important; }
-          body > *:not(main) { display: none !important; }
-          main > *:not(.cv-print-area) { display: none !important; }
-          .cv-print-area { display: block !important; width: 100% !important; box-shadow: none !important; }
-          @page { margin: 1cm; }
-        }
-      `}</style>
+  @media print {
+    .no-print { display: none !important; }
+    nav { display: none !important; }
+    body { background: white; }
+    @page { margin: 1cm; }
+  }
+`}</style>
 
       <div className="no-print" style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📄 CV Builder — 💎 Premium Plan</h1>

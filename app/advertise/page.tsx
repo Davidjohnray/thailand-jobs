@@ -17,8 +17,8 @@ export default function AdvertisePage() {
       <section style={{ background: '#E85D26', padding: '32px 24px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', justifyContent: 'center', gap: '48px', flexWrap: 'wrap', textAlign: 'center' }}>
           {[
-            { number: '2,000+', label: 'Weekly Visitors' },
-            { number: '150+', label: 'Jobs Listed Weekly' },
+            { number: '10,000+', label: 'Monthly Visitors' },
+            { number: '500+', label: 'Jobs Listed Monthly' },
             { number: '🇹🇭', label: 'All Thailand' },
             { number: '100%', label: 'Expat Focused' },
           ].map(stat => (
@@ -168,9 +168,20 @@ export default function AdvertisePage() {
       {/* CTA */}
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
         <h2 style={{ color: 'white', fontSize: '28px', fontWeight: 'bold', marginBottom: '12px' }}>Ready to Advertise?</h2>
-        <p style={{ color: '#ccc', fontSize: '16px', marginBottom: '32px', maxWidth: '500px', margin: '0 auto 32px' }}>
+        <p style={{ color: '#ccc', fontSize: '16px', marginBottom: '32px', maxWidth: '500px', margin: '0 auto 24px' }}>
           Get in touch and we will set up your ad within 24 hours. We accept bank transfer and PromptPay.
         </p>
+
+        {/* ACCOUNT PROMPT */}
+        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '16px', marginBottom: '24px', maxWidth: '500px', margin: '0 auto 24px' }}>
+          <p style={{ color: 'white', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>💡 Already a member?</p>
+          <p style={{ color: '#ccc', fontSize: '13px', margin: '0 0 10px' }}>Log in to message us directly and track your advertising enquiry in your account.</p>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+            <a href="/account/login" style={{ background: 'white', color: '#1a1a2e', padding: '8px 20px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold', display: 'inline-block' }}>Login to My Account</a>
+            <a href="/account/register" style={{ background: '#E85D26', color: 'white', padding: '8px 20px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold', display: 'inline-block' }}>Create Account</a>
+          </div>
+        </div>
+
         <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '16px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '18px', display: 'inline-block' }}>
           Get in Touch →
         </Link>

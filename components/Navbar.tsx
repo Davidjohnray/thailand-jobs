@@ -30,6 +30,9 @@ export default function Navbar() {
         <Link href="/contact" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
           💬 Contact
         </Link>
+        <Link href="/account/login" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+          👤 My Account
+        </Link>
         <Link href="/employers" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', border: '1px solid white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold' }}>
           Post a Job
         </Link>
