@@ -50,7 +50,8 @@ export async function POST(req: Request) {
       })
       const result = await res.json()
       console.log('Email to', email, ':', result)
-      if (res.ok) sent++
+     if (res.ok) sent++
+await new Promise(resolve => setTimeout(resolve, 300))
     }
 
     return NextResponse.json({ sent, total: emails.length })
