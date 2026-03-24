@@ -19,8 +19,6 @@ export default async function Home() {
 
       {/* HERO */}
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
-
-        {/* HERO SIDE ADS */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginBottom: '24px' }}>
 
           {/* LEFT AD BOX */}
@@ -62,6 +60,21 @@ export default async function Home() {
             </div>
           </a>
 
+        </div>
+      </section>
+
+      {/* LINE COMMUNITY BANNER */}
+      <section style={{ background: '#06C755', padding: '24px' }}>
+        <div style={{ maxWidth: '700px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '32px' }}>💬</span>
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>Join our FREE LINE Community — Thailand Teaching Jobs!</div>
+            <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}>Get job tips, visa advice & connect with teachers across Thailand</div>
+          </div>
+          <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
+            style={{ background: 'white', color: '#06C755', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>
+            Join Now →
+          </a>
         </div>
       </section>
 

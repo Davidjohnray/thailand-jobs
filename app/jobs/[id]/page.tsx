@@ -63,12 +63,22 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
           </div>
         )}
 
-        <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center' }}>
+        <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
           <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
           <p style={{ color: '#ccc', marginBottom: '24px', fontSize: '15px' }}>Send your CV directly to the employer</p>
           <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
             style={{ background: '#E85D26', color: 'white', padding: '14px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
             Apply Now →
+          </a>
+        </div>
+
+        {/* LINE COMMUNITY */}
+        <div style={{ background: '#06C755', borderRadius: '12px', padding: '24px', textAlign: 'center' }}>
+          <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px' }}>💬 Join our LINE Teaching Community</div>
+          <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px', marginBottom: '16px' }}>Connect with teachers across Thailand — free tips, advice & job alerts!</div>
+          <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
+            style={{ background: 'white', color: '#06C755', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+            Join Free →
           </a>
         </div>
 

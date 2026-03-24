@@ -39,7 +39,6 @@ export default function DashboardPage() {
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
     setMessages(data || [])
-    // Mark all as read by user
     await supabase.from('member_messages').update({ read_by_user: true }).eq('user_id', userId).not('reply', 'is', null)
     setLoading(false)
   }
@@ -150,8 +149,6 @@ export default function DashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {messages.map(msg => (
               <div key={msg.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: msg.reply && !msg.read_by_user ? '2px solid #E85D26' : '1px solid #eee' }}>
-
-                {/* YOUR MESSAGE */}
                 <div style={{ marginBottom: msg.reply ? '20px' : '0' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e' }}>{msg.subject}</div>
@@ -164,8 +161,6 @@ export default function DashboardPage() {
                   </div>
                   <div style={{ fontSize: '12px', color: '#999', marginTop: '6px' }}>Sent by you</div>
                 </div>
-
-                {/* REPLY */}
                 {msg.reply && (
                   <div>
                     <div style={{ borderTop: '1px solid #eee', paddingTop: '16px' }}>
@@ -183,13 +178,11 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 )}
-
                 {!msg.reply && (
                   <div style={{ marginTop: '12px', fontSize: '13px', color: '#999', fontStyle: 'italic' }}>
                     ⏳ Awaiting reply — we usually respond within a few hours
                   </div>
                 )}
-
               </div>
             ))}
           </div>
@@ -197,6 +190,17 @@ export default function DashboardPage() {
 
         <div style={{ marginTop: '32px', textAlign: 'center' }}>
           <Link href="/" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px' }}>← Back to Jobs</Link>
+        </div>
+
+        {/* LINE COMMUNITY CARD */}
+        <div style={{ marginTop: '24px', background: '#06C755', borderRadius: '12px', padding: '24px', textAlign: 'center' }}>
+          <div style={{ fontSize: '36px', marginBottom: '8px' }}>💬</div>
+          <div style={{ color: 'white', fontWeight: 'bold', fontSize: '18px', marginBottom: '6px' }}>Join our LINE Community!</div>
+          <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '14px', marginBottom: '16px' }}>Connect with teachers & job seekers across Thailand — tips, advice & job alerts!</div>
+          <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
+            style={{ background: 'white', color: '#06C755', padding: '12px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
+            Join Free →
+          </a>
         </div>
 
       </div>
