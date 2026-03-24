@@ -10,6 +10,57 @@ const adminSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+function EmailMembers() {
+  const [subject, setSubject] = useState('')
+  const [message, setMessage] = useState('')
+  const [sending, setSending] = useState(false)
+  const [result, setResult] = useState<any>(null)
+
+  const sendEmails = async () => {
+    if (!subject.trim() || !message.trim()) return
+    if (!confirm('Send this email to all members?')) return
+    setSending(true)
+    const res = await fetch('/api/email-members', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, message }),
+    })
+    const data = await res.json()
+    setResult(data)
+    setSending(false)
+  }
+
+  return (
+    <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
+      <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '20px' }}>📧 Email All Members</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div>
+          <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Subject</label>
+          <input value={subject} onChange={e => setSubject(e.target.value)}
+            placeholder="e.g. New jobs just added in Bangkok!"
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+        </div>
+        <div>
+          <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Message</label>
+          <textarea value={message} onChange={e => setMessage(e.target.value)}
+            placeholder="Type your message to all members..."
+            rows={6}
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+        </div>
+        {result && (
+          <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
+            ✅ Sent to {result.sent} of {result.total} members!
+          </div>
+        )}
+        <button onClick={sendEmails} disabled={sending || !subject.trim() || !message.trim()}
+          style={{ background: sending ? '#ccc' : '#1a1a2e', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sending ? 'not-allowed' : 'pointer' }}>
+          {sending ? 'Sending...' : '📧 Send to All Members'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
   const [password, setPassword] = useState('')
@@ -17,7 +68,7 @@ export default function AdminPage() {
   const [messages, setMessages] = useState<any[]>([])
   const [memberMessages, setMemberMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
 
@@ -135,11 +186,12 @@ export default function AdminPage() {
         </div>
 
         {/* TABS */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
           {[
             { id: 'unread', label: `Unread (${unreadCount})` },
             { id: 'all', label: `All Contact (${messages.length})` },
             { id: 'members', label: `Member Messages (${memberMessages.length})${unreadMemberCount > 0 ? ` 🔴` : ''}` },
+            { id: 'email', label: '📧 Email Members' },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
               style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: activeTab === tab.id ? 'bold' : 'normal', background: activeTab === tab.id ? '#1a1a2e' : 'white', color: activeTab === tab.id ? 'white' : '#555', fontSize: '14px' }}>
@@ -148,8 +200,11 @@ export default function AdminPage() {
           ))}
         </div>
 
+        {/* EMAIL MEMBERS TAB */}
+        {activeTab === 'email' && <EmailMembers />}
+
         {/* CONTACT FORM MESSAGES */}
-        {activeTab !== 'members' && (
+        {activeTab !== 'members' && activeTab !== 'email' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
@@ -221,7 +276,6 @@ export default function AdminPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {memberMessages.map(msg => (
                 <div key={msg.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: !msg.read_by_admin ? '2px solid #E85D26' : '1px solid #eee' }}>
-
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
@@ -234,19 +288,15 @@ export default function AdminPage() {
                       {new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                   </div>
-
                   <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>
                     {msg.message}
                   </div>
-
                   {msg.reply && (
                     <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '14px', marginBottom: '16px', border: '1px solid #ffd4b8' }}>
                       <div style={{ fontWeight: 'bold', color: '#E85D26', fontSize: '13px', marginBottom: '6px' }}>Your reply:</div>
                       <div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6' }}>{msg.reply}</div>
                     </div>
                   )}
-
-                  {/* REPLY BOX */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <textarea
                       value={replyText[msg.id] || ''}
@@ -269,7 +319,6 @@ export default function AdminPage() {
                       )}
                     </div>
                   </div>
-
                 </div>
               ))}
             </div>
