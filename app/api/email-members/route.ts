@@ -27,7 +27,7 @@ export async function POST(req: Request) {
           'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: 'Jobs in Thailand <onboarding@resend.dev>',
+          from: 'Jobs in Thailand <hello@jobsinthailand.net>',
           to: email,
           subject: subject,
           html: `
