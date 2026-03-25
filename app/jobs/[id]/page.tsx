@@ -14,7 +14,11 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
     )
   }
 
-  const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=' + job.email + '&su=Job Application - ' + encodeURIComponent(job.title) + '&body=Dear Hiring Manager,%0A%0AI am writing to apply for the ' + encodeURIComponent(job.title) + ' position at ' + encodeURIComponent(job.company) + '.%0A%0APlease find my CV attached.%0A%0AKind regards%0A%0A---%0AThis application was made via Jobs in Thailand%0Awww.jobsinthailand.net'
+  const emailBody = `Dear Hiring Manager,%0A%0AI am writing to apply for the ${encodeURIComponent(job.title)} position at ${encodeURIComponent(job.company)}, as advertised on Jobs in Thailand (www.jobsinthailand.net).%0A%0APlease find my CV attached.%0A%0AKind regards%0A%0A---%0ARef: Jobs in Thailand - www.jobsinthailand.net%0AJob ID: ${job.id}`
+
+  const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=' + job.email + '&su=Job Application - ' + encodeURIComponent(job.title) + '&body=' + emailBody
+
+  const mailtoUrl = 'mailto:' + job.email + '?subject=Job Application - ' + encodeURIComponent(job.title) + '&body=' + emailBody
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
@@ -65,11 +69,23 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
 
         <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
           <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
-          <p style={{ color: '#ccc', marginBottom: '24px', fontSize: '15px' }}>Send your CV directly to the employer</p>
-          <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
-            style={{ background: '#E85D26', color: 'white', padding: '14px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-            Apply Now →
-          </a>
+          <p style={{ color: '#ccc', marginBottom: '16px', fontSize: '15px' }}>Send your CV directly to the employer</p>
+          <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#ffd', border: '1px solid rgba(255,255,255,0.2)' }}>
+            📌 Please mention <strong>Jobs in Thailand (www.jobsinthailand.net)</strong> in your application so the employer knows where you found this job!
+          </div>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
+            <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
+              style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+              Apply via Gmail →
+            </a>
+            <a href={mailtoUrl}
+              style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+              Apply via Email App →
+            </a>
+          </div>
+          <p style={{ color: '#aaa', fontSize: '13px', marginTop: '8px' }}>
+            Or email directly: <span style={{ color: 'white', fontWeight: 'bold' }}>{job.email}</span>
+          </p>
         </div>
 
         {/* LINE COMMUNITY */}
