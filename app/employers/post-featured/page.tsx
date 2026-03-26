@@ -53,15 +53,14 @@ const STRIPE_FEATURED_LINK = 'https://buy.stripe.com/8x26oA9RF8AH4tjblua7C02'
 function PostFeaturedPage() {
   const searchParams = useSearchParams()
   const isTeaching = searchParams.get('category') !== 'other'
-
   const [jobLoading, setJobLoading] = useState(false)
-
   const [form, setForm] = useState({
     title: '', company: '', location: '', salary: '',
     job_type: 'Full Time',
     category: isTeaching ? teachingCategories[0] : otherCategories[0],
     description: '', requirements: '', benefits: '', email: '',
     visa_sponsor: false,
+    duration: 14,
   })
 
   const handleChange = (e: any) => {
@@ -77,7 +76,7 @@ function PostFeaturedPage() {
     }
     setJobLoading(true)
     const expiryDate = new Date()
-    expiryDate.setDate(expiryDate.getDate() + 14)
+    expiryDate.setDate(expiryDate.getDate() + form.duration)
     const { data, error } = await supabase.from('jobs').insert([{
       ...form,
       featured: false,
@@ -89,7 +88,6 @@ function PostFeaturedPage() {
       setJobLoading(false)
       return
     }
-    // Redirect to Stripe with job ID so webhook can activate it after payment
     await fetch('/api/notify-job', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -109,6 +107,15 @@ function PostFeaturedPage() {
             <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>Pay securely via Stripe — your job goes live instantly after payment</div>
           </div>
           <div style={{ fontSize: '36px' }}>🚀</div>
+        </div>
+
+        <div style={{ background: '#f0f7ff', border: '1px solid #2D6BE4', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
+          <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>💡 Have a question or problem?</p>
+          <p style={{ color: '#555', fontSize: '13px', margin: '0 0 10px' }}>Create a free member account to message us directly and track replies — no email needed!</p>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <a href="/account/register" style={{ background: '#2D6BE4', color: 'white', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Create Account</a>
+            <a href="/account/login" style={{ background: 'white', color: '#2D6BE4', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', border: '1px solid #2D6BE4' }}>Login</a>
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -200,11 +207,33 @@ function PostFeaturedPage() {
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
 
-          <div style={{ marginBottom: '32px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" name="visa_sponsor" checked={form.visa_sponsor} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
               <span style={{ fontWeight: 'bold', color: '#333' }}>We provide visa sponsorship / work permit</span>
             </label>
+          </div>
+
+          {/* LISTING DURATION */}
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Listing Duration</label>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {[3, 5, 7, 14].map(days => (
+                <button key={days} type="button"
+                  onClick={() => setForm(prev => ({ ...prev, duration: days }))}
+                  style={{
+                    padding: '10px 20px', borderRadius: '8px', border: '2px solid',
+                    borderColor: form.duration === days ? '#E85D26' : '#ddd',
+                    background: form.duration === days ? '#fff3ed' : 'white',
+                    color: form.duration === days ? '#E85D26' : '#555',
+                    fontWeight: form.duration === days ? 'bold' : 'normal',
+                    cursor: 'pointer', fontSize: '14px'
+                  }}>
+                  {days} days
+                </button>
+              ))}
+            </div>
+            <p style={{ color: '#999', fontSize: '12px', marginTop: '8px' }}>Default is 14 days for featured listings</p>
           </div>
 
           <div style={{ background: '#f9f9f9', borderRadius: '10px', padding: '16px', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>

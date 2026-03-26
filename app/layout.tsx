@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
+    <html lang="en" suppressHydrationWarning>
+      <head suppressHydrationWarning>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#E85D26" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

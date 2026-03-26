@@ -4,7 +4,6 @@ export default function EmployersPage() {
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
 
-      {/* Header */}
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '40px', fontWeight: 'bold', marginBottom: '16px' }}>
           Post a Job in Thailand
@@ -25,9 +24,7 @@ export default function EmployersPage() {
               <p style={{ color: '#666', margin: 0, fontSize: '15px' }}>ESL, international schools, universities, tutoring</p>
             </div>
           </div>
-
           <div style={{ height: '2px', background: '#E85D26', marginBottom: '32px', borderRadius: '2px' }} />
-
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
 
             {/* Free Teaching */}
@@ -36,7 +33,7 @@ export default function EmployersPage() {
               <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#333', marginBottom: '4px' }}>FREE</div>
               <p style={{ color: '#666', marginBottom: '24px', fontSize: '13px' }}>No payment required</p>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: '32px', flex: 1 }}>
-                {['✓ Listed on jobs page', '✓ 2 week listing', '✓ Apply via email', '✗ Not on homepage', '✗ No priority placement'].map((item, i) => (
+                {['✓ Listed on jobs page', '✓ Flexible listing duration', '✓ Apply via email', '✗ Not on homepage', '✗ No priority placement'].map((item, i) => (
                   <li key={i} style={{ padding: '7px 0', borderBottom: '1px solid #f0f0f0', fontSize: '13px', color: item.startsWith('✗') ? '#999' : '#333' }}>{item}</li>
                 ))}
               </ul>
@@ -52,9 +49,9 @@ export default function EmployersPage() {
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '4px', color: '#1a1a2e' }}>⭐ Featured Listing</h3>
               <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#E85D26', marginBottom: '4px' }}>500 THB</div>
-              <p style={{ color: '#666', marginBottom: '24px', fontSize: '13px' }}>Per 2 week listing</p>
+              <p style={{ color: '#666', marginBottom: '24px', fontSize: '13px' }}>Per listing</p>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: '32px', flex: 1 }}>
-                {['✓ Listed on jobs page', '✓ 2 week listing', '✓ Apply via email', '✓ Featured on homepage', '✓ Top of all listings', '✓ Featured badge', '✓ 3x more applications'].map((item, i) => (
+                {['✓ Listed on jobs page', '✓ Flexible listing duration', '✓ Apply via email', '✓ Featured on homepage', '✓ Top of all listings', '✓ Featured badge', '✓ 3x more applications'].map((item, i) => (
                   <li key={i} style={{ padding: '7px 0', borderBottom: '1px solid #f0f0f0', fontSize: '13px', color: '#333' }}>{item}</li>
                 ))}
               </ul>
@@ -75,16 +72,12 @@ export default function EmployersPage() {
               <p style={{ color: '#666', margin: 0, fontSize: '15px' }}>Hospitality, technology, tourism, finance, marketing and more</p>
             </div>
           </div>
-
           <div style={{ height: '2px', background: '#2D6BE4', marginBottom: '32px', borderRadius: '2px' }} />
-
-          {/* Category badges */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
             {['🏨 Hospitality', '💻 Technology', '🌍 Tourism', '📊 Finance', '📣 Marketing', '🏥 Healthcare', '🎨 Creative', '📦 Other'].map(cat => (
               <span key={cat} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '20px', padding: '6px 14px', fontSize: '13px', color: '#555' }}>{cat}</span>
             ))}
           </div>
-
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
 
             {/* Free Other */}
@@ -93,7 +86,7 @@ export default function EmployersPage() {
               <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#333', marginBottom: '4px' }}>FREE</div>
               <p style={{ color: '#666', marginBottom: '24px', fontSize: '13px' }}>No payment required</p>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: '32px', flex: 1 }}>
-                {['✓ Listed on jobs page', '✓ 2 week listing', '✓ Apply via email', '✗ Not on homepage', '✗ No priority placement'].map((item, i) => (
+                {['✓ Listed on jobs page', '✓ Flexible listing duration', '✓ Apply via email', '✗ Not on homepage', '✗ No priority placement'].map((item, i) => (
                   <li key={i} style={{ padding: '7px 0', borderBottom: '1px solid #f0f0f0', fontSize: '13px', color: item.startsWith('✗') ? '#999' : '#333' }}>{item}</li>
                 ))}
               </ul>
@@ -109,9 +102,9 @@ export default function EmployersPage() {
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '4px', color: '#1a1a2e' }}>⭐ Featured Listing</h3>
               <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2D6BE4', marginBottom: '4px' }}>500 THB</div>
-              <p style={{ color: '#666', marginBottom: '24px', fontSize: '13px' }}>Per 2 week listing</p>
+              <p style={{ color: '#666', marginBottom: '24px', fontSize: '13px' }}>Per listing</p>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: '32px', flex: 1 }}>
-                {['✓ Listed on jobs page', '✓ 2 week listing', '✓ Apply via email', '✓ Featured on homepage', '✓ Top of all listings', '✓ Featured badge', '✓ 3x more applications'].map((item, i) => (
+                {['✓ Listed on jobs page', '✓ Flexible listing duration', '✓ Apply via email', '✓ Featured on homepage', '✓ Top of all listings', '✓ Featured badge', '✓ 3x more applications'].map((item, i) => (
                   <li key={i} style={{ padding: '7px 0', borderBottom: '1px solid #f0f0f0', fontSize: '13px', color: '#333' }}>{item}</li>
                 ))}
               </ul>
@@ -131,7 +124,7 @@ export default function EmployersPage() {
               { q: 'How do I pay for a featured listing?', a: 'After submitting your job we will contact you by email to arrange payment via bank transfer or PromptPay.' },
               { q: 'When will my featured job go live?', a: 'Your job goes live immediately. The featured badge and homepage placement is activated once payment is confirmed.' },
               { q: 'Can I upgrade a free listing to featured?', a: 'Yes! Email us after posting and we can upgrade your listing at any time.' },
-              { q: 'How long does a listing stay up?', a: 'All listings are active for 2 weeks from the date of posting and then automatically removed.' },
+              { q: 'How long does a listing stay up?', a: 'You can choose 3, 5, 7 or 14 days when posting your job.' },
             ].map((faq, i) => (
               <div key={i} style={{ background: 'white', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px' }}>{faq.q}</div>

@@ -3,7 +3,6 @@ import { Suspense } from 'react'
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../src/lib/supabase'
-
 const thaiProvinces = [
   'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya / Chonburi', 'Koh Samui / Surat Thani',
   'Hua Hin / Prachuap', 'Krabi', 'Rayong', 'Chiang Rai',
@@ -60,6 +59,7 @@ function PostJobPage() {
     category: isTeaching ? teachingCategories[0] : otherCategories[0],
     description: '', requirements: '', benefits: '', email: '',
     visa_sponsor: false,
+    duration: 7,
   })
 
   const handleChange = (e: any) => {
@@ -71,7 +71,7 @@ function PostJobPage() {
     e.preventDefault()
     setLoading(true)
     const expiryDate = new Date()
-    expiryDate.setDate(expiryDate.getDate() + 14)
+    expiryDate.setDate(expiryDate.getDate() + form.duration)
     const { error } = await supabase.from('jobs').insert([{
       ...form,
       featured: false,
@@ -92,7 +92,7 @@ function PostJobPage() {
     <main style={{ textAlign: 'center', padding: '80px 24px' }}>
       <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎉</div>
       <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '16px', color: '#1a1a2e' }}>Job Posted!</h1>
-      <p style={{ color: '#666', marginBottom: '32px' }}>Your job is now live on Thailand Jobs</p>
+      <p style={{ color: '#666', marginBottom: '32px' }}>Your job is now live on Thailand Jobs for {form.duration} days</p>
       <a href="/jobs" style={{ background: '#E85D26', color: 'white', padding: '14px 40px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>View All Jobs</a>
     </main>
   )
@@ -108,7 +108,7 @@ function PostJobPage() {
             Post a Free {isTeaching ? 'Teaching' : 'Other'} Job
           </h1>
         </div>
-        <p style={{ color: '#666', marginBottom: '40px' }}>Your listing will appear on the jobs page for 2 weeks</p>
+        <p style={{ color: '#666', marginBottom: '40px' }}>Your listing will appear on the jobs page for your chosen duration</p>
 
         <div style={{ background: 'white', borderRadius: '12px', padding: '40px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
           <div style={{ marginBottom: '24px' }}>
@@ -181,12 +181,35 @@ function PostJobPage() {
             <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="jobs@yourcompany.com"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-          <div style={{ marginBottom: '32px' }}>
+          <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" name="visa_sponsor" checked={form.visa_sponsor} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
               <span style={{ fontWeight: 'bold', color: '#333' }}>We provide visa sponsorship / work permit</span>
             </label>
           </div>
+
+          {/* LISTING DURATION */}
+          <div style={{ marginBottom: '32px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Listing Duration</label>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {[3, 5, 7, 14].map(days => (
+                <button key={days} type="button"
+                  onClick={() => setForm(prev => ({ ...prev, duration: days }))}
+                  style={{
+                    padding: '10px 20px', borderRadius: '8px', border: '2px solid',
+                    borderColor: form.duration === days ? '#E85D26' : '#ddd',
+                    background: form.duration === days ? '#fff3ed' : 'white',
+                    color: form.duration === days ? '#E85D26' : '#555',
+                    fontWeight: form.duration === days ? 'bold' : 'normal',
+                    cursor: 'pointer', fontSize: '14px'
+                  }}>
+                  {days} days
+                </button>
+              ))}
+            </div>
+            <p style={{ color: '#999', fontSize: '12px', marginTop: '8px' }}>Default is 7 days if not selected</p>
+          </div>
+
           <button onClick={handleSubmit} disabled={loading}
             style={{ width: '100%', background: loading ? '#ccc' : isTeaching ? '#E85D26' : '#2D6BE4', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer' }}>
             {loading ? 'Posting...' : 'Post Free Job →'}
