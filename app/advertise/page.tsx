@@ -182,9 +182,14 @@ export default function AdvertisePage() {
           </div>
         </div>
 
-        <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '16px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '18px', display: 'inline-block' }}>
-          Get in Touch →
-        </Link>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+  <Link href="/account/register" style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+    Create Account & Enquire →
+  </Link>
+  <Link href="/account/login" style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid #ddd' }}>
+    Login to My Account
+  </Link>
+</div>
       </section>
 
     </main>

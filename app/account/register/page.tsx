@@ -12,24 +12,34 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [role, setRole] = useState<'job_seeker' | 'employer' | ''>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
   const handleRegister = async (e: any) => {
     e.preventDefault()
+    if (!role) { setError('Please select whether you are a Job Seeker or Employer'); return }
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: name } }
     })
     if (error) {
       setError(error.message)
-    } else {
-      setSuccess(true)
+      setLoading(false)
+      return
     }
+    if (data.user) {
+      await supabase.from('profiles').insert([{
+        id: data.user.id,
+        full_name: name,
+        role: role,
+      }])
+    }
+    setSuccess(true)
     setLoading(false)
   }
 
@@ -57,6 +67,35 @@ export default function RegisterPage() {
 
         <div style={{ background: '#fff3ed', borderRadius: '10px', padding: '14px 16px', marginBottom: '24px', fontSize: '13px', color: '#E85D26' }}>
           ⭐ Members can message us directly and read replies in their account — no email needed!
+        </div>
+
+        {/* ROLE SELECTION */}
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '10px' }}>I am a... *</label>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button type="button" onClick={() => setRole('job_seeker')}
+              style={{
+                flex: 1, padding: '16px 12px', borderRadius: '10px', border: '2px solid',
+                borderColor: role === 'job_seeker' ? '#E85D26' : '#ddd',
+                background: role === 'job_seeker' ? '#fff3ed' : 'white',
+                cursor: 'pointer', textAlign: 'center'
+              }}>
+              <div style={{ fontSize: '28px', marginBottom: '6px' }}>👤</div>
+              <div style={{ fontWeight: 'bold', fontSize: '14px', color: role === 'job_seeker' ? '#E85D26' : '#333' }}>Job Seeker</div>
+              <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>Looking for work</div>
+            </button>
+            <button type="button" onClick={() => setRole('employer')}
+              style={{
+                flex: 1, padding: '16px 12px', borderRadius: '10px', border: '2px solid',
+                borderColor: role === 'employer' ? '#E85D26' : '#ddd',
+                background: role === 'employer' ? '#fff3ed' : 'white',
+                cursor: 'pointer', textAlign: 'center'
+              }}>
+              <div style={{ fontSize: '28px', marginBottom: '6px' }}>🏫</div>
+              <div style={{ fontWeight: 'bold', fontSize: '14px', color: role === 'employer' ? '#E85D26' : '#333' }}>Employer / School</div>
+              <div style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>Hiring staff</div>
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

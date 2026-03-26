@@ -10,13 +10,25 @@ const adminSupabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { subject, message } = await req.json()
+    const { subject, message, audience } = await req.json()
 
     const { data, error } = await adminSupabase.auth.admin.listUsers()
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    const emails = data.users.map((u: any) => u.email).filter(Boolean)
-    console.log('Found members:', emails.length)
+    let users = data.users
+
+    // Filter by role if needed
+    if (audience && audience !== 'all') {
+      const { data: profiles } = await adminSupabase
+        .from('profiles')
+        .select('id')
+        .eq('role', audience)
+      const profileIds = profiles?.map((p: any) => p.id) || []
+      users = users.filter((u: any) => profileIds.includes(u.id))
+    }
+
+    const emails = users.map((u: any) => u.email).filter(Boolean)
+    console.log('Sending to:', emails.length, 'members with audience:', audience)
 
     let sent = 0
     for (const email of emails) {
@@ -50,8 +62,8 @@ export async function POST(req: Request) {
       })
       const result = await res.json()
       console.log('Email to', email, ':', result)
-     if (res.ok) sent++
-await new Promise(resolve => setTimeout(resolve, 300))
+      if (res.ok) sent++
+      await new Promise(resolve => setTimeout(resolve, 300))
     }
 
     return NextResponse.json({ sent, total: emails.length })
