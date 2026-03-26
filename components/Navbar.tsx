@@ -1,9 +1,19 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../src/lib/supabase'
 
 export default function Navbar() {
   const [jobsOpen, setJobsOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }: any) => setIsLoggedIn(!!session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      setIsLoggedIn(!!session)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   const handleNotifications = () => {
     if (typeof window !== 'undefined') {
@@ -41,8 +51,7 @@ export default function Navbar() {
         <div style={{ position: 'relative' }}
           onMouseEnter={() => setJobsOpen(true)}
           onMouseLeave={() => setJobsOpen(false)}>
-          <button
-            style={{ color: 'white', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button style={{ color: 'white', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             💼 Jobs ▾
           </button>
           {jobsOpen && (
@@ -81,9 +90,18 @@ export default function Navbar() {
         <Link href="/contact" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
           💬 Contact
         </Link>
-        <Link href="/account/login" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
-          👤 Members Login
-        </Link>
+
+        {/* DYNAMIC LOGIN/ACCOUNT BUTTON */}
+        {isLoggedIn ? (
+          <Link href="/account/dashboard" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+            👤 My Account
+          </Link>
+        ) : (
+          <Link href="/account/login" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+            👤 Members Login
+          </Link>
+        )}
+
         <Link href="/employers" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', border: '1px solid white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold' }}>
           Post a Job
         </Link>

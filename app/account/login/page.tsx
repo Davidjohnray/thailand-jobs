@@ -1,13 +1,8 @@
 'use client'
-import { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { supabase } from '../../../src/lib/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -15,6 +10,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }: any) => {
+      if (session) router.push('/account/dashboard')
+    })
+  }, [])
 
   const handleLogin = async (e: any) => {
     e.preventDefault()

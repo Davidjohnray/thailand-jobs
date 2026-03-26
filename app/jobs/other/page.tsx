@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
+import { MemberLockCard, isJobLocked } from '../../../components/MemberLock'
 
 const thaiProvinces = [
   'All Locations',
@@ -37,6 +38,15 @@ export default function OtherJobsPage() {
   const [jobType, setJobType] = useState<string[]>([])
   const [category, setCategory] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -103,28 +113,29 @@ export default function OtherJobsPage() {
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
-
       <section style={{ background: '#1a1a2e', padding: '40px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: '48px', marginBottom: '12px' }}>💼</div>
         <h1 style={{ color: 'white', fontSize: '36px', fontWeight: 'bold', marginBottom: '8px' }}>Other Jobs in Thailand</h1>
         <p style={{ color: '#ccc', fontSize: '16px' }}>{filtered.length} jobs available</p>
       </section>
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 16px' }}>
+      {!isLoggedIn && (
+        <div style={{ background: '#fff3ed', borderBottom: '2px solid #E85D26', padding: '12px 24px', textAlign: 'center' }}>
+          <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>⭐ Members see new jobs 1 hour early! </span>
+          <Link href="/account/register" style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', textDecoration: 'underline' }}>Join free →</Link>
+        </div>
+      )}
 
-        <button
-          className="mobile-only"
-          onClick={() => setShowFilters(!showFilters)}
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 16px' }}>
+        <button className="mobile-only" onClick={() => setShowFilters(!showFilters)}
           style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: 'bold', marginBottom: '16px', display: 'none' }}>
           {showFilters ? '✕ Hide Filters' : '⚙️ Show Filters'}
         </button>
 
         <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }} className="mobile-stack">
-
           <div style={{ width: '240px', flexShrink: 0 }} className={showFilters ? 'mobile-full' : 'mobile-hide-sidebar'}>
             <Sidebar />
           </div>
-
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }} className="mobile-stack mobile-gap">
               <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search jobs..."
@@ -133,34 +144,38 @@ export default function OtherJobsPage() {
                 Search
               </button>
             </div>
-
             {loading ? (
               <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading jobs...</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {filtered.length > 0 ? filtered.map((job: any) => (
-                  <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
-                    <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', border: job.featured ? '2px solid #2D6BE4' : '1px solid #eee' }}>
-                      <div className="job-card-inner" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
-                            <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e' }}>{job.title}</span>
-                            {job.featured && <span style={{ background: '#2D6BE4', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Featured</span>}
-                            {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>}
+                  !isLoggedIn && isJobLocked(job.created_at) ? (
+                    <MemberLockCard key={job.id} job={job} />
+                  ) : (
+                    <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
+                      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', border: job.featured ? '2px solid #2D6BE4' : '1px solid #eee' }}>
+                        <div className="job-card-inner" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                              <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e' }}>{job.title}</span>
+                              {job.featured && <span style={{ background: '#2D6BE4', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Featured</span>}
+                              {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>}
+                              {isLoggedIn && isJobLocked(job.created_at) && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Early Access</span>}
+                            </div>
+                            <div style={{ color: '#666', fontSize: '14px', marginBottom: '2px' }}>{job.company} • {job.location}</div>
+                            <div style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
+                              Posted: {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </div>
+                            <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>💼 {job.category}</span>
                           </div>
-                          <div style={{ color: '#666', fontSize: '14px', marginBottom: '2px' }}>{job.company} • {job.location}</div>
-                          <div style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
-                            Posted: {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          <div className="job-card-right" style={{ textAlign: 'right', flexShrink: 0 }}>
+                            <div style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>{job.salary}</div>
+                            <div style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', display: 'inline-block' }}>{job.job_type}</div>
                           </div>
-                          <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>💼 {job.category}</span>
-                        </div>
-                        <div className="job-card-right" style={{ textAlign: 'right', flexShrink: 0 }}>
-                          <div style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>{job.salary}</div>
-                          <div style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', display: 'inline-block' }}>{job.job_type}</div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  )
                 )) : (
                   <div style={{ textAlign: 'center', padding: '60px', color: '#666', background: 'white', borderRadius: '12px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>💼</div>
