@@ -103,9 +103,9 @@ export default function RentalsPage() {
       {/* RENTAL MEMBER CTA */}
       <div style={{ background: '#fff3ed', borderBottom: '2px solid #E85D26', padding: '12px 24px', textAlign: 'center' }}>
         <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>🏠 Have a property to rent? </span>
-        <Link href="/account/rental-dashboard" style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', textDecoration: 'underline' }}>
-          List it here →
-        </Link>
+        <Link href="/contact" style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', textDecoration: 'underline' }}>
+  Contact us to list your property →
+</Link>
       </div>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 16px' }}>
