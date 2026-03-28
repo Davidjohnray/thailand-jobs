@@ -6,11 +6,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  
   const { data: property } = await supabase
     .from('properties')
     .select('title, location, area, property_type, price, description')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!property) return { title: 'Property Not Found' }
@@ -22,7 +24,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     openGraph: {
       title: `${property.title} — ${property.location}`,
       description: `${property.property_type} for rent in ${property.location}. ฿${property.price?.toLocaleString()}/month`,
-      url: `https://www.jobsinthailand.net/rentals/${params.id}`,
+      url: `https://www.jobsinthailand.net/rentals/${id}`,
     }
   }
 }
