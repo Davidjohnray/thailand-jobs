@@ -44,14 +44,7 @@ function EmailMembers() {
               { id: 'employer', label: '🏫 Employers Only' },
             ].map(opt => (
               <button key={opt.id} type="button" onClick={() => setAudience(opt.id as any)}
-                style={{
-                  padding: '8px 16px', borderRadius: '8px', border: '2px solid',
-                  borderColor: audience === opt.id ? '#E85D26' : '#ddd',
-                  background: audience === opt.id ? '#fff3ed' : 'white',
-                  color: audience === opt.id ? '#E85D26' : '#555',
-                  fontWeight: audience === opt.id ? 'bold' : 'normal',
-                  cursor: 'pointer', fontSize: '13px'
-                }}>
+                style={{ padding: '8px 16px', borderRadius: '8px', border: '2px solid', borderColor: audience === opt.id ? '#E85D26' : '#ddd', background: audience === opt.id ? '#fff3ed' : 'white', color: audience === opt.id ? '#E85D26' : '#555', fontWeight: audience === opt.id ? 'bold' : 'normal', cursor: 'pointer', fontSize: '13px' }}>
                 {opt.label}
               </button>
             ))}
@@ -90,8 +83,9 @@ export default function AdminPage() {
   const [wrongPassword, setWrongPassword] = useState(false)
   const [messages, setMessages] = useState<any[]>([])
   const [memberMessages, setMemberMessages] = useState<any[]>([])
+  const [rentalMembers, setRentalMembers] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
 
@@ -101,6 +95,7 @@ export default function AdminPage() {
       setAuthed(true)
       loadMessages()
       loadMemberMessages()
+      loadRentalMembers()
     } else {
       setWrongPassword(true)
     }
@@ -116,6 +111,25 @@ export default function AdminPage() {
   const loadMemberMessages = async () => {
     const { data } = await adminSupabase.from('member_messages').select('*').order('created_at', { ascending: false })
     setMemberMessages(data || [])
+  }
+
+  const loadRentalMembers = async () => {
+    const { data } = await adminSupabase.from('rental_profiles').select('*').order('created_at', { ascending: false })
+    setRentalMembers(data || [])
+  }
+
+  const toggleRentalActivation = async (id: string, currentStatus: boolean) => {
+    const action = currentStatus ? 'deactivate' : 'activate'
+    if (!confirm(`Are you sure you want to ${action} this rental member?`)) return
+    const { error } = await adminSupabase.from('rental_profiles').update({ active: !currentStatus }).eq('id', id)
+    if (error) { alert('Error: ' + error.message); return }
+    setRentalMembers(prev => prev.map(m => m.id === id ? { ...m, active: !currentStatus } : m))
+  }
+
+  const deleteRentalMember = async (id: string) => {
+    if (!confirm('Delete this rental member profile?')) return
+    await adminSupabase.from('rental_profiles').delete().eq('id', id)
+    setRentalMembers(prev => prev.filter(m => m.id !== id))
   }
 
   const markRead = async (id: number) => {
@@ -164,6 +178,7 @@ export default function AdminPage() {
 
   const unreadCount = messages.filter(m => !m.read).length
   const unreadMemberCount = memberMessages.filter(m => !m.read_by_admin).length
+  const pendingRentalCount = rentalMembers.filter(m => !m.active).length
   const displayed = activeTab === 'unread' ? messages.filter(m => !m.read) : activeTab === 'all' ? messages : memberMessages
 
   if (!authed) return (
@@ -194,11 +209,15 @@ export default function AdminPage() {
           <p style={{ color: '#ccc', fontSize: '13px', margin: 0 }}>Thailand Jobs</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          {(unreadCount > 0 || unreadMemberCount > 0) && (
+          {(unreadCount > 0 || unreadMemberCount > 0 || pendingRentalCount > 0) && (
             <span style={{ background: '#E85D26', color: 'white', borderRadius: '20px', padding: '4px 12px', fontSize: '13px', fontWeight: 'bold' }}>
-              {unreadCount + unreadMemberCount} unread
+              {unreadCount + unreadMemberCount + pendingRentalCount} pending
             </span>
           )}
+          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers() }}
+            style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
+            🔄 Refresh
+          </button>
           <button onClick={() => setAuthed(false)}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             Logout
@@ -208,20 +227,13 @@ export default function AdminPage() {
 
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>💬 Messages</h2>
-          <button onClick={() => { loadMessages(); loadMemberMessages() }}
-            style={{ background: 'white', border: '1px solid #ddd', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', color: '#555' }}>
-            🔄 Refresh
-          </button>
-        </div>
-
         {/* TABS */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
           {[
             { id: 'unread', label: `Unread (${unreadCount})` },
             { id: 'all', label: `All Contact (${messages.length})` },
-            { id: 'members', label: `Member Messages (${memberMessages.length})${unreadMemberCount > 0 ? ` 🔴` : ''}` },
+            { id: 'members', label: `Member Messages (${memberMessages.length})${unreadMemberCount > 0 ? ' 🔴' : ''}` },
+            { id: 'rentals', label: `🏠 Rental Members (${rentalMembers.length})${pendingRentalCount > 0 ? ' 🔴' : ''}` },
             { id: 'email', label: '📧 Email Members' },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
@@ -234,8 +246,53 @@ export default function AdminPage() {
         {/* EMAIL MEMBERS TAB */}
         {activeTab === 'email' && <EmailMembers />}
 
+        {/* RENTAL MEMBERS TAB */}
+        {activeTab === 'rentals' && (
+          rentalMembers.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏠</div>
+              <p>No rental member applications yet</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {rentalMembers.map(member => (
+                <div key={member.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: !member.active ? '2px solid #E85D26' : '1px solid #eee' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{member.full_name || 'No name'}</span>
+                        {member.active ? (
+                          <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Active</span>
+                        ) : (
+                          <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending</span>
+                        )}
+                      </div>
+                      {member.company && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>🏢 {member.company}</div>}
+                      {member.phone && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📞 {member.phone}</div>}
+                      {member.line_id && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>💬 LINE: {member.line_id}</div>}
+                      <div style={{ color: '#999', fontSize: '12px' }}>
+                        Registered: {new Date(member.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <button onClick={() => toggleRentalActivation(member.id, member.active)}
+                        style={{ background: member.active ? '#ffeaea' : '#e8f5e9', color: member.active ? '#c62828' : '#2e7d32', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
+                        {member.active ? '⛔ Deactivate' : '✅ Activate'}
+                      </button>
+                      <button onClick={() => deleteRentalMember(member.id)}
+                        style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                        🗑 Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
         {/* CONTACT FORM MESSAGES */}
-        {activeTab !== 'members' && activeTab !== 'email' && (
+        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
