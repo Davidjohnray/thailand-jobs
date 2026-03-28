@@ -78,7 +78,12 @@ function EmailMembers() {
 }
 
 export default function AdminPage() {
-  const [authed, setAuthed] = useState(false)
+  const [authed, setAuthed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('adminAuthed') === 'true'
+    }
+    return false
+  })
   const [password, setPassword] = useState('')
   const [wrongPassword, setWrongPassword] = useState(false)
   const [messages, setMessages] = useState<any[]>([])
@@ -89,16 +94,30 @@ export default function AdminPage() {
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
 
+  useEffect(() => {
+    if (authed) {
+      loadMessages()
+      loadMemberMessages()
+      loadRentalMembers()
+    }
+  }, [authed])
+
   const handleLogin = (e: any) => {
     e.preventDefault()
     if (password === ADMIN_PASSWORD) {
       setAuthed(true)
+      sessionStorage.setItem('adminAuthed', 'true')
       loadMessages()
       loadMemberMessages()
       loadRentalMembers()
     } else {
       setWrongPassword(true)
     }
+  }
+
+  const handleLogout = () => {
+    setAuthed(false)
+    sessionStorage.removeItem('adminAuthed')
   }
 
   const loadMessages = async () => {
@@ -218,7 +237,7 @@ export default function AdminPage() {
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             🔄 Refresh
           </button>
-          <button onClick={() => setAuthed(false)}
+          <button onClick={handleLogout}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             Logout
           </button>
