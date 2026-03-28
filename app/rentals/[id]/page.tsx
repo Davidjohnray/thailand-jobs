@@ -182,10 +182,11 @@ export default function PropertyPage({ params }: { params: Promise<{ id: string 
                 </a>
               )}
               {property.line_id && (
-                <div style={{ color: '#ccc', fontSize: '14px', marginBottom: '16px' }}>
-                  💬 LINE: {property.line_id}
-                </div>
-              )}
+  <a href={`https://line.me/ti/p/~${property.line_id}`} target="_blank" rel="noopener noreferrer"
+    style={{ display: 'block', background: '#06C755', color: 'white', padding: '12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', textAlign: 'center', marginBottom: '8px' }}>
+    💬 Contact on LINE
+  </a>
+)}
               {property.contact_email && (
                 <a href={`mailto:${property.contact_email}`}
                   style={{ display: 'block', background: '#E85D26', color: 'white', padding: '12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', textAlign: 'center', marginBottom: '8px' }}>
