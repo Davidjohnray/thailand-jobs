@@ -52,7 +52,7 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* RIGHT AD BOX - ADVERTISE */}
+          {/* RIGHT AD BOX */}
           <a href="/contact" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
             <div style={{ width: '250px', height: '250px', background: 'rgba(255,255,255,0.08)', border: '2px dashed rgba(255,255,255,0.25)', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ fontSize: '28px', marginBottom: '8px' }}>📢</div>
@@ -165,27 +165,12 @@ export default async function Home() {
             </div>
           </a>
 
-          {/* RENTALS BANNER */}
-          <Link href="/rentals" style={{ textDecoration: 'none' }}>
-            <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #E85D26' }}>
-              <div style={{ background: '#E85D26', padding: '10px', textAlign: 'center' }}>
-                <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>🏠 Now Available</div>
-              </div>
-              <div style={{ padding: '24px 16px', textAlign: 'center' }}>
-                <div style={{ fontSize: '40px', marginBottom: '10px' }}>🏠</div>
-                <div style={{ color: 'white', fontWeight: 'bold', fontSize: '17px', marginBottom: '6px' }}>Rentals in Thailand</div>
-                <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '8px', lineHeight: '1.5' }}>Condos, houses, villas & apartments across Thailand</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px', textAlign: 'left' }}>
-                  <div style={{ color: '#ccc', fontSize: '12px' }}>🏙️ Bangkok • Chiang Mai • Phuket</div>
-                  <div style={{ color: '#ccc', fontSize: '12px' }}>🌴 Koh Samui • Pattaya • Krabi</div>
-                  <div style={{ color: '#ccc', fontSize: '12px' }}>✅ All budgets • Fully furnished</div>
-                </div>
-                <div style={{ background: '#E85D26', color: 'white', padding: '10px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>
-                  Browse Properties →
-                </div>
-              </div>
-            </div>
-          </Link>
+          <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
+            <div style={{ fontSize: '36px', marginBottom: '10px' }}>🏠</div>
+            <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
+            <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Housing & accommodation in Thailand</div>
+            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
+          </div>
 
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>💊</div>
