@@ -4,8 +4,30 @@ import Navbar from '../components/Navbar'
 import VisitorCounter from '../components/VisitorCounter'
 
 export const metadata: Metadata = {
-  title: 'Thailand Jobs',
-  description: 'Find teaching and other jobs in Thailand',
+  title: {
+    default: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
+    template: '%s | Jobs in Thailand',
+  },
+  description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand. Browse hundreds of jobs in Bangkok, Chiang Mai, Phuket and more. Free to join — members see jobs 1 hour early!',
+  keywords: ['jobs in Thailand', 'teaching jobs Thailand', 'ESL jobs Thailand', 'expat jobs Thailand', 'Bangkok jobs', 'Chiang Mai jobs', 'Phuket jobs', 'TEFL Thailand', 'work in Thailand'],
+  metadataBase: new URL('https://www.jobsinthailand.net'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://www.jobsinthailand.net',
+    siteName: 'Jobs in Thailand',
+    title: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
+    description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand. Free to join — members see jobs 1 hour early!',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
+    description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
