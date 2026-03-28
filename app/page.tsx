@@ -108,19 +108,38 @@ export default async function Home() {
           )}
 
           <div className="mobile-ads" style={{ flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
-            <Link href="/coming-soon" style={{ textDecoration: 'none' }}>
-              <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', border: '2px solid #E85D26' }}>
-                <div style={{ background: '#E85D26', padding: '8px', textAlign: 'center' }}>
-                  <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Partner Site</div>
-                </div>
-                <div style={{ padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>🇹🇭</div>
-                  <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>Thai Expat Services</div>
-                  <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '12px' }}>Visas, work permits & expat services in Thailand</div>
-                  <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>Visit Site →</div>
-                </div>
-              </div>
-            </Link>
+
+  {/* RENTALS - MOBILE */}
+  <a href="/rentals" style={{ textDecoration: 'none' }}>
+    <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', padding: '20px', border: '2px solid #E85D26', textAlign: 'center' }}>
+      <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏠</div>
+      <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>Rentals in Thailand</div>
+      <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '12px' }}>Condos, Houses & Villas across Thailand</div>
+      <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', display: 'inline-block' }}>Browse Properties →</div>
+    </div>
+  </a>
+
+  {/* LUCKY CLEANING - MOBILE */}
+  <a href="https://www.facebook.com/share/1AviMhTNzJ/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+    <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
+      <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service Bangkok" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+    </div>
+  </a>
+
+  {/* THAI EXPAT SERVICES - MOBILE */}
+  <Link href="/coming-soon" style={{ textDecoration: 'none' }}>
+    <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', border: '2px solid #E85D26' }}>
+      <div style={{ background: '#E85D26', padding: '8px', textAlign: 'center' }}>
+        <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Partner Site</div>
+      </div>
+      <div style={{ padding: '16px', textAlign: 'center' }}>
+        <div style={{ fontSize: '32px', marginBottom: '8px' }}>🇹🇭</div>
+        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>Thai Expat Services</div>
+        <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '12px' }}>Visas, work permits & expat services in Thailand</div>
+        <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>Visit Site →</div>
+      </div>
+    </div>
+  </Link>
           </div>
         </div>
 
