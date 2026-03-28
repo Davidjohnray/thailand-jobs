@@ -4,15 +4,47 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 
+const thaiProvinces = [
+  'All Thailand',
+  'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya / Chonburi', 'Koh Samui / Surat Thani',
+  'Hua Hin / Prachuap', 'Krabi', 'Rayong', 'Chiang Rai',
+  'Nakhon Ratchasima', 'Khon Kaen', 'Udon Thani', 'Ubon Ratchathani',
+  'Nonthaburi', 'Pathum Thani', 'Samut Prakan', 'Ayutthaya',
+  'Nakhon Pathom', 'Kanchanaburi', 'Lopburi', 'Saraburi',
+  'Phitsanulok', 'Sukhothai', 'Lampang', 'Lamphun', 'Mae Hong Son',
+  'Nan', 'Phayao', 'Phrae', 'Uttaradit', 'Tak',
+  'Mukdahan', 'Nakhon Phanom', 'Sakon Nakhon', 'Nong Khai',
+  'Loei', 'Chaiyaphum', 'Buriram', 'Surin', 'Si Sa Ket',
+  'Yasothon', 'Amnat Charoen', 'Roi Et', 'Maha Sarakham',
+  'Kalasin', 'Nong Bua Lamphu', 'Songkhla', 'Trang', 'Phatthalung',
+  'Satun', 'Yala', 'Narathiwat', 'Nakhon Si Thammarat', 'Phangnga',
+  'Ranong', 'Chumphon', 'Prachuap Khiri Khan', 'Samut Sakhon',
+  'Samut Songkhram', 'Ratchaburi', 'Phetchaburi', 'Suphan Buri',
+  'Sing Buri', 'Ang Thong', 'Chai Nat', 'Nakhon Nayok',
+  'Prachin Buri', 'Sa Kaeo', 'Chanthaburi', 'Trat',
+  'Chachoengsao', 'Nakhon Sawan', 'Uthai Thani', 'Kamphaeng Phet',
+  'Phichit', 'Phetchabun', 'Remote', 'Other'
+]
+
+const jobCategories = [
+  'All', 'Teaching / ESL', 'Hospitality', 'Technology',
+  'Tourism', 'Finance', 'Marketing', 'Healthcare', 'Creative', 'Other'
+]
+
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [messages, setMessages] = useState<any[]>([])
   const [rentalProfile, setRentalProfile] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [newMessage, setNewMessage] = useState('')
   const [newSubject, setNewSubject] = useState('')
   const [sending, setSending] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [savingPrefs, setSavingPrefs] = useState(false)
+  const [prefsSaved, setPrefsSaved] = useState(false)
+  const [prefLocation, setPrefLocation] = useState('All Thailand')
+  const [prefCategory, setPrefCategory] = useState('All')
   const router = useRouter()
 
   useEffect(() => {
@@ -28,6 +60,15 @@ export default function DashboardPage() {
         .eq('id', session.user.id)
         .single()
       setRentalProfile(rental)
+
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+      setProfile(prof)
+      if (prof?.preferred_location) setPrefLocation(prof.preferred_location)
+      if (prof?.preferred_category) setPrefCategory(prof.preferred_category)
     }
     init()
   }, [])
@@ -41,6 +82,18 @@ export default function DashboardPage() {
     setMessages(data || [])
     await supabase.from('member_messages').update({ read_by_user: true }).eq('user_id', userId).not('reply', 'is', null)
     setLoading(false)
+  }
+
+  const savePreferences = async () => {
+    setSavingPrefs(true)
+    await supabase.from('profiles').upsert([{
+      id: user.id,
+      preferred_location: prefLocation,
+      preferred_category: prefCategory,
+    }])
+    setPrefsSaved(true)
+    setSavingPrefs(false)
+    setTimeout(() => setPrefsSaved(false), 3000)
   }
 
   const sendMessage = async () => {
@@ -113,9 +166,7 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <p style={{ color: rentalProfile.active ? '#ccc' : '#666', fontSize: '14px', margin: 0 }}>
-                  {rentalProfile.active
-                    ? 'You can post and manage your rental listings'
-                    : 'Your account is awaiting activation — contact us to complete your subscription'}
+                  {rentalProfile.active ? 'You can post and manage your rental listings' : 'Your account is awaiting activation — contact us to complete your subscription'}
                 </p>
               </div>
               {rentalProfile.active ? (
@@ -132,6 +183,48 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* JOB ALERT PREFERENCES */}
+        <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+            <span style={{ fontSize: '24px' }}>🔔</span>
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Daily Job Alert Preferences</h2>
+              <p style={{ color: '#666', fontSize: '13px', margin: '4px 0 0' }}>We'll email you a daily digest of new jobs matching your preferences</p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '16px' }}>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>📍 Preferred Location</label>
+              <select value={prefLocation} onChange={e => setPrefLocation(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', background: 'white', outline: 'none' }}>
+                {thaiProvinces.map(p => <option key={p}>{p}</option>)}
+              </select>
+            </div>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>💼 Job Category</label>
+              <select value={prefCategory} onChange={e => setPrefCategory(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', background: 'white', outline: 'none' }}>
+                {jobCategories.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button onClick={savePreferences} disabled={savingPrefs}
+              style={{ background: savingPrefs ? '#ccc' : '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: savingPrefs ? 'not-allowed' : 'pointer' }}>
+              {savingPrefs ? 'Saving...' : 'Save Preferences →'}
+            </button>
+            {prefsSaved && (
+              <span style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>✅ Saved!</span>
+            )}
+          </div>
+
+          <p style={{ color: '#999', fontSize: '12px', marginTop: '12px', marginBottom: 0 }}>
+            📧 Daily digest sent every morning with new jobs matching your preferences. Select "All Thailand" and "All" to receive every new job.
+          </p>
+        </div>
 
         {/* NEW MESSAGE BUTTON */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -150,7 +243,7 @@ export default function DashboardPage() {
               <div>
                 <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>Subject</label>
                 <input value={newSubject} onChange={e => setNewSubject(e.target.value)}
-                  placeholder="e.g. Rental member activation, Advertising question..."
+                  placeholder="e.g. Job alert question, Rental member activation..."
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
