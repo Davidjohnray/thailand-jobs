@@ -22,15 +22,18 @@ export default async function Home() {
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', marginBottom: '24px' }}>
 
-          <a href="/contact" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
-            <div style={{ width: '250px', height: '250px', background: 'rgba(255,255,255,0.08)', border: '2px dashed rgba(255,255,255,0.25)', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontSize: '28px', marginBottom: '8px' }}>📢</div>
-              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>Advertise Here</div>
-              <div style={{ color: '#aaa', fontSize: '11px', marginBottom: '12px' }}>250 x 250px</div>
-              <div style={{ background: '#E85D26', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Get in Touch</div>
+          {/* LEFT AD BOX - RENTALS */}
+          <a href="/rentals" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
+            <div style={{ width: '250px', height: '250px', background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', border: '2px solid #E85D26', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ fontSize: '40px', marginBottom: '10px' }}>🏠</div>
+              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px' }}>Rentals in Thailand</div>
+              <div style={{ color: '#ccc', fontSize: '12px', marginBottom: '6px' }}>Condos, Houses & Villas</div>
+              <div style={{ color: '#ccc', fontSize: '11px', marginBottom: '12px' }}>Bangkok • Chiang Mai • Phuket & more</div>
+              <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Browse Properties →</div>
             </div>
           </a>
 
+          {/* HERO TEXT */}
           <div style={{ flex: 1, maxWidth: '600px' }}>
             <h1 className="hero-title" style={{ color: 'white', fontSize: '44px', fontWeight: 'bold', marginBottom: '16px' }}>
               Find Your Dream Job in Thailand
@@ -49,6 +52,7 @@ export default async function Home() {
             </div>
           </div>
 
+          {/* RIGHT AD BOX - ADVERTISE */}
           <a href="/contact" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
             <div style={{ width: '250px', height: '250px', background: 'rgba(255,255,255,0.08)', border: '2px dashed rgba(255,255,255,0.25)', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ fontSize: '28px', marginBottom: '8px' }}>📢</div>
@@ -154,6 +158,13 @@ export default async function Home() {
         <div className="ad-sidebar" style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
 
+          {/* LUCKY CLEANING SERVICE */}
+          <a href="https://www.facebook.com/share/1AviMhTNzJ/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
+              <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service Bangkok" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          </a>
+
           {/* RENTALS BANNER */}
           <Link href="/rentals" style={{ textDecoration: 'none' }}>
             <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #E85D26' }}>
@@ -176,12 +187,6 @@ export default async function Home() {
             </div>
           </Link>
 
-          <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '10px' }}>🏠</div>
-            <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
-            <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Housing & accommodation in Thailand</div>
-            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
-          </div>
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>💊</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
