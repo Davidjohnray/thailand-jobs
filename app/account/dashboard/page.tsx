@@ -1,17 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { supabase } from '../../../src/lib/supabase'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [messages, setMessages] = useState<any[]>([])
+  const [rentalProfile, setRentalProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [newMessage, setNewMessage] = useState('')
   const [newSubject, setNewSubject] = useState('')
@@ -20,16 +16,20 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/account/login')
-        return
-      }
-      setUser(user)
-      loadMessages(user.id)
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { router.push('/account/login'); return }
+      setUser(session.user)
+      loadMessages(session.user.id)
+
+      const { data: rental } = await supabase
+        .from('rental_profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+      setRentalProfile(rental)
     }
-    getUser()
+    init()
   }, [])
 
   const loadMessages = async (userId: string) => {
@@ -98,6 +98,41 @@ export default function DashboardPage() {
 
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 24px' }}>
 
+        {/* RENTAL MEMBER CARD */}
+        {rentalProfile && (
+          <div style={{ background: rentalProfile.active ? 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)' : '#f9f9f9', borderRadius: '12px', padding: '24px', marginBottom: '24px', border: rentalProfile.active ? '2px solid #E85D26' : '2px solid #ddd' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '28px' }}>🏠</span>
+                  <span style={{ fontWeight: 'bold', fontSize: '18px', color: rentalProfile.active ? 'white' : '#1a1a2e' }}>Rental Member</span>
+                  {rentalProfile.active ? (
+                    <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Active</span>
+                  ) : (
+                    <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending Activation</span>
+                  )}
+                </div>
+                <p style={{ color: rentalProfile.active ? '#ccc' : '#666', fontSize: '14px', margin: 0 }}>
+                  {rentalProfile.active
+                    ? 'You can post and manage your rental listings'
+                    : 'Your account is awaiting activation — contact us to complete your subscription'}
+                </p>
+              </div>
+              {rentalProfile.active ? (
+                <Link href="/account/rental-dashboard"
+                  style={{ background: '#E85D26', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>
+                  🏠 Rental Dashboard →
+                </Link>
+              ) : (
+                <button onClick={() => setShowForm(true)}
+                  style={{ background: '#E85D26', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  💬 Contact Us →
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* NEW MESSAGE BUTTON */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>💬 My Messages</h2>
@@ -115,7 +150,7 @@ export default function DashboardPage() {
               <div>
                 <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>Subject</label>
                 <input value={newSubject} onChange={e => setNewSubject(e.target.value)}
-                  placeholder="e.g. Featured job listing enquiry, Advertising question..."
+                  placeholder="e.g. Rental member activation, Advertising question..."
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
