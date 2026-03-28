@@ -7,26 +7,26 @@ const supabase = createClient(
 )
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const { data: job } = await supabase
-    .from('jobs')
-    .select('title, company, location, description')
+  const { data: property } = await supabase
+    .from('properties')
+    .select('title, location, area, property_type, price, description')
     .eq('id', params.id)
     .single()
 
-  if (!job) return { title: 'Job Not Found' }
+  if (!property) return { title: 'Property Not Found' }
 
   return {
-    title: `${job.title} at ${job.company} — ${job.location}`,
-    description: `${job.title} job at ${job.company} in ${job.location}, Thailand. ${job.description?.slice(0, 150)}...`,
-    keywords: [job.title, job.company, job.location, 'jobs Thailand', 'expat jobs'],
+    title: `${property.title} — ${property.area ? `${property.area}, ` : ''}${property.location}`,
+    description: `${property.property_type} for rent in ${property.location}, Thailand. ฿${property.price?.toLocaleString()}/month. ${property.description?.slice(0, 150)}...`,
+    keywords: [property.title, property.location, property.property_type, 'rental Thailand', 'expat rental'],
     openGraph: {
-      title: `${job.title} at ${job.company}`,
-      description: `${job.title} in ${job.location}, Thailand`,
-      url: `https://www.jobsinthailand.net/jobs/${params.id}`,
+      title: `${property.title} — ${property.location}`,
+      description: `${property.property_type} for rent in ${property.location}. ฿${property.price?.toLocaleString()}/month`,
+      url: `https://www.jobsinthailand.net/rentals/${params.id}`,
     }
   }
 }
 
-export default function JobLayout({ children }: { children: React.ReactNode }) {
+export default function RentalLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
