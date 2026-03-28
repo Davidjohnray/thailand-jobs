@@ -51,7 +51,8 @@ export default function RentalDashboard() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'properties' | 'add' | 'messages'>('properties')
   const [form, setForm] = useState(emptyForm)
-  const [imageUrls, setImageUrls] = useState<string[]>([''])
+  const [uploadedImages, setUploadedImages] = useState<{ url: string, path: string }[]>([])
+  const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -72,7 +73,7 @@ export default function RentalDashboard() {
       if (profile?.active) {
         const { data: props } = await supabase
           .from('properties')
-          .select('*, property_images(url)')
+          .select('*, property_images(url, id)')
           .eq('user_id', session.user.id)
           .order('created_at', { ascending: false })
         setProperties(props || [])
@@ -101,6 +102,45 @@ export default function RentalDashboard() {
         ? prev.features.filter(f => f !== feature)
         : [...prev.features, feature]
     }))
+  }
+
+  const handleImageUpload = async (e: any) => {
+    const files = Array.from(e.target.files) as File[]
+    if (files.length === 0) return
+    setUploading(true)
+
+    const newImages: { url: string, path: string }[] = []
+
+    for (const file of files) {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+
+      const { error } = await supabase.storage
+        .from('property-images')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false })
+
+      if (error) {
+        alert('Error uploading image: ' + error.message)
+        continue
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('property-images')
+        .getPublicUrl(fileName)
+
+      newImages.push({ url: publicUrl, path: fileName })
+    }
+
+    setUploadedImages(prev => [...prev, ...newImages])
+    setUploading(false)
+  }
+
+  const removeImage = async (index: number) => {
+    const image = uploadedImages[index]
+    if (image.path) {
+      await supabase.storage.from('property-images').remove([image.path])
+    }
+    setUploadedImages(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async () => {
@@ -141,24 +181,21 @@ export default function RentalDashboard() {
       propertyId = data?.id
     }
 
-    // Save images
-    const validUrls = imageUrls.filter(url => url.trim() !== '')
-    if (validUrls.length > 0 && propertyId) {
+    if (uploadedImages.length > 0 && propertyId) {
       await supabase.from('property_images').insert(
-        validUrls.map(url => ({ property_id: propertyId, url }))
+        uploadedImages.map(img => ({ property_id: propertyId, url: img.url }))
       )
     }
 
     setSuccess(true)
     setSubmitting(false)
     setForm(emptyForm)
-    setImageUrls([''])
+    setUploadedImages([])
     setEditingId(null)
 
-    // Reload properties
     const { data: props } = await supabase
       .from('properties')
-      .select('*, property_images(url)')
+      .select('*, property_images(url, id)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
     setProperties(props || [])
@@ -191,7 +228,7 @@ export default function RentalDashboard() {
       contact_phone: property.contact_phone || '',
       line_id: property.line_id || '',
     })
-    setImageUrls(property.property_images?.map((i: any) => i.url) || [''])
+    setUploadedImages(property.property_images?.map((i: any) => ({ url: i.url, path: '' })) || [])
     setEditingId(property.id)
     setActiveTab('add')
   }
@@ -211,7 +248,6 @@ export default function RentalDashboard() {
     <main style={{ textAlign: 'center', padding: '80px 24px' }}><p>Loading...</p></main>
   )
 
-  // NOT A RENTAL MEMBER
   if (!rentalProfile || !rentalProfile.active) return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ background: 'white', borderRadius: '16px', padding: '48px', maxWidth: '500px', width: '100%', textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}>
@@ -221,7 +257,7 @@ export default function RentalDashboard() {
           To list properties on Jobs in Thailand, you need a Rental Member account. Contact us to get set up — it's a simple monthly subscription!
         </p>
         <div style={{ background: '#f9f9f9', borderRadius: '10px', padding: '16px', marginBottom: '24px', textAlign: 'left' }}>
-          {['Unlimited property listings', 'Photo galleries', 'Direct messages from renters', 'Manage & edit listings anytime', 'Reach expats & job seekers across Thailand'].map(item => (
+          {['Unlimited property listings', 'Upload photos directly from your PC', 'Direct messages from renters', 'Manage & edit listings anytime', 'Reach expats & job seekers across Thailand'].map(item => (
             <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '14px', color: '#444' }}>
               <span style={{ color: '#E85D26', fontWeight: 'bold' }}>✓</span> {item}
             </div>
@@ -242,7 +278,6 @@ export default function RentalDashboard() {
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
 
-      {/* HEADER */}
       <div style={{ background: '#1a1a2e', padding: '20px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', margin: 0 }}>🏠 Rental Dashboard</h1>
@@ -255,7 +290,6 @@ export default function RentalDashboard() {
 
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
 
-        {/* TABS */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
           {[
             { id: 'properties', label: `🏠 My Properties (${properties.length})` },
@@ -269,55 +303,53 @@ export default function RentalDashboard() {
           ))}
         </div>
 
-        {/* MY PROPERTIES TAB */}
+        {/* MY PROPERTIES */}
         {activeTab === 'properties' && (
-          <div>
-            {properties.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏠</div>
-                <p style={{ color: '#666', marginBottom: '16px' }}>No properties listed yet</p>
-                <button onClick={() => setActiveTab('add')}
-                  style={{ background: '#E85D26', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
-                  Add Your First Property →
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {properties.map((property: any) => {
-                  const firstImage = property.property_images?.[0]?.url
-                  return (
-                    <div key={property.id} style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', gap: '16px', alignItems: 'center' }}>
-                      <div style={{ width: '100px', height: '75px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {firstImage ? <img src={firstImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '32px' }}>🏠</span>}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e', marginBottom: '4px' }}>{property.title}</div>
-                        <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📍 {property.location} • {property.property_type}</div>
-                        <div style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px' }}>฿{property.price?.toLocaleString()}/mo</div>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
-                        <Link href={`/rentals/${property.id}`} target="_blank"
-                          style={{ background: '#f0f0f0', color: '#555', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', textAlign: 'center' }}>
-                          👁 View
-                        </Link>
-                        <button onClick={() => handleEdit(property)}
-                          style={{ background: '#fff3ed', color: '#E85D26', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
-                          ✏️ Edit
-                        </button>
-                        <button onClick={() => handleDelete(property.id)}
-                          style={{ background: '#ffeaea', color: '#c62828', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' }}>
-                          🗑 Delete
-                        </button>
-                      </div>
+          properties.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏠</div>
+              <p style={{ color: '#666', marginBottom: '16px' }}>No properties listed yet</p>
+              <button onClick={() => setActiveTab('add')}
+                style={{ background: '#E85D26', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
+                Add Your First Property →
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {properties.map((property: any) => {
+                const firstImage = property.property_images?.[0]?.url
+                return (
+                  <div key={property.id} style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <div style={{ width: '100px', height: '75px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {firstImage ? <img src={firstImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '32px' }}>🏠</span>}
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e', marginBottom: '4px' }}>{property.title}</div>
+                      <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📍 {property.location} • {property.property_type}</div>
+                      <div style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px' }}>฿{property.price?.toLocaleString()}/mo</div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                      <Link href={`/rentals/${property.id}`} target="_blank"
+                        style={{ background: '#f0f0f0', color: '#555', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', textAlign: 'center' }}>
+                        👁 View
+                      </Link>
+                      <button onClick={() => handleEdit(property)}
+                        style={{ background: '#fff3ed', color: '#E85D26', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                        ✏️ Edit
+                      </button>
+                      <button onClick={() => handleDelete(property.id)}
+                        style={{ background: '#ffeaea', color: '#c62828', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' }}>
+                        🗑 Delete
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
         )}
 
-        {/* ADD / EDIT PROPERTY TAB */}
+        {/* ADD / EDIT PROPERTY */}
         {activeTab === 'add' && (
           <div style={{ background: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '24px' }}>
@@ -427,31 +459,46 @@ export default function RentalDashboard() {
                 </div>
               </div>
 
-              {/* PHOTO URLs */}
+              {/* PHOTO UPLOAD */}
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333', fontSize: '14px' }}>Photo URLs</label>
-                <p style={{ color: '#999', fontSize: '13px', marginBottom: '10px' }}>Add direct image URLs (e.g. from Google Drive, Dropbox, or image hosting sites)</p>
-                {imageUrls.map((url, index) => (
-                  <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                    <input value={url} onChange={e => {
-                      const updated = [...imageUrls]
-                      updated[index] = e.target.value
-                      setImageUrls(updated)
-                    }}
-                      placeholder="https://example.com/photo.jpg"
-                      style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none' }} />
-                    {imageUrls.length > 1 && (
-                      <button onClick={() => setImageUrls(prev => prev.filter((_, i) => i !== index))}
-                        style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                        ✕
-                      </button>
-                    )}
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333', fontSize: '14px' }}>
+                  📸 Property Photos
+                </label>
+                <p style={{ color: '#999', fontSize: '13px', marginBottom: '12px' }}>
+                  Upload photos directly from your PC — JPG, PNG or WEBP, max 5MB each
+                </p>
+
+                {/* UPLOAD BUTTON */}
+                <label style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  background: uploading ? '#ccc' : '#1a1a2e', color: 'white',
+                  padding: '12px 20px', borderRadius: '8px', cursor: uploading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px', fontWeight: 'bold', marginBottom: '16px'
+                }}>
+                  <input type="file" accept="image/*" multiple onChange={handleImageUpload}
+                    disabled={uploading} style={{ display: 'none' }} />
+                  {uploading ? '⏳ Uploading...' : '📷 Upload Photos'}
+                </label>
+
+                {/* IMAGE PREVIEWS */}
+                {uploadedImages.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                    {uploadedImages.map((img, index) => (
+                      <div key={index} style={{ position: 'relative', width: '120px', height: '90px', borderRadius: '8px', overflow: 'hidden', border: '2px solid #ddd' }}>
+                        <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button onClick={() => removeImage(index)}
+                          style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          ✕
+                        </button>
+                        {index === 0 && (
+                          <div style={{ position: 'absolute', bottom: '4px', left: '4px', background: '#E85D26', color: 'white', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                            Main
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ))}
-                <button onClick={() => setImageUrls(prev => [...prev, ''])}
-                  style={{ background: '#f0f0f0', color: '#555', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', marginTop: '4px' }}>
-                  + Add Another Photo
-                </button>
+                )}
               </div>
 
               {/* CONTACT DETAILS */}
@@ -491,7 +538,7 @@ export default function RentalDashboard() {
                   {submitting ? 'Saving...' : editingId ? '✏️ Update Property' : '🏠 Add Property →'}
                 </button>
                 {editingId && (
-                  <button onClick={() => { setEditingId(null); setForm(emptyForm); setImageUrls(['']); setActiveTab('properties') }}
+                  <button onClick={() => { setEditingId(null); setForm(emptyForm); setUploadedImages([]); setActiveTab('properties') }}
                     style={{ background: '#f0f0f0', color: '#555', padding: '16px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '15px' }}>
                     Cancel
                   </button>
