@@ -156,7 +156,7 @@ export default function TeacherRegisterPage() {
         <div style={{ fontSize: '80px', marginBottom: '20px' }}>🎉</div>
         <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '12px' }}>Profile Submitted!</h1>
         <p style={{ color: '#666', marginBottom: '24px', lineHeight: '1.7' }}>
-          Thank you! We'll review your profile and get back to you within 24 hours. Once approved your profile page will go live!
+          Thank you! We'll review your profile and be in touch within 24 hours.
         </p>
 
         {/* WHAT HAPPENS NEXT */}
@@ -164,9 +164,10 @@ export default function TeacherRegisterPage() {
           <div style={{ fontWeight: 'bold', color: '#1a1a2e', marginBottom: '10px', fontSize: '14px' }}>What happens next:</div>
           {[
             'We review your profile (within 24hrs)',
-            'We may contact you to discuss your listing',
-            'Your profile goes live on Jobs in Thailand',
-            'You get a unique link to share with students!'
+            'We contact you with Thai bank payment details',
+            'You pay the one-time 200 THB listing fee',
+            'Your profile goes live — listed forever!',
+            'Share your unique link to find students!'
           ].map((item, i) => (
             <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px', fontSize: '13px', color: '#555' }}>
               <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✓</span> {item}
@@ -174,8 +175,16 @@ export default function TeacherRegisterPage() {
           ))}
         </div>
 
+        {/* PAYMENT NOTE */}
+        <div style={{ background: '#fff3ed', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', textAlign: 'left', border: '1px solid #ffd4b8' }}>
+          <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', margin: '0 0 6px' }}>💰 One-Time Fee: 200 THB</p>
+          <p style={{ color: '#666', fontSize: '13px', margin: 0, lineHeight: '1.6' }}>
+            We'll send you our Thai bank account details to complete your payment. Once received your profile goes live and stays live forever — no monthly fees!
+          </p>
+        </div>
+
         {/* MEMBER ACCOUNT PROMPT */}
-        <div style={{ background: '#e8f0fe', borderRadius: '12px', padding: '20px', marginBottom: '24px', textAlign: 'left', border: '1px solid #c7d9f8' }}>
+        <div style={{ background: '#e8f0fe', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', textAlign: 'left', border: '1px solid #c7d9f8' }}>
           <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 8px' }}>📌 One more step!</p>
           <p style={{ color: '#555', fontSize: '13px', margin: '0 0 12px', lineHeight: '1.6' }}>
             Create a free member account using the <strong>same email address</strong> to manage and edit your teacher profile once approved — all from your dashboard!
@@ -198,16 +207,22 @@ export default function TeacherRegisterPage() {
     cursor: 'pointer' as const, fontSize: '13px', fontWeight: active ? 'bold' : 'normal' as const,
   })
 
-  // ---- FORM ----
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', padding: '40px 24px' }}>
       <div style={{ maxWidth: '680px', margin: '0 auto' }}>
 
         {/* HEADER */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ fontSize: '48px', marginBottom: '10px' }}>🎓</div>
           <h1 style={{ color: 'white', fontSize: '30px', fontWeight: 'bold', margin: '0 0 8px' }}>List Your Teaching Profile</h1>
-          <p style={{ color: '#ccc', fontSize: '15px', margin: 0 }}>Join our growing directory of private teachers in Thailand</p>
+          <p style={{ color: '#ccc', fontSize: '15px', margin: '0 0 16px' }}>Join our growing directory of private teachers</p>
+        </div>
+
+        {/* PRICING BANNER */}
+        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '16px 20px', marginBottom: '28px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px' }}>💰 One-Time Listing Fee: 200 THB — Listed Forever!</div>
+          <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '8px' }}>Fill in your profile below — we'll contact you with payment details after submission</div>
+          <div style={{ color: '#E85D26', fontSize: '13px', fontWeight: 'bold' }}>✨ Share your unique profile link to attract students and get teaching jobs!</div>
         </div>
 
         {/* STEP INDICATOR */}
@@ -237,7 +252,7 @@ export default function TeacherRegisterPage() {
 
         <div style={{ background: 'white', borderRadius: '20px', padding: '36px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
 
-          {/* ========== STEP 1 ========== */}
+          {/* STEP 1 */}
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
               <div>
@@ -260,7 +275,8 @@ export default function TeacherRegisterPage() {
                 </div>
                 <div style={{ flex: 1, minWidth: '180px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Location *</label>
-<input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Bangkok, London, Online"                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.location ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
+                  <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Bangkok, London, Online"
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.location ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
                   {errors.location && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.location}</p>}
                 </div>
               </div>
@@ -296,7 +312,6 @@ export default function TeacherRegisterPage() {
                 <p style={{ color: '#aaa', fontSize: '12px', marginTop: '4px' }}>Paste a direct link to your photo — or we can help you add this later!</p>
               </div>
 
-              {/* TEMPLATE */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>Choose Your Profile Style</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -316,7 +331,7 @@ export default function TeacherRegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 2 ========== */}
+          {/* STEP 2 */}
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
               <div>
@@ -402,7 +417,7 @@ export default function TeacherRegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 3 ========== */}
+          {/* STEP 3 */}
           {step === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
               <div>
@@ -481,7 +496,7 @@ export default function TeacherRegisterPage() {
               </div>
 
               <p style={{ textAlign: 'center', color: '#999', fontSize: '12px', margin: 0 }}>
-                Your profile will be reviewed before going live — usually within 24 hours
+                Your profile will be reviewed before going live — we'll contact you with payment details
               </p>
             </div>
           )}

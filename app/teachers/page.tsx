@@ -23,9 +23,16 @@ export default async function TeachersPage() {
         <h1 style={{ color: 'white', fontSize: '40px', fontWeight: 'bold', marginBottom: '16px' }}>
           🎓 Find a Private Teacher in Thailand
         </h1>
-        <p style={{ color: '#ccc', fontSize: '18px', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
+        <p style={{ color: '#ccc', fontSize: '18px', marginBottom: '24px', maxWidth: '600px', margin: '0 auto 24px' }}>
           Browse qualified teachers for private lessons — English, maths, languages and more. Online or in person across Thailand.
         </p>
+
+        {/* PRICING INFO */}
+        <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '12px', padding: '16px 24px', marginBottom: '28px', display: 'inline-block', border: '1px solid rgba(255,255,255,0.15)' }}>
+          <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>💰 Are you a teacher? List your profile for just 200 THB — one time, listed forever!</div>
+          <div style={{ color: '#ccc', fontSize: '13px' }}>Share your unique profile link to attract students across Thailand and beyond</div>
+        </div>
+
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/teachers/register" style={{ background: '#E85D26', color: 'white', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
             List Your Teaching Profile →
@@ -132,9 +139,12 @@ export default async function TeachersPage() {
         {/* CTA */}
         <div style={{ background: '#1a1a2e', borderRadius: '16px', padding: '40px', textAlign: 'center', marginTop: '60px' }}>
           <div style={{ fontSize: '40px', marginBottom: '16px' }}>🎓</div>
-          <h2 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', marginBottom: '12px' }}>Are you a teacher in Thailand?</h2>
-          <p style={{ color: '#ccc', fontSize: '15px', marginBottom: '24px', maxWidth: '500px', margin: '0 auto 24px' }}>
-            Get your own professional profile page and reach hundreds of students and parents across Thailand!
+          <h2 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', marginBottom: '12px' }}>Are you a teacher?</h2>
+          <p style={{ color: '#ccc', fontSize: '15px', marginBottom: '8px', maxWidth: '500px', margin: '0 auto 8px' }}>
+            Get your own professional profile page and reach hundreds of students and parents!
+          </p>
+          <p style={{ color: '#E85D26', fontSize: '14px', fontWeight: 'bold', marginBottom: '24px' }}>
+            💰 One-time fee: 200 THB — listed forever!
           </p>
           <Link href="/teachers/register" style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
             Get Your Profile Page →
