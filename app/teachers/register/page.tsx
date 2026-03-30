@@ -3,7 +3,6 @@ import { useState, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 
-// Standalone client — completely separate from member system
 const db = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -153,20 +152,39 @@ export default function TeacherRegisterPage() {
   // ---- SUCCESS ----
   if (success) return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ background: 'white', borderRadius: '24px', padding: '56px 40px', maxWidth: '520px', width: '100%', textAlign: 'center' }}>
+      <div style={{ background: 'white', borderRadius: '24px', padding: '48px 40px', maxWidth: '540px', width: '100%', textAlign: 'center' }}>
         <div style={{ fontSize: '80px', marginBottom: '20px' }}>🎉</div>
         <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '12px' }}>Profile Submitted!</h1>
         <p style={{ color: '#666', marginBottom: '24px', lineHeight: '1.7' }}>
           Thank you! We'll review your profile and get back to you within 24 hours. Once approved your profile page will go live!
         </p>
-        <div style={{ background: '#f9f9f9', borderRadius: '12px', padding: '20px', marginBottom: '28px', textAlign: 'left' }}>
+
+        {/* WHAT HAPPENS NEXT */}
+        <div style={{ background: '#f9f9f9', borderRadius: '12px', padding: '20px', marginBottom: '20px', textAlign: 'left' }}>
           <div style={{ fontWeight: 'bold', color: '#1a1a2e', marginBottom: '10px', fontSize: '14px' }}>What happens next:</div>
-          {['We review your profile (within 24hrs)', 'We may contact you to discuss your listing', 'Your profile goes live on Jobs in Thailand', 'You get a unique link to share with students!'].map((item, i) => (
+          {[
+            'We review your profile (within 24hrs)',
+            'We may contact you to discuss your listing',
+            'Your profile goes live on Jobs in Thailand',
+            'You get a unique link to share with students!'
+          ].map((item, i) => (
             <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px', fontSize: '13px', color: '#555' }}>
               <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✓</span> {item}
             </div>
           ))}
         </div>
+
+        {/* MEMBER ACCOUNT PROMPT */}
+        <div style={{ background: '#e8f0fe', borderRadius: '12px', padding: '20px', marginBottom: '24px', textAlign: 'left', border: '1px solid #c7d9f8' }}>
+          <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 8px' }}>📌 One more step!</p>
+          <p style={{ color: '#555', fontSize: '13px', margin: '0 0 12px', lineHeight: '1.6' }}>
+            Create a free member account using the <strong>same email address</strong> to manage and edit your teacher profile once approved — all from your dashboard!
+          </p>
+          <a href="/account/register" style={{ display: 'inline-block', background: '#2D6BE4', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+            Create Member Account →
+          </a>
+        </div>
+
         <a href="/teachers" style={{ display: 'block', background: '#E85D26', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
           Browse Teacher Profiles →
         </a>
@@ -193,7 +211,7 @@ export default function TeacherRegisterPage() {
         </div>
 
         {/* STEP INDICATOR */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
           {steps.map((s, i) => (
             <div key={s.num} style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
@@ -202,7 +220,7 @@ export default function TeacherRegisterPage() {
                 </div>
                 <div style={{ fontSize: '11px', color: step >= s.num ? '#E85D26' : '#888', fontWeight: step >= s.num ? 'bold' : 'normal', whiteSpace: 'nowrap' }}>{s.label}</div>
               </div>
-              {i < steps.length - 1 && <div style={{ width: '60px', height: '2px', background: step > s.num + 0 ? '#E85D26' : 'rgba(255,255,255,0.15)', margin: '0 8px', marginBottom: '18px' }} />}
+              {i < steps.length - 1 && <div style={{ width: '60px', height: '2px', background: step > s.num ? '#E85D26' : 'rgba(255,255,255,0.15)', margin: '0 8px', marginBottom: '18px' }} />}
             </div>
           ))}
         </div>
@@ -219,7 +237,7 @@ export default function TeacherRegisterPage() {
 
         <div style={{ background: 'white', borderRadius: '20px', padding: '36px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
 
-          {/* ========== STEP 1 — Personal Info ========== */}
+          {/* ========== STEP 1 ========== */}
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
               <div>
@@ -279,7 +297,7 @@ export default function TeacherRegisterPage() {
                 <p style={{ color: '#aaa', fontSize: '12px', marginTop: '4px' }}>Paste a direct link to your photo — or we can help you add this later!</p>
               </div>
 
-              {/* CHOOSE TEMPLATE */}
+              {/* TEMPLATE */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>Choose Your Profile Style</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -299,7 +317,7 @@ export default function TeacherRegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 2 — Teaching ========== */}
+          {/* ========== STEP 2 ========== */}
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
               <div>
@@ -307,7 +325,6 @@ export default function TeacherRegisterPage() {
                 <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Tell us what and who you teach</p>
               </div>
 
-              {/* SUBJECTS */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>
                   Subjects I Teach * <span style={{ color: '#999', fontWeight: 'normal' }}>(select all that apply)</span>
@@ -322,7 +339,6 @@ export default function TeacherRegisterPage() {
                 {errors.subjects && <p style={{ color: 'red', fontSize: '12px', marginTop: '8px' }}>{errors.subjects}</p>}
               </div>
 
-              {/* LEVELS */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>
                   Student Levels * <span style={{ color: '#999', fontWeight: 'normal' }}>(select all that apply)</span>
@@ -337,7 +353,6 @@ export default function TeacherRegisterPage() {
                 {errors.levels && <p style={{ color: 'red', fontSize: '12px', marginTop: '8px' }}>{errors.levels}</p>}
               </div>
 
-              {/* CERTIFICATIONS */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>Certifications</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -349,7 +364,6 @@ export default function TeacherRegisterPage() {
                 </div>
               </div>
 
-              {/* QUALIFICATIONS */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Qualifications</label>
                 <textarea name="qualifications" value={form.qualifications} onChange={handleChange} rows={3}
@@ -357,7 +371,6 @@ export default function TeacherRegisterPage() {
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
 
-              {/* LANGUAGES */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>Languages I Speak</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -390,7 +403,7 @@ export default function TeacherRegisterPage() {
             </div>
           )}
 
-          {/* ========== STEP 3 — Contact ========== */}
+          {/* ========== STEP 3 ========== */}
           {step === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
               <div>
@@ -450,7 +463,6 @@ export default function TeacherRegisterPage() {
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
 
-              {/* HCAPTCHA */}
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <HCaptcha
                   ref={captchaRef}
