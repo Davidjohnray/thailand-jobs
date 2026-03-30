@@ -27,7 +27,7 @@ export default async function TeachersPage() {
           Browse qualified teachers for private lessons — English, maths, languages and more. Online or in person across Thailand.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
+          <Link href="/teachers/register" style={{ background: '#E85D26', color: 'white', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
             List Your Teaching Profile →
           </Link>
         </div>
@@ -41,7 +41,7 @@ export default async function TeachersPage() {
             <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎓</div>
             <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '12px' }}>No teachers listed yet</h2>
             <p style={{ color: '#666', marginBottom: '24px' }}>Be the first to list your teaching profile!</p>
-            <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
+            <Link href="/teachers/register" style={{ background: '#E85D26', color: 'white', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
               Get Listed →
             </Link>
           </div>
@@ -56,7 +56,7 @@ export default async function TeachersPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
               {teachers.map(teacher => (
                 <Link key={teacher.id} href={`/teachers/${teacher.slug}`} style={{ textDecoration: 'none' }}>
-                  <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', transition: 'transform 0.2s', cursor: 'pointer', border: '1px solid #eee' }}
+                  <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', cursor: 'pointer', border: '1px solid #eee' }}
                     onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-4px)')}
                     onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}>
 
@@ -138,7 +138,7 @@ export default async function TeachersPage() {
           <p style={{ color: '#ccc', fontSize: '15px', marginBottom: '24px', maxWidth: '500px', margin: '0 auto 24px' }}>
             Get your own professional profile page and reach hundreds of students and parents across Thailand!
           </p>
-          <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+          <Link href="/teachers/register" style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
             Get Your Profile Page →
           </Link>
         </div>
