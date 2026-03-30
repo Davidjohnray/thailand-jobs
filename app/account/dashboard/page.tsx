@@ -36,6 +36,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [messages, setMessages] = useState<any[]>([])
   const [rentalProfile, setRentalProfile] = useState<any>(null)
+  const [teacherProfile, setTeacherProfile] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [newMessage, setNewMessage] = useState('')
@@ -63,6 +64,13 @@ export default function DashboardPage() {
         .eq('id', session.user.id)
         .single()
       setRentalProfile(rental)
+
+      const { data: teacher } = await supabase
+        .from('teachers')
+        .select('id, name, status, active, slug')
+        .eq('email', session.user.email)
+        .single()
+      setTeacherProfile(teacher)
 
       const { data: prof } = await supabase
         .from('profiles')
@@ -190,6 +198,42 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* TEACHER PROFILE CARD */}
+        {teacherProfile && (
+          <div style={{ background: teacherProfile.active ? 'linear-gradient(135deg, #1a1a2e 0%, #16a34a 100%)' : '#f9f9f9', borderRadius: '12px', padding: '24px', marginBottom: '24px', border: teacherProfile.active ? '2px solid #16a34a' : '2px solid #ddd' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '28px' }}>🎓</span>
+                  <span style={{ fontWeight: 'bold', fontSize: '18px', color: teacherProfile.active ? 'white' : '#1a1a2e' }}>Teacher Profile</span>
+                  {teacherProfile.active ? (
+                    <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Live</span>
+                  ) : (
+                    <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending Review</span>
+                  )}
+                </div>
+                <p style={{ color: teacherProfile.active ? '#ccc' : '#666', fontSize: '14px', margin: 0 }}>
+                  {teacherProfile.active
+                    ? `Live at: jobsinthailand.net/teachers/${teacherProfile.slug}`
+                    : 'Your profile is being reviewed — usually within 24 hours'}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {teacherProfile.active && (
+                  <a href={`/teachers/${teacherProfile.slug}`} target="_blank" rel="noopener noreferrer"
+                    style={{ background: 'rgba(255,255,255,0.2)', color: 'white', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                    👁 View Profile
+                  </a>
+                )}
+                <Link href="/account/teacher-profile"
+                  style={{ background: '#E85D26', color: 'white', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>
+                  ✏️ Edit Profile
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* JOB ALERT PREFERENCES */}
         <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
@@ -256,8 +300,6 @@ export default function DashboardPage() {
                   rows={5}
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
-
-              {/* HCAPTCHA */}
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <HCaptcha
                   ref={captchaRef}
@@ -266,7 +308,6 @@ export default function DashboardPage() {
                   onExpire={() => setCaptchaToken('')}
                 />
               </div>
-
               <button onClick={sendMessage} disabled={sending || !newMessage.trim() || !newSubject.trim() || !captchaToken}
                 style={{ background: sending || !captchaToken ? '#ccc' : '#E85D26', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sending || !captchaToken ? 'not-allowed' : 'pointer' }}>
                 {sending ? 'Sending...' : 'Send Message →'}
