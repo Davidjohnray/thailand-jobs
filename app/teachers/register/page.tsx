@@ -259,9 +259,8 @@ export default function TeacherRegisterPage() {
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ flex: 1, minWidth: '180px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Location in Thailand *</label>
-                  <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Bangkok, Chiang Mai"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.location ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Location *</label>
+<input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Bangkok, London, Online"                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.location ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
                   {errors.location && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.location}</p>}
                 </div>
               </div>
