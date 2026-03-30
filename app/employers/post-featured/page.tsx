@@ -1,8 +1,8 @@
 'use client'
-import { Suspense } from 'react'
-import { useState } from 'react'
+import { Suspense, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../src/lib/supabase'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 const thaiProvinces = [
   'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya / Chonburi', 'Koh Samui / Surat Thani',
@@ -26,21 +26,12 @@ const thaiProvinces = [
 ]
 
 const teachingCategories = [
-  'Nursery / Pre-Kindergarten',
-  'Kindergarten (Anuban)',
-  'Primary / Prathom (Grades 1–6)',
-  'Secondary / Matthayom (Grades 7–9)',
-  'High School / Matthayom (Grades 10–12)',
-  'International School (All Levels)',
-  'University / Higher Education',
-  'Adult Classes',
-  'Business English',
-  'IELTS / TOEIC / Exam Prep',
-  'Online Teaching',
-  'Private Tutoring',
-  'Language School / ESL Centre',
-  'Special Needs Education',
-  'Other',
+  'Nursery / Pre-Kindergarten', 'Kindergarten (Anuban)',
+  'Primary / Prathom (Grades 1–6)', 'Secondary / Matthayom (Grades 7–9)',
+  'High School / Matthayom (Grades 10–12)', 'International School (All Levels)',
+  'University / Higher Education', 'Adult Classes', 'Business English',
+  'IELTS / TOEIC / Exam Prep', 'Online Teaching', 'Private Tutoring',
+  'Language School / ESL Centre', 'Special Needs Education', 'Other',
 ]
 
 const otherCategories = [
@@ -54,6 +45,8 @@ function PostFeaturedPage() {
   const searchParams = useSearchParams()
   const isTeaching = searchParams.get('category') !== 'other'
   const [jobLoading, setJobLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef<HCaptcha>(null)
   const [form, setForm] = useState({
     title: '', company: '', location: '', salary: '',
     job_type: 'Full Time',
@@ -74,17 +67,17 @@ function PostFeaturedPage() {
       alert('Please fill in all required fields')
       return
     }
+    if (!captchaToken) { alert('Please complete the CAPTCHA'); return }
     setJobLoading(true)
     const expiryDate = new Date()
     expiryDate.setDate(expiryDate.getDate() + form.duration)
     const { data, error } = await supabase.from('jobs').insert([{
-      ...form,
-      featured: false,
-      status: 'pending_payment',
-      expires_at: expiryDate.toISOString()
+      ...form, featured: false, status: 'pending_payment', expires_at: expiryDate.toISOString()
     }]).select().single()
     if (error) {
       alert('Error submitting job: ' + error.message)
+      captchaRef.current?.resetCaptcha()
+      setCaptchaToken('')
       setJobLoading(false)
       return
     }
@@ -127,14 +120,12 @@ function PostFeaturedPage() {
         <p style={{ color: '#666', marginBottom: '40px' }}>Fill in your job details — then pay securely via Stripe to go live instantly</p>
 
         <div style={{ background: 'white', borderRadius: '12px', padding: '40px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Title *</label>
             <input name="title" value={form.title} onChange={handleChange}
               placeholder={isTeaching ? 'e.g. English Teacher, Kindergarten Teacher' : 'e.g. Hotel Manager, Web Developer'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
               {isTeaching ? 'School / Company Name *' : 'Company Name *'}
@@ -143,7 +134,6 @@ function PostFeaturedPage() {
               placeholder={isTeaching ? 'e.g. Bangkok International School' : 'e.g. Phuket Resort & Spa'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
               {isTeaching ? 'Teaching Level / Type *' : 'Job Category *'}
@@ -155,7 +145,6 @@ function PostFeaturedPage() {
               ))}
             </select>
           </div>
-
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
             <div style={{ flex: 1 }}>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Province / Location *</label>
@@ -173,62 +162,46 @@ function PostFeaturedPage() {
               </select>
             </div>
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Salary</label>
             <input name="salary" value={form.salary} onChange={handleChange} placeholder="e.g. 40,000 - 60,000 THB"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Description *</label>
             <textarea name="description" value={form.description} onChange={handleChange} rows={5}
               placeholder="Describe the role and responsibilities..."
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Requirements</label>
             <textarea name="requirements" value={form.requirements} onChange={handleChange} rows={4}
               placeholder={isTeaching ? 'e.g. Bachelor degree, TEFL certificate...' : 'e.g. 3 years experience, relevant degree...'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Benefits</label>
             <textarea name="benefits" value={form.benefits} onChange={handleChange} rows={4}
               placeholder="e.g. Work permit, health insurance, flight allowance..."
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Contact Email *</label>
             <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="jobs@yourcompany.com"
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" name="visa_sponsor" checked={form.visa_sponsor} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
               <span style={{ fontWeight: 'bold', color: '#333' }}>We provide visa sponsorship / work permit</span>
             </label>
           </div>
-
-          {/* LISTING DURATION */}
           <div style={{ marginBottom: '32px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Listing Duration</label>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {[3, 5, 7, 14].map(days => (
-                <button key={days} type="button"
-                  onClick={() => setForm(prev => ({ ...prev, duration: days }))}
-                  style={{
-                    padding: '10px 20px', borderRadius: '8px', border: '2px solid',
-                    borderColor: form.duration === days ? '#E85D26' : '#ddd',
-                    background: form.duration === days ? '#fff3ed' : 'white',
-                    color: form.duration === days ? '#E85D26' : '#555',
-                    fontWeight: form.duration === days ? 'bold' : 'normal',
-                    cursor: 'pointer', fontSize: '14px'
-                  }}>
+                <button key={days} type="button" onClick={() => setForm(prev => ({ ...prev, duration: days }))}
+                  style={{ padding: '10px 20px', borderRadius: '8px', border: '2px solid', borderColor: form.duration === days ? '#E85D26' : '#ddd', background: form.duration === days ? '#fff3ed' : 'white', color: form.duration === days ? '#E85D26' : '#555', fontWeight: form.duration === days ? 'bold' : 'normal', cursor: 'pointer', fontSize: '14px' }}>
                   {days} days
                 </button>
               ))}
@@ -244,11 +217,20 @@ function PostFeaturedPage() {
             </div>
           </div>
 
-          <button onClick={handleJobSubmit} disabled={jobLoading}
-            style={{ width: '100%', background: jobLoading ? '#ccc' : '#E85D26', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: jobLoading ? 'not-allowed' : 'pointer' }}>
+          {/* HCAPTCHA */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+            <HCaptcha
+              ref={captchaRef}
+              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+              onVerify={token => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken('')}
+            />
+          </div>
+
+          <button onClick={handleJobSubmit} disabled={jobLoading || !captchaToken}
+            style={{ width: '100%', background: jobLoading || !captchaToken ? '#ccc' : '#E85D26', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: jobLoading || !captchaToken ? 'not-allowed' : 'pointer' }}>
             {jobLoading ? 'Saving job...' : '⭐ Pay 500 THB & Go Live →'}
           </button>
-
           <p style={{ textAlign: 'center', color: '#999', fontSize: '13px', marginTop: '12px' }}>
             You will be redirected to Stripe to complete payment securely
           </p>

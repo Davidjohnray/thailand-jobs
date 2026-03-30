@@ -1,8 +1,9 @@
 'use client'
-import { Suspense } from 'react'
-import { useState } from 'react'
+import { Suspense, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../src/lib/supabase'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
+
 const thaiProvinces = [
   'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya / Chonburi', 'Koh Samui / Surat Thani',
   'Hua Hin / Prachuap', 'Krabi', 'Rayong', 'Chiang Rai',
@@ -25,21 +26,12 @@ const thaiProvinces = [
 ]
 
 const teachingCategories = [
-  'Nursery / Pre-Kindergarten',
-  'Kindergarten (Anuban)',
-  'Primary / Prathom (Grades 1–6)',
-  'Secondary / Matthayom (Grades 7–9)',
-  'High School / Matthayom (Grades 10–12)',
-  'International School (All Levels)',
-  'University / Higher Education',
-  'Adult Classes',
-  'Business English',
-  'IELTS / TOEIC / Exam Prep',
-  'Online Teaching',
-  'Private Tutoring',
-  'Language School / ESL Centre',
-  'Special Needs Education',
-  'Other',
+  'Nursery / Pre-Kindergarten', 'Kindergarten (Anuban)',
+  'Primary / Prathom (Grades 1–6)', 'Secondary / Matthayom (Grades 7–9)',
+  'High School / Matthayom (Grades 10–12)', 'International School (All Levels)',
+  'University / Higher Education', 'Adult Classes', 'Business English',
+  'IELTS / TOEIC / Exam Prep', 'Online Teaching', 'Private Tutoring',
+  'Language School / ESL Centre', 'Special Needs Education', 'Other',
 ]
 
 const otherCategories = [
@@ -50,9 +42,10 @@ const otherCategories = [
 function PostJobPage() {
   const searchParams = useSearchParams()
   const isTeaching = searchParams.get('category') !== 'other'
-
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef<HCaptcha>(null)
   const [form, setForm] = useState({
     title: '', company: '', location: '', salary: '',
     job_type: 'Full Time',
@@ -69,15 +62,18 @@ function PostJobPage() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
+    if (!captchaToken) { alert('Please complete the CAPTCHA'); return }
     setLoading(true)
     const expiryDate = new Date()
     expiryDate.setDate(expiryDate.getDate() + form.duration)
     const { error } = await supabase.from('jobs').insert([{
-      ...form,
-      featured: false,
-      expires_at: expiryDate.toISOString()
+      ...form, featured: false, expires_at: expiryDate.toISOString()
     }])
-    if (error) { alert('Error: ' + error.message) } else {
+    if (error) {
+      alert('Error: ' + error.message)
+      captchaRef.current?.resetCaptcha()
+      setCaptchaToken('')
+    } else {
       await fetch('/api/notify-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,7 +97,6 @@ function PostJobPage() {
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
         <a href="/employers" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '24px' }}>← Back to options</a>
-
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <span style={{ fontSize: '32px' }}>{isTeaching ? '🏫' : '💼'}</span>
           <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>
@@ -109,7 +104,6 @@ function PostJobPage() {
           </h1>
         </div>
         <p style={{ color: '#666', marginBottom: '40px' }}>Your listing will appear on the jobs page for your chosen duration</p>
-
         <div style={{ background: 'white', borderRadius: '12px', padding: '40px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Title *</label>
@@ -167,7 +161,7 @@ function PostJobPage() {
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Requirements</label>
             <textarea name="requirements" value={form.requirements} onChange={handleChange} rows={4}
-              placeholder={isTeaching ? 'e.g. Bachelor degree, TEFL certificate, experience with young learners...' : 'e.g. 3 years experience, relevant degree...'}
+              placeholder={isTeaching ? 'e.g. Bachelor degree, TEFL certificate...' : 'e.g. 3 years experience, relevant degree...'}
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
           </div>
           <div style={{ marginBottom: '24px' }}>
@@ -187,22 +181,12 @@ function PostJobPage() {
               <span style={{ fontWeight: 'bold', color: '#333' }}>We provide visa sponsorship / work permit</span>
             </label>
           </div>
-
-          {/* LISTING DURATION */}
           <div style={{ marginBottom: '32px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Listing Duration</label>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {[3, 5, 7, 14].map(days => (
-                <button key={days} type="button"
-                  onClick={() => setForm(prev => ({ ...prev, duration: days }))}
-                  style={{
-                    padding: '10px 20px', borderRadius: '8px', border: '2px solid',
-                    borderColor: form.duration === days ? '#E85D26' : '#ddd',
-                    background: form.duration === days ? '#fff3ed' : 'white',
-                    color: form.duration === days ? '#E85D26' : '#555',
-                    fontWeight: form.duration === days ? 'bold' : 'normal',
-                    cursor: 'pointer', fontSize: '14px'
-                  }}>
+                <button key={days} type="button" onClick={() => setForm(prev => ({ ...prev, duration: days }))}
+                  style={{ padding: '10px 20px', borderRadius: '8px', border: '2px solid', borderColor: form.duration === days ? '#E85D26' : '#ddd', background: form.duration === days ? '#fff3ed' : 'white', color: form.duration === days ? '#E85D26' : '#555', fontWeight: form.duration === days ? 'bold' : 'normal', cursor: 'pointer', fontSize: '14px' }}>
                   {days} days
                 </button>
               ))}
@@ -210,8 +194,18 @@ function PostJobPage() {
             <p style={{ color: '#999', fontSize: '12px', marginTop: '8px' }}>Default is 7 days if not selected</p>
           </div>
 
-          <button onClick={handleSubmit} disabled={loading}
-            style={{ width: '100%', background: loading ? '#ccc' : isTeaching ? '#E85D26' : '#2D6BE4', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer' }}>
+          {/* HCAPTCHA */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+            <HCaptcha
+              ref={captchaRef}
+              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+              onVerify={token => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken('')}
+            />
+          </div>
+
+          <button onClick={handleSubmit} disabled={loading || !captchaToken}
+            style={{ width: '100%', background: loading || !captchaToken ? '#ccc' : isTeaching ? '#E85D26' : '#2D6BE4', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: loading || !captchaToken ? 'not-allowed' : 'pointer' }}>
             {loading ? 'Posting...' : 'Post Free Job →'}
           </button>
         </div>

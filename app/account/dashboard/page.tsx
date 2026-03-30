@@ -1,8 +1,9 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 const thaiProvinces = [
   'All Thailand',
@@ -45,6 +46,8 @@ export default function DashboardPage() {
   const [prefsSaved, setPrefsSaved] = useState(false)
   const [prefLocation, setPrefLocation] = useState('All Thailand')
   const [prefCategory, setPrefCategory] = useState('All')
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef<HCaptcha>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -98,6 +101,7 @@ export default function DashboardPage() {
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !newSubject.trim()) return
+    if (!captchaToken) { alert('Please complete the CAPTCHA'); return }
     setSending(true)
     await supabase.from('member_messages').insert([{
       user_id: user.id,
@@ -109,6 +113,8 @@ export default function DashboardPage() {
     }])
     setNewMessage('')
     setNewSubject('')
+    setCaptchaToken('')
+    captchaRef.current?.resetCaptcha()
     setShowForm(false)
     loadMessages(user.id)
     setSending(false)
@@ -193,7 +199,6 @@ export default function DashboardPage() {
               <p style={{ color: '#666', fontSize: '13px', margin: '4px 0 0' }}>We'll email you a daily digest of new jobs matching your preferences</p>
             </div>
           </div>
-
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '16px' }}>
             <div style={{ flex: 1, minWidth: '200px' }}>
               <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>📍 Preferred Location</label>
@@ -210,7 +215,6 @@ export default function DashboardPage() {
               </select>
             </div>
           </div>
-
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button onClick={savePreferences} disabled={savingPrefs}
               style={{ background: savingPrefs ? '#ccc' : '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: savingPrefs ? 'not-allowed' : 'pointer' }}>
@@ -220,7 +224,6 @@ export default function DashboardPage() {
               <span style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>✅ Saved!</span>
             )}
           </div>
-
           <p style={{ color: '#999', fontSize: '12px', marginTop: '12px', marginBottom: 0 }}>
             📧 Daily digest sent every morning with new jobs matching your preferences. Select "All Thailand" and "All" to receive every new job.
           </p>
@@ -253,8 +256,19 @@ export default function DashboardPage() {
                   rows={5}
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
-              <button onClick={sendMessage} disabled={sending || !newMessage.trim() || !newSubject.trim()}
-                style={{ background: sending ? '#ccc' : '#E85D26', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sending ? 'not-allowed' : 'pointer' }}>
+
+              {/* HCAPTCHA */}
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <HCaptcha
+                  ref={captchaRef}
+                  sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+                  onVerify={token => setCaptchaToken(token)}
+                  onExpire={() => setCaptchaToken('')}
+                />
+              </div>
+
+              <button onClick={sendMessage} disabled={sending || !newMessage.trim() || !newSubject.trim() || !captchaToken}
+                style={{ background: sending || !captchaToken ? '#ccc' : '#E85D26', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sending || !captchaToken ? 'not-allowed' : 'pointer' }}>
                 {sending ? 'Sending...' : 'Send Message →'}
               </button>
             </div>
