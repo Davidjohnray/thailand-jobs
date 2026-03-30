@@ -595,11 +595,18 @@ export default async function TeacherPage({ params }: { params: Promise<{ slug: 
                 </a>
               )}
               {teacher.email && (
-                <a href={`mailto:${teacher.email}`}
-                  style={{ background: '#E85D26', color: 'white', padding: '14px 24px', borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
-                  📧 Email Me
-                </a>
-              )}
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <a href={`https://mail.google.com/mail/?view=cm&to=${teacher.email}&su=Private Lesson Enquiry`}
+      target="_blank" rel="noopener noreferrer"
+      style={{ display: 'block', background: '#E85D26', color: 'white', padding: '12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', textAlign: 'center' }}>
+      📧 Email via Gmail
+    </a>
+    <a href={`mailto:${teacher.email}?subject=Private Lesson Enquiry`}
+      style={{ display: 'block', background: '#2D6BE4', color: 'white', padding: '12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', textAlign: 'center' }}>
+      📨 Open Email App
+    </a>
+  </div>
+)}
               {teacher.facebook && (
                 <a href={teacher.facebook} target="_blank" rel="noopener noreferrer"
                   style={{ background: '#1877F2', color: 'white', padding: '14px 24px', borderRadius: '30px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
