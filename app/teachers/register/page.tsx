@@ -48,6 +48,7 @@ export default function TeacherRegisterPage() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [captchaToken, setCaptchaToken] = useState('')
   const captchaRef = useRef<HCaptcha>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -74,6 +75,21 @@ export default function TeacherRegisterPage() {
         ? (prev as any)[field].filter((v: string) => v !== value)
         : [...(prev as any)[field], value]
     }))
+  }
+
+  const handlePhotoUpload = async (e: any) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+    const { error } = await db.storage
+      .from('teacher-images')
+      .upload(fileName, file, { cacheControl: '3600', upsert: false })
+    if (error) { alert('Upload error: ' + error.message); setUploading(false); return }
+    const { data: { publicUrl } } = db.storage.from('teacher-images').getPublicUrl(fileName)
+    setForm(prev => ({ ...prev, photo_url: publicUrl }))
+    setUploading(false)
   }
 
   const validate = (s: number) => {
@@ -304,14 +320,29 @@ export default function TeacherRegisterPage() {
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
 
+              {/* PHOTO UPLOAD */}
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Profile Photo URL</label>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333', fontSize: '14px' }}>📸 Profile Photo</label>
+
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: uploading ? '#ccc' : '#1a1a2e', color: 'white', padding: '11px 20px', borderRadius: '8px', cursor: uploading ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload} disabled={uploading} style={{ display: 'none' }} />
+                  {uploading ? '⏳ Uploading...' : '📷 Upload Photo from Device'}
+                </label>
+
+                {form.photo_url && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+                    <img src={form.photo_url} alt="Preview" style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #E85D26' }} />
+                    <span style={{ color: '#16a34a', fontSize: '13px', fontWeight: 'bold' }}>✅ Photo uploaded!</span>
+                  </div>
+                )}
+
+                <p style={{ color: '#aaa', fontSize: '12px', margin: '0 0 6px' }}>JPG, PNG or WEBP — max 5MB. Or paste a URL:</p>
                 <input name="photo_url" value={form.photo_url} onChange={handleChange}
                   placeholder="https://example.com/your-photo.jpg"
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                <p style={{ color: '#aaa', fontSize: '12px', marginTop: '4px' }}>Paste a direct link to your photo — or we can help you add this later!</p>
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
 
+              {/* TEMPLATE */}
               <div>
                 <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>Choose Your Profile Style</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
