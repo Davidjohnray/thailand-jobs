@@ -45,6 +45,7 @@ function PostJobPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [captchaToken, setCaptchaToken] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const captchaRef = useRef<HCaptcha>(null)
   const [form, setForm] = useState({
     title: '', company: '', location: '', salary: '',
@@ -58,11 +59,30 @@ function PostJobPage() {
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target
     setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+    setErrors(prev => ({ ...prev, [name]: '' }))
+  }
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {}
+    if (!form.title.trim()) newErrors.title = 'Job title is required'
+    if (!form.company.trim()) newErrors.company = `${isTeaching ? 'School / Company' : 'Company'} name is required`
+    if (!form.location) newErrors.location = 'Please select a location'
+    if (!form.description.trim()) newErrors.description = 'Job description is required'
+    if (!form.requirements.trim()) newErrors.requirements = 'Requirements are required'
+    if (!form.benefits.trim()) newErrors.benefits = 'Benefits are required'
+    if (!form.email.trim()) newErrors.email = 'Contact email is required'
+    if (form.email && !/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Please enter a valid email'
+    if (!captchaToken) newErrors.captcha = 'Please complete the CAPTCHA'
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
-    if (!captchaToken) { alert('Please complete the CAPTCHA'); return }
+    if (!validate()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
     setLoading(true)
     const expiryDate = new Date()
     expiryDate.setDate(expiryDate.getDate() + form.duration)
@@ -84,6 +104,18 @@ function PostJobPage() {
     setLoading(false)
   }
 
+  const inputStyle = (field: string) => ({
+    width: '100%', padding: '12px', borderRadius: '8px',
+    border: errors[field] ? '2px solid red' : '1px solid #ddd',
+    fontSize: '15px', outline: 'none', boxSizing: 'border-box' as const
+  })
+
+  const selectStyle = (field: string) => ({
+    width: '100%', padding: '12px', borderRadius: '8px',
+    border: errors[field] ? '2px solid red' : '1px solid #ddd',
+    fontSize: '15px', background: 'white', outline: 'none'
+  })
+
   if (success) return (
     <main style={{ textAlign: 'center', padding: '80px 24px' }}>
       <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎉</div>
@@ -97,6 +129,7 @@ function PostJobPage() {
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
         <a href="/employers" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '24px' }}>← Back to options</a>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <span style={{ fontSize: '32px' }}>{isTeaching ? '🏫' : '💼'}</span>
           <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>
@@ -104,83 +137,108 @@ function PostJobPage() {
           </h1>
         </div>
         <p style={{ color: '#666', marginBottom: '40px' }}>Your listing will appear on the jobs page for your chosen duration</p>
+
+        {Object.keys(errors).length > 0 && (
+          <div style={{ background: '#ffeaea', border: '2px solid red', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
+            <div style={{ fontWeight: 'bold', color: 'red', marginBottom: '8px' }}>⚠️ Please fix the following:</div>
+            {Object.values(errors).map((err, i) => (
+              <div key={i} style={{ color: 'red', fontSize: '13px', marginBottom: '4px' }}>• {err}</div>
+            ))}
+          </div>
+        )}
+
         <div style={{ background: 'white', borderRadius: '12px', padding: '40px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Title *</label>
             <input name="title" value={form.title} onChange={handleChange}
               placeholder={isTeaching ? 'e.g. English Teacher, Kindergarten Teacher' : 'e.g. Hotel Manager, Web Developer'}
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
+              style={inputStyle('title')} />
+            {errors.title && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.title}</p>}
           </div>
+
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
               {isTeaching ? 'School / Company Name *' : 'Company Name *'}
             </label>
             <input name="company" value={form.company} onChange={handleChange}
               placeholder={isTeaching ? 'e.g. Bangkok International School' : 'e.g. Phuket Resort & Spa'}
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
+              style={inputStyle('company')} />
+            {errors.company && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.company}</p>}
           </div>
+
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
               {isTeaching ? 'Teaching Level / Type *' : 'Job Category *'}
             </label>
-            <select name="category" value={form.category} onChange={handleChange}
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', background: 'white', outline: 'none' }}>
+            <select name="category" value={form.category} onChange={handleChange} style={selectStyle('category')}>
               {(isTeaching ? teachingCategories : otherCategories).map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
+
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
             <div style={{ flex: 1 }}>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Province / Location *</label>
-              <select name="location" value={form.location} onChange={handleChange}
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', background: 'white', outline: 'none' }}>
+              <select name="location" value={form.location} onChange={handleChange} style={selectStyle('location')}>
                 <option value="">Select province</option>
                 {thaiProvinces.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
+              {errors.location && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.location}</p>}
             </div>
             <div style={{ flex: 1 }}>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Type *</label>
-              <select name="job_type" value={form.job_type} onChange={handleChange}
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', background: 'white', outline: 'none' }}>
+              <select name="job_type" value={form.job_type} onChange={handleChange} style={selectStyle('job_type')}>
                 {['Full Time', 'Part Time', 'Contract', 'Remote', 'Freelance'].map(t => <option key={t}>{t}</option>)}
               </select>
             </div>
           </div>
+
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Salary</label>
             <input name="salary" value={form.salary} onChange={handleChange} placeholder="e.g. 40,000 - 60,000 THB"
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
+              style={inputStyle('salary')} />
           </div>
+
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Description *</label>
             <textarea name="description" value={form.description} onChange={handleChange} rows={5}
               placeholder="Describe the role and responsibilities..."
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.description ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+            {errors.description && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.description}</p>}
           </div>
+
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Requirements</label>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Requirements *</label>
             <textarea name="requirements" value={form.requirements} onChange={handleChange} rows={4}
-              placeholder={isTeaching ? 'e.g. Bachelor degree, TEFL certificate...' : 'e.g. 3 years experience, relevant degree...'}
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+              placeholder={isTeaching ? 'e.g. Bachelor degree, TEFL certificate, experience with young learners...' : 'e.g. 3 years experience, relevant degree...'}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.requirements ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+            {errors.requirements && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.requirements}</p>}
           </div>
+
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Benefits</label>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Benefits *</label>
             <textarea name="benefits" value={form.benefits} onChange={handleChange} rows={4}
               placeholder="e.g. Work permit, health insurance, flight allowance..."
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.benefits ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', resize: 'vertical' }} />
+            {errors.benefits && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.benefits}</p>}
           </div>
+
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Contact Email *</label>
             <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="jobs@yourcompany.com"
-              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
+              style={inputStyle('email')} />
+            {errors.email && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.email}</p>}
           </div>
+
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" name="visa_sponsor" checked={form.visa_sponsor} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
               <span style={{ fontWeight: 'bold', color: '#333' }}>We provide visa sponsorship / work permit</span>
             </label>
           </div>
+
           <div style={{ marginBottom: '32px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Listing Duration</label>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -194,18 +252,18 @@ function PostJobPage() {
             <p style={{ color: '#999', fontSize: '12px', marginTop: '8px' }}>Default is 7 days if not selected</p>
           </div>
 
-          {/* HCAPTCHA */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
             <HCaptcha
               ref={captchaRef}
               sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
-              onVerify={token => setCaptchaToken(token)}
+              onVerify={token => { setCaptchaToken(token); setErrors(prev => ({ ...prev, captcha: '' })) }}
               onExpire={() => setCaptchaToken('')}
             />
           </div>
+          {errors.captcha && <p style={{ color: 'red', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>{errors.captcha}</p>}
 
-          <button onClick={handleSubmit} disabled={loading || !captchaToken}
-            style={{ width: '100%', background: loading || !captchaToken ? '#ccc' : isTeaching ? '#E85D26' : '#2D6BE4', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: loading || !captchaToken ? 'not-allowed' : 'pointer' }}>
+          <button onClick={handleSubmit} disabled={loading}
+            style={{ width: '100%', background: loading ? '#ccc' : isTeaching ? '#E85D26' : '#2D6BE4', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: loading ? 'not-allowed' : 'pointer' }}>
             {loading ? 'Posting...' : 'Post Free Job →'}
           </button>
         </div>
