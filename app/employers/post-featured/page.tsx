@@ -147,14 +147,14 @@ function PostFeaturedPage() {
         </div>
         <p style={{ color: '#666', marginBottom: '40px' }}>Fill in your job details — then pay securely via Stripe to go live instantly</p>
 
-        {Object.keys(errors).length > 0 && (
-          <div style={{ background: '#ffeaea', border: '2px solid red', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
-            <div style={{ fontWeight: 'bold', color: 'red', marginBottom: '8px' }}>⚠️ Please fix the following:</div>
-            {Object.values(errors).map((err, i) => (
-              <div key={i} style={{ color: 'red', fontSize: '13px', marginBottom: '4px' }}>• {err}</div>
-            ))}
-          </div>
-        )}
+        {Object.values(errors).some(e => e !== '') && (
+  <div style={{ background: '#ffeaea', border: '2px solid red', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
+    <div style={{ fontWeight: 'bold', color: 'red', marginBottom: '8px' }}>⚠️ Please fix the following:</div>
+    {Object.values(errors).filter(e => e !== '').map((err, i) => (
+      <div key={i} style={{ color: 'red', fontSize: '13px', marginBottom: '4px' }}>• {err}</div>
+    ))}
+  </div>
+)}
 
         <div style={{ background: 'white', borderRadius: '12px', padding: '40px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
 
