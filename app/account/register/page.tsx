@@ -1,8 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -12,22 +13,30 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef<HCaptcha>(null)
   const router = useRouter()
 
   const handleRegister = async (e: any) => {
     e.preventDefault()
     if (!role) { setError('Please select your account type'); return }
+    if (!captchaToken) { setError('Please complete the CAPTCHA'); return }
     setLoading(true)
     setError('')
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } }
+      options: {
+        data: { full_name: name },
+        captchaToken,
+      }
     })
 
     if (error) {
       setError(error.message)
+      captchaRef.current?.resetCaptcha()
+      setCaptchaToken('')
       setLoading(false)
       return
     }
@@ -137,10 +146,20 @@ export default function RegisterPage() {
               style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
 
+          {/* HCAPTCHA */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <HCaptcha
+              ref={captchaRef}
+              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+              onVerify={token => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken('')}
+            />
+          </div>
+
           {error && <p style={{ color: 'red', fontSize: '13px', margin: 0 }}>{error}</p>}
 
-          <button onClick={handleRegister} disabled={loading}
-            style={{ background: loading ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer' }}>
+          <button onClick={handleRegister} disabled={loading || !captchaToken}
+            style={{ background: loading || !captchaToken ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: loading || !captchaToken ? 'not-allowed' : 'pointer' }}>
             {loading ? 'Creating Account...' : 'Create Account →'}
           </button>
         </div>
