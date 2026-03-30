@@ -121,17 +121,8 @@ export default async function Home() {
             </a>
 
             {/* LUCKY CLEANING - MOBILE */}
-            <a href="https://www.facebook.com/share/1AviMhTNzJ/" target="_blank" rel="noopener noreferrer"
-              style={{ textDecoration: 'none' }}
-              onClick={() => {
-                if (typeof window !== 'undefined' && (window as any).gtag) {
-                  (window as any).gtag('event', 'click', {
-                    event_category: 'Ad',
-                    event_label: 'Lucky Cleaning Service Mobile',
-                    value: 1,
-                  })
-                }
-              }}>
+            <a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=mobile_banner&utm_campaign=lucky_cleaning"
+              target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
               <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
                 <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service Bangkok" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
               </div>
@@ -190,17 +181,8 @@ export default async function Home() {
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
 
           {/* LUCKY CLEANING SERVICE - DESKTOP */}
-          <a href="https://www.facebook.com/share/1AviMhTNzJ/" target="_blank" rel="noopener noreferrer"
-            style={{ textDecoration: 'none' }}
-            onClick={() => {
-              if (typeof window !== 'undefined' && (window as any).gtag) {
-                (window as any).gtag('event', 'click', {
-                  event_category: 'Ad',
-                  event_label: 'Lucky Cleaning Service Banner',
-                  value: 1,
-                })
-              }
-            }}>
+          <a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=banner&utm_campaign=lucky_cleaning"
+            target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
               <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service Bangkok" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
