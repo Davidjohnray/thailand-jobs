@@ -56,9 +56,7 @@ export default async function TeachersPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
               {teachers.map(teacher => (
                 <Link key={teacher.id} href={`/teachers/${teacher.slug}`} style={{ textDecoration: 'none' }}>
-                  <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', cursor: 'pointer', border: '1px solid #eee' }}
-                    onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-4px)')}
-                    onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}>
+                  <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', cursor: 'pointer', border: '1px solid #eee' }}>
 
                     {/* PHOTO */}
                     <div style={{ height: '200px', background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
