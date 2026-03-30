@@ -52,11 +52,11 @@ export default function Navbar() {
         {/* DESKTOP MENU */}
         <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
 
-          {/* JOBS DROPDOWN */}
+          {/* JOBS DROPDOWN — dark navy */}
           <div style={{ position: 'relative' }}
             onMouseEnter={() => setJobsOpen(true)}
             onMouseLeave={() => setJobsOpen(false)}>
-            <button style={{ color: 'white', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button style={{ color: 'white', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#1a1a2e', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
               💼 Jobs ▾
             </button>
             {jobsOpen && (
@@ -83,33 +83,48 @@ export default function Navbar() {
             )}
           </div>
 
-          <Link href="/rentals" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+          {/* RENTALS — purple */}
+          <Link href="/rentals" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#7C3AED', fontWeight: 'bold' }}>
             🏠 Rentals
           </Link>
-          <Link href="/training" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+
+          {/* TRAINING — green */}
+          <Link href="/training" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#16a34a', fontWeight: 'bold' }}>
             🎓 Training
           </Link>
+
+          {/* CV BUILDER — white */}
           <Link href="/cv-builder" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'white', fontWeight: 'bold' }}>
             📄 CV Builder
           </Link>
-          <Link href="/advertise" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+
+          {/* ADVERTISE — blue */}
+          <Link href="/advertise" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#2D6BE4', fontWeight: 'bold' }}>
             📢 Advertise
           </Link>
-          <Link href="/contact" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+
+          {/* CONTACT — teal */}
+          <Link href="/contact" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#0891b2', fontWeight: 'bold' }}>
             💬 Contact
           </Link>
+
+          {/* LOGIN / ACCOUNT — gold */}
           {isLoggedIn ? (
-            <Link href="/account/dashboard" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+            <Link href="/account/dashboard" style={{ color: '#1a1a2e', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#FBBF24', fontWeight: 'bold' }}>
               👤 My Account
             </Link>
           ) : (
-            <Link href="/account/login" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)' }}>
+            <Link href="/account/login" style={{ color: '#1a1a2e', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#FBBF24', fontWeight: 'bold' }}>
               👤 Members Login
             </Link>
           )}
-          <Link href="/employers" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', border: '1px solid white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold' }}>
+
+          {/* POST A JOB — white outline */}
+          <Link href="/employers" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', border: '2px solid white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold' }}>
             Post a Job
           </Link>
+
+          {/* ADMIN — white */}
           <Link href="/admin" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', background: 'white' }}>
             🔐 Admin
           </Link>
@@ -129,46 +144,61 @@ export default function Navbar() {
 
           <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px', marginBottom: '4px' }}>
             <p style={{ color: '#aaa', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 8px' }}>Browse Jobs</p>
-            <Link href="/jobs" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', marginBottom: '6px' }}>
+            <Link href="/jobs" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)', marginBottom: '6px' }}>
               🗂 All Jobs
             </Link>
-            <Link href="/jobs/teaching" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)', marginBottom: '6px' }}>
+            <Link href="/jobs/teaching" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)', marginBottom: '6px' }}>
               🏫 Teaching Jobs
             </Link>
-            <Link href="/jobs/other" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)' }}>
+            <Link href="/jobs/other" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)' }}>
               💼 Other Jobs
             </Link>
           </div>
 
-          <Link href="/rentals" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)' }}>
+          {/* RENTALS — purple */}
+          <Link href="/rentals" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#7C3AED', fontWeight: 'bold' }}>
             🏠 Rentals
           </Link>
-          <Link href="/training" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)' }}>
+
+          {/* TRAINING — green */}
+          <Link href="/training" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#16a34a', fontWeight: 'bold' }}>
             🎓 Training
           </Link>
-          <Link href="/cv-builder" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)' }}>
+
+          {/* CV BUILDER — white */}
+          <Link href="/cv-builder" onClick={closeMobile} style={{ display: 'block', color: '#E85D26', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'white', fontWeight: 'bold' }}>
             📄 CV Builder
           </Link>
-          <Link href="/advertise" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)' }}>
+
+          {/* ADVERTISE — blue */}
+          <Link href="/advertise" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#2D6BE4', fontWeight: 'bold' }}>
             📢 Advertise
           </Link>
-          <Link href="/contact" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)' }}>
+
+          {/* CONTACT — teal */}
+          <Link href="/contact" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#0891b2', fontWeight: 'bold' }}>
             💬 Contact
           </Link>
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+            {/* LOGIN / ACCOUNT — gold */}
             {isLoggedIn ? (
-              <Link href="/account/dashboard" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)' }}>
+              <Link href="/account/dashboard" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>
                 👤 My Account
               </Link>
             ) : (
-              <Link href="/account/login" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.08)' }}>
+              <Link href="/account/login" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>
                 👤 Members Login
               </Link>
             )}
+
+            {/* POST A JOB — orange */}
             <Link href="/employers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px', borderRadius: '8px', background: '#E85D26', fontWeight: 'bold', textAlign: 'center' }}>
               📝 Post a Job
             </Link>
+
+            {/* ADMIN — white */}
             <Link href="/admin" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'white', fontWeight: 'bold', textAlign: 'center' }}>
               🔐 Admin
             </Link>
