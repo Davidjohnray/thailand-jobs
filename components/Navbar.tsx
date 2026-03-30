@@ -87,6 +87,9 @@ export default function Navbar() {
           <Link href="/rentals" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#7C3AED', fontWeight: 'bold' }}>
             🏠 Rentals
           </Link>
+          <Link href="/teachers" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#0891b2', fontWeight: 'bold' }}>
+  🎓 Teachers
+</Link>
 
           {/* TRAINING — green */}
           <Link href="/training" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#16a34a', fontWeight: 'bold' }}>
@@ -159,6 +162,9 @@ export default function Navbar() {
           <Link href="/rentals" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#7C3AED', fontWeight: 'bold' }}>
             🏠 Rentals
           </Link>
+          <Link href="/teachers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#0891b2', fontWeight: 'bold' }}>
+  🎓 Teachers
+</Link>
 
           {/* TRAINING — green */}
           <Link href="/training" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#16a34a', fontWeight: 'bold' }}>
