@@ -234,7 +234,7 @@ function PostFeaturedPage() {
           </div>
 
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Contact Email *</label>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Contact Email </label>
             <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="jobs@yourcompany.com"
               style={inputStyle('email')} />
             {errors.email && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.email}</p>}
