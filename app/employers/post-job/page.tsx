@@ -70,8 +70,7 @@ function PostJobPage() {
     if (!form.description.trim()) newErrors.description = 'Job description is required'
     if (!form.requirements.trim()) newErrors.requirements = 'Requirements are required'
     if (!form.benefits.trim()) newErrors.benefits = 'Benefits are required'
-    if (!form.email.trim()) newErrors.email = 'Contact email is required'
-    if (form.email && !/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Please enter a valid email'
+    
     if (!captchaToken) newErrors.captcha = 'Please complete the CAPTCHA'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
