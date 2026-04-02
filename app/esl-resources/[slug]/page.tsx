@@ -120,16 +120,25 @@ export default function ESLPlanPage() {
             </p>
 
             {plan.is_free ? (
-              <a href={plan.file_url} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'block', background: '#22c55e', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', marginBottom: '12px' }}>
-                ⬇️ Download Free
-              </a>
-            ) : (
-              <Link href={`/esl-resources/checkout/${plan.slug}`}
-                style={{ display: 'block', background: '#7C3AED', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', marginBottom: '12px' }}>
-                🛒 Buy Now
-              </Link>
-            )}
+  <a href={plan.file_url} target="_blank" rel="noopener noreferrer"
+    style={{ display: 'block', background: '#22c55e', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', marginBottom: '12px', textAlign: 'center' }}>
+    Download Free
+  </a>
+) : (
+  <>
+    <div style={{ background: '#f3eeff', borderRadius: '10px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
+      <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#7C3AED', marginBottom: '4px' }}>${plan.price} USD / {Math.round(plan.price * 35)} THB</div>
+      <div style={{ fontSize: '13px', color: '#888' }}>One-time payment</div>
+    </div>
+    <Link href="/contact"
+      style={{ display: 'block', background: '#7C3AED', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', marginBottom: '12px', textAlign: 'center' }}>
+      Contact Us to Purchase
+    </Link>
+    <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px', padding: '12px', fontSize: '13px', color: '#666', textAlign: 'center', marginBottom: '12px' }}>
+      We will send you bank transfer details by email. Download link sent once payment confirmed.
+    </div>
+  </>
+)}
 
             <Link href="/esl-resources"
               style={{ display: 'block', color: '#888', fontSize: '13px', textDecoration: 'none' }}>
