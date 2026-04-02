@@ -133,28 +133,45 @@ export default function Primary710EnglishPage() {
 }
 
 function PlanCard({ plan, selectable, selected, onToggle, accentColor }: any) {
-  return (
-    <div onClick={selectable ? onToggle : undefined}
-      style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: selected ? `0 0 0 3px ${accentColor}` : '0 2px 8px rgba(0,0,0,0.08)', cursor: selectable ? 'pointer' : 'default', position: 'relative', transition: 'box-shadow 0.2s' }}>
-      {selectable && (
-        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 2, width: '22px', height: '22px', borderRadius: '6px', background: selected ? accentColor : 'white', border: `2px solid ${selected ? accentColor : '#ddd'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {selected && <span style={{ color: 'white', fontSize: '13px', fontWeight: 'bold' }}>v</span>}
+  if (!selectable) {
+    return (
+      <Link href={`/esl-resources/${plan.slug}`} style={{ textDecoration: 'none' }}>
+        <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', cursor: 'pointer' }}>
+          <div style={{ height: '130px', background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}25)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', fontWeight: 'bold', color: accentColor, position: 'relative' }}>
+            {plan.preview_image_url ? <img src={plan.preview_image_url} alt={plan.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : 'E'}
+            <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+              <span style={{ background: '#22c55e', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>FREE</span>
+            </div>
+          </div>
+          <div style={{ padding: '14px' }}>
+            {plan.theme && <span style={{ background: '#e8f0fe', color: accentColor, fontSize: '11px', padding: '2px 8px', borderRadius: '12px', display: 'inline-block', marginBottom: '8px' }}>{plan.theme}</span>}
+            <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 6px' }}>{plan.title}</h3>
+            {plan.description && <p style={{ fontSize: '12px', color: '#666', margin: 0, lineHeight: '1.5' }}>{plan.description}</p>}
+            <div style={{ marginTop: '12px', color: '#22c55e', fontSize: '13px', fontWeight: 'bold' }}>Download Free</div>
+          </div>
         </div>
-      )}
+      </Link>
+    )
+  }
+
+  return (
+    <div onClick={onToggle}
+      style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: selected ? `0 0 0 3px ${accentColor}` : '0 2px 8px rgba(0,0,0,0.08)', cursor: 'pointer', position: 'relative', transition: 'box-shadow 0.2s' }}>
+      <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 2, width: '22px', height: '22px', borderRadius: '6px', background: selected ? accentColor : 'white', border: `2px solid ${selected ? accentColor : '#ddd'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {selected && <span style={{ color: 'white', fontSize: '13px', fontWeight: 'bold' }}>v</span>}
+      </div>
       <div style={{ height: '130px', background: `linear-gradient(135deg, ${accentColor}15, ${accentColor}25)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', fontWeight: 'bold', color: accentColor, position: 'relative' }}>
         {plan.preview_image_url ? <img src={plan.preview_image_url} alt={plan.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : 'E'}
         <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
-          {plan.is_free
-            ? <span style={{ background: '#22c55e', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>FREE</span>
-            : <span style={{ background: accentColor, color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>$1 / 35฿</span>}
+          <span style={{ background: accentColor, color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>$1 / 35฿</span>
         </div>
       </div>
       <div style={{ padding: '14px' }}>
         {plan.theme && <span style={{ background: '#e8f0fe', color: accentColor, fontSize: '11px', padding: '2px 8px', borderRadius: '12px', display: 'inline-block', marginBottom: '8px' }}>{plan.theme}</span>}
         <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 6px' }}>{plan.title}</h3>
         {plan.description && <p style={{ fontSize: '12px', color: '#666', margin: 0, lineHeight: '1.5' }}>{plan.description}</p>}
-        <div style={{ marginTop: '12px', color: plan.is_free ? '#22c55e' : (selected ? accentColor : accentColor), fontSize: '13px', fontWeight: 'bold' }}>
-          {plan.is_free ? 'Download Free' : (selected ? 'Selected' : 'Tap to Select')}
+        <div style={{ marginTop: '12px', color: selected ? accentColor : accentColor, fontSize: '13px', fontWeight: 'bold' }}>
+          {selected ? 'Selected' : 'Tap to Select'}
         </div>
       </div>
     </div>
