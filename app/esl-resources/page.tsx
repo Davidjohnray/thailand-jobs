@@ -73,28 +73,34 @@ export default function ESLResourcesPage() {
           </Link>
 
           {/* AGES 7-10 */}
-          <div style={{ background: 'linear-gradient(135deg, #0891b2, #06b6d4)', borderRadius: '16px', padding: '32px 24px', textAlign: 'center', color: 'white', boxShadow: '0 4px 20px rgba(8,145,178,0.2)', opacity: 0.7, position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: '14px', right: '14px', background: 'rgba(255,255,255,0.25)', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold' }}>COMING SOON</div>
-            <div style={{ fontSize: '52px', marginBottom: '12px' }}>📗</div>
-            <h3 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px' }}>Ages 7–10</h3>
-            <p style={{ opacity: 0.9, fontSize: '14px', margin: '0 0 16px' }}>Primary School</p>
-            <p style={{ opacity: 0.8, fontSize: '13px', margin: '0 0 20px', lineHeight: '1.5' }}>Reading, writing, and grammar activities.</p>
-            <span style={{ background: 'rgba(255,255,255,0.2)', padding: '8px 20px', borderRadius: '20px', fontSize: '14px' }}>
-              Coming Soon
-            </span>
-          </div>
+<Link href="/esl-resources/ages-7-10" style={{ textDecoration: 'none' }}>
+  <div style={{ background: 'linear-gradient(135deg, #0891b2, #06b6d4)', borderRadius: '16px', padding: '32px 24px', textAlign: 'center', color: 'white', cursor: 'pointer', boxShadow: '0 4px 20px rgba(8,145,178,0.3)', transition: 'transform 0.2s' }}
+    onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-4px)')}
+    onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}>
+    <div style={{ fontSize: '52px', marginBottom: '12px' }}>📗</div>
+    <h3 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px' }}>Ages 7–10</h3>
+    <p style={{ opacity: 0.9, fontSize: '14px', margin: '0 0 16px' }}>Primary School</p>
+    <p style={{ opacity: 0.8, fontSize: '13px', margin: '0 0 20px', lineHeight: '1.5' }}>English, Math, Science, and Social Studies.</p>
+    <span style={{ background: 'rgba(255,255,255,0.25)', padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>
+      Browse Plans →
+    </span>
+  </div>
+</Link>
 
-          {/* AGES 11+ */}
-          <div style={{ background: 'linear-gradient(135deg, #2D6BE4, #4f8ef7)', borderRadius: '16px', padding: '32px 24px', textAlign: 'center', color: 'white', boxShadow: '0 4px 20px rgba(45,107,228,0.2)', opacity: 0.7, position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: '14px', right: '14px', background: 'rgba(255,255,255,0.25)', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold' }}>COMING SOON</div>
-            <div style={{ fontSize: '52px', marginBottom: '12px' }}>📘</div>
-            <h3 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px' }}>Ages 11+</h3>
-            <p style={{ opacity: 0.9, fontSize: '14px', margin: '0 0 16px' }}>Secondary School</p>
-            <p style={{ opacity: 0.8, fontSize: '13px', margin: '0 0 20px', lineHeight: '1.5' }}>Conversation, comprehension, and exam prep.</p>
-            <span style={{ background: 'rgba(255,255,255,0.2)', padding: '8px 20px', borderRadius: '20px', fontSize: '14px' }}>
-              Coming Soon
-            </span>
-          </div>
+{/* AGES 11+ */}
+<Link href="/esl-resources/ages-11-plus" style={{ textDecoration: 'none' }}>
+  <div style={{ background: 'linear-gradient(135deg, #2D6BE4, #4f8ef7)', borderRadius: '16px', padding: '32px 24px', textAlign: 'center', color: 'white', cursor: 'pointer', boxShadow: '0 4px 20px rgba(45,107,228,0.3)', transition: 'transform 0.2s' }}
+    onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-4px)')}
+    onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}>
+    <div style={{ fontSize: '52px', marginBottom: '12px' }}>📘</div>
+    <h3 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px' }}>Ages 11+</h3>
+    <p style={{ opacity: 0.9, fontSize: '14px', margin: '0 0 16px' }}>Secondary School</p>
+    <p style={{ opacity: 0.8, fontSize: '13px', margin: '0 0 20px', lineHeight: '1.5' }}>English, Math, Science, and Social Studies.</p>
+    <span style={{ background: 'rgba(255,255,255,0.25)', padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>
+      Browse Plans →
+    </span>
+  </div>
+</Link>
 
         </div>
 
