@@ -90,12 +90,14 @@ export default function AdminPage() {
   const [memberMessages, setMemberMessages] = useState<any[]>([])
   const [rentalMembers, setRentalMembers] = useState<any[]>([])
   const [teachers, setTeachers] = useState<any[]>([])
+  const [eslOrders, setEslOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null)
   const [teacherTemplate, setTeacherTemplate] = useState<Record<string, string>>({})
+  const [approvingOrder, setApprovingOrder] = useState<string | null>(null)
 
   useEffect(() => {
     if (authed) {
@@ -103,6 +105,7 @@ export default function AdminPage() {
       loadMemberMessages()
       loadRentalMembers()
       loadTeachers()
+      loadEslOrders()
     }
   }, [authed])
 
@@ -115,6 +118,7 @@ export default function AdminPage() {
       loadMemberMessages()
       loadRentalMembers()
       loadTeachers()
+      loadEslOrders()
     } else {
       setWrongPassword(true)
     }
@@ -148,6 +152,55 @@ export default function AdminPage() {
     const templateMap: Record<string, string> = {}
     data?.forEach((t: any) => { templateMap[t.id] = t.template || 'modern' })
     setTeacherTemplate(templateMap)
+  }
+
+  const loadEslOrders = async () => {
+    const { data } = await adminSupabase
+      .from('lesson_plan_orders')
+      .select('*, lesson_plans(title, price, pack_type)')
+      .order('created_at', { ascending: false })
+    setEslOrders(data || [])
+  }
+
+  const approveEslOrder = async (order: any) => {
+    if (!confirm(`Approve order for ${order.buyer_name} and send download link to ${order.buyer_email}?`)) return
+    setApprovingOrder(order.id)
+
+    // Generate a simple download token
+    const token = Math.random().toString(36).substring(2) + Date.now().toString(36)
+
+    const { error } = await adminSupabase
+      .from('lesson_plan_orders')
+      .update({ status: 'approved', download_token: token })
+      .eq('id', order.id)
+
+    if (error) {
+      alert('Error: ' + error.message)
+      setApprovingOrder(null)
+      return
+    }
+
+    // Send download email via API
+    await fetch('/api/esl-order-approved', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: order.buyer_email,
+        name: order.buyer_name,
+        planTitle: order.lesson_plans?.title,
+        token,
+      }),
+    })
+
+    setEslOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'approved', download_token: token } : o))
+    setApprovingOrder(null)
+    alert('✅ Order approved and download email sent!')
+  }
+
+  const rejectEslOrder = async (id: string) => {
+    if (!confirm('Reject this order?')) return
+    await adminSupabase.from('lesson_plan_orders').update({ status: 'rejected' }).eq('id', id)
+    setEslOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'rejected' } : o))
   }
 
   const approveTeacher = async (id: string) => {
@@ -236,6 +289,7 @@ export default function AdminPage() {
   const unreadMemberCount = memberMessages.filter(m => !m.read_by_admin).length
   const pendingRentalCount = rentalMembers.filter(m => !m.active).length
   const pendingTeacherCount = teachers.filter(t => t.status === 'pending').length
+  const pendingEslCount = eslOrders.filter(o => o.status === 'pending').length
   const displayed = activeTab === 'unread' ? messages.filter(m => !m.read) : activeTab === 'all' ? messages : memberMessages
 
   if (!authed) return (
@@ -266,12 +320,12 @@ export default function AdminPage() {
           <p style={{ color: '#ccc', fontSize: '13px', margin: 0 }}>Thailand Jobs</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          {(unreadCount > 0 || unreadMemberCount > 0 || pendingRentalCount > 0 || pendingTeacherCount > 0) && (
+          {(unreadCount > 0 || unreadMemberCount > 0 || pendingRentalCount > 0 || pendingTeacherCount > 0 || pendingEslCount > 0) && (
             <span style={{ background: '#E85D26', color: 'white', borderRadius: '20px', padding: '4px 12px', fontSize: '13px', fontWeight: 'bold' }}>
-              {unreadCount + unreadMemberCount + pendingRentalCount + pendingTeacherCount} pending
+              {unreadCount + unreadMemberCount + pendingRentalCount + pendingTeacherCount + pendingEslCount} pending
             </span>
           )}
-          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers() }}
+          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders() }}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             🔄 Refresh
           </button>
@@ -290,8 +344,9 @@ export default function AdminPage() {
             { id: 'unread', label: `Unread (${unreadCount})` },
             { id: 'all', label: `All Contact (${messages.length})` },
             { id: 'members', label: `Member Messages (${memberMessages.length})${unreadMemberCount > 0 ? ' 🔴' : ''}` },
-            { id: 'rentals', label: `🏠 Rental Members (${rentalMembers.length})${pendingRentalCount > 0 ? ' 🔴' : ''}` },
+            { id: 'rentals', label: `🏠 Rentals (${rentalMembers.length})${pendingRentalCount > 0 ? ' 🔴' : ''}` },
             { id: 'teachers', label: `🎓 Teachers (${teachers.length})${pendingTeacherCount > 0 ? ' 🔴' : ''}` },
+            { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
             { id: 'email', label: '📧 Email Members' },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
@@ -304,6 +359,60 @@ export default function AdminPage() {
         {/* EMAIL TAB */}
         {activeTab === 'email' && <EmailMembers />}
 
+        {/* ESL ORDERS TAB */}
+        {activeTab === 'esl' && (
+          eslOrders.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
+              <p>No ESL orders yet</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {eslOrders.map(order => (
+                <div key={order.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: order.status === 'pending' ? '2px solid #E85D26' : '1px solid #eee' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{order.buyer_name}</span>
+                        {order.status === 'pending' && <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending</span>}
+                        {order.status === 'approved' && <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✅ Approved</span>}
+                        {order.status === 'rejected' && <span style={{ background: '#ef4444', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>❌ Rejected</span>}
+                      </div>
+                      <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📧 {order.buyer_email}</div>
+                      <div style={{ color: '#7C3AED', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>📖 {order.lesson_plans?.title}</div>
+                      <div style={{ color: '#999', fontSize: '12px' }}>
+                        {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '160px' }}>
+                      {order.slip_url && (
+                        <a href={order.slip_url} target="_blank" rel="noopener noreferrer"
+                          style={{ display: 'block', background: '#f0f4ff', color: '#2D6BE4', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none', textAlign: 'center' }}>
+                          🧾 View Slip
+                        </a>
+                      )}
+                      {order.status === 'pending' && (
+                        <>
+                          <button onClick={() => approveEslOrder(order)}
+                            disabled={approvingOrder === order.id}
+                            style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
+                            {approvingOrder === order.id ? 'Approving...' : '✅ Approve & Send Link'}
+                          </button>
+                          <button onClick={() => rejectEslOrder(order.id)}
+                            style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                            ❌ Reject
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
         {/* TEACHERS TAB */}
         {activeTab === 'teachers' && (
           teachers.length === 0 ? (
@@ -315,8 +424,6 @@ export default function AdminPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {teachers.map(teacher => (
                 <div key={teacher.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: teacher.status === 'pending' ? '2px solid #E85D26' : '1px solid #eee' }}>
-
-                  {/* HEADER ROW */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                       {teacher.photo_url ? (
@@ -343,8 +450,6 @@ export default function AdminPage() {
                         </div>
                       </div>
                     </div>
-
-                    {/* ACTION BUTTONS */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '160px' }}>
                       {teacher.status === 'pending' ? (
                         <>
@@ -371,8 +476,6 @@ export default function AdminPage() {
                       )}
                     </div>
                   </div>
-
-                  {/* QUICK INFO */}
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
                     {teacher.hourly_rate && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>💰 {teacher.hourly_rate}</span>}
                     {teacher.online_available && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>🌐 Online</span>}
@@ -381,8 +484,6 @@ export default function AdminPage() {
                     ))}
                     {teacher.subjects?.length > 4 && <span style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>+{teacher.subjects.length - 4} more</span>}
                   </div>
-
-                  {/* TEMPLATE SELECTOR */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#555' }}>🎨 Template:</span>
                     {['modern', 'bold', 'professional', 'friendly'].map(t => (
@@ -393,71 +494,20 @@ export default function AdminPage() {
                       </button>
                     ))}
                   </div>
-
-                  {/* EXPAND / COLLAPSE */}
                   <button onClick={() => setExpandedTeacher(expandedTeacher === teacher.id ? null : teacher.id)}
                     style={{ background: '#f9f9f9', border: '1px solid #eee', color: '#555', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', width: '100%' }}>
                     {expandedTeacher === teacher.id ? '▲ Hide Details' : '▼ View Full Application'}
                   </button>
-
-                  {/* EXPANDED DETAILS */}
                   {expandedTeacher === teacher.id && (
                     <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
-
-                      {teacher.tagline && (
-                        <div>
-                          <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Tagline</div>
-                          <div style={{ color: '#444', fontSize: '14px', fontStyle: 'italic' }}>"{teacher.tagline}"</div>
-                        </div>
-                      )}
-
-                      {teacher.bio && (
-                        <div>
-                          <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>About Me</div>
-                          <div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6', background: '#f9f9f9', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-line' }}>{teacher.bio}</div>
-                        </div>
-                      )}
-
-                      {teacher.teaching_style && (
-                        <div>
-                          <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Teaching Style</div>
-                          <div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6', background: '#f9f9f9', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-line' }}>{teacher.teaching_style}</div>
-                        </div>
-                      )}
-
+                      {teacher.tagline && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Tagline</div><div style={{ color: '#444', fontSize: '14px', fontStyle: 'italic' }}>"{teacher.tagline}"</div></div>}
+                      {teacher.bio && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>About Me</div><div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6', background: '#f9f9f9', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-line' }}>{teacher.bio}</div></div>}
+                      {teacher.teaching_style && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Teaching Style</div><div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6', background: '#f9f9f9', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-line' }}>{teacher.teaching_style}</div></div>}
                       <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-                        {teacher.levels?.length > 0 && (
-                          <div style={{ flex: 1, minWidth: '200px' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Teaching Levels</div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                              {teacher.levels.map((l: string) => (
-                                <span key={l} style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>{l}</span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        {teacher.certifications?.length > 0 && (
-                          <div style={{ flex: 1, minWidth: '200px' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Certifications</div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                              {teacher.certifications.map((c: string) => (
-                                <span key={c} style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>{c}</span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                        {teacher.levels?.length > 0 && <div style={{ flex: 1, minWidth: '200px' }}><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Teaching Levels</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>{teacher.levels.map((l: string) => <span key={l} style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>{l}</span>)}</div></div>}
+                        {teacher.certifications?.length > 0 && <div style={{ flex: 1, minWidth: '200px' }}><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Certifications</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>{teacher.certifications.map((c: string) => <span key={c} style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>{c}</span>)}</div></div>}
                       </div>
-
-                      {teacher.qualifications?.length > 0 && (
-                        <div>
-                          <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Qualifications</div>
-                          {teacher.qualifications.map((q: string) => (
-                            <div key={q} style={{ color: '#444', fontSize: '14px', marginBottom: '4px' }}>🎓 {q}</div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* CONTACT */}
+                      {teacher.qualifications?.length > 0 && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Qualifications</div>{teacher.qualifications.map((q: string) => <div key={q} style={{ color: '#444', fontSize: '14px', marginBottom: '4px' }}>🎓 {q}</div>)}</div>}
                       <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '16px' }}>
                         <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '10px' }}>Contact Details</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
@@ -468,22 +518,8 @@ export default function AdminPage() {
                           {teacher.facebook && <div style={{ fontSize: '13px', color: '#444' }}>👍 <a href={teacher.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#2D6BE4' }}>Facebook</a></div>}
                         </div>
                       </div>
-
-                      {teacher.notes && (
-                        <div>
-                          <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Notes from Applicant</div>
-                          <div style={{ color: '#444', fontSize: '14px', background: '#fff3ed', padding: '12px', borderRadius: '8px', border: '1px solid #ffd4b8' }}>{teacher.notes}</div>
-                        </div>
-                      )}
-
-                      {teacher.status === 'approved' && (
-                        <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '13px' }}>🔗 Live URL:</span>
-                          <a href={`/teachers/${teacher.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#2D6BE4', fontSize: '13px' }}>
-                            www.jobsinthailand.net/teachers/{teacher.slug}
-                          </a>
-                        </div>
-                      )}
+                      {teacher.notes && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Notes from Applicant</div><div style={{ color: '#444', fontSize: '14px', background: '#fff3ed', padding: '12px', borderRadius: '8px', border: '1px solid #ffd4b8' }}>{teacher.notes}</div></div>}
+                      {teacher.status === 'approved' && <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '13px' }}>🔗 Live URL:</span><a href={`/teachers/${teacher.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#2D6BE4', fontSize: '13px' }}>www.jobsinthailand.net/teachers/{teacher.slug}</a></div>}
                     </div>
                   )}
                 </div>
@@ -507,18 +543,12 @@ export default function AdminPage() {
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
                         <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{member.full_name || 'No name'}</span>
-                        {member.active ? (
-                          <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Active</span>
-                        ) : (
-                          <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending</span>
-                        )}
+                        {member.active ? <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Active</span> : <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending</span>}
                       </div>
                       {member.company && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>🏢 {member.company}</div>}
                       {member.phone && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📞 {member.phone}</div>}
                       {member.line_id && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>💬 LINE: {member.line_id}</div>}
-                      <div style={{ color: '#999', fontSize: '12px' }}>
-                        Registered: {new Date(member.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </div>
+                      <div style={{ color: '#999', fontSize: '12px' }}>Registered: {new Date(member.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <button onClick={() => toggleRentalActivation(member.id, member.active)}
@@ -538,7 +568,7 @@ export default function AdminPage() {
         )}
 
         {/* CONTACT MESSAGES */}
-        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && (
+        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
@@ -573,20 +603,11 @@ export default function AdminPage() {
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     {!msg.read ? (
-                      <button onClick={() => markRead(msg.id)}
-                        style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
-                        ✓ Mark as Read
-                      </button>
+                      <button onClick={() => markRead(msg.id)} style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>✓ Mark as Read</button>
                     ) : (
-                      <button onClick={() => markUnread(msg.id)}
-                        style={{ background: '#f0f0f0', color: '#666', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
-                        Mark Unread
-                      </button>
+                      <button onClick={() => markUnread(msg.id)} style={{ background: '#f0f0f0', color: '#666', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>Mark Unread</button>
                     )}
-                    <button onClick={() => deleteMessage(msg.id)}
-                      style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>
-                      🗑 Delete
-                    </button>
+                    <button onClick={() => deleteMessage(msg.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>🗑 Delete</button>
                   </div>
                 </div>
               ))}
@@ -613,13 +634,9 @@ export default function AdminPage() {
                       </div>
                       <div style={{ color: '#666', fontSize: '13px' }}>👤 {msg.user_email}</div>
                     </div>
-                    <div style={{ color: '#999', fontSize: '12px' }}>
-                      {new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </div>
+                    <div style={{ color: '#999', fontSize: '12px' }}>{new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                   </div>
-                  <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>
-                    {msg.message}
-                  </div>
+                  <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>{msg.message}</div>
                   {msg.reply && (
                     <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '14px', marginBottom: '16px', border: '1px solid #ffd4b8' }}>
                       <div style={{ fontWeight: 'bold', color: '#E85D26', fontSize: '13px', marginBottom: '6px' }}>Your reply:</div>
@@ -627,28 +644,19 @@ export default function AdminPage() {
                     </div>
                   )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <textarea
-                      value={replyText[msg.id] || ''}
-                      onChange={e => setReplyText(prev => ({ ...prev, [msg.id]: e.target.value }))}
-                      placeholder={msg.reply ? 'Update your reply...' : 'Type your reply here — member will see this in their account...'}
+                    <textarea value={replyText[msg.id] || ''} onChange={e => setReplyText(prev => ({ ...prev, [msg.id]: e.target.value }))}
+                      placeholder={msg.reply ? 'Update your reply...' : 'Type your reply here...'}
                       rows={3}
                       style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button onClick={() => sendReply(msg.id)}
-                        disabled={replying === msg.id || !replyText[msg.id]?.trim()}
+                      <button onClick={() => sendReply(msg.id)} disabled={replying === msg.id || !replyText[msg.id]?.trim()}
                         style={{ background: replying === msg.id ? '#ccc' : '#E85D26', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: replying === msg.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
                         {replying === msg.id ? 'Sending...' : msg.reply ? '📝 Update Reply' : '📨 Send Reply to Member'}
                       </button>
                       {!msg.read_by_admin && (
-                        <button onClick={() => markMemberRead(msg.id)}
-                          style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
-                          ✓ Mark Read
-                        </button>
+                        <button onClick={() => markMemberRead(msg.id)} style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>✓ Mark Read</button>
                       )}
-                      <button onClick={() => deleteMemberMessage(msg.id)}
-                        style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>
-                        🗑 Delete
-                      </button>
+                      <button onClick={() => deleteMemberMessage(msg.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>🗑 Delete</button>
                     </div>
                   </div>
                 </div>
