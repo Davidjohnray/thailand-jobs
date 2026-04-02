@@ -27,11 +27,11 @@ export default function ESLResourcesPage() {
         <div style={{ fontSize: '48px', marginBottom: '12px' }}>📖</div>
         <h1 style={{ fontSize: '36px', fontWeight: 'bold', margin: '0 0 12px' }}>ESL Resources</h1>
         <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '600px', margin: '0 auto 8px' }}>
-  ESL lesson plans for all ages
-</p>
-<p style={{ fontSize: '15px', opacity: 0.8, maxWidth: '500px', margin: '0 auto' }}>
-  Designed for bilingual schools, private kindergartens, and ESL programs in Thailand
-</p>
+          ESL lesson plans for all ages
+        </p>
+        <p style={{ fontSize: '15px', opacity: 0.8, maxWidth: '500px', margin: '0 auto' }}>
+          Designed for bilingual schools, private kindergartens, and ESL programs in Thailand
+        </p>
       </div>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px' }}>
@@ -78,9 +78,9 @@ export default function ESLResourcesPage() {
         </div>
 
         {/* INFO SECTION */}
-        <div style={{ marginTop: '60px', background: 'white', borderRadius: '16px', padding: '40px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '32px' }}>
+        <div style={{ marginTop: '60px', background: 'white', borderRadius: '16px', padding: '40px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '32px' }}>
           {[
-            { icon: '🎯', title: 'Ages 3–6', desc: 'Designed for Pre-K, K1, and K2. No reading or writing required.' },
+            { icon: '🎯', title: 'All Ages', desc: 'Starting with Pre-K, K1, and K2, with more age groups coming soon.' },
             { icon: '⏱️', title: '30–45 Minutes', desc: 'Structured into short stages: hello routine, vocabulary, activity, practice, and review.' },
             { icon: '🏫', title: 'School Ready', desc: 'Trusted by bilingual schools and private kindergartens across Thailand.' },
             { icon: '✅', title: 'No Prep', desc: 'Print and teach. Every pack includes flashcards, worksheets, and teacher notes.' },
