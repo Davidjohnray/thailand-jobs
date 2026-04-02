@@ -130,6 +130,12 @@ export default function Navbar() {
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                   📄 CV Builder
                 </Link>
+                <Link href="/esl-resources" onClick={() => setServicesOpen(false)}
+                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  📖 ESL Resources
+                </Link>
                 <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
                 <Link href="/advertise" onClick={() => setServicesOpen(false)}
                   style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#2D6BE4', fontSize: '14px', fontWeight: 'bold' }}
@@ -221,6 +227,9 @@ export default function Navbar() {
               <Link href="/cv-builder" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
                 📄 CV Builder
               </Link>
+              <Link href="/esl-resources" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                📖 ESL Resources
+              </Link>
               <Link href="/advertise" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
                 📢 Advertise With Us
               </Link>
@@ -234,7 +243,6 @@ export default function Navbar() {
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
 
-            {/* LOGIN / ACCOUNT */}
             {isLoggedIn ? (
               <Link href="/account/dashboard" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>
                 👤 My Account
@@ -245,12 +253,10 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* POST A JOB */}
             <Link href="/employers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px', borderRadius: '8px', background: '#E85D26', fontWeight: 'bold', textAlign: 'center' }}>
               📝 Post a Job
             </Link>
 
-            {/* ADMIN */}
             <Link href="/admin" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'white', fontWeight: 'bold', textAlign: 'center' }}>
               🔐 Admin
             </Link>
@@ -259,7 +265,6 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* CSS */}
       <style>{`
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
