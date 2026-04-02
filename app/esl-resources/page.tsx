@@ -27,11 +27,11 @@ export default function ESLResourcesPage() {
         <div style={{ fontSize: '48px', marginBottom: '12px' }}>📖</div>
         <h1 style={{ fontSize: '36px', fontWeight: 'bold', margin: '0 0 12px' }}>ESL Resources</h1>
         <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '600px', margin: '0 auto 8px' }}>
-          Kindergarten ESL lesson plans for ages 3–6
-        </p>
-        <p style={{ fontSize: '15px', opacity: 0.8, maxWidth: '500px', margin: '0 auto' }}>
-          Designed for bilingual schools, private kindergartens, and ESL programs in Thailand
-        </p>
+  ESL lesson plans for all ages
+</p>
+<p style={{ fontSize: '15px', opacity: 0.8, maxWidth: '500px', margin: '0 auto' }}>
+  Designed for bilingual schools, private kindergartens, and ESL programs in Thailand
+</p>
       </div>
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 24px' }}>
