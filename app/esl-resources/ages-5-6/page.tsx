@@ -6,6 +6,8 @@ import { supabase } from '../../../src/lib/supabase'
 export default function Ages56Page() {
   const [plans, setPlans] = useState<any[]>([])
   const [selected, setSelected] = useState<string[]>([])
+  const [search, setSearch] = useState('')
+  const accent = '#7C3AED'
 
   useEffect(() => {
     supabase.from('lesson_plans').select('*').eq('is_active', true).eq('age_group', '4-5')
@@ -13,12 +15,16 @@ export default function Ages56Page() {
       .then(({ data }: { data: any }) => setPlans(data || []))
   }, [])
 
-  const freePlans = plans.filter((p: any) => p.is_free)
-  const paidPlans = plans.filter((p: any) => !p.is_free)
+  const filtered = plans.filter((p: any) =>
+    p.title.toLowerCase().includes(search.toLowerCase()) ||
+    (p.theme && p.theme.toLowerCase().includes(search.toLowerCase())) ||
+    (p.description && p.description.toLowerCase().includes(search.toLowerCase()))
+  )
+  const freePlans = filtered.filter((p: any) => p.is_free)
+  const paidPlans = filtered.filter((p: any) => !p.is_free)
   const toggleSelect = (slug: string) => setSelected(prev => prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug])
   const selectedTitles = selected.map(slug => plans.find((p: any) => p.slug === slug)?.title).filter(Boolean)
   const contactMessage = `Hi, I would like to purchase the following ${selected.length} lesson plan(s) for Ages 5-6:\n\n${selectedTitles.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\nTotal: ${selected.length * 10}฿\n\nPlease send me the payment details. Thank you!`
-  const accent = '#7C3AED'
 
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh', paddingBottom: selected.length > 0 ? '100px' : '0' }}>
@@ -39,41 +45,79 @@ export default function Ages56Page() {
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 24px' }}>
 
-        <div style={{ marginBottom: '40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Free Lesson Plans</h2>
-            <span style={{ background: '#22c55e', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '20px' }}>FREE</span>
+        {/* SEARCH */}
+        <div style={{ marginBottom: '28px' }}>
+          <div style={{ position: 'relative', maxWidth: '420px' }}>
+            <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', pointerEvents: 'none' }}>🔍</span>
+            <input
+              type="text"
+              placeholder="Search lesson plans..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ width: '100%', padding: '12px 14px 12px 42px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '15px', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' }}
+              onFocus={e => (e.target.style.borderColor = accent)}
+              onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
+            />
+            {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#888' }}>✕</button>}
           </div>
-          {freePlans.length === 0 ? (
-            <div style={{ background: 'white', borderRadius: '12px', padding: '36px', textAlign: 'center', color: '#888' }}><p>Free lesson plans coming soon!</p></div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-              {freePlans.map((plan: any) => <PlanCard key={plan.id} plan={plan} selectable={false} selected={false} onToggle={() => {}} accent={accent} />)}
-            </div>
-          )}
+          {search && <p style={{ marginTop: '8px', color: '#666', fontSize: '13px' }}>{filtered.length} result{filtered.length !== 1 ? 's' : ''} for "<strong>{search}</strong>"</p>}
         </div>
 
-        <div style={{ background: 'linear-gradient(135deg, #fdf4ff, #f3eeff)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px 24px', marginBottom: '20px' }}>
-          <div style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px', marginBottom: '6px' }}>Premium Lesson Plans</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ background: 'white', borderRadius: '8px', padding: '8px 16px', border: '1px solid #e5e7eb', fontWeight: 'bold', color: accent, fontSize: '18px' }}>10฿ <span style={{ color: '#888', fontSize: '13px', fontWeight: 'normal' }}>per plan</span></span>
-            <span style={{ color: '#666', fontSize: '13px' }}>Select the plans you want and contact us to order.</span>
-          </div>
-        </div>
-
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Premium Plans</h2>
-            {selected.length > 0 && <button onClick={() => setSelected([])} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Clear selection</button>}
-          </div>
-          {paidPlans.length === 0 ? (
-            <div style={{ background: 'white', borderRadius: '12px', padding: '36px', textAlign: 'center', color: '#888', border: '1px dashed #e5e7eb' }}><p>Premium plans coming soon!</p></div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-              {paidPlans.map((plan: any) => <PlanCard key={plan.id} plan={plan} selectable={true} selected={selected.includes(plan.slug)} onToggle={() => toggleSelect(plan.slug)} accent={accent} />)}
+        {!search && (
+          <div style={{ marginBottom: '40px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Free Lesson Plans</h2>
+              <span style={{ background: '#22c55e', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '20px' }}>FREE</span>
             </div>
-          )}
-        </div>
+            {freePlans.length === 0 ? (
+              <div style={{ background: 'white', borderRadius: '12px', padding: '36px', textAlign: 'center', color: '#888' }}><p>Free lesson plans coming soon!</p></div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                {freePlans.map((plan: any) => <PlanCard key={plan.id} plan={plan} selectable={false} selected={false} onToggle={() => {}} accent={accent} />)}
+              </div>
+            )}
+          </div>
+        )}
+
+        {search && (
+          <div style={{ marginBottom: '40px' }}>
+            {filtered.length === 0 ? (
+              <div style={{ background: 'white', borderRadius: '12px', padding: '36px', textAlign: 'center', color: '#888' }}>
+                <p style={{ fontSize: '16px', marginBottom: '8px' }}>No plans found for "{search}"</p>
+                <p style={{ fontSize: '13px' }}>Try a different search term</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                {filtered.map((plan: any) => <PlanCard key={plan.id} plan={plan} selectable={!plan.is_free} selected={selected.includes(plan.slug)} onToggle={() => toggleSelect(plan.slug)} accent={accent} />)}
+              </div>
+            )}
+          </div>
+        )}
+
+        {!search && (
+          <>
+            <div style={{ background: 'linear-gradient(135deg, #fdf4ff, #f3eeff)', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '20px 24px', marginBottom: '20px' }}>
+              <div style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px', marginBottom: '6px' }}>Premium Lesson Plans</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ background: 'white', borderRadius: '8px', padding: '8px 16px', border: '1px solid #e5e7eb', fontWeight: 'bold', color: accent, fontSize: '18px' }}>10฿ <span style={{ color: '#888', fontSize: '13px', fontWeight: 'normal' }}>per plan</span></span>
+                <span style={{ color: '#666', fontSize: '13px' }}>Select the plans you want and contact us to order.</span>
+              </div>
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Premium Plans</h2>
+                {selected.length > 0 && <button onClick={() => setSelected([])} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Clear selection</button>}
+              </div>
+              {paidPlans.length === 0 ? (
+                <div style={{ background: 'white', borderRadius: '12px', padding: '36px', textAlign: 'center', color: '#888', border: '1px dashed #e5e7eb' }}><p>Premium plans coming soon!</p></div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                  {paidPlans.map((plan: any) => <PlanCard key={plan.id} plan={plan} selectable={true} selected={selected.includes(plan.slug)} onToggle={() => toggleSelect(plan.slug)} accent={accent} />)}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {selected.length > 0 && (
@@ -100,7 +144,7 @@ function PlanCard({ plan, selectable, selected, onToggle, accent }: any) {
           {selected && <span style={{ color: 'white', fontSize: '13px', fontWeight: 'bold' }}>✓</span>}
         </div>
       )}
-      <div style={{ height: '130px', background: `linear-gradient(135deg, ${accent}15, ${accent}25)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px', position: 'relative' }}>
+      <div style={{ height: '130px', background: 'linear-gradient(135deg, #fdf4ff, #f3eeff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px', position: 'relative' }}>
         {plan.preview_image_url ? <img src={plan.preview_image_url} alt={plan.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📚'}
         <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
           {plan.is_free
@@ -109,7 +153,7 @@ function PlanCard({ plan, selectable, selected, onToggle, accent }: any) {
         </div>
       </div>
       <div style={{ padding: '14px' }}>
-        {plan.theme && <span style={{ background: `${accent}15`, color: accent, fontSize: '11px', padding: '2px 8px', borderRadius: '12px', display: 'inline-block', marginBottom: '8px' }}>{plan.theme}</span>}
+        {plan.theme && <span style={{ background: '#fdf4ff', color: accent, fontSize: '11px', padding: '2px 8px', borderRadius: '12px', display: 'inline-block', marginBottom: '8px' }}>{plan.theme}</span>}
         <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 6px' }}>{plan.title}</h3>
         {plan.description && <p style={{ fontSize: '12px', color: '#666', margin: 0, lineHeight: '1.5' }}>{plan.description}</p>}
         <div style={{ marginTop: '12px', color: plan.is_free ? '#22c55e' : accent, fontSize: '13px', fontWeight: 'bold' }}>
