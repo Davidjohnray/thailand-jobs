@@ -5,37 +5,21 @@ export default function ESLResourcesPage() {
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh' }}>
 
-      {/* HERO */}
       <div style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #E85D26 100%)', padding: '70px 24px', textAlign: 'center', color: 'white' }}>
         <div style={{ fontSize: '52px', marginBottom: '16px' }}>📖</div>
         <h1 style={{ fontSize: '40px', fontWeight: 'bold', margin: '0 0 14px', letterSpacing: '-1px' }}>ESL Resources</h1>
-        <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '560px', margin: '0 auto 10px' }}>
-          Ready-to-teach ESL lesson plans for all ages
-        </p>
-        <p style={{ fontSize: '14px', opacity: 0.75, maxWidth: '480px', margin: '0 auto' }}>
-          Designed for bilingual schools, private kindergartens, and ESL programs in Thailand
-        </p>
+        <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '560px', margin: '0 auto 10px' }}>Ready-to-teach ESL lesson plans for all ages</p>
+        <p style={{ fontSize: '14px', opacity: 0.75, maxWidth: '480px', margin: '0 auto' }}>Designed for bilingual schools, private kindergartens, and ESL programs in Thailand</p>
       </div>
 
-      {/* PRICING BAR */}
       <div style={{ background: '#1a1a2e', padding: '20px 24px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ color: '#FBBF24', fontWeight: 'bold', fontSize: '14px', marginRight: '8px' }}>Pricing:</span>
-          {[
-            { label: 'Single', usd: '$1', thb: '35฿' },
-            { label: '5-Pack', usd: '$4', thb: '140฿' },
-            { label: '10-Pack', usd: '$7.50', thb: '250฿' },
-            { label: '20-Pack', usd: '$14', thb: '490฿' },
-          ].map((item, i) => (
-            <span key={i} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', fontSize: '13px', padding: '6px 14px', borderRadius: '20px' }}>
-              {item.label}: <strong style={{ color: '#FBBF24' }}>{item.usd}</strong> / {item.thb}
-            </span>
-          ))}
-          <span style={{ color: '#22c55e', fontSize: '13px', fontWeight: 'bold', marginLeft: '8px' }}>Free plans available</span>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <span style={{ color: '#FBBF24', fontWeight: 'bold', fontSize: '15px' }}>💰 Premium plans: 10฿ each</span>
+          <span style={{ color: 'rgba(255,255,255,0.4)' }}>|</span>
+          <span style={{ color: '#22c55e', fontSize: '14px', fontWeight: 'bold' }}>✅ Free plans available in every subject</span>
         </div>
       </div>
 
-      {/* AGE GROUP BANNERS */}
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '48px 24px' }}>
         <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px', textAlign: 'center' }}>Choose an Age Group</h2>
         <p style={{ color: '#888', textAlign: 'center', marginBottom: '36px', fontSize: '15px' }}>Select the age group you teach to browse lesson plans</p>
@@ -92,7 +76,6 @@ export default function ESLResourcesPage() {
 
         </div>
 
-        {/* INFO STRIP */}
         <div style={{ background: 'white', borderRadius: '16px', padding: '36px 40px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
           {[
             { icon: '🎯', title: 'All Ages', desc: 'Pre-K through to secondary school, with new plans added regularly.' },
@@ -107,7 +90,6 @@ export default function ESLResourcesPage() {
             </div>
           ))}
         </div>
-
       </div>
     </main>
   )
