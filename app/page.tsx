@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { supabase } from '../src/lib/supabase'
 import HomeFeaturedJobs from '../components/HomeFeaturedJobs'
+import BuyMeCoffee from '../components/BuyMeCoffee'
 
 export const revalidate = 0
 
@@ -110,7 +111,6 @@ export default async function Home() {
           {/* MOBILE ADS */}
           <div className="mobile-ads" style={{ flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
 
-            {/* RENTALS - MOBILE */}
             <a href="/rentals" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', padding: '20px', border: '2px solid #E85D26', textAlign: 'center' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏠</div>
@@ -120,7 +120,6 @@ export default async function Home() {
               </div>
             </a>
 
-            {/* LUCKY CLEANING - MOBILE */}
             <a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=mobile_banner&utm_campaign=lucky_cleaning"
               target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
               <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
@@ -128,7 +127,6 @@ export default async function Home() {
               </div>
             </a>
 
-            {/* THAI EXPAT SERVICES - MOBILE */}
             <Link href="/coming-soon" style={{ textDecoration: 'none' }}>
               <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', border: '2px solid #E85D26' }}>
                 <div style={{ background: '#E85D26', padding: '8px', textAlign: 'center' }}>
@@ -180,7 +178,6 @@ export default async function Home() {
         <div className="ad-sidebar" style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
 
-          {/* LUCKY CLEANING SERVICE - DESKTOP */}
           <a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=banner&utm_campaign=lucky_cleaning"
             target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
@@ -239,6 +236,24 @@ export default async function Home() {
           <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '16px 48px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '18px', display: 'inline-block' }}>
             Send us a Message
           </Link>
+        </div>
+      </section>
+
+      {/* SUPPORT THE SITE */}
+      <section style={{ background: '#fffbeb', padding: '48px 24px', textAlign: 'center', borderTop: '1px solid #fde68a' }}>
+        <div style={{ maxWidth: '580px', margin: '0 auto' }}>
+          <div style={{ fontSize: '40px', marginBottom: '12px' }}>🙏</div>
+          <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#92400e', marginBottom: '12px' }}>This site is completely free</h2>
+          <p style={{ color: '#78350f', fontSize: '15px', lineHeight: '1.8', marginBottom: '8px' }}>
+            Jobs in Thailand is run by one person, with no corporate backing, no investors, and no ads selling your data.
+          </p>
+          <p style={{ color: '#78350f', fontSize: '15px', lineHeight: '1.8', marginBottom: '8px' }}>
+            Every job listing, every ESL game, every lesson plan page — built and maintained solo, for the teaching community in Thailand.
+          </p>
+          <p style={{ color: '#92400e', fontSize: '15px', fontWeight: 'bold', lineHeight: '1.8', marginBottom: '24px' }}>
+            If this site helped you find a job, a teacher, or a great classroom game — a small coffee means the world. ☕
+          </p>
+          <BuyMeCoffee />
         </div>
       </section>
 
