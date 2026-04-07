@@ -1,0 +1,50 @@
+'use client'
+import Link from 'next/link'
+
+const games = [
+  { slug: 'flashcard-slap', title: 'Flashcard Slap', emoji: '👋', summary: 'Two students race to slap the correct flashcard when teacher calls the word.', time: '10-15 min', energy: 'High', players: '2 at a time' },
+  { slug: 'bomb-game', title: 'The Bomb Game', emoji: '💣', summary: 'Pass the bomb! Whoever is holding it when the timer goes off must answer a question.', time: '10-15 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'hot-seat', title: 'Hot Seat', emoji: '🪑', summary: 'One child sits facing the class. A word appears behind them. Class describes it without saying it.', time: '15-20 min', energy: 'Low-Medium', players: 'One at a time' },
+  { slug: 'simon-says', title: 'Simon Says', emoji: '🙋', summary: 'Children only follow instructions starting with "Simon says". Great for action verbs.', time: '5-10 min', energy: 'High', players: 'Whole class' },
+  { slug: 'snakes-and-ladders', title: 'Snakes and Ladders', emoji: '🐍', summary: 'Classic board game but landing on a square means answering a vocabulary question.', time: '20-30 min', energy: 'Low', players: '2-4 per group' },
+]
+
+export default function Ages56GamesPage() {
+  return (
+    <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh' }}>
+      <div style={{ background: 'linear-gradient(135deg, #7C3AED, #9f67f5)', padding: '52px 24px', color: 'white' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <Link href="/esl-games" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontSize: '14px' }}>← Back to ESL Games</Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '20px' }}>
+            <div style={{ fontSize: '52px' }}>🌟</div>
+            <div>
+              <h1 style={{ fontSize: '36px', fontWeight: 'bold', margin: '0 0 6px' }}>Ages 5-6 Games</h1>
+              <p style={{ opacity: 0.9, fontSize: '16px', margin: '0 0 4px' }}>K1-K2 Level</p>
+              <p style={{ opacity: 0.8, fontSize: '14px', margin: 0 }}>Flashcard games, speaking activities, and fun group challenges.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+          {games.map(game => (
+            <Link key={game.slug} href={`/esl-games/ages-5-6/${game.slug}`} style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'white', borderRadius: '14px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)' }}>
+                <div style={{ fontSize: '40px', marginBottom: '12px' }}>{game.emoji}</div>
+                <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 8px' }}>{game.title}</h3>
+                <p style={{ color: '#666', fontSize: '13px', lineHeight: '1.5', margin: '0 0 16px' }}>{game.summary}</p>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ background: '#fdf4ff', color: '#7C3AED', fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '12px' }}>⏱ {game.time}</span>
+                  <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '12px' }}>⚡ {game.energy}</span>
+                  <span style={{ background: '#f0f4ff', color: '#2D6BE4', fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '12px' }}>👥 {game.players}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </main>
+  )
+}
