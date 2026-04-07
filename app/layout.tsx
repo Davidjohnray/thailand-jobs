@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '../components/Navbar'
 import VisitorCounter from '../components/VisitorCounter'
+import MarqueeBar from '../components/MarqueeBar'
 
 export const metadata: Metadata = {
   title: {
@@ -89,6 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ margin: 0, fontFamily: 'Arial, sans-serif', background: '#f9f9f9' }}>
         <Navbar />
+        <MarqueeBar />
         {children}
         <VisitorCounter />
       </body>
