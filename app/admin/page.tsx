@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../src/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 
@@ -79,9 +79,7 @@ function EmailMembers() {
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('adminAuthed') === 'true'
-    }
+    if (typeof window !== 'undefined') return sessionStorage.getItem('adminAuthed') === 'true'
     return false
   })
   const [password, setPassword] = useState('')
@@ -101,6 +99,8 @@ export default function AdminPage() {
   const [approvingOrder, setApprovingOrder] = useState<string | null>(null)
   const [showBlogForm, setShowBlogForm] = useState(false)
   const [editingPost, setEditingPost] = useState<any>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const emptyBlogForm = { title: '', slug: '', excerpt: '', content: '', author: 'Jobs in Thailand', category: '', cover_image_url: '', is_published: false }
   const [blogForm, setBlogForm] = useState(emptyBlogForm)
@@ -131,6 +131,23 @@ export default function AdminPage() {
     sessionStorage.removeItem('adminAuthed')
   }
 
+  const uploadCoverImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingImage(true)
+    const ext = file.name.split('.').pop()
+    const filename = `cover-${Date.now()}.${ext}`
+    const { error } = await adminSupabase.storage.from('blog-images').upload(filename, file, { upsert: true })
+    if (error) {
+      alert('Upload failed: ' + error.message)
+      setUploadingImage(false)
+      return
+    }
+    const { data } = adminSupabase.storage.from('blog-images').getPublicUrl(filename)
+    setBlogForm(prev => ({ ...prev, cover_image_url: data.publicUrl }))
+    setUploadingImage(false)
+  }
+
   const loadMessages = async () => {
     setLoading(true)
     const { data } = await supabase.from('messages').select('*').order('created_at', { ascending: false })
@@ -157,10 +174,7 @@ export default function AdminPage() {
   }
 
   const loadEslOrders = async () => {
-    const { data } = await adminSupabase
-      .from('lesson_plan_orders')
-      .select('*, lesson_plans(title, price, pack_type)')
-      .order('created_at', { ascending: false })
+    const { data } = await adminSupabase.from('lesson_plan_orders').select('*, lesson_plans(title, price, pack_type)').order('created_at', { ascending: false })
     setEslOrders(data || [])
   }
 
@@ -382,9 +396,38 @@ export default function AdminPage() {
                   <input placeholder="Author name" value={blogForm.author}
                     onChange={e => setBlogForm({ ...blogForm, author: e.target.value })}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any }} />
-                  <input placeholder="Cover image URL (optional)" value={blogForm.cover_image_url}
-                    onChange={e => setBlogForm({ ...blogForm, cover_image_url: e.target.value })}
-                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any }} />
+
+                  {/* IMAGE UPLOAD */}
+                  <div>
+                    <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '8px' }}>Cover Image</label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={uploadCoverImage}
+                        style={{ display: 'none' }}
+                      />
+                      <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage}
+                        style={{ background: uploadingImage ? '#ccc' : '#1a1a2e', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: uploadingImage ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '14px', flexShrink: 0 }}>
+                        {uploadingImage ? '⏳ Uploading...' : '📷 Upload Image'}
+                      </button>
+                      {blogForm.cover_image_url && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                          <img src={blogForm.cover_image_url} alt="Cover preview" style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e5e7eb' }} />
+                          <span style={{ color: '#22c55e', fontSize: '13px', fontWeight: 'bold' }}>✓ Image uploaded</span>
+                          <button type="button" onClick={() => setBlogForm(prev => ({ ...prev, cover_image_url: '' }))}
+                            style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                      {!blogForm.cover_image_url && (
+                        <span style={{ color: '#aaa', fontSize: '13px' }}>No image selected — JPG, PNG or WebP</span>
+                      )}
+                    </div>
+                  </div>
+
                   <textarea placeholder="Short excerpt (shown on listing page)" value={blogForm.excerpt}
                     onChange={e => setBlogForm({ ...blogForm, excerpt: e.target.value })} rows={2}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any, resize: 'vertical' as any }} />
@@ -418,16 +461,21 @@ export default function AdminPage() {
               <div style={{ display: 'grid', gap: '12px' }}>
                 {blogPosts.map((post: any) => (
                   <div key={post.id} style={{ background: 'white', borderRadius: '10px', padding: '18px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{post.title}</span>
-                        <span style={{ background: post.is_published ? '#dcfce7' : '#fef3c7', color: post.is_published ? '#16a34a' : '#d97706', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>
-                          {post.is_published ? 'Published' : 'Draft'}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
+                      {post.cover_image_url && (
+                        <img src={post.cover_image_url} alt={post.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }} />
+                      )}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{post.title}</span>
+                          <span style={{ background: post.is_published ? '#dcfce7' : '#fef3c7', color: post.is_published ? '#16a34a' : '#d97706', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>
+                            {post.is_published ? 'Published' : 'Draft'}
+                          </span>
+                        </div>
+                        <span style={{ color: '#888', fontSize: '12px' }}>
+                          {post.category && `${post.category} · `}{new Date(post.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                       </div>
-                      <span style={{ color: '#888', fontSize: '12px' }}>
-                        {post.category && `${post.category} · `}{new Date(post.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </span>
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                       <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"
@@ -530,9 +578,7 @@ export default function AdminPage() {
                         <div style={{ color: '#666', fontSize: '13px' }}>
                           {teacher.nationality && `🌍 ${teacher.nationality} · `}📍 {teacher.location}{teacher.experience_years && ` · ⭐ ${teacher.experience_years} yrs`}
                         </div>
-                        <div style={{ color: '#999', fontSize: '12px', marginTop: '2px' }}>
-                          Applied: {new Date(teacher.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </div>
+                        <div style={{ color: '#999', fontSize: '12px', marginTop: '2px' }}>Applied: {new Date(teacher.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '160px' }}>
