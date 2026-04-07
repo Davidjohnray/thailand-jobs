@@ -184,17 +184,24 @@ export default function AdminPage() {
   }
 
   const saveBlogPost = async () => {
-    if (!blogForm.title || !blogForm.slug) return alert('Title and slug are required')
-    if (editingPost) {
-      await adminSupabase.from('blog_posts').update({ ...blogForm, updated_at: new Date().toISOString() }).eq('id', editingPost.id)
-    } else {
-      await adminSupabase.from('blog_posts').insert([blogForm])
-    }
-    setShowBlogForm(false)
-    setEditingPost(null)
-    setBlogForm(emptyBlogForm)
-    loadBlogPosts()
+  if (!blogForm.title || !blogForm.slug) return alert('Title and slug are required')
+  let error
+  if (editingPost) {
+    const result = await adminSupabase.from('blog_posts').update({ ...blogForm, updated_at: new Date().toISOString() }).eq('id', editingPost.id)
+    error = result.error
+  } else {
+    const result = await adminSupabase.from('blog_posts').insert([blogForm])
+    error = result.error
   }
+  if (error) {
+    alert('Save failed: ' + error.message)
+    return
+  }
+  setShowBlogForm(false)
+  setEditingPost(null)
+  setBlogForm(emptyBlogForm)
+  loadBlogPosts()
+}
 
   const deleteBlogPost = async (id: string) => {
     if (!confirm('Delete this article?')) return
