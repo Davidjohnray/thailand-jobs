@@ -54,14 +54,14 @@ function EmailMembers() {
           <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Subject</label>
           <input value={subject} onChange={e => setSubject(e.target.value)}
             placeholder="e.g. New jobs just added in Bangkok!"
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }} />
         </div>
         <div>
           <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Message</label>
           <textarea value={message} onChange={e => setMessage(e.target.value)}
             placeholder="Type your message to members..."
             rows={6}
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }} />
         </div>
         {result && (
           <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
@@ -91,13 +91,19 @@ export default function AdminPage() {
   const [rentalMembers, setRentalMembers] = useState<any[]>([])
   const [teachers, setTeachers] = useState<any[]>([])
   const [eslOrders, setEslOrders] = useState<any[]>([])
+  const [blogPosts, setBlogPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null)
   const [teacherTemplate, setTeacherTemplate] = useState<Record<string, string>>({})
   const [approvingOrder, setApprovingOrder] = useState<string | null>(null)
+  const [showBlogForm, setShowBlogForm] = useState(false)
+  const [editingPost, setEditingPost] = useState<any>(null)
+
+  const emptyBlogForm = { title: '', slug: '', excerpt: '', content: '', author: 'Jobs in Thailand', category: '', cover_image_url: '', is_published: false }
+  const [blogForm, setBlogForm] = useState(emptyBlogForm)
 
   useEffect(() => {
     if (authed) {
@@ -106,6 +112,7 @@ export default function AdminPage() {
       loadRentalMembers()
       loadTeachers()
       loadEslOrders()
+      loadBlogPosts()
     }
   }, [authed])
 
@@ -114,11 +121,6 @@ export default function AdminPage() {
     if (password === ADMIN_PASSWORD) {
       setAuthed(true)
       sessionStorage.setItem('adminAuthed', 'true')
-      loadMessages()
-      loadMemberMessages()
-      loadRentalMembers()
-      loadTeachers()
-      loadEslOrders()
     } else {
       setWrongPassword(true)
     }
@@ -162,36 +164,41 @@ export default function AdminPage() {
     setEslOrders(data || [])
   }
 
+  const loadBlogPosts = async () => {
+    const { data } = await adminSupabase.from('blog_posts').select('*').order('created_at', { ascending: false })
+    setBlogPosts(data || [])
+  }
+
+  const saveBlogPost = async () => {
+    if (!blogForm.title || !blogForm.slug) return alert('Title and slug are required')
+    if (editingPost) {
+      await adminSupabase.from('blog_posts').update({ ...blogForm, updated_at: new Date().toISOString() }).eq('id', editingPost.id)
+    } else {
+      await adminSupabase.from('blog_posts').insert([blogForm])
+    }
+    setShowBlogForm(false)
+    setEditingPost(null)
+    setBlogForm(emptyBlogForm)
+    loadBlogPosts()
+  }
+
+  const deleteBlogPost = async (id: string) => {
+    if (!confirm('Delete this article?')) return
+    await adminSupabase.from('blog_posts').delete().eq('id', id)
+    loadBlogPosts()
+  }
+
   const approveEslOrder = async (order: any) => {
     if (!confirm(`Approve order for ${order.buyer_name} and send download link to ${order.buyer_email}?`)) return
     setApprovingOrder(order.id)
-
-    // Generate a simple download token
     const token = Math.random().toString(36).substring(2) + Date.now().toString(36)
-
-    const { error } = await adminSupabase
-      .from('lesson_plan_orders')
-      .update({ status: 'approved', download_token: token })
-      .eq('id', order.id)
-
-    if (error) {
-      alert('Error: ' + error.message)
-      setApprovingOrder(null)
-      return
-    }
-
-    // Send download email via API
+    const { error } = await adminSupabase.from('lesson_plan_orders').update({ status: 'approved', download_token: token }).eq('id', order.id)
+    if (error) { alert('Error: ' + error.message); setApprovingOrder(null); return }
     await fetch('/api/esl-order-approved', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: order.buyer_email,
-        name: order.buyer_name,
-        planTitle: order.lesson_plans?.title,
-        token,
-      }),
+      body: JSON.stringify({ email: order.buyer_email, name: order.buyer_name, planTitle: order.lesson_plans?.title, token }),
     })
-
     setEslOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'approved', download_token: token } : o))
     setApprovingOrder(null)
     alert('✅ Order approved and download email sent!')
@@ -205,11 +212,7 @@ export default function AdminPage() {
 
   const approveTeacher = async (id: string) => {
     if (!confirm('Approve this teacher profile and make it live?')) return
-    const { error } = await adminSupabase.from('teachers').update({
-      active: true,
-      status: 'approved',
-      template: teacherTemplate[id] || 'modern',
-    }).eq('id', id)
+    const { error } = await adminSupabase.from('teachers').update({ active: true, status: 'approved', template: teacherTemplate[id] || 'modern' }).eq('id', id)
     if (error) { alert('Error: ' + error.message); return }
     setTeachers(prev => prev.map(t => t.id === id ? { ...t, active: true, status: 'approved' } : t))
     alert('✅ Teacher profile is now live!')
@@ -228,8 +231,7 @@ export default function AdminPage() {
   }
 
   const toggleRentalActivation = async (id: string, currentStatus: boolean) => {
-    const action = currentStatus ? 'deactivate' : 'activate'
-    if (!confirm(`Are you sure you want to ${action} this rental member?`)) return
+    if (!confirm(`Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this rental member?`)) return
     const { error } = await adminSupabase.from('rental_profiles').update({ active: !currentStatus }).eq('id', id)
     if (error) { alert('Error: ' + error.message); return }
     setRentalMembers(prev => prev.map(m => m.id === id ? { ...m, active: !currentStatus } : m))
@@ -253,15 +255,13 @@ export default function AdminPage() {
 
   const deleteMessage = async (id: number) => {
     if (!confirm('Delete this message?')) return
-    const { error } = await supabase.from('messages').delete().eq('id', id)
-    if (error) { alert('Error deleting: ' + error.message); return }
+    await supabase.from('messages').delete().eq('id', id)
     setMessages(prev => prev.filter(m => m.id !== id))
   }
 
   const deleteMemberMessage = async (id: number) => {
     if (!confirm('Delete this message?')) return
-    const { error } = await adminSupabase.from('member_messages').delete().eq('id', id)
-    if (error) { alert('Error deleting: ' + error.message); return }
+    await adminSupabase.from('member_messages').delete().eq('id', id)
     setMemberMessages(prev => prev.filter(m => m.id !== id))
   }
 
@@ -269,12 +269,7 @@ export default function AdminPage() {
     const reply = replyText[id]
     if (!reply?.trim()) return
     setReplying(id)
-    await adminSupabase.from('member_messages').update({
-      reply,
-      replied_at: new Date().toISOString(),
-      read_by_admin: true,
-      read_by_user: false,
-    }).eq('id', id)
+    await adminSupabase.from('member_messages').update({ reply, replied_at: new Date().toISOString(), read_by_admin: true, read_by_user: false }).eq('id', id)
     setReplyText(prev => ({ ...prev, [id]: '' }))
     setReplying(null)
     loadMemberMessages()
@@ -301,7 +296,7 @@ export default function AdminPage() {
         <input type="password" value={password} onChange={e => { setPassword(e.target.value); setWrongPassword(false) }}
           onKeyDown={e => e.key === 'Enter' && handleLogin(e)}
           placeholder="Enter password"
-          style={{ width: '100%', padding: '14px', borderRadius: '8px', border: wrongPassword ? '2px solid red' : '1px solid #ddd', fontSize: '16px', outline: 'none', boxSizing: 'border-box', marginBottom: '8px', textAlign: 'center', letterSpacing: '4px' }} />
+          style={{ width: '100%', padding: '14px', borderRadius: '8px', border: wrongPassword ? '2px solid red' : '1px solid #ddd', fontSize: '16px', outline: 'none', boxSizing: 'border-box' as any, marginBottom: '8px', textAlign: 'center', letterSpacing: '4px' }} />
         {wrongPassword && <p style={{ color: 'red', fontSize: '13px', marginBottom: '12px' }}>Incorrect password</p>}
         <button onClick={handleLogin}
           style={{ width: '100%', background: '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '8px' }}>
@@ -325,7 +320,7 @@ export default function AdminPage() {
               {unreadCount + unreadMemberCount + pendingRentalCount + pendingTeacherCount + pendingEslCount} pending
             </span>
           )}
-          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders() }}
+          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts() }}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             🔄 Refresh
           </button>
@@ -347,6 +342,7 @@ export default function AdminPage() {
             { id: 'rentals', label: `🏠 Rentals (${rentalMembers.length})${pendingRentalCount > 0 ? ' 🔴' : ''}` },
             { id: 'teachers', label: `🎓 Teachers (${teachers.length})${pendingTeacherCount > 0 ? ' 🔴' : ''}` },
             { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
+            { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
             { id: 'email', label: '📧 Email Members' },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
@@ -358,6 +354,101 @@ export default function AdminPage() {
 
         {/* EMAIL TAB */}
         {activeTab === 'email' && <EmailMembers />}
+
+        {/* BLOG TAB */}
+        {activeTab === 'blog' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>Blog Posts</h2>
+              <button onClick={() => { setEditingPost(null); setBlogForm(emptyBlogForm); setShowBlogForm(true) }}
+                style={{ background: '#1a1a2e', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                + New Article
+              </button>
+            </div>
+
+            {showBlogForm && (
+              <div style={{ background: 'white', borderRadius: '12px', padding: '28px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <h3 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 'bold' }}>{editingPost ? 'Edit Article' : 'New Article'}</h3>
+                <div style={{ display: 'grid', gap: '14px' }}>
+                  <input placeholder="Title" value={blogForm.title}
+                    onChange={e => setBlogForm({ ...blogForm, title: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') })}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '15px', width: '100%', boxSizing: 'border-box' as any }} />
+                  <input placeholder="Slug (auto-generated)" value={blogForm.slug}
+                    onChange={e => setBlogForm({ ...blogForm, slug: e.target.value })}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any, color: '#888' }} />
+                  <input placeholder="Category (e.g. teaching, visa, expat life)" value={blogForm.category}
+                    onChange={e => setBlogForm({ ...blogForm, category: e.target.value })}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any }} />
+                  <input placeholder="Author name" value={blogForm.author}
+                    onChange={e => setBlogForm({ ...blogForm, author: e.target.value })}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any }} />
+                  <input placeholder="Cover image URL (optional)" value={blogForm.cover_image_url}
+                    onChange={e => setBlogForm({ ...blogForm, cover_image_url: e.target.value })}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any }} />
+                  <textarea placeholder="Short excerpt (shown on listing page)" value={blogForm.excerpt}
+                    onChange={e => setBlogForm({ ...blogForm, excerpt: e.target.value })} rows={2}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any, resize: 'vertical' as any }} />
+                  <textarea placeholder="Full article content (use blank lines to separate paragraphs)" value={blogForm.content}
+                    onChange={e => setBlogForm({ ...blogForm, content: e.target.value })} rows={20}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any, resize: 'vertical' as any, fontFamily: 'sans-serif', lineHeight: '1.6' }} />
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={blogForm.is_published} onChange={e => setBlogForm({ ...blogForm, is_published: e.target.checked })} />
+                    <span style={{ fontSize: '14px' }}>Publish immediately (visible on the blog)</span>
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                  <button onClick={saveBlogPost}
+                    style={{ background: '#1a1a2e', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                    {editingPost ? 'Save Changes' : 'Create Article'}
+                  </button>
+                  <button onClick={() => { setShowBlogForm(false); setEditingPost(null); setBlogForm(emptyBlogForm) }}
+                    style={{ background: '#f3f4f6', color: '#666', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {blogPosts.length === 0 ? (
+              <div style={{ background: 'white', borderRadius: '12px', padding: '60px', textAlign: 'center', color: '#888' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>✍️</div>
+                <p>No blog posts yet. Click New Article to write your first post!</p>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {blogPosts.map((post: any) => (
+                  <div key={post.id} style={{ background: 'white', borderRadius: '10px', padding: '18px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{post.title}</span>
+                        <span style={{ background: post.is_published ? '#dcfce7' : '#fef3c7', color: post.is_published ? '#16a34a' : '#d97706', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>
+                          {post.is_published ? 'Published' : 'Draft'}
+                        </span>
+                      </div>
+                      <span style={{ color: '#888', fontSize: '12px' }}>
+                        {post.category && `${post.category} · `}{new Date(post.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                      <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"
+                        style={{ background: '#f0f4ff', color: '#2D6BE4', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', textDecoration: 'none' }}>
+                        View
+                      </a>
+                      <button onClick={() => { setEditingPost(post); setBlogForm({ title: post.title, slug: post.slug, excerpt: post.excerpt || '', content: post.content || '', author: post.author || '', category: post.category || '', cover_image_url: post.cover_image_url || '', is_published: post.is_published }); setShowBlogForm(true) }}
+                        style={{ background: '#f3f4f6', color: '#333', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                        Edit
+                      </button>
+                      <button onClick={() => deleteBlogPost(post.id)}
+                        style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ESL ORDERS TAB */}
         {activeTab === 'esl' && (
@@ -380,11 +471,8 @@ export default function AdminPage() {
                       </div>
                       <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📧 {order.buyer_email}</div>
                       <div style={{ color: '#7C3AED', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>📖 {order.lesson_plans?.title}</div>
-                      <div style={{ color: '#999', fontSize: '12px' }}>
-                        {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </div>
+                      <div style={{ color: '#999', fontSize: '12px' }}>{new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
-
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '160px' }}>
                       {order.slip_url && (
                         <a href={order.slip_url} target="_blank" rel="noopener noreferrer"
@@ -394,8 +482,7 @@ export default function AdminPage() {
                       )}
                       {order.status === 'pending' && (
                         <>
-                          <button onClick={() => approveEslOrder(order)}
-                            disabled={approvingOrder === order.id}
+                          <button onClick={() => approveEslOrder(order)} disabled={approvingOrder === order.id}
                             style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
                             {approvingOrder === order.id ? 'Approving...' : '✅ Approve & Send Link'}
                           </button>
@@ -441,12 +528,10 @@ export default function AdminPage() {
                           )}
                         </div>
                         <div style={{ color: '#666', fontSize: '13px' }}>
-                          {teacher.nationality && `🌍 ${teacher.nationality} · `}
-                          📍 {teacher.location}
-                          {teacher.experience_years && ` · ⭐ ${teacher.experience_years} yrs`}
+                          {teacher.nationality && `🌍 ${teacher.nationality} · `}📍 {teacher.location}{teacher.experience_years && ` · ⭐ ${teacher.experience_years} yrs`}
                         </div>
                         <div style={{ color: '#999', fontSize: '12px', marginTop: '2px' }}>
-                          Applied: {new Date(teacher.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          Applied: {new Date(teacher.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </div>
                       </div>
                     </div>
@@ -482,7 +567,6 @@ export default function AdminPage() {
                     {teacher.subjects?.slice(0, 4).map((s: string) => (
                       <span key={s} style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>{s}</span>
                     ))}
-                    {teacher.subjects?.length > 4 && <span style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>+{teacher.subjects.length - 4} more</span>}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#555' }}>🎨 Template:</span>
@@ -500,26 +584,15 @@ export default function AdminPage() {
                   </button>
                   {expandedTeacher === teacher.id && (
                     <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
-                      {teacher.tagline && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Tagline</div><div style={{ color: '#444', fontSize: '14px', fontStyle: 'italic' }}>"{teacher.tagline}"</div></div>}
-                      {teacher.bio && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>About Me</div><div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6', background: '#f9f9f9', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-line' }}>{teacher.bio}</div></div>}
-                      {teacher.teaching_style && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Teaching Style</div><div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6', background: '#f9f9f9', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-line' }}>{teacher.teaching_style}</div></div>}
-                      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-                        {teacher.levels?.length > 0 && <div style={{ flex: 1, minWidth: '200px' }}><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Teaching Levels</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>{teacher.levels.map((l: string) => <span key={l} style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>{l}</span>)}</div></div>}
-                        {teacher.certifications?.length > 0 && <div style={{ flex: 1, minWidth: '200px' }}><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Certifications</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>{teacher.certifications.map((c: string) => <span key={c} style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '12px', padding: '3px 10px', borderRadius: '20px' }}>{c}</span>)}</div></div>}
-                      </div>
-                      {teacher.qualifications?.length > 0 && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '8px' }}>Qualifications</div>{teacher.qualifications.map((q: string) => <div key={q} style={{ color: '#444', fontSize: '14px', marginBottom: '4px' }}>🎓 {q}</div>)}</div>}
+                      {teacher.bio && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>About Me</div><div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6', background: '#f9f9f9', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-line' as any }}>{teacher.bio}</div></div>}
                       <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '16px' }}>
                         <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '10px' }}>Contact Details</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                           {teacher.email && <div style={{ fontSize: '13px', color: '#444' }}>📧 {teacher.email}</div>}
                           {teacher.phone && <div style={{ fontSize: '13px', color: '#444' }}>📞 {teacher.phone}</div>}
                           {teacher.line_id && <div style={{ fontSize: '13px', color: '#444' }}>💬 LINE: {teacher.line_id}</div>}
-                          {teacher.whatsapp && <div style={{ fontSize: '13px', color: '#444' }}>📱 WhatsApp: {teacher.whatsapp}</div>}
-                          {teacher.facebook && <div style={{ fontSize: '13px', color: '#444' }}>👍 <a href={teacher.facebook} target="_blank" rel="noopener noreferrer" style={{ color: '#2D6BE4' }}>Facebook</a></div>}
                         </div>
                       </div>
-                      {teacher.notes && <div><div style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', marginBottom: '4px' }}>Notes from Applicant</div><div style={{ color: '#444', fontSize: '14px', background: '#fff3ed', padding: '12px', borderRadius: '8px', border: '1px solid #ffd4b8' }}>{teacher.notes}</div></div>}
-                      {teacher.status === 'approved' && <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}><span style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '13px' }}>🔗 Live URL:</span><a href={`/teachers/${teacher.slug}`} target="_blank" rel="noopener noreferrer" style={{ color: '#2D6BE4', fontSize: '13px' }}>www.jobsinthailand.net/teachers/{teacher.slug}</a></div>}
                     </div>
                   )}
                 </div>
@@ -547,7 +620,6 @@ export default function AdminPage() {
                       </div>
                       {member.company && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>🏢 {member.company}</div>}
                       {member.phone && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📞 {member.phone}</div>}
-                      {member.line_id && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>💬 LINE: {member.line_id}</div>}
                       <div style={{ color: '#999', fontSize: '12px' }}>Registered: {new Date(member.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -568,7 +640,7 @@ export default function AdminPage() {
         )}
 
         {/* CONTACT MESSAGES */}
-        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && (
+        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
@@ -647,7 +719,7 @@ export default function AdminPage() {
                     <textarea value={replyText[msg.id] || ''} onChange={e => setReplyText(prev => ({ ...prev, [msg.id]: e.target.value }))}
                       placeholder={msg.reply ? 'Update your reply...' : 'Type your reply here...'}
                       rows={3}
-                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }} />
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button onClick={() => sendReply(msg.id)} disabled={replying === msg.id || !replyText[msg.id]?.trim()}
                         style={{ background: replying === msg.id ? '#ccc' : '#E85D26', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: replying === msg.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '14px' }}>

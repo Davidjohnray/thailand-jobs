@@ -147,6 +147,11 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* BLOG */}
+          <Link href="/blog" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold' }}>
+            ✍️ Blog
+          </Link>
+
           {/* CONTACT */}
           <Link href="/contact" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#0891b2', fontWeight: 'bold' }}>
             💬 Contact
@@ -235,6 +240,11 @@ export default function Navbar() {
               </Link>
             </div>
           )}
+
+          {/* BLOG */}
+          <Link href="/blog" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
+            ✍️ Blog
+          </Link>
 
           {/* CONTACT */}
           <Link href="/contact" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#0891b2', fontWeight: 'bold' }}>
