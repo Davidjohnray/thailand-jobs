@@ -1,14 +1,10 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../src/lib/supabase'
-import { createClient } from '@supabase/supabase-js'
 
 const ADMIN_PASSWORD = 'thailand2024'
 
-const adminSupabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const adminSupabase = supabase
 
 function EmailMembers() {
   const [subject, setSubject] = useState('')
@@ -90,6 +86,7 @@ export default function AdminPage() {
   const [teachers, setTeachers] = useState<any[]>([])
   const [eslOrders, setEslOrders] = useState<any[]>([])
   const [blogPosts, setBlogPosts] = useState<any[]>([])
+  const [allMembers, setAllMembers] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
@@ -101,8 +98,6 @@ export default function AdminPage() {
   const [editingPost, setEditingPost] = useState<any>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Direct message state
   const [directEmail, setDirectEmail] = useState('')
   const [directSubject, setDirectSubject] = useState('')
   const [directMessage, setDirectMessage] = useState('')
@@ -120,6 +115,7 @@ export default function AdminPage() {
       loadTeachers()
       loadEslOrders()
       loadBlogPosts()
+      adminSupabase.from('profiles').select('id, email').then(({ data }) => setAllMembers(data || []))
     }
   }, [authed])
 
@@ -145,11 +141,7 @@ export default function AdminPage() {
     const ext = file.name.split('.').pop()
     const filename = `cover-${Date.now()}.${ext}`
     const { error } = await adminSupabase.storage.from('blog-images').upload(filename, file, { upsert: true })
-    if (error) {
-      alert('Upload failed: ' + error.message)
-      setUploadingImage(false)
-      return
-    }
+    if (error) { alert('Upload failed: ' + error.message); setUploadingImage(false); return }
     const { data } = adminSupabase.storage.from('blog-images').getPublicUrl(filename)
     setBlogForm(prev => ({ ...prev, cover_image_url: data.publicUrl }))
     setUploadingImage(false)
@@ -169,9 +161,7 @@ export default function AdminPage() {
       read_by_user: false,
       admin_initiated: true,
     }])
-    if (error) {
-      alert('Error sending message: ' + error.message)
-    } else {
+    if (error) { alert('Error: ' + error.message) } else {
       setDirectSent(true)
       setDirectEmail('')
       setDirectSubject('')
@@ -226,10 +216,7 @@ export default function AdminPage() {
       const result = await adminSupabase.from('blog_posts').insert([blogForm])
       error = result.error
     }
-    if (error) {
-      alert('Save failed: ' + error.message)
-      return
-    }
+    if (error) { alert('Save failed: ' + error.message); return }
     setShowBlogForm(false)
     setEditingPost(null)
     setBlogForm(emptyBlogForm)
@@ -387,7 +374,6 @@ export default function AdminPage() {
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 24px' }}>
 
-        {/* TABS */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
           {[
             { id: 'unread', label: `Unread (${unreadCount})` },
@@ -397,7 +383,7 @@ export default function AdminPage() {
             { id: 'teachers', label: `🎓 Teachers (${teachers.length})${pendingTeacherCount > 0 ? ' 🔴' : ''}` },
             { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
             { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
-            { id: 'direct', label: '📩 Message Member' },
+            { id: 'direct', label: `📩 Message Member` },
             { id: 'email', label: '📧 Email Members' },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
@@ -411,145 +397,144 @@ export default function AdminPage() {
         {activeTab === 'email' && <EmailMembers />}
 
         {/* DIRECT MESSAGE TAB */}
-{activeTab === 'direct' && (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {activeTab === 'direct' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-    {/* SEND TO ALL */}
-    <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '2px solid #1a1a2e' }}>
-      <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>📢 Send to ALL Members</h2>
-      <p style={{ color: '#666', fontSize: '13px', marginBottom: '20px' }}>Sends a dashboard inbox message to every single member at once.</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <input
-          placeholder="Subject — e.g. New jobs just added!"
-          value={directSubject}
-          onChange={e => setDirectSubject(e.target.value)}
-          style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
-        />
-        <textarea
-          placeholder="Type your message to all members..."
-          value={directMessage}
-          onChange={e => setDirectMessage(e.target.value)}
-          rows={5}
-          style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }}
-        />
-        {directSent && (
-          <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
-            ✅ Message sent to all members!
+            {/* SEND TO ALL */}
+            <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '2px solid #1a1a2e' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>📢 Send to ALL Members</h2>
+              <p style={{ color: '#666', fontSize: '13px', marginBottom: '20px' }}>Sends a dashboard inbox message to every single member at once. ({allMembers.length} members)</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <input
+                  placeholder="Subject — e.g. New jobs just added!"
+                  value={directSubject}
+                  onChange={e => setDirectSubject(e.target.value)}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
+                />
+                <textarea
+                  placeholder="Type your message to all members..."
+                  value={directMessage}
+                  onChange={e => setDirectMessage(e.target.value)}
+                  rows={5}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }}
+                />
+                {directSent && (
+                  <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
+                    ✅ Message sent to all members!
+                  </div>
+                )}
+                <button
+                  disabled={sendingDirect || !directSubject.trim() || !directMessage.trim()}
+                  onClick={async () => {
+                    if (!directSubject.trim() || !directMessage.trim()) return alert('Please fill in subject and message')
+                    if (!confirm(`Send this message to ALL ${allMembers.length} members? This cannot be undone.`)) return
+                    setSendingDirect(true)
+                    if (allMembers.length === 0) { alert('No members found'); setSendingDirect(false); return }
+                    const rows = allMembers.map((p: any) => ({
+                      user_id: p.id,
+                      user_email: p.email,
+                      subject: directSubject,
+                      message: '📢 Message from Jobs in Thailand',
+                      reply: directMessage,
+                      replied_at: new Date().toISOString(),
+                      read_by_admin: true,
+                      read_by_user: false,
+                      admin_initiated: true,
+                    }))
+                    const { error } = await adminSupabase.from('member_messages').insert(rows)
+                    if (error) { alert('Error: ' + error.message) } else {
+                      setDirectSent(true)
+                      setDirectSubject('')
+                      setDirectMessage('')
+                      setTimeout(() => setDirectSent(false), 4000)
+                    }
+                    setSendingDirect(false)
+                  }}
+                  style={{ background: sendingDirect ? '#ccc' : '#1a1a2e', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sendingDirect ? 'not-allowed' : 'pointer' }}>
+                  {sendingDirect ? 'Sending...' : `📢 Send to All ${allMembers.length} Members`}
+                </button>
+              </div>
+            </div>
+
+            {/* SEND TO ONE MEMBER */}
+            <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>📩 Send to One Member</h2>
+              <p style={{ color: '#666', fontSize: '13px', marginBottom: '20px' }}>Pick any member from the full list or type their email directly.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Pick from member list ({allMembers.length} members)</label>
+                  <select
+                    value={directEmail}
+                    onChange={e => setDirectEmail(e.target.value)}
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' as any }}>
+                    <option value=''>— Select a member —</option>
+                    {allMembers
+                      .sort((a: any, b: any) => (a.email || '').localeCompare(b.email || ''))
+                      .map((m: any) => (
+                        <option key={m.id} value={m.email}>{m.email}</option>
+                      ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Or type email directly</label>
+                  <input
+                    value={directEmail}
+                    onChange={e => setDirectEmail(e.target.value)}
+                    placeholder="e.g. teacher@gmail.com"
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Subject</label>
+                  <input
+                    value={directSubject}
+                    onChange={e => setDirectSubject(e.target.value)}
+                    placeholder="e.g. New job match for you!"
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Message</label>
+                  <textarea
+                    value={directMessage}
+                    onChange={e => setDirectMessage(e.target.value)}
+                    placeholder="Type your message to this member..."
+                    rows={8}
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }}
+                  />
+                </div>
+                {directSent && (
+                  <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '14px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
+                    ✅ Message sent! The member will see it in their dashboard inbox with a notification badge.
+                  </div>
+                )}
+                <button
+                  onClick={sendDirectMessage}
+                  disabled={sendingDirect || !directEmail.trim() || !directSubject.trim() || !directMessage.trim()}
+                  style={{ background: sendingDirect || !directEmail.trim() ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sendingDirect ? 'not-allowed' : 'pointer' }}>
+                  {sendingDirect ? 'Sending...' : '📩 Send to This Member'}
+                </button>
+              </div>
+            </div>
+
+            {/* TIPS */}
+            <div style={{ padding: '20px', background: '#f9f9f9', borderRadius: '10px', border: '1px solid #eee' }}>
+              <h3 style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e', margin: '0 0 10px' }}>💡 What can you use this for?</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {[
+                  '📌 Tell a member their teacher profile is now live',
+                  '🎯 Send a personalised job match you spotted',
+                  '💬 Follow up on a rental inquiry',
+                  '🔔 Notify a specific member about a new opportunity',
+                  '✅ Confirm a payment or order has been received',
+                ].map((item, i) => (
+                  <div key={i} style={{ color: '#555', fontSize: '14px' }}>{item}</div>
+                ))}
+              </div>
+            </div>
+
           </div>
         )}
-        <button
-          disabled={sendingDirect || !directSubject.trim() || !directMessage.trim()}
-          onClick={async () => {
-            if (!directSubject.trim() || !directMessage.trim()) return alert('Please fill in subject and message')
-            if (!confirm('Send this message to ALL members? This cannot be undone.')) return
-            setSendingDirect(true)
-            const { data: profiles } = await adminSupabase.from('profiles').select('id, email')
-            if (!profiles || profiles.length === 0) { alert('No members found'); setSendingDirect(false); return }
-            const rows = profiles.map((p: any) => ({
-              user_id: p.id,
-              user_email: p.email,
-              subject: directSubject,
-              message: '📢 Message from Jobs in Thailand',
-              reply: directMessage,
-              replied_at: new Date().toISOString(),
-              read_by_admin: true,
-              read_by_user: false,
-              admin_initiated: true,
-            }))
-            const { error } = await adminSupabase.from('member_messages').insert(rows)
-            if (error) { alert('Error: ' + error.message) } else {
-              setDirectSent(true)
-              setDirectSubject('')
-              setDirectMessage('')
-              setTimeout(() => setDirectSent(false), 4000)
-            }
-            setSendingDirect(false)
-          }}
-          style={{ background: sendingDirect ? '#ccc' : '#1a1a2e', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sendingDirect ? 'not-allowed' : 'pointer' }}>
-          {sendingDirect ? 'Sending...' : '📢 Send to All Members'}
-        </button>
-      </div>
-    </div>
-
-    {/* SEND TO ONE MEMBER */}
-    <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-      <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>📩 Send to One Member</h2>
-      <p style={{ color: '#666', fontSize: '13px', marginBottom: '20px' }}>Pick a member from the dropdown list or type their email address directly.</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div>
-          <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Pick from member list</label>
-          <select
-            onChange={e => setDirectEmail(e.target.value)}
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' as any }}>
-            <option value=''>— Select a member —</option>
-            {memberMessages
-              .filter((m: any, i: number, arr: any[]) => arr.findIndex((x: any) => x.user_email === m.user_email) === i)
-              .sort((a: any, b: any) => a.user_email.localeCompare(b.user_email))
-              .map((m: any) => (
-                <option key={m.user_email} value={m.user_email}>{m.user_email}</option>
-              ))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Or type email directly</label>
-          <input
-            value={directEmail}
-            onChange={e => setDirectEmail(e.target.value)}
-            placeholder="e.g. teacher@gmail.com"
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
-          />
-        </div>
-        <div>
-          <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Subject</label>
-          <input
-            value={directSubject}
-            onChange={e => setDirectSubject(e.target.value)}
-            placeholder="e.g. New job match for you!"
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
-          />
-        </div>
-        <div>
-          <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Message</label>
-          <textarea
-            value={directMessage}
-            onChange={e => setDirectMessage(e.target.value)}
-            placeholder="Type your message to this member..."
-            rows={8}
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }}
-          />
-        </div>
-        {directSent && (
-          <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '14px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
-            ✅ Message sent! The member will see it in their dashboard inbox with a notification badge.
-          </div>
-        )}
-        <button
-          onClick={sendDirectMessage}
-          disabled={sendingDirect || !directEmail.trim() || !directSubject.trim() || !directMessage.trim()}
-          style={{ background: sendingDirect || !directEmail.trim() ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sendingDirect ? 'not-allowed' : 'pointer' }}>
-          {sendingDirect ? 'Sending...' : '📩 Send to This Member'}
-        </button>
-      </div>
-    </div>
-
-    {/* TIPS BOX */}
-    <div style={{ padding: '20px', background: '#f9f9f9', borderRadius: '10px', border: '1px solid #eee' }}>
-      <h3 style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e', margin: '0 0 10px' }}>💡 What can you use this for?</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        {[
-          '📌 Tell a member their teacher profile is now live',
-          '🎯 Send a personalised job match you spotted',
-          '💬 Follow up on a rental inquiry',
-          '🔔 Notify a specific member about a new opportunity',
-          '✅ Confirm a payment or order has been received',
-        ].map((item, i) => (
-          <div key={i} style={{ color: '#555', fontSize: '14px' }}>{item}</div>
-        ))}
-      </div>
-    </div>
-
-  </div>
-)}
 
         {/* BLOG TAB */}
         {activeTab === 'blog' && (
@@ -578,7 +563,6 @@ export default function AdminPage() {
                   <input placeholder="Author name" value={blogForm.author}
                     onChange={e => setBlogForm({ ...blogForm, author: e.target.value })}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any }} />
-
                   <div>
                     <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '8px' }}>Cover Image</label>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -600,7 +584,6 @@ export default function AdminPage() {
                       {!blogForm.cover_image_url && <span style={{ color: '#aaa', fontSize: '13px' }}>No image selected — JPG, PNG or WebP</span>}
                     </div>
                   </div>
-
                   <textarea placeholder="Short excerpt (shown on listing page)" value={blogForm.excerpt}
                     onChange={e => setBlogForm({ ...blogForm, excerpt: e.target.value })} rows={2}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any, resize: 'vertical' as any }} />

@@ -10,34 +10,11 @@ export default function Navbar() {
   const [mobileJobsOpen, setMobileJobsOpen] = useState(false)
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }: any) => {
+    supabase.auth.getSession().then(({ data: { session } }: any) => setIsLoggedIn(!!session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       setIsLoggedIn(!!session)
-      if (session) {
-        const { data } = await supabase
-          .from('member_messages')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .not('reply', 'is', null)
-          .eq('read_by_user', false)
-        setUnreadCount(data?.length || 0)
-      }
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
-      setIsLoggedIn(!!session)
-      if (session) {
-        const { data } = await supabase
-          .from('member_messages')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .not('reply', 'is', null)
-          .eq('read_by_user', false)
-        setUnreadCount(data?.length || 0)
-      } else {
-        setUnreadCount(0)
-      }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -68,6 +45,7 @@ export default function Navbar() {
     <>
       <nav style={{ background: '#E85D26', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 1000 }}>
 
+        {/* LEFT — Logo + Bell */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Link href="/" style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', textDecoration: 'none' }}>
             Thailand Jobs
@@ -78,8 +56,10 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* DESKTOP MENU */}
         <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 
+          {/* JOBS DROPDOWN */}
           <div style={{ position: 'relative' }}
             onMouseEnter={() => setJobsOpen(true)}
             onMouseLeave={() => setJobsOpen(false)}>
@@ -117,6 +97,7 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* SERVICES DROPDOWN */}
           <div style={{ position: 'relative' }}
             onMouseEnter={() => setServicesOpen(true)}
             onMouseLeave={() => setServicesOpen(false)}>
@@ -172,22 +153,20 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* BLOG */}
           <Link href="/blog" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold' }}>
             ✍️ Blog
           </Link>
 
+          {/* CONTACT */}
           <Link href="/contact" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#0891b2', fontWeight: 'bold' }}>
             💬 Contact
           </Link>
 
+          {/* LOGIN / ACCOUNT */}
           {isLoggedIn ? (
-            <Link href="/account/dashboard" style={{ color: '#1a1a2e', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#FBBF24', fontWeight: 'bold', position: 'relative', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Link href="/account/dashboard" style={{ color: '#1a1a2e', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#FBBF24', fontWeight: 'bold' }}>
               👤 My Account
-              {unreadCount > 0 && (
-                <span style={{ background: '#E85D26', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '11px', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {unreadCount}
-                </span>
-              )}
             </Link>
           ) : (
             <Link href="/account/login" style={{ color: '#1a1a2e', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#FBBF24', fontWeight: 'bold' }}>
@@ -195,16 +174,19 @@ export default function Navbar() {
             </Link>
           )}
 
+          {/* POST A JOB */}
           <Link href="/employers" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', border: '2px solid white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold' }}>
             Post a Job
           </Link>
 
+          {/* ADMIN */}
           <Link href="/admin" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', background: 'white' }}>
             🔐 Admin
           </Link>
 
         </div>
 
+        {/* MOBILE HAMBURGER */}
         <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)}
           style={{ display: 'none', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '6px', padding: '8px 12px', cursor: 'pointer', color: 'white', fontSize: '20px' }}>
           {mobileOpen ? '✕' : '☰'}
@@ -212,9 +194,11 @@ export default function Navbar() {
 
       </nav>
 
+      {/* MOBILE MENU DRAWER */}
       {mobileOpen && (
         <div className="mobile-menu" style={{ background: '#1a1a2e', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 999, boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}>
 
+          {/* JOBS SECTION */}
           <button onClick={() => setMobileJobsOpen(!mobileJobsOpen)}
             style={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '12px', color: 'white', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>💼 Jobs</span>
@@ -222,12 +206,19 @@ export default function Navbar() {
           </button>
           {mobileJobsOpen && (
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <Link href="/jobs" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>🗂 All Jobs</Link>
-              <Link href="/jobs/teaching" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>🏫 Teaching Jobs</Link>
-              <Link href="/jobs/other" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>💼 Other Jobs</Link>
+              <Link href="/jobs" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                🗂 All Jobs
+              </Link>
+              <Link href="/jobs/teaching" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                🏫 Teaching Jobs
+              </Link>
+              <Link href="/jobs/other" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                💼 Other Jobs
+              </Link>
             </div>
           )}
 
+          {/* SERVICES SECTION */}
           <button onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
             style={{ background: '#7C3AED', border: 'none', borderRadius: '8px', padding: '12px', color: 'white', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>🇹🇭 Services</span>
@@ -235,35 +226,62 @@ export default function Navbar() {
           </button>
           {mobileServicesOpen && (
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <Link href="/rentals" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>🏠 Rentals</Link>
-              <Link href="/teachers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>🎓 Private Teachers</Link>
-              <Link href="/training" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>📚 Training</Link>
-              <Link href="/cv-builder" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>📄 CV Builder</Link>
-              <Link href="/esl-resources" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>📖 ESL Resources</Link>
-              <Link href="/esl-games" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>🎮 ESL Games</Link>
-              <Link href="/advertise" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>📢 Advertise With Us</Link>
+              <Link href="/rentals" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                🏠 Rentals
+              </Link>
+              <Link href="/teachers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                🎓 Private Teachers
+              </Link>
+              <Link href="/training" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                📚 Training
+              </Link>
+              <Link href="/cv-builder" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                📄 CV Builder
+              </Link>
+              <Link href="/esl-resources" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                📖 ESL Resources
+              </Link>
+              <Link href="/esl-games" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                🎮 ESL Games
+              </Link>
+              <Link href="/advertise" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                📢 Advertise With Us
+              </Link>
             </div>
           )}
 
-          <Link href="/blog" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>✍️ Blog</Link>
-          <Link href="/contact" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#0891b2', fontWeight: 'bold' }}>💬 Contact</Link>
+          {/* BLOG */}
+          <Link href="/blog" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
+            ✍️ Blog
+          </Link>
+
+          {/* CONTACT */}
+          <Link href="/contact" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#0891b2', fontWeight: 'bold' }}>
+            💬 Contact
+          </Link>
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
             {isLoggedIn ? (
-              <Link href="/account/dashboard" onClick={closeMobile} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>
-                <span>👤 My Account</span>
-                {unreadCount > 0 && (
-                  <span style={{ background: '#E85D26', color: 'white', borderRadius: '20px', padding: '2px 8px', fontSize: '12px', fontWeight: 'bold' }}>
-                    {unreadCount} new
-                  </span>
-                )}
+              <Link href="/account/dashboard" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>
+                👤 My Account
               </Link>
             ) : (
-              <Link href="/account/login" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>👤 Members Login</Link>
+              <Link href="/account/login" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>
+                👤 Members Login
+              </Link>
             )}
-            <Link href="/employers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px', borderRadius: '8px', background: '#E85D26', fontWeight: 'bold', textAlign: 'center' }}>📝 Post a Job</Link>
-            <Link href="/admin" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'white', fontWeight: 'bold', textAlign: 'center' }}>🔐 Admin</Link>
+
+            <Link href="/employers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px', borderRadius: '8px', background: '#E85D26', fontWeight: 'bold', textAlign: 'center' }}>
+              📝 Post a Job
+            </Link>
+
+            <Link href="/admin" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'white', fontWeight: 'bold', textAlign: 'center' }}>
+              🔐 Admin
+            </Link>
+
           </div>
+
         </div>
       )}
 
