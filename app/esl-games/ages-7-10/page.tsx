@@ -8,6 +8,11 @@ const games = [
   { slug: 'kahoot-style-quiz', title: 'Kahoot-Style Quiz', emoji: '📱', summary: 'Use coloured cards A/B/C/D to create an interactive quiz without technology.', time: '15-20 min', energy: 'Low-Medium', players: 'Whole class or teams' },
   { slug: 'story-dice', title: 'Story Dice', emoji: '🎲', summary: 'Roll dice with pictures. Build a story together using vocabulary from the lesson.', time: '20-25 min', energy: 'Low', players: 'Groups of 3-5' },
   { slug: 'team-spelling-relay', title: 'Team Spelling Relay', emoji: '✏️', summary: 'Teams race to spell a word on the board — one letter per student.', time: '10-15 min', energy: 'High', players: 'Teams of 4-6' },
+  { slug: 'taboo', title: 'Taboo', emoji: '🚫', summary: 'Describe a word without using the forbidden clue words listed on the card.', time: '15-20 min', energy: 'Medium', players: 'Teams of 3-4' },
+  { slug: 'pictionary', title: 'Pictionary', emoji: '🎨', summary: 'Draw a vocabulary word on the board — no letters, no speaking. Team guesses.', time: '15-20 min', energy: 'Medium', players: 'Teams of 3-5' },
+  { slug: 'word-association', title: 'Word Association Chain', emoji: '🔗', summary: 'Each student says a word connected to the previous one. No hesitation or repetition allowed.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'grammar-auction', title: 'Grammar Auction', emoji: '🏷️', summary: 'Teams bid on sentences they think are correct. Wrong bids lose points.', time: '20-25 min', energy: 'Low', players: 'Teams of 3-4' },
+  { slug: 'last-one-standing', title: 'Last One Standing', emoji: '🏆', summary: 'Answer spelling or vocabulary questions to stay standing. Wrong answers sit down.', time: '10-15 min', energy: 'Medium', players: 'Whole class' },
 ]
 
 export default function Ages710GamesPage() {

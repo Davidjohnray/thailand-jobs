@@ -7,6 +7,11 @@ const games = [
   { slug: 'whats-in-the-bag', title: "What's in the Bag?", emoji: '🎒', summary: 'Children feel objects inside a bag and guess the vocabulary word.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
   { slug: 'animal-sounds-bingo', title: 'Animal Sounds Bingo', emoji: '🐮', summary: 'Bingo cards with animal pictures. Teacher makes the sound, children mark the animal.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
   { slug: 'pass-the-ball', title: 'Pass the Ball', emoji: '⚽', summary: 'A ball is passed around. Whoever catches it must say a vocabulary word.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'musical-statues', title: 'Musical Statues', emoji: '🎵', summary: 'Children dance then freeze like a statue when the music stops.', time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'shapes-on-the-floor', title: 'Shapes on the Floor', emoji: '🔺', summary: 'Shape cards on the floor — children hop onto the shape the teacher calls.', time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'fruit-salad', title: 'Fruit Salad', emoji: '🍓', summary: 'Children are assigned a fruit word. When it is called they swap seats.', time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'clap-and-say', title: 'Clap and Say', emoji: '👏', summary: 'Clap a rhythm and say a vocabulary word on the beat. Great for phonics.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'follow-the-leader', title: 'Follow the Leader', emoji: '🦆', summary: 'Children copy the leader\'s actions and words around the classroom.', time: '10-15 min', energy: 'High', players: 'Whole class' },
 ]
 
 export default function Under5sGamesPage() {

@@ -7,6 +7,11 @@ const games = [
   { slug: 'hot-seat', title: 'Hot Seat', emoji: '🪑', summary: 'One child sits facing the class. A word appears behind them. Class describes it without saying it.', time: '15-20 min', energy: 'Low-Medium', players: 'One at a time' },
   { slug: 'simon-says', title: 'Simon Says', emoji: '🙋', summary: 'Children only follow instructions starting with "Simon says". Great for action verbs.', time: '5-10 min', energy: 'High', players: 'Whole class' },
   { slug: 'snakes-and-ladders', title: 'Snakes and Ladders', emoji: '🐍', summary: 'Classic board game but landing on a square means answering a vocabulary question.', time: '20-30 min', energy: 'Low', players: '2-4 per group' },
+  { slug: 'vocabulary-bingo', title: 'Vocabulary Bingo', emoji: '🎯', summary: 'Children mark words on their bingo card as teacher calls definitions or pictures.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'chinese-whispers', title: 'Chinese Whispers', emoji: '🤫', summary: 'Whisper a word or sentence down the line and see how it changes.', time: '10-15 min', energy: 'Low', players: 'Teams of 6-8' },
+  { slug: 'noughts-and-crosses', title: 'Noughts and Crosses', emoji: '❌', summary: 'Answer a vocabulary question correctly to place your mark on the grid.', time: '10-15 min', energy: 'Low', players: '2 teams' },
+  { slug: 'memory-match', title: 'Memory Match', emoji: '🃏', summary: 'Flip cards to find matching pairs of words and pictures.', time: '15-20 min', energy: 'Low', players: '2-4 per group' },
+  { slug: 'stand-up-sit-down', title: 'Stand Up Sit Down', emoji: '🧍', summary: 'Stand up if the answer is yes, sit down if no. Fast and easy vocabulary check.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
 ]
 
 export default function Ages56GamesPage() {
