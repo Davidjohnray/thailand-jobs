@@ -12,6 +12,11 @@ const games = [
   { slug: 'noughts-and-crosses', title: 'Noughts and Crosses', emoji: '❌', summary: 'Answer a vocabulary question correctly to place your mark on the grid.', time: '10-15 min', energy: 'Low', players: '2 teams' },
   { slug: 'memory-match', title: 'Memory Match', emoji: '🃏', summary: 'Flip cards to find matching pairs of words and pictures.', time: '15-20 min', energy: 'Low', players: '2-4 per group' },
   { slug: 'stand-up-sit-down', title: 'Stand Up Sit Down', emoji: '🧍', summary: 'Stand up if the answer is yes, sit down if no. Fast and easy vocabulary check.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'word-snap', title: 'Word Snap', emoji: '🖐️', summary: 'Flip cards one at a time — shout SNAP when two matching cards appear.', time: '10-15 min', energy: 'High', players: '2-4 per group' },
+  { slug: 'hangman', title: 'Hangman', emoji: '✏️', summary: 'Guess the hidden word one letter at a time before the drawing is complete.', time: '10-15 min', energy: 'Low', players: 'Whole class or pairs' },
+  { slug: 'alphabet-race', title: 'Alphabet Race', emoji: '🔤', summary: 'Race to write a word beginning with each letter of the alphabet.', time: '10-15 min', energy: 'Low', players: 'Teams of 3-4' },
+  { slug: 'yes-no-game', title: 'Yes or No Game', emoji: '🙅', summary: 'Answer questions without saying yes or no — surprisingly tricky and very fun.', time: '10-15 min', energy: 'Low-Medium', players: 'Pairs or whole class' },
+  { slug: 'action-race', title: 'Action Race', emoji: '🏁', summary: 'Teacher calls an action word — first child to do it correctly wins a point.', time: '5-10 min', energy: 'High', players: 'Whole class' },
 ]
 
 export default function Ages56GamesPage() {

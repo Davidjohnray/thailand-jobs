@@ -13,6 +13,10 @@ const games = [
   { slug: 'word-association', title: 'Word Association Chain', emoji: '🔗', summary: 'Each student says a word connected to the previous one. No hesitation or repetition allowed.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
   { slug: 'grammar-auction', title: 'Grammar Auction', emoji: '🏷️', summary: 'Teams bid on sentences they think are correct. Wrong bids lose points.', time: '20-25 min', energy: 'Low', players: 'Teams of 3-4' },
   { slug: 'last-one-standing', title: 'Last One Standing', emoji: '🏆', summary: 'Answer spelling or vocabulary questions to stay standing. Wrong answers sit down.', time: '10-15 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'twenty-questions', title: '20 Questions', emoji: '🤔', summary: 'Think of a word — classmates ask yes or no questions to guess it in 20 tries.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'sentence-race', title: 'Sentence Race', emoji: '📝', summary: 'Teams race to build a grammatically correct sentence from a set of word cards.', time: '10-15 min', energy: 'Medium', players: 'Teams of 3-5' },
+  { slug: 'debate-it', title: 'Debate It!', emoji: '🗣️', summary: 'Two teams argue for and against a simple topic using lesson vocabulary.', time: '20-25 min', energy: 'Low', players: '2 teams' },
+  { slug: 'vocabulary-basketball', title: 'Vocabulary Basketball', emoji: '🏀', summary: 'Answer a question correctly to earn a shot at the basket. Teams compete for points.', time: '15-20 min', energy: 'High', players: '2 teams' },
 ]
 
 export default function Ages710GamesPage() {

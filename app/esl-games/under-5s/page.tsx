@@ -11,7 +11,12 @@ const games = [
   { slug: 'shapes-on-the-floor', title: 'Shapes on the Floor', emoji: '🔺', summary: 'Shape cards on the floor — children hop onto the shape the teacher calls.', time: '10-15 min', energy: 'High', players: 'Whole class' },
   { slug: 'fruit-salad', title: 'Fruit Salad', emoji: '🍓', summary: 'Children are assigned a fruit word. When it is called they swap seats.', time: '10-15 min', energy: 'High', players: 'Whole class' },
   { slug: 'clap-and-say', title: 'Clap and Say', emoji: '👏', summary: 'Clap a rhythm and say a vocabulary word on the beat. Great for phonics.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
-  { slug: 'follow-the-leader', title: 'Follow the Leader', emoji: '🦆', summary: 'Children copy the leader\'s actions and words around the classroom.', time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'follow-the-leader', title: 'Follow the Leader', emoji: '🦆', summary: "Children copy the leader's actions and words around the classroom.", time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'duck-duck-goose', title: 'Duck Duck Goose', emoji: '🐥', summary: 'Classic game with a vocabulary twist — say words instead of duck and goose.', time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'flashcard-show', title: 'Flashcard Show', emoji: '🃏', summary: 'Teacher flashes a card quickly — children shout the word as fast as they can.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'jump-the-line', title: 'Jump the Line', emoji: '➡️', summary: 'A line on the floor — jump left for yes, right for no. Fast vocabulary check.', time: '5-10 min', energy: 'High', players: 'Whole class' },
+  { slug: 'sleeping-lions', title: 'Sleeping Lions', emoji: '🦁', summary: 'Children lie still like sleeping lions — last one to move wins.', time: '5-10 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'number-jump', title: 'Number Jump', emoji: '🔢', summary: 'Numbers on the floor — teacher calls a number and children jump to it.', time: '10-15 min', energy: 'High', players: 'Whole class' },
 ]
 
 export default function Under5sGamesPage() {
