@@ -17,6 +17,11 @@ const games = [
   { slug: 'sentence-race', title: 'Sentence Race', emoji: '📝', summary: 'Teams race to build a grammatically correct sentence from a set of word cards.', time: '10-15 min', energy: 'Medium', players: 'Teams of 3-5' },
   { slug: 'debate-it', title: 'Debate It!', emoji: '🗣️', summary: 'Two teams argue for and against a simple topic using lesson vocabulary.', time: '20-25 min', energy: 'Low', players: '2 teams' },
   { slug: 'vocabulary-basketball', title: 'Vocabulary Basketball', emoji: '🏀', summary: 'Answer a question correctly to earn a shot at the basket. Teams compete for points.', time: '15-20 min', energy: 'High', players: '2 teams' },
+  { slug: 'hot-take', title: 'Hot Take', emoji: '🔥', summary: 'Students give a bold opinion on a topic and defend it against the class.', time: '20-25 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'alibi-game', title: 'Alibi Game', emoji: '🕵️', summary: 'Two students leave the room. Class asks them questions to find differences in their stories.', time: '20-25 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'vocabulary-volleyball', title: 'Vocabulary Volleyball', emoji: '🏐', summary: 'Two teams volley vocabulary words back and forth in a category without repeating.', time: '10-15 min', energy: 'Medium', players: '2 teams' },
+  { slug: 'mystery-object', title: 'Mystery Object', emoji: '🔍', summary: 'An object is hidden in a bag. Students ask yes or no questions to identify it.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'chain-story', title: 'Chain Story', emoji: '📖', summary: 'Each student adds one sentence to build a class story using target vocabulary.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
 ]
 
 export default function Ages710GamesPage() {

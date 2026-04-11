@@ -17,6 +17,11 @@ const games = [
   { slug: 'jump-the-line', title: 'Jump the Line', emoji: '➡️', summary: 'A line on the floor — jump left for yes, right for no. Fast vocabulary check.', time: '5-10 min', energy: 'High', players: 'Whole class' },
   { slug: 'sleeping-lions', title: 'Sleeping Lions', emoji: '🦁', summary: 'Children lie still like sleeping lions — last one to move wins.', time: '5-10 min', energy: 'Low', players: 'Whole class' },
   { slug: 'number-jump', title: 'Number Jump', emoji: '🔢', summary: 'Numbers on the floor — teacher calls a number and children jump to it.', time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'rainbow-run', title: 'Rainbow Run', emoji: '🌈', summary: 'Colour cards spread around the room — children run to the colour called.', time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'teddy-bear-says', title: 'Teddy Bear Says', emoji: '🧸', summary: "Simon Says with a teddy bear — only follow instructions if teddy says so.", time: '5-10 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'magic-bag', title: 'Magic Bag', emoji: '🎩', summary: 'Teacher pulls mystery items from a bag one by one — children guess and repeat.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'loud-quiet', title: 'Loud and Quiet', emoji: '🔊', summary: 'Children repeat vocabulary words loudly or quietly depending on teacher signal.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'bounce-and-say', title: 'Bounce and Say', emoji: '🏀', summary: 'Bounce a ball and say a word for each bounce — great for counting and vocab.', time: '5-10 min', energy: 'High', players: 'Whole class' },
 ]
 
 export default function Under5sGamesPage() {

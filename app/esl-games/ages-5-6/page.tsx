@@ -17,6 +17,11 @@ const games = [
   { slug: 'alphabet-race', title: 'Alphabet Race', emoji: '🔤', summary: 'Race to write a word beginning with each letter of the alphabet.', time: '10-15 min', energy: 'Low', players: 'Teams of 3-4' },
   { slug: 'yes-no-game', title: 'Yes or No Game', emoji: '🙅', summary: 'Answer questions without saying yes or no — surprisingly tricky and very fun.', time: '10-15 min', energy: 'Low-Medium', players: 'Pairs or whole class' },
   { slug: 'action-race', title: 'Action Race', emoji: '🏁', summary: 'Teacher calls an action word — first child to do it correctly wins a point.', time: '5-10 min', energy: 'High', players: 'Whole class' },
+  { slug: 'category-race', title: 'Category Race', emoji: '🏁', summary: 'Teams race to name as many words in a category as possible before time runs out.', time: '10-15 min', energy: 'Medium', players: 'Teams of 3-4' },
+  { slug: 'sentence-builder', title: 'Sentence Builder', emoji: '🧱', summary: 'Children build sentences one word at a time around the class.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'mime-it', title: 'Mime It!', emoji: '🎭', summary: 'One child mimes a word — the class guesses what it is. No talking allowed.', time: '10-15 min', energy: 'Medium', players: 'One at a time' },
+  { slug: 'back-to-back', title: 'Back to Back', emoji: '🔙', summary: 'Partners sit back to back — one describes a flashcard, the other draws what they hear.', time: '15-20 min', energy: 'Low', players: 'Pairs' },
+  { slug: 'keyword-bingo', title: 'Keyword Bingo', emoji: '🎯', summary: 'Children write their own bingo cards with lesson words and listen for them in a story.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
 ]
 
 export default function Ages56GamesPage() {
