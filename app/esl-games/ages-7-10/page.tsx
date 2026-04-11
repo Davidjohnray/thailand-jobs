@@ -22,6 +22,11 @@ const games = [
   { slug: 'vocabulary-volleyball', title: 'Vocabulary Volleyball', emoji: '🏐', summary: 'Two teams volley vocabulary words back and forth in a category without repeating.', time: '10-15 min', energy: 'Medium', players: '2 teams' },
   { slug: 'mystery-object', title: 'Mystery Object', emoji: '🔍', summary: 'An object is hidden in a bag. Students ask yes or no questions to identify it.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
   { slug: 'chain-story', title: 'Chain Story', emoji: '📖', summary: 'Each student adds one sentence to build a class story using target vocabulary.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'hot-potato-quiz', title: 'Hot Potato Quiz', emoji: '🥔', summary: 'Pass an object around — whoever is holding it when the timer stops must answer a question.', time: '10-15 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'newspaper-game', title: 'Newspaper Game', emoji: '📰', summary: 'Teams race to slap a rolled newspaper on the correct flashcard when the word is called.', time: '10-15 min', energy: 'High', players: '2 teams' },
+  { slug: 'telephone-pictionary', title: 'Telephone Pictionary', emoji: '📞', summary: 'Students alternate between drawing and writing — the message transforms as it passes down the line.', time: '20-25 min', energy: 'Low', players: 'Groups of 6-8' },
+  { slug: 'speed-debate', title: 'Speed Debate', emoji: '⚡', summary: 'Students have 60 seconds to argue for a position then swap — fast talking fluency builder.', time: '15-20 min', energy: 'Medium', players: 'Pairs or whole class' },
+  { slug: 'word-tennis-advanced', title: 'Word Tennis Advanced', emoji: '🎾', summary: 'Teams volley words that must connect to the previous word — builds vocabulary networks.', time: '10-15 min', energy: 'Low', players: '2 teams' },
 ]
 
 export default function Ages710GamesPage() {

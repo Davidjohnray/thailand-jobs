@@ -22,6 +22,11 @@ const games = [
   { slug: 'mime-it', title: 'Mime It!', emoji: '🎭', summary: 'One child mimes a word — the class guesses what it is. No talking allowed.', time: '10-15 min', energy: 'Medium', players: 'One at a time' },
   { slug: 'back-to-back', title: 'Back to Back', emoji: '🔙', summary: 'Partners sit back to back — one describes a flashcard, the other draws what they hear.', time: '15-20 min', energy: 'Low', players: 'Pairs' },
   { slug: 'keyword-bingo', title: 'Keyword Bingo', emoji: '🎯', summary: 'Children write their own bingo cards with lesson words and listen for them in a story.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'spelling-tennis', title: 'Spelling Tennis', emoji: '🎾', summary: 'Two teams take turns spelling a word one letter at a time like a tennis rally.', time: '10-15 min', energy: 'Low', players: '2 teams' },
+  { slug: 'odd-one-out', title: 'Odd One Out', emoji: '🔎', summary: 'Three words on the board — children identify which one does not belong and explain why.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'question-ball', title: 'Question Ball', emoji: '⚽', summary: 'Roll a ball to a classmate — whoever catches it must answer a question.', time: '10-15 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'true-false-run', title: 'True or False Run', emoji: '🏃', summary: 'Teacher says a sentence — children run to the TRUE or FALSE side of the room.', time: '10-15 min', energy: 'High', players: 'Whole class' },
+  { slug: 'word-tennis', title: 'Word Tennis', emoji: '🎾', summary: 'Partners volley vocabulary words back and forth — no repeats allowed.', time: '5-10 min', energy: 'Low', players: 'Pairs' },
 ]
 
 export default function Ages56GamesPage() {

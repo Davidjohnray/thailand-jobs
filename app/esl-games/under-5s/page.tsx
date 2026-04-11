@@ -22,6 +22,11 @@ const games = [
   { slug: 'magic-bag', title: 'Magic Bag', emoji: '🎩', summary: 'Teacher pulls mystery items from a bag one by one — children guess and repeat.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
   { slug: 'loud-quiet', title: 'Loud and Quiet', emoji: '🔊', summary: 'Children repeat vocabulary words loudly or quietly depending on teacher signal.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
   { slug: 'bounce-and-say', title: 'Bounce and Say', emoji: '🏀', summary: 'Bounce a ball and say a word for each bounce — great for counting and vocab.', time: '5-10 min', energy: 'High', players: 'Whole class' },
+  { slug: 'sticky-stars', title: 'Sticky Stars', emoji: '⭐', summary: 'Children earn a sticky star on the board every time they say a word correctly.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'animal-walk', title: 'Animal Walk', emoji: '🐘', summary: 'Teacher calls an animal — children walk around the room moving like that animal.', time: '5-10 min', energy: 'High', players: 'Whole class' },
+  { slug: 'colour-mixing', title: 'Colour Mixing', emoji: '🎨', summary: 'Teacher mixes two colour cards — children shout the colour they make together.', time: '5-10 min', energy: 'Low', players: 'Whole class' },
+  { slug: 'giant-small', title: 'Giant and Small', emoji: '🔍', summary: 'Children stand tall for big things and crouch small for little things teacher names.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
+  { slug: 'hello-goodbye', title: 'Hello Goodbye', emoji: '👋', summary: 'Children practise greetings by walking around saying hello and goodbye to each other.', time: '5-10 min', energy: 'High', players: 'Whole class' },
 ]
 
 export default function Under5sGamesPage() {
