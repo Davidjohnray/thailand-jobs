@@ -168,6 +168,7 @@ export default function JobsPage() {
                               {job.featured && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Featured</span>}
                               {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>}
                               {isLoggedIn && isJobLocked(job.created_at) && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Early Access</span>}
+                              {job.email !== 'raydave8@hotmail.com' && <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>🏫 Employer</span>}
                             </div>
                             <div style={{ color: '#666', fontSize: '14px', marginBottom: '4px' }}>{job.company} • {job.location}</div>
                             <div style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
