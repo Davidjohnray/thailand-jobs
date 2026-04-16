@@ -13,6 +13,66 @@ const QUICK_QUESTIONS = [
   'How do I register on the site?',
 ]
 
+function formatMessage(text: string): string {
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  return escaped
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(
+      /(?:https?:\/\/)?jobsinthailand\.net(\/[^\s<]*)?/g,
+      (match, path) => {
+        const fullUrl = `https://jobsinthailand.net${path || ''}`
+        return `<a href="${fullUrl}" target="_blank" style="color:#0891b2;text-decoration:underline;">${match}</a>`
+      }
+    )
+    .replace(
+      /(?<!['"=])(https?:\/\/(?!jobsinthailand\.net)[^\s<]+)/g,
+      '<a href="$1" target="_blank" style="color:#0891b2;text-decoration:underline;">$1</a>'
+    )
+    .replace(/\n/g, '<br/>')
+}
+
+function Avatar() {
+  return (
+    <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #0891b2, #06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
+      👩‍🏫
+    </div>
+  )
+}
+
+function MayaBubble({ content, onReplay, showReplay, speaking }: { content?: string; onReplay?: () => void; showReplay?: boolean; speaking?: boolean; children?: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+      <Avatar />
+      <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', borderBottomLeftRadius: '4px', padding: '12px 16px', fontSize: '14px', lineHeight: '1.6', color: '#1a1a2e', maxWidth: '560px' }}>
+        {content
+          ? <div dangerouslySetInnerHTML={{ __html: formatMessage(content) }} />
+          : null
+        }
+        {showReplay && onReplay && (
+          <button onClick={onReplay} style={{ marginTop: '8px', fontSize: '12px', color: '#0891b2', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'sans-serif' }}>
+            {speaking ? '⏹ Stop speaking' : '🔊 Replay'}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function UserBubble({ content }: { content: string }) {
+  return (
+    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexDirection: 'row-reverse' }}>
+      <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>👤</div>
+      <div style={{ background: '#0891b2', color: 'white', borderRadius: '16px', borderBottomRightRadius: '4px', padding: '12px 16px', fontSize: '14px', lineHeight: '1.6', maxWidth: '560px', whiteSpace: 'pre-wrap' }}>
+        {content}
+      </div>
+    </div>
+  )
+}
+
 export default function AskMayaPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -48,7 +108,7 @@ export default function AskMayaPage() {
       v.name.toLowerCase().includes('victoria') ||
       v.name.toLowerCase().includes('karen') ||
       v.name.toLowerCase().includes('moira') ||
-      (v.name.toLowerCase().includes('google') && v.name.toLowerCase().includes('us') && v.lang === 'en-US')
+      (v.name.toLowerCase().includes('google') && v.lang === 'en-US')
     ) || voices.find(v => v.lang.startsWith('en'))
     if (femaleVoice) utterance.voice = femaleVoice
     utterance.rate = 0.95
@@ -160,30 +220,34 @@ export default function AskMayaPage() {
           {/* Messages area */}
           <div style={{ height: '500px', overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc' }}>
 
-            {/* Welcome */}
-            <MayaBubble>
-              <div>Hi! I'm Maya 👋 I'm here to help with anything on <strong>jobsinthailand.net</strong> — teaching jobs, ESL games, lesson plans, or general questions about teaching in Thailand.</div>
-              <div style={{ marginTop: '8px' }}>Just ask me anything! If I don't know the answer I'll point you in the right direction.</div>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-                {QUICK_QUESTIONS.map(q => (
-                  <button key={q} onClick={() => sendMessage(q)} style={{ fontSize: '12px', padding: '5px 12px', borderRadius: '20px', border: '1px solid #0891b2', color: '#0891b2', background: 'white', cursor: 'pointer', fontFamily: 'sans-serif' }}>{q}</button>
-                ))}
+            {/* Welcome message */}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <Avatar />
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', borderBottomLeftRadius: '4px', padding: '12px 16px', fontSize: '14px', lineHeight: '1.6', color: '#1a1a2e', maxWidth: '560px' }}>
+                <div>Hi! I'm Maya 👋 I'm here to help with anything on <a href="https://jobsinthailand.net" target="_blank" style={{ color: '#0891b2', textDecoration: 'underline' }}>jobsinthailand.net</a> — teaching jobs, ESL games, lesson plans, or general questions about teaching in Thailand.</div>
+                <div style={{ marginTop: '8px' }}>Just ask me anything! If I don't know the answer I'll point you in the right direction.</div>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                  {QUICK_QUESTIONS.map(q => (
+                    <button key={q} onClick={() => sendMessage(q)} style={{ fontSize: '12px', padding: '5px 12px', borderRadius: '20px', border: '1px solid #0891b2', color: '#0891b2', background: 'white', cursor: 'pointer', fontFamily: 'sans-serif' }}>{q}</button>
+                  ))}
+                </div>
               </div>
-            </MayaBubble>
+            </div>
 
+            {/* Conversation */}
             {messages.map((m, i) => (
               m.role === 'user'
-                ? <UserBubble key={i}>{m.content}</UserBubble>
-                : <MayaBubble key={i}>
-                    <div style={{ whiteSpace: 'pre-wrap' }}>{m.content}</div>
-                    {voiceEnabled && i === messages.length - 1 && (
-                      <button onClick={speaking ? stopSpeaking : () => speak(m.content)} style={{ marginTop: '8px', fontSize: '12px', color: '#0891b2', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'sans-serif' }}>
-                        {speaking ? '⏹ Stop speaking' : '🔊 Replay'}
-                      </button>
-                    )}
-                  </MayaBubble>
+                ? <UserBubble key={i} content={m.content} />
+                : <MayaBubble
+                    key={i}
+                    content={m.content}
+                    showReplay={voiceEnabled && i === messages.length - 1}
+                    speaking={speaking}
+                    onReplay={() => speaking ? stopSpeaking() : speak(m.content)}
+                  />
             ))}
 
+            {/* Typing indicator */}
             {loading && (
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
                 <Avatar />
@@ -200,8 +264,6 @@ export default function AskMayaPage() {
 
           {/* Input row */}
           <div style={{ borderTop: '1px solid #f0f0f0', padding: '16px 20px', display: 'flex', gap: '10px', alignItems: 'center', background: 'white' }}>
-
-            {/* Mic button */}
             {voiceSupported && (
               <button
                 onClick={listening ? stopListening : startListening}
@@ -217,7 +279,6 @@ export default function AskMayaPage() {
                 {listening ? '⏹' : '🎤'}
               </button>
             )}
-
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -226,13 +287,12 @@ export default function AskMayaPage() {
               disabled={listening}
               style={{ flex: 1, border: '1px solid #e2e8f0', borderRadius: '24px', padding: '11px 18px', fontSize: '14px', outline: 'none', fontFamily: 'sans-serif', background: listening ? '#fef2f2' : 'white' }}
             />
-
             <button
               onClick={() => sendMessage()}
               disabled={loading || !input.trim()}
               style={{ width: '42px', height: '42px', borderRadius: '50%', background: input.trim() ? '#0891b2' : '#cbd5e1', border: 'none', cursor: input.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.2s' }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z" /></svg>
             </button>
           </div>
         </div>
@@ -264,35 +324,5 @@ export default function AskMayaPage() {
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
       `}</style>
     </main>
-  )
-}
-
-function Avatar() {
-  return (
-    <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'linear-gradient(135deg, #0891b2, #06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
-      👩‍🏫
-    </div>
-  )
-}
-
-function MayaBubble({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-      <Avatar />
-      <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', borderBottomLeftRadius: '4px', padding: '12px 16px', fontSize: '14px', lineHeight: '1.6', color: '#1a1a2e', maxWidth: '560px' }}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-function UserBubble({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexDirection: 'row-reverse' }}>
-      <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>👤</div>
-      <div style={{ background: '#0891b2', color: 'white', borderRadius: '16px', borderBottomRightRadius: '4px', padding: '12px 16px', fontSize: '14px', lineHeight: '1.6', maxWidth: '560px', whiteSpace: 'pre-wrap' }}>
-        {children}
-      </div>
-    </div>
   )
 }
