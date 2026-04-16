@@ -37,7 +37,7 @@ async function fetchRelevantJobs(message: string): Promise<string> {
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SERVICE_KEY!
     )
 
     const lower = message.toLowerCase()
