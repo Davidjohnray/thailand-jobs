@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic'
 export const maxDuration = 30
 
 const adminSupabase = createClient(
@@ -17,7 +18,6 @@ export async function POST(req: Request) {
 
     let users = data.users
 
-    // Filter by role if needed
     if (audience && audience !== 'all') {
       const { data: profiles } = await adminSupabase
         .from('profiles')
@@ -67,6 +67,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ sent, total: emails.length })
+
   } catch (err: any) {
     console.error('Email error:', err)
     return NextResponse.json({ error: err.message }, { status: 500 })

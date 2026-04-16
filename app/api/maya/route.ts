@@ -1,0 +1,117 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+const SYSTEM = `You are Maya, a warm and helpful AI assistant for jobsinthailand.net — a website for ESL teachers and job seekers in Thailand.
+
+You can help with:
+- Finding teaching and other jobs listed on the site (live data will be provided to you when relevant)
+- Free ESL games (90+ games organised by age group: Under 5s, Ages 5-6, Ages 7-10)
+- Premium lesson plans at 10 baht each in the ESL Resources marketplace
+- Teacher profile listings (200 THB to be listed in the directory)
+- General advice about teaching in Thailand — visas, salaries, school types, cities
+- How to post a job as an employer
+- How to register or contact the website
+
+If someone asks about jobs, job data from the database will be included below your instructions — use it to give accurate, specific answers with school names, locations, salaries and links where available.
+
+If you genuinely do not know the answer to something, say so honestly and suggest the person either:
+1. Registers on the site at jobsinthailand.net
+2. Contacts the site directly through the contact page
+
+Keep answers warm, concise and helpful. Use bullet points for lists of jobs. Always include the link jobsinthailand.net when directing someone to the site.`
+
+function isJobQuery(message: string): boolean {
+  const keywords = [
+    'job', 'jobs', 'vacancy', 'vacancies', 'position', 'hiring', 'work',
+    'teach', 'teacher', 'teaching', 'school', 'salary', 'baht', 'bangkok',
+    'chiang mai', 'phuket', 'pattaya', 'hua hin', 'available', 'opening',
+    'esl', 'english', 'recruit', 'apply', 'application', 'international'
+  ]
+  const lower = message.toLowerCase()
+  return keywords.some(k => lower.includes(k))
+}
+
+async function fetchRelevantJobs(message: string): Promise<string> {
+  const lower = message.toLowerCase()
+
+  let query = supabase
+    .from('jobs')
+    .select('id, title, location, salary, school_name, job_type, description, created_at')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(8)
+
+  // Filter by location if mentioned
+  const locations = ['bangkok', 'chiang mai', 'phuket', 'pattaya', 'hua hin', 'rayong', 'korat', 'udon', 'khon kaen', 'samui']
+  const mentionedLocation = locations.find(l => lower.includes(l))
+  if (mentionedLocation) {
+    query = query.ilike('location', `%${mentionedLocation}%`)
+  }
+
+  // Filter by job type keywords
+  if (lower.includes('kindergarten') || lower.includes('pre-k') || lower.includes('under 5')) {
+    query = query.ilike('title', '%kindergarten%')
+  } else if (lower.includes('primary') || lower.includes('elementary')) {
+    query = query.or('title.ilike.%primary%,title.ilike.%elementary%')
+  } else if (lower.includes('secondary') || lower.includes('high school') || lower.includes('middle school')) {
+    query = query.or('title.ilike.%secondary%,title.ilike.%high school%')
+  } else if (lower.includes('university') || lower.includes('college')) {
+    query = query.ilike('title', '%university%')
+  }
+
+  const { data, error } = await query
+
+  if (error || !data || data.length === 0) {
+    return 'No active job listings found matching that search at this time.'
+  }
+
+  const jobList = data.map(job => {
+    return `- ${job.title} at ${job.school_name || 'Unnamed School'} | Location: ${job.location || 'Thailand'} | Salary: ${job.salary || 'Not specified'} | View: jobsinthailand.net/jobs/${job.id}`
+  }).join('\n')
+
+  return `Current active job listings:\n${jobList}`
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { messages } = await req.json()
+    const latestMessage = messages[messages.length - 1]?.content || ''
+
+    let jobContext = ''
+    if (isJobQuery(latestMessage)) {
+      jobContext = await fetchRelevantJobs(latestMessage)
+    }
+
+    const systemWithJobs = jobContext
+      ? `${SYSTEM}\n\n--- LIVE JOB DATA ---\n${jobContext}\n--- END JOB DATA ---`
+      : SYSTEM
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        system: systemWithJobs,
+        messages,
+      }),
+    })
+
+    const data = await res.json()
+    const reply = data.content?.[0]?.text || 'Sorry, I could not get a response. Please try again.'
+    return NextResponse.json({ reply })
+
+  } catch (err) {
+    console.error('Maya API error:', err)
+    return NextResponse.json({ reply: 'Sorry, something went wrong. Please try again or contact us directly at jobsinthailand.net' }, { status: 500 })
+  }
+}
