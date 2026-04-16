@@ -27,6 +27,11 @@ const games = [
   { slug: 'telephone-pictionary', title: 'Telephone Pictionary', emoji: '📞', summary: 'Students alternate between drawing and writing — the message transforms as it passes down the line.', time: '20-25 min', energy: 'Low', players: 'Groups of 6-8' },
   { slug: 'speed-debate', title: 'Speed Debate', emoji: '⚡', summary: 'Students have 60 seconds to argue for a position then swap — fast talking fluency builder.', time: '15-20 min', energy: 'Medium', players: 'Pairs or whole class' },
   { slug: 'word-tennis-advanced', title: 'Word Tennis Advanced', emoji: '🎾', summary: 'Teams volley words that must connect to the previous word — builds vocabulary networks.', time: '10-15 min', energy: 'Low', players: '2 teams' },
+  { slug: 'just-a-minute', title: 'Just a Minute', emoji: '⏱️', summary: 'Speak for one full minute on a topic without hesitation, repetition or going off subject.', time: '20-25 min', energy: 'Low', players: 'One at a time' },
+{ slug: 'consequence-story', title: 'Consequence Story', emoji: '📜', summary: 'Each student writes a sentence, folds the paper to hide it and passes it on — read the chaos at the end.', time: '15-20 min', energy: 'Low', players: 'Groups of 6-8' },
+{ slug: 'give-us-a-clue', title: 'Give Us a Clue', emoji: '🎭', summary: 'Charades with vocabulary words — mime only, no sounds. Teams earn points for correct guesses.', time: '20-25 min', energy: 'Medium', players: '2 teams' },
+{ slug: 'never-have-i-ever', title: 'Never Have I Ever ESL', emoji: '🙋', summary: 'ESL version using target grammar — great for practising present perfect in a fun context.', time: '15-20 min', energy: 'Low', players: 'Whole class' },
+{ slug: 'park-bench', title: 'Park Bench', emoji: '🪑', summary: 'Two students sit on a bench — one plays a character trying to annoy the other into leaving using only English.', time: '20-25 min', energy: 'Low-Medium', players: 'Pairs' },
 ]
 
 export default function Ages710GamesPage() {

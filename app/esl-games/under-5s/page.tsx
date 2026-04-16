@@ -27,6 +27,11 @@ const games = [
   { slug: 'colour-mixing', title: 'Colour Mixing', emoji: '🎨', summary: 'Teacher mixes two colour cards — children shout the colour they make together.', time: '5-10 min', energy: 'Low', players: 'Whole class' },
   { slug: 'giant-small', title: 'Giant and Small', emoji: '🔍', summary: 'Children stand tall for big things and crouch small for little things teacher names.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
   { slug: 'hello-goodbye', title: 'Hello Goodbye', emoji: '👋', summary: 'Children practise greetings by walking around saying hello and goodbye to each other.', time: '5-10 min', energy: 'High', players: 'Whole class' },
+  { slug: 'mirror-mirror', title: 'Mirror Mirror', emoji: '🪞', summary: 'Children copy the teacher exactly — actions and words — like a mirror reflection.', time: '5-10 min', energy: 'Medium', players: 'Whole class' },
+{ slug: 'hide-the-flashcard', title: 'Hide the Flashcard', emoji: '🙈', summary: 'Teacher hides a flashcard around the room — children find it and shout the word.', time: '10 min', energy: 'High', players: 'Whole class' },
+{ slug: 'roll-and-say', title: 'Roll and Say', emoji: '🎲', summary: 'Roll a foam dice with pictures on each face — say the word that lands face up.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
+{ slug: 'feely-box', title: 'Feely Box', emoji: '📦', summary: 'Reach into a decorated box and guess the hidden object by touch alone.', time: '10-15 min', energy: 'Low', players: 'One at a time' },
+{ slug: 'spin-the-bottle', title: 'Spin the Bottle', emoji: '🍾', summary: 'Spin a bottle — whoever it points to must say a word in the current category.', time: '10-15 min', energy: 'Low-Medium', players: 'Small groups' },
 ]
 
 export default function Under5sGamesPage() {

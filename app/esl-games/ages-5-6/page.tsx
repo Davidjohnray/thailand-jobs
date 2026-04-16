@@ -27,6 +27,11 @@ const games = [
   { slug: 'question-ball', title: 'Question Ball', emoji: '⚽', summary: 'Roll a ball to a classmate — whoever catches it must answer a question.', time: '10-15 min', energy: 'Medium', players: 'Whole class' },
   { slug: 'true-false-run', title: 'True or False Run', emoji: '🏃', summary: 'Teacher says a sentence — children run to the TRUE or FALSE side of the room.', time: '10-15 min', energy: 'High', players: 'Whole class' },
   { slug: 'word-tennis', title: 'Word Tennis', emoji: '🎾', summary: 'Partners volley vocabulary words back and forth — no repeats allowed.', time: '5-10 min', energy: 'Low', players: 'Pairs' },
+  { slug: 'find-your-partner', title: 'Find Your Partner', emoji: '🤝', summary: 'Each child gets a word card — they must find the classmate holding the matching picture card.', time: '10-15 min', energy: 'Medium', players: 'Whole class' },
+{ slug: 'whiteboard-race', title: 'Whiteboard Race', emoji: '🖊️', summary: 'Teams race to write the correct answer on mini whiteboards and hold them up first.', time: '10-15 min', energy: 'Medium', players: '2-4 teams' },
+{ slug: 'story-time-quiz', title: 'Story Time Quiz', emoji: '📖', summary: 'Teacher reads a short story then asks comprehension questions for points.', time: '15-20 min', energy: 'Low', players: 'Whole class or teams' },
+{ slug: 'word-ladder', title: 'Word Ladder', emoji: '🪜', summary: 'Change one letter at a time to turn one word into another — how many steps does it take?', time: '10-15 min', energy: 'Low', players: 'Pairs or teams' },
+{ slug: 'pass-the-message', title: 'Pass the Message', emoji: '📨', summary: 'Teacher whispers a sentence to the first child — they pass it along and the last child says it aloud.', time: '10-15 min', energy: 'Low', players: 'Whole class' },
 ]
 
 export default function Ages56GamesPage() {
