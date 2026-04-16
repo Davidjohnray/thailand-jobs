@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../src/lib/supabase'
 
 export default function Navbar() {
@@ -10,6 +10,8 @@ export default function Navbar() {
   const [mobileJobsOpen, setMobileJobsOpen] = useState(false)
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const jobsRef = useRef<HTMLDivElement>(null)
+  const servicesRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }: any) => setIsLoggedIn(!!session))
@@ -19,132 +21,123 @@ export default function Navbar() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const handleNotifications = () => {
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (jobsRef.current && !jobsRef.current.contains(e.target as Node)) setJobsOpen(false)
+      if (servicesRef.current && !servicesRef.current.contains(e.target as Node)) setServicesOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  function handleNotifications() {
     if (typeof window !== 'undefined') {
       const OS = (window as any).OneSignal
       const deferred = (window as any).OneSignalDeferred
       if (OS) {
         OS.Notifications.requestPermission()
       } else if (deferred) {
-        deferred.push((OneSignal: any) => {
-          OneSignal.Notifications.requestPermission()
-        })
+        deferred.push((OneSignal: any) => OneSignal.Notifications.requestPermission())
       } else {
         alert('Please allow notifications when prompted by your browser!')
       }
     }
   }
 
-  const closeMobile = () => {
-    setMobileOpen(false)
-    setMobileJobsOpen(false)
-    setMobileServicesOpen(false)
+  function closeMobile() { setMobileOpen(false) }
+
+  const dropdownStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '110%',
+    left: 0,
+    background: 'white',
+    borderRadius: '10px',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+    minWidth: '200px',
+    zIndex: 1000,
+    padding: '8px',
+    border: '1px solid #eee',
+  }
+
+  const dropdownLinkStyle: React.CSSProperties = {
+    display: 'block',
+    padding: '10px 14px',
+    borderRadius: '6px',
+    textDecoration: 'none',
+    color: '#1a1a2e',
+    fontSize: '14px',
   }
 
   return (
     <>
-      <nav style={{ background: '#E85D26', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 1000 }}>
+      <nav style={{ background: '#E85D26', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '62px', position: 'sticky', top: 0, zIndex: 999, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
 
-        {/* LEFT — Logo + Bell */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Link href="/" style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', textDecoration: 'none' }}>
-            Thailand Jobs
+        {/* ── LEFT — Logo + Bell ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Link href="/" style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            🇹🇭 Thailand Jobs
           </Link>
-          <button onClick={handleNotifications} title="Get job notifications"
-            style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '18px', color: 'white' }}>
+          <button onClick={handleNotifications} title="Get job alerts"
+            style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '6px', padding: '5px 9px', cursor: 'pointer', fontSize: '16px', color: 'white' }}>
             🔔
           </button>
         </div>
 
-        {/* DESKTOP MENU */}
-        <div className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* ── DESKTOP LINKS ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} className="desktop-nav">
 
-          {/* JOBS DROPDOWN */}
-          <div style={{ position: 'relative' }}
-            onMouseEnter={() => setJobsOpen(true)}
-            onMouseLeave={() => setJobsOpen(false)}>
-            <button style={{ color: 'white', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#1a1a2e', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
-              💼 Jobs ▾
+          {/* Jobs dropdown */}
+          <div ref={jobsRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => { setJobsOpen(!jobsOpen); setServicesOpen(false) }}
+              style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              💼 Jobs <span style={{ fontSize: '10px' }}>{jobsOpen ? '▲' : '▼'}</span>
             </button>
             {jobsOpen && (
-              <div style={{ position: 'absolute', top: '100%', left: 0, background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', minWidth: '200px', padding: '8px', zIndex: 9999, marginTop: '4px' }}>
-                <Link href="/jobs" onClick={() => setJobsOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px', fontWeight: 'bold' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  🗂 All Jobs
-                </Link>
-                <Link href="/jobs/teaching" onClick={() => setJobsOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  🏫 Teaching Jobs
-                </Link>
-                <Link href="/jobs/other" onClick={() => setJobsOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  💼 Other Jobs
-                </Link>
-                <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
-                <Link href="/employers" onClick={() => setJobsOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#E85D26', fontSize: '14px', fontWeight: 'bold' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  📝 Post a Job
-                </Link>
+              <div style={dropdownStyle}>
+                {[
+                  { href: '/jobs', label: '📋 All Jobs' },
+                  { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
+                  { href: '/jobs/other', label: '💼 Other Jobs' },
+                ].map(item => (
+                  <Link key={item.href} href={item.href} onClick={() => setJobsOpen(false)}
+                    style={dropdownLinkStyle}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                    {item.label}
+                  </Link>
+                ))}
               </div>
             )}
           </div>
 
-          {/* SERVICES DROPDOWN */}
-          <div style={{ position: 'relative' }}
-            onMouseEnter={() => setServicesOpen(true)}
-            onMouseLeave={() => setServicesOpen(false)}>
-            <button style={{ color: 'white', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#7C3AED', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
-              🇹🇭 Services ▾
+          {/* Services dropdown */}
+          <div ref={servicesRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => { setServicesOpen(!servicesOpen); setJobsOpen(false) }}
+              style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              🏠 Services <span style={{ fontSize: '10px' }}>{servicesOpen ? '▲' : '▼'}</span>
             </button>
             {servicesOpen && (
-              <div style={{ position: 'absolute', top: '100%', left: 0, background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', minWidth: '200px', padding: '8px', zIndex: 9999, marginTop: '4px' }}>
-                <Link href="/rentals" onClick={() => setServicesOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px', fontWeight: 'bold' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  🏠 Rentals
-                </Link>
-                <Link href="/teachers" onClick={() => setServicesOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  🎓 Private Teachers
-                </Link>
-                <Link href="/training" onClick={() => setServicesOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  📚 Training
-                </Link>
-                <Link href="/cv-builder" onClick={() => setServicesOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  📄 CV Builder
-                </Link>
-                <Link href="/esl-resources" onClick={() => setServicesOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  📖 ESL Resources
-                </Link>
-                <Link href="/esl-games" onClick={() => setServicesOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#1a1a2e', fontSize: '14px' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  🎮 ESL Games
-                </Link>
+              <div style={dropdownStyle}>
+                {[
+                  { href: '/rentals',       label: '🏠 Rentals' },
+                  { href: '/teachers',      label: '🎓 Private Teachers' },
+                  { href: '/training',      label: '📚 Training' },
+                  { href: '/cv-builder',    label: '📄 CV Builder' },
+                  { href: '/esl-resources', label: '📖 ESL Resources' },
+                  { href: '/esl-games',     label: '🎮 ESL Games' },
+                ].map(item => (
+                  <Link key={item.href} href={item.href} onClick={() => setServicesOpen(false)}
+                    style={dropdownLinkStyle}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                    {item.label}
+                  </Link>
+                ))}
                 <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
                 <Link href="/advertise" onClick={() => setServicesOpen(false)}
-                  style={{ display: 'block', padding: '10px 14px', borderRadius: '6px', textDecoration: 'none', color: '#2D6BE4', fontSize: '14px', fontWeight: 'bold' }}
+                  style={{ ...dropdownLinkStyle, color: '#2D6BE4', fontWeight: 'bold' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                   📢 Advertise With Us
@@ -153,147 +146,158 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* BLOG */}
-          <Link href="/blog" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold' }}>
+          {/* Ask Maya */}
+          <Link href="/ask-maya"
+            style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            👩‍🏫 Ask Maya
+          </Link>
+
+          {/* Blog */}
+          <Link href="/blog"
+            style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold' }}>
             ✍️ Blog
           </Link>
 
-          {/* CONTACT */}
-          <Link href="/contact" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#0891b2', fontWeight: 'bold' }}>
+          {/* Contact */}
+          <Link href="/contact"
+            style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#0891b2', fontWeight: 'bold' }}>
             💬 Contact
           </Link>
 
-          {/* LOGIN / ACCOUNT */}
+          {/* Auth */}
           {isLoggedIn ? (
-            <Link href="/account/dashboard" style={{ color: '#1a1a2e', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#FBBF24', fontWeight: 'bold' }}>
+            <Link href="/dashboard"
+              style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.2)', fontWeight: 'bold' }}>
               👤 My Account
             </Link>
           ) : (
-            <Link href="/account/login" style={{ color: '#1a1a2e', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#FBBF24', fontWeight: 'bold' }}>
-              👤 Members Login
+            <Link href="/login"
+              style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.2)', fontWeight: 'bold' }}>
+              👤 Login
             </Link>
           )}
 
-          {/* POST A JOB */}
-          <Link href="/employers" style={{ color: 'white', textDecoration: 'none', fontSize: '14px', border: '2px solid white', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold' }}>
-            Post a Job
+          {/* Post a Job */}
+          <Link href="/employers"
+            style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 16px', borderRadius: '6px', background: 'white', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+            + Post a Job
           </Link>
 
-          {/* ADMIN */}
-          <Link href="/admin" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', background: 'white' }}>
-            🔐 Admin
+          {/* Admin */}
+          <Link href="/admin"
+            style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '12px', padding: '6px 10px' }}>
+            🔐
           </Link>
-
         </div>
 
-        {/* MOBILE HAMBURGER */}
-        <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)}
-          style={{ display: 'none', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '6px', padding: '8px 12px', cursor: 'pointer', color: 'white', fontSize: '20px' }}>
+        {/* ── MOBILE HAMBURGER ── */}
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="mobile-menu-btn"
+          style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', fontSize: '20px', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer' }}>
           {mobileOpen ? '✕' : '☰'}
         </button>
-
       </nav>
 
-      {/* MOBILE MENU DRAWER */}
+      {/* ── MOBILE MENU ── */}
       {mobileOpen && (
-        <div className="mobile-menu" style={{ background: '#1a1a2e', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 999, boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', top: '62px', left: 0, right: 0, bottom: 0, background: '#E85D26', zIndex: 998, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }} className="mobile-nav">
 
-          {/* JOBS SECTION */}
+          {/* Jobs */}
           <button onClick={() => setMobileJobsOpen(!mobileJobsOpen)}
-            style={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '12px', color: 'white', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>💼 Jobs</span>
-            <span>{mobileJobsOpen ? '▲' : '▼'}</span>
+            style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 'bold', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}>
+            💼 Jobs <span>{mobileJobsOpen ? '▲' : '▼'}</span>
           </button>
           {mobileJobsOpen && (
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <Link href="/jobs" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                🗂 All Jobs
-              </Link>
-              <Link href="/jobs/teaching" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                🏫 Teaching Jobs
-              </Link>
-              <Link href="/jobs/other" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                💼 Other Jobs
-              </Link>
+              {[
+                { href: '/jobs',          label: '📋 All Jobs' },
+                { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
+                { href: '/jobs/other',    label: '💼 Other Jobs' },
+              ].map(item => (
+                <Link key={item.href} href={item.href} onClick={closeMobile}
+                  style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                  {item.label}
+                </Link>
+              ))}
             </div>
           )}
 
-          {/* SERVICES SECTION */}
+          {/* Services */}
           <button onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-            style={{ background: '#7C3AED', border: 'none', borderRadius: '8px', padding: '12px', color: 'white', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>🇹🇭 Services</span>
-            <span>{mobileServicesOpen ? '▲' : '▼'}</span>
+            style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 'bold', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}>
+            🏠 Services <span>{mobileServicesOpen ? '▲' : '▼'}</span>
           </button>
           {mobileServicesOpen && (
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <Link href="/rentals" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                🏠 Rentals
-              </Link>
-              <Link href="/teachers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                🎓 Private Teachers
-              </Link>
-              <Link href="/training" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                📚 Training
-              </Link>
-              <Link href="/cv-builder" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                📄 CV Builder
-              </Link>
-              <Link href="/esl-resources" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                📖 ESL Resources
-              </Link>
-              <Link href="/esl-games" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                🎮 ESL Games
-              </Link>
-              <Link href="/advertise" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
-                📢 Advertise With Us
-              </Link>
+              {[
+                { href: '/rentals',       label: '🏠 Rentals' },
+                { href: '/teachers',      label: '🎓 Private Teachers' },
+                { href: '/training',      label: '📚 Training' },
+                { href: '/cv-builder',    label: '📄 CV Builder' },
+                { href: '/esl-resources', label: '📖 ESL Resources' },
+                { href: '/esl-games',     label: '🎮 ESL Games' },
+                { href: '/advertise',     label: '📢 Advertise With Us' },
+              ].map(item => (
+                <Link key={item.href} href={item.href} onClick={closeMobile}
+                  style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                  {item.label}
+                </Link>
+              ))}
             </div>
           )}
 
-          {/* BLOG */}
-          <Link href="/blog" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
+          {/* Ask Maya */}
+          <Link href="/ask-maya" onClick={closeMobile}
+            style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
+            👩‍🏫 Ask Maya
+          </Link>
+
+          {/* Blog */}
+          <Link href="/blog" onClick={closeMobile}
+            style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
             ✍️ Blog
           </Link>
 
-          {/* CONTACT */}
-          <Link href="/contact" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#0891b2', fontWeight: 'bold' }}>
+          {/* Contact */}
+          <Link href="/contact" onClick={closeMobile}
+            style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: '#0891b2', fontWeight: 'bold' }}>
             💬 Contact
           </Link>
 
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '10px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {isLoggedIn ? (
-              <Link href="/account/dashboard" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>
+              <Link href="/dashboard" onClick={closeMobile}
+                style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold' }}>
                 👤 My Account
               </Link>
             ) : (
-              <Link href="/account/login" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: '#FBBF24', fontWeight: 'bold' }}>
-                👤 Members Login
+              <Link href="/login" onClick={closeMobile}
+                style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold' }}>
+                👤 Login / Register
               </Link>
             )}
 
-            <Link href="/employers" onClick={closeMobile} style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px', borderRadius: '8px', background: '#E85D26', fontWeight: 'bold', textAlign: 'center' }}>
-              📝 Post a Job
+            <Link href="/employers" onClick={closeMobile}
+              style={{ display: 'block', color: '#E85D26', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'white', fontWeight: 'bold', textAlign: 'center' }}>
+              + Post a Job
             </Link>
 
-            <Link href="/admin" onClick={closeMobile} style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '10px 12px', borderRadius: '8px', background: 'white', fontWeight: 'bold', textAlign: 'center' }}>
+            <Link href="/admin" onClick={closeMobile}
+              style={{ display: 'block', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '13px', padding: '8px 14px', textAlign: 'center' }}>
               🔐 Admin
             </Link>
-
           </div>
-
         </div>
       )}
 
       <style>{`
-        @media (max-width: 768px) {
+        .desktop-nav { display: flex !important; }
+        .mobile-menu-btn { display: none !important; }
+        .mobile-nav { display: flex !important; }
+        @media (max-width: 900px) {
           .desktop-nav { display: none !important; }
-          .mobile-nav-toggle { display: block !important; }
-          .mobile-menu { display: flex !important; }
-        }
-        @media (min-width: 769px) {
-          .mobile-menu { display: none !important; }
-          .mobile-nav-toggle { display: none !important; }
+          .mobile-menu-btn { display: flex !important; }
         }
       `}</style>
     </>
