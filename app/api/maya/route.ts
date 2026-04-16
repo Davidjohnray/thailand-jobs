@@ -44,7 +44,7 @@ async function fetchRelevantJobs(message: string): Promise<string> {
 
     let query = supabase
       .from('jobs')
-      .select('id, title, location, salary, school_name, job_type, created_at')
+      .select('id, title, company, location, salary, job_type, teaching_level, visa_sponsor')
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(8)
@@ -55,28 +55,34 @@ async function fetchRelevantJobs(message: string): Promise<string> {
       query = query.ilike('location', `%${mentionedLocation}%`)
     }
 
-    if (lower.includes('kindergarten') || lower.includes('pre-k')) {
-      query = query.ilike('title', '%kindergarten%')
+    if (lower.includes('kindergarten')) {
+      query = query.ilike('teaching_level', '%kindergarten%')
     } else if (lower.includes('primary') || lower.includes('elementary')) {
-      query = query.or('title.ilike.%primary%,title.ilike.%elementary%')
+      query = query.ilike('teaching_level', '%primary%')
     } else if (lower.includes('secondary') || lower.includes('high school')) {
-      query = query.or('title.ilike.%secondary%,title.ilike.%high school%')
+      query = query.ilike('teaching_level', '%secondary%')
     } else if (lower.includes('university') || lower.includes('college')) {
-      query = query.ilike('title', '%university%')
+      query = query.ilike('teaching_level', '%university%')
     }
 
     const { data, error } = await query
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+      console.error('Supabase error:', error.message)
+      return 'Job search unavailable right now.'
+    }
+
+    if (!data || data.length === 0) {
       return 'No active job listings found matching that search at this time.'
     }
 
     const jobList = data.map(job =>
-      `- ${job.title} at ${job.school_name || 'Unnamed School'} | Location: ${job.location || 'Thailand'} | Salary: ${job.salary || 'Not specified'} | View: jobsinthailand.net/jobs/${job.id}`
+      `- ${job.title} at ${job.company || 'School'} | Location: ${job.location || 'Thailand'} | Salary: ${job.salary || 'Not specified'} | Visa: ${job.visa_sponsor ? 'Sponsored' : 'Not specified'} | View: jobsinthailand.net/jobs/${job.id}`
     ).join('\n')
 
     return `Current active job listings:\n${jobList}`
-  } catch {
+  } catch (err: any) {
+    console.error('fetchRelevantJobs error:', err.message)
     return 'Job search unavailable right now.'
   }
 }
@@ -114,7 +120,7 @@ export async function POST(req: NextRequest) {
       const errText = await res.text()
       console.error('Anthropic API error:', res.status, errText)
       return NextResponse.json(
-        { reply: `API error ${res.status}: ${errText}` },
+        { reply: `API error ${res.status} — please check your ANTHROPIC_API_KEY in Vercel environment variables.` },
         { status: 500 }
       )
     }
