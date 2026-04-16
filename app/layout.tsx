@@ -21,9 +21,9 @@ export const metadata: Metadata = {
     description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand. Free to join — members see jobs 1 hour early!',
     images: [
       {
-        url: 'https://www.jobsinthailand.net/og-image.jpg',
-        width: 1280,
-height: 671,
+        url: 'https://www.jobsinthailand.net/og-banner.jpg',
+        width: 1376,
+        height: 768,
         alt: 'Jobs in Thailand — Teaching, Hospitality & Expat Jobs',
       }
     ],
@@ -32,7 +32,7 @@ height: 671,
     card: 'summary_large_image',
     title: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
     description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand.',
-    images: ['https://www.jobsinthailand.net/og-image.jpg'],
+    images: ['https://www.jobsinthailand.net/og-banner.jpg'],
   },
   robots: {
     index: true,
