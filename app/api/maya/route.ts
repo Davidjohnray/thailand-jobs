@@ -34,47 +34,51 @@ function isJobQuery(message: string): boolean {
 }
 
 async function fetchRelevantJobs(message: string): Promise<string> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
 
-  const lower = message.toLowerCase()
+    const lower = message.toLowerCase()
 
-  let query = supabase
-    .from('jobs')
-    .select('id, title, location, salary, school_name, job_type, description, created_at')
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
-    .limit(8)
+    let query = supabase
+      .from('jobs')
+      .select('id, title, location, salary, school_name, job_type, created_at')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(8)
 
-  const locations = ['bangkok', 'chiang mai', 'phuket', 'pattaya', 'hua hin', 'rayong', 'korat', 'udon', 'khon kaen', 'samui']
-  const mentionedLocation = locations.find(l => lower.includes(l))
-  if (mentionedLocation) {
-    query = query.ilike('location', `%${mentionedLocation}%`)
+    const locations = ['bangkok', 'chiang mai', 'phuket', 'pattaya', 'hua hin', 'rayong', 'korat', 'udon', 'khon kaen', 'samui']
+    const mentionedLocation = locations.find(l => lower.includes(l))
+    if (mentionedLocation) {
+      query = query.ilike('location', `%${mentionedLocation}%`)
+    }
+
+    if (lower.includes('kindergarten') || lower.includes('pre-k')) {
+      query = query.ilike('title', '%kindergarten%')
+    } else if (lower.includes('primary') || lower.includes('elementary')) {
+      query = query.or('title.ilike.%primary%,title.ilike.%elementary%')
+    } else if (lower.includes('secondary') || lower.includes('high school')) {
+      query = query.or('title.ilike.%secondary%,title.ilike.%high school%')
+    } else if (lower.includes('university') || lower.includes('college')) {
+      query = query.ilike('title', '%university%')
+    }
+
+    const { data, error } = await query
+
+    if (error || !data || data.length === 0) {
+      return 'No active job listings found matching that search at this time.'
+    }
+
+    const jobList = data.map(job =>
+      `- ${job.title} at ${job.school_name || 'Unnamed School'} | Location: ${job.location || 'Thailand'} | Salary: ${job.salary || 'Not specified'} | View: jobsinthailand.net/jobs/${job.id}`
+    ).join('\n')
+
+    return `Current active job listings:\n${jobList}`
+  } catch {
+    return 'Job search unavailable right now.'
   }
-
-  if (lower.includes('kindergarten') || lower.includes('pre-k')) {
-    query = query.ilike('title', '%kindergarten%')
-  } else if (lower.includes('primary') || lower.includes('elementary')) {
-    query = query.or('title.ilike.%primary%,title.ilike.%elementary%')
-  } else if (lower.includes('secondary') || lower.includes('high school')) {
-    query = query.or('title.ilike.%secondary%,title.ilike.%high school%')
-  } else if (lower.includes('university') || lower.includes('college')) {
-    query = query.ilike('title', '%university%')
-  }
-
-  const { data, error } = await query
-
-  if (error || !data || data.length === 0) {
-    return 'No active job listings found matching that search at this time.'
-  }
-
-  const jobList = data.map(job =>
-    `- ${job.title} at ${job.school_name || 'Unnamed School'} | Location: ${job.location || 'Thailand'} | Salary: ${job.salary || 'Not specified'} | View: jobsinthailand.net/jobs/${job.id}`
-  ).join('\n')
-
-  return `Current active job listings:\n${jobList}`
 }
 
 export async function POST(req: NextRequest) {
@@ -106,14 +110,23 @@ export async function POST(req: NextRequest) {
       }),
     })
 
+    if (!res.ok) {
+      const errText = await res.text()
+      console.error('Anthropic API error:', res.status, errText)
+      return NextResponse.json(
+        { reply: `API error ${res.status}: ${errText}` },
+        { status: 500 }
+      )
+    }
+
     const data = await res.json()
     const reply = data.content?.[0]?.text || 'Sorry, I could not get a response. Please try again.'
     return NextResponse.json({ reply })
 
-  } catch (err) {
-    console.error('Maya API error:', err)
+  } catch (err: any) {
+    console.error('Maya API error:', err?.message || err)
     return NextResponse.json(
-      { reply: 'Sorry, something went wrong. Please try again or contact us directly at jobsinthailand.net' },
+      { reply: `Error: ${err?.message || 'unknown error'}` },
       { status: 500 }
     )
   }
