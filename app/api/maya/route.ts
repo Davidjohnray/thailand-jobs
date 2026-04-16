@@ -45,7 +45,7 @@ async function fetchRelevantJobs(message: string): Promise<string> {
     let query = supabase
       .from('jobs')
       .select('id, title, company, location, salary, job_type, teaching_level, visa_sponsor')
-      .eq('status', 'active')
+      .eq('status', 'live')
       .order('created_at', { ascending: false })
       .limit(8)
 
