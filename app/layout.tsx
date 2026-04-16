@@ -22,8 +22,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: 'https://www.jobsinthailand.net/og-image.jpg',
-        width: 1200,
-        height: 630,
+        width: 1280,
+height: 671,
         alt: 'Jobs in Thailand — Teaching, Hospitality & Expat Jobs',
       }
     ],
