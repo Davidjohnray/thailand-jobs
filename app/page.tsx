@@ -53,15 +53,15 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* RIGHT AD BOX */}
-          <a href="/contact" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
-            <div style={{ width: '250px', height: '250px', background: 'rgba(255,255,255,0.08)', border: '2px dashed rgba(255,255,255,0.25)', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontSize: '28px', marginBottom: '8px' }}>📢</div>
-              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>Advertise Here</div>
-              <div style={{ color: '#aaa', fontSize: '11px', marginBottom: '12px' }}>250 x 250px</div>
-              <div style={{ background: '#E85D26', color: 'white', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Get in Touch</div>
-            </div>
-          </a>
+          {/* RIGHT AD BOX - MAYA */}
+<Link href="/ask-maya" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
+  <div style={{ width: '250px', height: '250px', background: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)', border: '2px solid #06b6d4', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+    <div style={{ fontSize: '44px', marginBottom: '4px' }}>👩‍🏫</div>
+    <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>AI Assistant Maya</div>
+    <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', lineHeight: '1.5' }}>Ask about jobs, ESL games,<br />visa advice & more</div>
+    <div style={{ background: 'white', color: '#0891b2', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Chat with Maya →</div>
+  </div>
+</Link>
 
         </div>
       </section>
