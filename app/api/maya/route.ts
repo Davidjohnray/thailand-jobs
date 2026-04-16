@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const dynamic = 'force-dynamic'
 
 const SYSTEM = `You are Maya, a warm and helpful AI assistant for jobsinthailand.net — a website for ESL teachers and job seekers in Thailand.
 
@@ -37,6 +34,11 @@ function isJobQuery(message: string): boolean {
 }
 
 async function fetchRelevantJobs(message: string): Promise<string> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   const lower = message.toLowerCase()
 
   let query = supabase
@@ -46,19 +48,17 @@ async function fetchRelevantJobs(message: string): Promise<string> {
     .order('created_at', { ascending: false })
     .limit(8)
 
-  // Filter by location if mentioned
   const locations = ['bangkok', 'chiang mai', 'phuket', 'pattaya', 'hua hin', 'rayong', 'korat', 'udon', 'khon kaen', 'samui']
   const mentionedLocation = locations.find(l => lower.includes(l))
   if (mentionedLocation) {
     query = query.ilike('location', `%${mentionedLocation}%`)
   }
 
-  // Filter by job type keywords
-  if (lower.includes('kindergarten') || lower.includes('pre-k') || lower.includes('under 5')) {
+  if (lower.includes('kindergarten') || lower.includes('pre-k')) {
     query = query.ilike('title', '%kindergarten%')
   } else if (lower.includes('primary') || lower.includes('elementary')) {
     query = query.or('title.ilike.%primary%,title.ilike.%elementary%')
-  } else if (lower.includes('secondary') || lower.includes('high school') || lower.includes('middle school')) {
+  } else if (lower.includes('secondary') || lower.includes('high school')) {
     query = query.or('title.ilike.%secondary%,title.ilike.%high school%')
   } else if (lower.includes('university') || lower.includes('college')) {
     query = query.ilike('title', '%university%')
@@ -70,9 +70,9 @@ async function fetchRelevantJobs(message: string): Promise<string> {
     return 'No active job listings found matching that search at this time.'
   }
 
-  const jobList = data.map(job => {
-    return `- ${job.title} at ${job.school_name || 'Unnamed School'} | Location: ${job.location || 'Thailand'} | Salary: ${job.salary || 'Not specified'} | View: jobsinthailand.net/jobs/${job.id}`
-  }).join('\n')
+  const jobList = data.map(job =>
+    `- ${job.title} at ${job.school_name || 'Unnamed School'} | Location: ${job.location || 'Thailand'} | Salary: ${job.salary || 'Not specified'} | View: jobsinthailand.net/jobs/${job.id}`
+  ).join('\n')
 
   return `Current active job listings:\n${jobList}`
 }
@@ -112,6 +112,9 @@ export async function POST(req: NextRequest) {
 
   } catch (err) {
     console.error('Maya API error:', err)
-    return NextResponse.json({ reply: 'Sorry, something went wrong. Please try again or contact us directly at jobsinthailand.net' }, { status: 500 })
+    return NextResponse.json(
+      { reply: 'Sorry, something went wrong. Please try again or contact us directly at jobsinthailand.net' },
+      { status: 500 }
+    )
   }
 }
