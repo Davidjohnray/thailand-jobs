@@ -247,11 +247,11 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Ask Maya */}
-          <Link href="/ask-maya" onClick={closeMobile}
-            style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
-            👩‍🏫 Ask Maya
-          </Link>
+          {/* Live Games */}
+<Link href="/esl-games/live" onClick={closeMobile}
+  style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
+  🎮 Live Games
+</Link>
 
           {/* Blog */}
           <Link href="/blog" onClick={closeMobile}
