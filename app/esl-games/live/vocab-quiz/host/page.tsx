@@ -142,22 +142,31 @@ function HostGame() {
 }, [])
 
   // Listen for new players joining
-  useEffect(() => {
-    const channel = supabase
-      .channel(`players-${roomCode}`)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'live_game_players',
-        filter: `room_code=eq.${roomCode}`,
-      }, () => {
-        supabase.from('live_game_players').select('*').eq('room_code', roomCode).then(({ data }) => {
-          setPlayers(data || [])
-        })
+  // Listen for new players joining
+useEffect(() => {
+  // Initial fetch
+  supabase.from('live_game_players').select('*').eq('room_code', roomCode).then(({ data }: any) => {
+    setPlayers(data || [])
+  })
+
+  const channel = supabase
+    .channel(`players-${roomCode}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'live_game_players',
+    }, (payload) => {
+      console.log('Player change detected:', payload)
+      supabase.from('live_game_players').select('*').eq('room_code', roomCode).then(({ data }: any) => {
+        setPlayers(data || [])
       })
-      .subscribe()
-    return () => { supabase.removeChannel(channel) }
-  }, [roomCode])
+    })
+    .subscribe((status) => {
+      console.log('Realtime status:', status)
+    })
+
+  return () => { supabase.removeChannel(channel) }
+}, [roomCode])
 
   // Listen for answers coming in
   useEffect(() => {
