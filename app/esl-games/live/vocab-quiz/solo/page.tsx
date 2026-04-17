@@ -7,7 +7,7 @@ import { questionBank, shuffle } from '../questions'
 function SoloGame() {
   const searchParams = useSearchParams()
   const topic = searchParams.get('topic') || 'Animals'
-  const questions = shuffle(questionBank[topic] || questionBank['Animals']).slice(0, 10)
+  const [questions] = useState(() => shuffle(questionBank[topic] || questionBank['Animals']).slice(0, 10))
 
   const [current, setCurrent] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
