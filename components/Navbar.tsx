@@ -96,9 +96,9 @@ export default function Navbar() {
             {jobsOpen && (
               <div style={dropdownStyle}>
                 {[
-                  { href: '/jobs', label: '📋 All Jobs' },
+                  { href: '/jobs',          label: '📋 All Jobs' },
                   { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
-                  { href: '/jobs/other', label: '💼 Other Jobs' },
+                  { href: '/jobs/other',    label: '💼 Other Jobs' },
                 ].map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setJobsOpen(false)}
                     style={dropdownLinkStyle}
@@ -146,10 +146,10 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Ask Maya */}
-          <Link href="/ask-maya"
+          {/* Live Games */}
+          <Link href="/esl-games/live"
             style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            👩‍🏫 Ask Maya
+            🎮 Live Games
           </Link>
 
           {/* Blog */}
@@ -248,10 +248,10 @@ export default function Navbar() {
           )}
 
           {/* Live Games */}
-<Link href="/esl-games/live" onClick={closeMobile}
-  style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
-  🎮 Live Games
-</Link>
+          <Link href="/esl-games/live" onClick={closeMobile}
+            style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
+            🎮 Live Games
+          </Link>
 
           {/* Blog */}
           <Link href="/blog" onClick={closeMobile}
