@@ -129,14 +129,17 @@ function HostGame() {
 
   // Create room in Supabase on mount
   useEffect(() => {
-    supabase.from('live_game_rooms').insert([{
-      code: roomCode,
-      game_type: 'vocab-quiz',
-      topic,
-      status: 'waiting',
-      current_question: 0,
-    }])
-  }, [])
+  supabase.from('live_game_rooms').insert([{
+    code: roomCode,
+    game_type: 'vocab-quiz',
+    topic,
+    status: 'waiting',
+    current_question: 0,
+  }]).then(({ error }) => {
+    if (error) console.error('Room insert error:', error.message)
+    else console.log('Room created:', roomCode)
+  })
+}, [])
 
   // Listen for new players joining
   useEffect(() => {
