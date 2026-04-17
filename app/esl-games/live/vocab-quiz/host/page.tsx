@@ -143,6 +143,7 @@ function HostGame() {
 
   // Listen for new players joining
   // Listen for new players joining
+// Listen for new players joining
 useEffect(() => {
   // Initial fetch
   supabase.from('live_game_players').select('*').eq('room_code', roomCode).then(({ data }: any) => {
