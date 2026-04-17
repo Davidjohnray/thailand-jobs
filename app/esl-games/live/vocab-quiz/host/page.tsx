@@ -15,7 +15,7 @@ const optionLabels = ['A', 'B', 'C', 'D']
 function HostGame() {
   const searchParams = useSearchParams()
   const topic = searchParams.get('topic') || 'Animals'
-  const [questions] = useState(() => shuffle(questionBank[topic] || questionBank['Animals']).slice(0, 10))
+  const [questions] = useState(() => (questionBank[topic] || questionBank['Animals']).slice(0, 10))
 
   const [roomCode] = useState(() => {
     if (typeof window !== 'undefined') {

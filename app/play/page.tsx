@@ -39,7 +39,7 @@ function PlayPage() {
     if (!player) { setError('Could not join — please try again'); return }
     setPlayerId(player.id)
     setRoom(roomData)
-    const qs = shuffle(questionBank[roomData.topic] || questionBank['Animals']).slice(0, 10)
+    const qs = (questionBank[roomData.topic] || questionBank['Animals']).slice(0, 10)
     setQuestions(qs)
     setPhase('lobby')
   }
