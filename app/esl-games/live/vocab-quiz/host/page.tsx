@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../../../src/lib/supabase'
-import { questionBank, shuffle } from '../questions'
+import { questionBank } from '../questions'
 
 function generateCode(): string {
   return Math.floor(1000 + Math.random() * 9000).toString()
@@ -36,14 +36,24 @@ function HostGame() {
   const [running, setRunning] = useState(false)
   const [answers, setAnswers] = useState<any[]>([])
 
+  async function clearRoom() {
+    await supabase.from('live_game_answers').delete().eq('room_code', roomCode)
+    await supabase.from('live_game_players').delete().eq('room_code', roomCode)
+    await supabase.from('live_game_rooms').delete().eq('code', roomCode)
+    sessionStorage.removeItem('hostRoomCode')
+    window.location.reload()
+  }
+
   // Create room in Supabase on mount
   useEffect(() => {
+    const orderJson = JSON.stringify(questions)
     supabase.from('live_game_rooms').insert([{
       code: roomCode,
       game_type: 'vocab-quiz',
       topic,
       status: 'waiting',
       current_question: 0,
+      question_order: orderJson,
     }]).then(({ error }: any) => {
       if (error && error.code !== '23505') console.error('Room insert error:', error.message)
       else console.log('Room ready:', roomCode)
@@ -59,7 +69,6 @@ function HostGame() {
         .eq('room_code', roomCode)
       setPlayers(data || [])
     }
-
     fetchPlayers()
     const interval = setInterval(fetchPlayers, 2000)
     return () => clearInterval(interval)
@@ -121,7 +130,6 @@ function HostGame() {
   async function nextQuestion() {
     if (current + 1 >= questions.length) {
       await supabase.from('live_game_rooms').update({ status: 'finished' }).eq('code', roomCode)
-      sessionStorage.removeItem('hostRoomCode')
       setPhase('finished')
       return
     }
@@ -144,12 +152,10 @@ function HostGame() {
       <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh', padding: '32px 24px' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <Link href="/esl-games/live/vocab-quiz" style={{ color: '#888', textDecoration: 'none', fontSize: '14px' }}>← Back</Link>
-
           <div style={{ background: 'white', borderRadius: '20px', padding: '40px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', marginTop: '20px', textAlign: 'center' }}>
             <div style={{ fontSize: '48px', marginBottom: '12px' }}>📱</div>
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 8px' }}>Game Lobby</h1>
             <p style={{ color: '#666', fontSize: '15px', margin: '0 0 32px' }}>Share this code with your students</p>
-
             <div style={{ background: '#1a1a2e', borderRadius: '16px', padding: '28px', marginBottom: '28px' }}>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Room Code</p>
               <div style={{ color: 'white', fontSize: '72px', fontWeight: 'bold', letterSpacing: '12px', lineHeight: 1 }}>{roomCode}</div>
@@ -157,7 +163,6 @@ function HostGame() {
                 Students go to <strong style={{ color: 'white' }}>jobsinthailand.net/play</strong>
               </p>
             </div>
-
             <div style={{ background: '#f0f4ff', borderRadius: '12px', padding: '16px', marginBottom: '28px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>👥 Players joined: {players.length}</span>
@@ -175,12 +180,15 @@ function HostGame() {
                 </div>
               )}
             </div>
-
             <button
               onClick={startGame}
               disabled={players.length === 0}
               style={{ background: players.length > 0 ? '#16a34a' : '#cbd5e1', color: 'white', padding: '14px 48px', borderRadius: '12px', border: 'none', fontSize: '18px', fontWeight: 'bold', cursor: players.length > 0 ? 'pointer' : 'default', width: '100%' }}>
               {players.length === 0 ? 'Waiting for players...' : `Start Game with ${players.length} player${players.length > 1 ? 's' : ''} →`}
+            </button>
+            <button onClick={clearRoom}
+              style={{ background: 'transparent', color: '#888', padding: '10px', border: 'none', fontSize: '14px', cursor: 'pointer', marginTop: '8px', width: '100%' }}>
+              ✕ Cancel and start fresh
             </button>
           </div>
         </div>
@@ -205,8 +213,8 @@ function HostGame() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => { sessionStorage.removeItem('hostRoomCode'); window.location.reload() }} style={{ background: '#E85D26', color: 'white', padding: '12px 28px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>
-              Play Again
+            <button onClick={clearRoom} style={{ background: '#E85D26', color: 'white', padding: '12px 28px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>
+              🔄 New Game
             </button>
             <Link href="/esl-games/live" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
               Back to Games
@@ -221,7 +229,6 @@ function HostGame() {
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh', padding: '20px 24px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <span style={{ background: '#1a1a2e', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>Room: {roomCode}</span>
@@ -230,26 +237,23 @@ function HostGame() {
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <span style={{ background: '#f0fdf4', color: '#16a34a', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: '600' }}>👥 {players.length} players</span>
             <span style={{ background: '#fff3ed', color: '#E85D26', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: '600' }}>Q{current + 1}/{questions.length}</span>
+            <button onClick={clearRoom} style={{ background: '#fee2e2', color: '#dc2626', border: 'none', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+              ✕ End Game
+            </button>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '20px' }}>
-
-          {/* Question panel */}
           <div>
             <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: '16px' }}>
-
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ color: '#888', fontSize: '14px' }}>Question {current + 1} of {questions.length}</span>
                 <span style={{ fontSize: '24px', fontWeight: 'bold', color: timerColor }}>{timeLeft}s</span>
               </div>
-
               <div style={{ background: '#f0f0f0', borderRadius: '6px', height: '6px', marginBottom: '20px' }}>
                 <div style={{ background: timerColor, height: '6px', borderRadius: '6px', width: `${(timeLeft / 15) * 100}%`, transition: 'width 1s linear' }} />
               </div>
-
               <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 24px', lineHeight: '1.4' }}>{q.q}</h2>
-
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {q.options.map((opt: string, i: number) => {
                   const isCorrect = opt === q.answer
@@ -258,7 +262,7 @@ function HostGame() {
                   const color = revealed ? (isCorrect ? '#15803d' : '#888') : 'white'
                   return (
                     <div key={i} style={{ background: bg, border, borderRadius: '10px', padding: '14px', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.3s' }}>
-                      <div style={{ width: '32px', height: '32px', background: revealed ? (isCorrect ? '#16a34a' : '#e2e8f0') : 'rgba(255,255,255,0.25)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: revealed ? 'white' : 'white', fontSize: '14px', flexShrink: 0 }}>
+                      <div style={{ width: '32px', height: '32px', background: revealed ? (isCorrect ? '#16a34a' : '#e2e8f0') : 'rgba(255,255,255,0.25)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'white', fontSize: '14px', flexShrink: 0 }}>
                         {optionLabels[i]}
                       </div>
                       <span style={{ fontWeight: '600', fontSize: '15px', color }}>{opt}</span>
@@ -267,7 +271,6 @@ function HostGame() {
                   )
                 })}
               </div>
-
               <div style={{ display: 'flex', gap: '12px', marginTop: '20px', flexWrap: 'wrap' }}>
                 {!revealed && (
                   <button onClick={handleReveal} style={{ background: '#E85D26', color: 'white', padding: '12px 24px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', flex: 1 }}>
@@ -283,7 +286,6 @@ function HostGame() {
             </div>
           </div>
 
-          {/* Leaderboard */}
           <div style={{ background: 'white', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', height: 'fit-content' }}>
             <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 16px', textAlign: 'center' }}>🏆 Leaderboard</h3>
             {sorted.length === 0 ? (

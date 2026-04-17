@@ -2,7 +2,6 @@
 export const dynamic = 'force-dynamic'
 import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '../../src/lib/supabase'
-import { questionBank, shuffle } from '../esl-games/live/vocab-quiz/questions'
 
 const optionColors = ['#E85D26', '#0891b2', '#7C3AED', '#16a34a']
 const optionLabels = ['A', 'B', 'C', 'D']
@@ -39,7 +38,9 @@ function PlayPage() {
     if (!player) { setError('Could not join — please try again'); return }
     setPlayerId(player.id)
     setRoom(roomData)
-    const qs = (questionBank[roomData.topic] || questionBank['Animals']).slice(0, 10)
+    const qs = roomData.question_order
+      ? JSON.parse(roomData.question_order)
+      : []
     setQuestions(qs)
     setPhase('lobby')
   }
@@ -113,16 +114,15 @@ function PlayPage() {
           <div style={{ fontSize: '56px', marginBottom: '12px' }}>🎮</div>
           <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 8px' }}>Join the Game</h1>
           <p style={{ color: '#888', fontSize: '14px', margin: '0 0 28px' }}>Enter your name and the room code from your teacher</p>
-
           {error && (
             <div style={{ background: '#fee2e2', color: '#dc2626', borderRadius: '10px', padding: '12px', marginBottom: '16px', fontSize: '14px' }}>
               {error}
             </div>
           )}
-
           <input
             value={nickname}
             onChange={e => setNickname(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && joinRoom()}
             placeholder="Your name"
             maxLength={20}
             style={{ width: '100%', border: '2px solid #e2e8f0', borderRadius: '12px', padding: '14px 16px', fontSize: '16px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' }}
@@ -130,6 +130,7 @@ function PlayPage() {
           <input
             value={code}
             onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            onKeyDown={e => e.key === 'Enter' && joinRoom()}
             placeholder="4-digit room code"
             maxLength={4}
             style={{ width: '100%', border: '2px solid #e2e8f0', borderRadius: '12px', padding: '14px 16px', fontSize: '28px', fontWeight: 'bold', textAlign: 'center', letterSpacing: '8px', marginBottom: '20px', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' }}
@@ -196,16 +197,13 @@ function PlayPage() {
   return (
     <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', minHeight: '100vh', padding: '20px 16px' }}>
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Q{current + 1}/10</span>
           <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>⭐ {score}</span>
         </div>
-
         <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', marginBottom: '20px', textAlign: 'center' }}>
           <p style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0, lineHeight: '1.4' }}>{q.q}</p>
         </div>
-
         {answered ? (
           <div style={{ textAlign: 'center', padding: '24px' }}>
             <div style={{ fontSize: '64px', marginBottom: '12px' }}>{selected === q.answer ? '✅' : '❌'}</div>
