@@ -13,19 +13,8 @@ function HostGame() {
   const searchParams = useSearchParams()
   const topic = searchParams.get('topic') || 'Animals'
   const [words] = useState(() => shuffle(scrambleBank[topic] || scrambleBank['Animals']).slice(0, 10))
+  const [roomCode] = useState(() => generateCode())
   const [scrambled, setScrambled] = useState('')
-
-  const [roomCode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const existing = sessionStorage.getItem('hostRoomCodeScramble')
-      if (existing) return existing
-      const newCode = generateCode()
-      sessionStorage.setItem('hostRoomCodeScramble', newCode)
-      return newCode
-    }
-    return generateCode()
-  })
-
   const [phase, setPhase] = useState<'lobby' | 'playing' | 'finished'>('lobby')
   const [players, setPlayers] = useState<any[]>([])
   const [current, setCurrent] = useState(0)
@@ -36,16 +25,16 @@ function HostGame() {
 
   useEffect(() => {
     setScrambled(scrambleWord(words[current]?.word || ''))
-  }, [current])
+  }, [current, words])
 
   async function clearRoom() {
     await supabase.from('live_game_answers').delete().eq('room_code', roomCode)
     await supabase.from('live_game_players').delete().eq('room_code', roomCode)
     await supabase.from('live_game_rooms').delete().eq('code', roomCode)
-    sessionStorage.removeItem('hostRoomCodeScramble')
-    window.location.reload()
+    window.location.href = '/esl-games/live/word-scramble'
   }
 
+  // Create room on mount — save exact word order so students get same words
   useEffect(() => {
     const orderJson = JSON.stringify(words)
     supabase.from('live_game_rooms').insert([{
@@ -56,10 +45,12 @@ function HostGame() {
       current_question: 0,
       question_order: orderJson,
     }]).then(({ error }: any) => {
-      if (error && error.code !== '23505') console.error('Room insert error:', error.message)
+      if (error) console.error('Room insert error:', error.message)
+      else console.log('Room created:', roomCode)
     })
   }, [])
 
+  // Poll for players
   useEffect(() => {
     const fetchPlayers = async () => {
       const { data }: any = await supabase.from('live_game_players').select('*').eq('room_code', roomCode)
@@ -70,6 +61,7 @@ function HostGame() {
     return () => clearInterval(interval)
   }, [roomCode])
 
+  // Poll for answers during game
   useEffect(() => {
     if (phase !== 'playing') return
     const fetchAnswers = async () => {
@@ -81,6 +73,7 @@ function HostGame() {
     return () => clearInterval(interval)
   }, [roomCode, current, phase])
 
+  // Timer
   useEffect(() => {
     if (!running || revealed) return
     if (timeLeft === 0) { handleReveal(); return }
@@ -130,6 +123,7 @@ function HostGame() {
   const w = words[current]
   const timerColor = timeLeft > 15 ? '#16a34a' : timeLeft > 8 ? '#f59e0b' : '#ef4444'
 
+  // LOBBY
   if (phase === 'lobby') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh', padding: '32px 24px' }}>
@@ -142,7 +136,9 @@ function HostGame() {
             <div style={{ background: '#1a1a2e', borderRadius: '16px', padding: '28px', marginBottom: '28px' }}>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Room Code</p>
               <div style={{ color: 'white', fontSize: '72px', fontWeight: 'bold', letterSpacing: '12px', lineHeight: 1 }}>{roomCode}</div>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: '16px 0 0' }}>Students go to <strong style={{ color: 'white' }}>jobsinthailand.net/play</strong></p>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: '16px 0 0' }}>
+                Students go to <strong style={{ color: 'white' }}>jobsinthailand.net/play</strong>
+              </p>
             </div>
             <div style={{ background: '#f5f3ff', borderRadius: '12px', padding: '16px', marginBottom: '28px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -172,6 +168,7 @@ function HostGame() {
     )
   }
 
+  // FINISHED
   if (phase === 'finished') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: '#1a1a2e', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -196,6 +193,7 @@ function HostGame() {
     )
   }
 
+  // PLAYING
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh', padding: '20px 24px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
