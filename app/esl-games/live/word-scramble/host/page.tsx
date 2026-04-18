@@ -144,7 +144,12 @@ const [words] = useState(() => shuffle(getWordsByDifficulty(topic, difficulty)).
             <div style={{ background: '#f5f3ff', borderRadius: '12px', padding: '16px', marginBottom: '28px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>👥 Players joined: {players.length}</span>
-                <span style={{ background: '#7C3AED', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px' }}>{topic}</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+  <span style={{ background: '#7C3AED', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px' }}>{topic}</span>
+  <span style={{ background: difficulty === 'easy' ? '#16a34a' : difficulty === 'medium' ? '#f59e0b' : '#ef4444', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
+    {difficulty === 'easy' ? '🟢 Easy' : difficulty === 'medium' ? '🟡 Medium' : '🔴 Hard'}
+  </span>
+</div>
               </div>
               {players.length === 0 ? (
                 <p style={{ color: '#888', fontSize: '14px', margin: 0 }}>Waiting for players to join...</p>
