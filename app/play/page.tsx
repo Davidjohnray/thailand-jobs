@@ -6,13 +6,20 @@ import { supabase } from '../../src/lib/supabase'
 const optionColors = ['#E85D26', '#0891b2', '#7C3AED', '#16a34a']
 const optionLabels = ['A', 'B', 'C', 'D']
 
+function scrambleWord(word: string): string {
+  const arr = word.split('')
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  const result = arr.join('')
+  return result === word ? scrambleWord(word) : result
+}
+
 function PlayPage() {
   const [phase, setPhase] = useState<'join' | 'lobby' | 'playing' | 'finished'>('join')
   const [code, setCode] = useState('')
   const [nickname, setNickname] = useState('')
-  const [gameType, setGameType] = useState('vocab-quiz')
-const [scrambleInput, setScrambleInput] = useState('')
-const [scrambledWord, setScrambledWord] = useState('')
   const [error, setError] = useState('')
   const [playerId, setPlayerId] = useState<string | null>(null)
   const [room, setRoom] = useState<any>(null)
@@ -22,6 +29,16 @@ const [scrambledWord, setScrambledWord] = useState('')
   const [answered, setAnswered] = useState(false)
   const [score, setScore] = useState(0)
   const [leaderboard, setLeaderboard] = useState<any[]>([])
+  const [gameType, setGameType] = useState('vocab-quiz')
+  const [scrambleInput, setScrambleInput] = useState('')
+  const [scrambledWord, setScrambledWord] = useState('')
+
+  useEffect(() => {
+    if (gameType === 'word-scramble' && questions[current]) {
+      setScrambledWord(scrambleWord(questions[current].word))
+      setScrambleInput('')
+    }
+  }, [current, gameType, questions])
 
   async function joinRoom() {
     setError('')
@@ -42,9 +59,9 @@ const [scrambledWord, setScrambledWord] = useState('')
     setPlayerId(player.id)
     setRoom(roomData)
     const qs = roomData.question_order ? JSON.parse(roomData.question_order) : []
-setQuestions(qs)
-setGameType(roomData.game_type || 'vocab-quiz')
-setPhase('lobby')
+    setQuestions(qs)
+    setGameType(roomData.game_type || 'vocab-quiz')
+    setPhase('lobby')
   }
 
   // Poll for game to start
@@ -88,6 +105,7 @@ setPhase('lobby')
         setCurrent(data.current_question)
         setSelected(null)
         setAnswered(false)
+        setScrambleInput('')
       }
     }, 2000)
     return () => clearInterval(interval)
@@ -97,7 +115,12 @@ setPhase('lobby')
     if (answered || !playerId || !room) return
     setSelected(answer)
     setAnswered(true)
-    const correct = answer === questions[current]?.answer
+    let correct = false
+    if (gameType === 'word-scramble') {
+      correct = answer.toUpperCase() === questions[current]?.word?.toUpperCase()
+    } else {
+      correct = answer === questions[current]?.answer
+    }
     if (correct) setScore(s => s + 1)
     await supabase.from('live_game_answers').insert([{
       room_code: room.code,
@@ -127,7 +150,7 @@ setPhase('lobby')
             onKeyDown={e => e.key === 'Enter' && joinRoom()}
             placeholder="Your name"
             maxLength={20}
-            style={{ width: '100%', border: '2px solid #e2e8f0', borderRadius: '12px', padding: '14px 16px', fontSize: '16px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' }}
+            style={{ width: '100%', border: '2px solid #e2e8f0', borderRadius: '12px', padding: '14px 16px', fontSize: '16px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'sans-serif' }}
           />
           <input
             value={code}
@@ -135,7 +158,7 @@ setPhase('lobby')
             onKeyDown={e => e.key === 'Enter' && joinRoom()}
             placeholder="4-digit room code"
             maxLength={4}
-            style={{ width: '100%', border: '2px solid #e2e8f0', borderRadius: '12px', padding: '14px 16px', fontSize: '28px', fontWeight: 'bold', textAlign: 'center', letterSpacing: '8px', marginBottom: '20px', outline: 'none', boxSizing: 'border-box', fontFamily: 'sans-serif' }}
+            style={{ width: '100%', border: '2px solid #e2e8f0', borderRadius: '12px', padding: '14px 16px', fontSize: '28px', fontWeight: 'bold', textAlign: 'center', letterSpacing: '8px', marginBottom: '20px', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'sans-serif' }}
           />
           <button
             onClick={joinRoom}
@@ -196,6 +219,66 @@ setPhase('lobby')
   const q = questions[current]
   if (!q) return null
 
+  // Word Scramble playing screen
+  if (gameType === 'word-scramble') {
+    return (
+      <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #4c1d95, #7C3AED)', minHeight: '100vh', padding: '20px 16px' }}>
+        <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Word {current + 1}/10</span>
+            <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>⭐ {score}</span>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', marginBottom: '20px', textAlign: 'center' }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: '0 0 16px' }}>Unscramble this word:</p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+              {scrambledWord.split('').map((letter: string, i: number) => (
+                <div key={i} style={{ width: '44px', height: '52px', background: 'rgba(255,255,255,0.2)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px', fontWeight: 'bold' }}>
+                  {letter}
+                </div>
+              ))}
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', margin: 0 }}>💡 {q.hint}</p>
+          </div>
+          {answered ? (
+            <div style={{ textAlign: 'center', padding: '24px' }}>
+              <div style={{ fontSize: '64px', marginBottom: '12px' }}>{selected?.toUpperCase() === q.word?.toUpperCase() ? '✅' : '❌'}</div>
+              <p style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px' }}>
+                {selected?.toUpperCase() === q.word?.toUpperCase() ? 'Correct! 🎉' : 'Not quite!'}
+              </p>
+              {selected?.toUpperCase() !== q.word?.toUpperCase() && (
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0 }}>
+                  Answer: <strong style={{ color: 'white', letterSpacing: '3px' }}>{q.word}</strong>
+                </p>
+              )}
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginTop: '16px' }}>Waiting for next word...</p>
+            </div>
+          ) : (
+            <>
+              <input
+                value={scrambleInput}
+                onChange={e => setScrambleInput(e.target.value.toUpperCase())}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    submitAnswer(scrambleInput)
+                  }
+                }}
+                placeholder="Type your answer..."
+                autoFocus
+                style={{ width: '100%', border: 'none', borderRadius: '12px', padding: '14px 16px', fontSize: '20px', fontWeight: 'bold', textAlign: 'center', letterSpacing: '4px', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'sans-serif', textTransform: 'uppercase' as const, marginBottom: '12px' }}
+              />
+              <button
+                onClick={() => submitAnswer(scrambleInput)}
+                style={{ width: '100%', background: '#7C3AED', border: 'none', borderRadius: '12px', padding: '14px', fontSize: '18px', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>
+                Submit ✓
+              </button>
+            </>
+          )}
+        </div>
+      </main>
+    )
+  }
+
+  // Vocab Quiz playing screen
   return (
     <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', minHeight: '100vh', padding: '20px 16px' }}>
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>
