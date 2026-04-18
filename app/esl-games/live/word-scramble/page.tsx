@@ -3,9 +3,15 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 const topics = ['Animals', 'Food', 'Sports', 'Nature', 'School', 'Travel', 'Technology', 'Countries']
+const difficulties = [
+  { value: 'easy', label: '🟢 Easy', desc: 'Short simple words — great for younger students' },
+  { value: 'medium', label: '🟡 Medium', desc: 'Common words with a bit more challenge' },
+  { value: 'hard', label: '🔴 Hard', desc: 'Longer and more advanced vocabulary' },
+]
 
 export default function WordScrambleModePage() {
   const [selectedTopic, setSelectedTopic] = useState('Animals')
+  const [selectedDifficulty, setSelectedDifficulty] = useState('easy')
 
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh' }}>
@@ -17,7 +23,9 @@ export default function WordScrambleModePage() {
       </div>
 
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px' }}>
-        <div style={{ background: 'white', borderRadius: '16px', padding: '28px', marginBottom: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+
+        {/* Topic picker */}
+        <div style={{ background: 'white', borderRadius: '16px', padding: '28px', marginBottom: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '16px' }}>1. Pick a Topic</h2>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             {topics.map(t => (
@@ -31,10 +39,28 @@ export default function WordScrambleModePage() {
           </div>
         </div>
 
-        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '16px' }}>2. Choose Your Mode</h2>
+        {/* Difficulty picker */}
+        <div style={{ background: 'white', borderRadius: '16px', padding: '28px', marginBottom: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '16px' }}>2. Pick a Difficulty</h2>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            {difficulties.map(d => (
+              <button key={d.value} onClick={() => setSelectedDifficulty(d.value)} style={{
+                flex: 1, minWidth: '180px', padding: '16px', borderRadius: '12px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', border: '2px solid', textAlign: 'left',
+                borderColor: selectedDifficulty === d.value ? '#7C3AED' : '#e2e8f0',
+                background: selectedDifficulty === d.value ? '#f5f3ff' : 'white',
+                color: '#1a1a2e',
+              }}>
+                <div style={{ marginBottom: '4px' }}>{d.label}</div>
+                <div style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>{d.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '16px' }}>3. Choose Your Mode</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-          <Link href={`/esl-games/live/word-scramble/solo?topic=${selectedTopic}`} style={{ textDecoration: 'none' }}>
+          <Link href={`/esl-games/live/word-scramble/solo?topic=${selectedTopic}&difficulty=${selectedDifficulty}`} style={{ textDecoration: 'none' }}>
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: '20px', alignItems: 'center', cursor: 'pointer', border: '2px solid transparent', transition: 'border-color 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#7C3AED')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}>
@@ -47,7 +73,7 @@ export default function WordScrambleModePage() {
             </div>
           </Link>
 
-          <Link href={`/esl-games/live/word-scramble/host?topic=${selectedTopic}`} style={{ textDecoration: 'none' }}>
+          <Link href={`/esl-games/live/word-scramble/host?topic=${selectedTopic}&difficulty=${selectedDifficulty}`} style={{ textDecoration: 'none' }}>
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: '20px', alignItems: 'center', cursor: 'pointer', border: '2px solid transparent', transition: 'border-color 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#0891b2')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}>
@@ -60,14 +86,14 @@ export default function WordScrambleModePage() {
             </div>
           </Link>
 
-          <Link href={`/esl-games/live/word-scramble/tv?topic=${selectedTopic}`} style={{ textDecoration: 'none' }}>
+          <Link href={`/esl-games/live/word-scramble/tv?topic=${selectedTopic}&difficulty=${selectedDifficulty}`} style={{ textDecoration: 'none' }}>
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: '20px', alignItems: 'center', cursor: 'pointer', border: '2px solid transparent', transition: 'border-color 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#E85D26')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}>
               <div style={{ width: '56px', height: '56px', background: '#fff7ed', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>📺</div>
               <div style={{ flex: 1 }}>
                 <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' }}>TV Classroom Mode</h3>
-                <p style={{ color: '#666', fontSize: '14px', margin: 0 }}>Show the scrambled word on the big screen — students shout the answer!</p>
+                <p style={{ color: '#666', fontSize: '14px', margin: 0 }}>Show on the big screen — students shout the answer!</p>
               </div>
               <div style={{ background: '#E85D26', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>TV Mode →</div>
             </div>

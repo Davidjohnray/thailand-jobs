@@ -2,12 +2,13 @@
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { scrambleBank, scrambleWord, shuffle } from '../questions'
+import { scrambleBank, scrambleWord, shuffle, getWordsByDifficulty, Difficulty } from '../questions'
 
 function TVGame() {
   const searchParams = useSearchParams()
   const topic = searchParams.get('topic') || 'Animals'
-  const [words] = useState(() => shuffle(scrambleBank[topic] || scrambleBank['Animals']).slice(0, 10))
+const difficulty = (searchParams.get('difficulty') || 'easy') as Difficulty
+const [words] = useState(() => shuffle(getWordsByDifficulty(topic, difficulty)).slice(0, 10))
   const [current, setCurrent] = useState(0)
   const [scrambled, setScrambled] = useState('')
   const [revealed, setRevealed] = useState(false)

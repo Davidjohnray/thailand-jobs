@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../../../src/lib/supabase'
-import { scrambleBank, scrambleWord, shuffle } from '../questions'
+import { scrambleBank, scrambleWord, shuffle, getWordsByDifficulty, Difficulty } from '../questions'
 
 function generateCode(): string {
   return Math.floor(1000 + Math.random() * 9000).toString()
@@ -12,7 +12,8 @@ function generateCode(): string {
 function HostGame() {
   const searchParams = useSearchParams()
   const topic = searchParams.get('topic') || 'Animals'
-  const [words] = useState(() => shuffle(scrambleBank[topic] || scrambleBank['Animals']).slice(0, 10))
+const difficulty = (searchParams.get('difficulty') || 'easy') as Difficulty
+const [words] = useState(() => shuffle(getWordsByDifficulty(topic, difficulty)).slice(0, 10))
   const [roomCode] = useState(() => generateCode())
   const [scrambled, setScrambled] = useState('')
   const [phase, setPhase] = useState<'lobby' | 'playing' | 'finished'>('lobby')
