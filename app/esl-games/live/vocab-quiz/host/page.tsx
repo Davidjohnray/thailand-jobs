@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../../../src/lib/supabase'
-import { questionBank } from '../questions'
+import { questionBank, shuffle } from '../questions'
 
 function generateCode(): string {
   return Math.floor(1000 + Math.random() * 9000).toString()
@@ -15,7 +15,7 @@ const optionLabels = ['A', 'B', 'C', 'D']
 function HostGame() {
   const searchParams = useSearchParams()
   const topic = searchParams.get('topic') || 'Animals'
-  const [questions] = useState(() => (questionBank[topic] || questionBank['Animals']).slice(0, 10))
+  const [questions] = useState(() => shuffle(questionBank[topic] || questionBank['Animals']).slice(0, 10))
 
   const [roomCode] = useState(() => {
     if (typeof window !== 'undefined') {
