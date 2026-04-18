@@ -10,6 +10,9 @@ function PlayPage() {
   const [phase, setPhase] = useState<'join' | 'lobby' | 'playing' | 'finished'>('join')
   const [code, setCode] = useState('')
   const [nickname, setNickname] = useState('')
+  const [gameType, setGameType] = useState('vocab-quiz')
+const [scrambleInput, setScrambleInput] = useState('')
+const [scrambledWord, setScrambledWord] = useState('')
   const [error, setError] = useState('')
   const [playerId, setPlayerId] = useState<string | null>(null)
   const [room, setRoom] = useState<any>(null)
@@ -38,11 +41,10 @@ function PlayPage() {
     if (!player) { setError('Could not join — please try again'); return }
     setPlayerId(player.id)
     setRoom(roomData)
-    const qs = roomData.question_order
-      ? JSON.parse(roomData.question_order)
-      : []
-    setQuestions(qs)
-    setPhase('lobby')
+    const qs = roomData.question_order ? JSON.parse(roomData.question_order) : []
+setQuestions(qs)
+setGameType(roomData.game_type || 'vocab-quiz')
+setPhase('lobby')
   }
 
   // Poll for game to start
