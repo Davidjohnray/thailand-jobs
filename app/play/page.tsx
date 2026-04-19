@@ -32,6 +32,8 @@ function PlayPage() {
   const [gameType, setGameType] = useState('vocab-quiz')
   const [scrambleInput, setScrambleInput] = useState('')
   const [scrambledWord, setScrambledWord] = useState('')
+  const [jeopardyState, setJeopardyState] = useState<any>(null)
+  const [currentTileKey, setCurrentTileKey] = useState<string | null>(null)
 
   useEffect(() => {
     if (gameType === 'word-scramble' && questions[current]) {
@@ -58,9 +60,15 @@ function PlayPage() {
     if (!player) { setError('Could not join — please try again'); return }
     setPlayerId(player.id)
     setRoom(roomData)
-    const qs = roomData.question_order ? JSON.parse(roomData.question_order) : []
-    setQuestions(qs)
-    setGameType(roomData.game_type || 'vocab-quiz')
+    const gt = roomData.game_type || 'vocab-quiz'
+    setGameType(gt)
+    if (gt === 'jeopardy') {
+      const state = roomData.question_order ? JSON.parse(roomData.question_order) : null
+      setJeopardyState(state)
+    } else {
+      const qs = roomData.question_order ? JSON.parse(roomData.question_order) : []
+      setQuestions(qs)
+    }
     setPhase('lobby')
   }
 
@@ -81,9 +89,9 @@ function PlayPage() {
     return () => clearInterval(interval)
   }, [phase, room])
 
-  // Poll for question changes during game
+  // Poll for question changes during non-jeopardy games
   useEffect(() => {
-    if (phase !== 'playing' || !room) return
+    if (phase !== 'playing' || !room || gameType === 'jeopardy') return
     const interval = setInterval(async () => {
       const { data }: any = await supabase
         .from('live_game_rooms')
@@ -109,7 +117,39 @@ function PlayPage() {
       }
     }, 2000)
     return () => clearInterval(interval)
-  }, [phase, room, current])
+  }, [phase, room, current, gameType])
+
+  // Jeopardy polling
+  useEffect(() => {
+    if (phase !== 'playing' || !room || gameType !== 'jeopardy') return
+    const interval = setInterval(async () => {
+      const { data }: any = await supabase
+        .from('live_game_rooms')
+        .select('*')
+        .eq('code', room.code)
+        .single()
+      if (!data) return
+      if (data.status === 'finished') {
+        const { data: lb }: any = await supabase
+          .from('live_game_players')
+          .select('*')
+          .eq('room_code', room.code)
+          .order('score', { ascending: false })
+        setLeaderboard(lb || [])
+        setPhase('finished')
+        return
+      }
+      const state = JSON.parse(data.question_order)
+      setJeopardyState(state)
+      const newKey = state.currentTile ? `${state.currentTile.cat}-${state.currentTile.row}` : null
+      if (newKey !== currentTileKey) {
+        setCurrentTileKey(newKey)
+        setAnswered(false)
+        setSelected(null)
+      }
+    }, 1500)
+    return () => clearInterval(interval)
+  }, [phase, room, gameType, currentTileKey])
 
   async function submitAnswer(answer: string) {
     if (answered || !playerId || !room) return
@@ -130,6 +170,19 @@ function PlayPage() {
       question_index: current,
       answer,
       correct,
+    }])
+  }
+
+  async function buzzIn() {
+    if (answered || !playerId || !room || !jeopardyState?.currentTile) return
+    setAnswered(true)
+    const tileIndex = jeopardyState.currentTile.cat * 5 + jeopardyState.currentTile.row
+    await supabase.from('live_game_answers').insert([{
+      room_code: room.code,
+      player_id: playerId,
+      question_index: tileIndex,
+      answer: 'buzz',
+      correct: false,
     }])
   }
 
@@ -199,13 +252,17 @@ function PlayPage() {
         <div style={{ textAlign: 'center', color: 'white', maxWidth: '400px', width: '100%' }}>
           <div style={{ fontSize: '80px', marginBottom: '16px' }}>{myRank === 1 ? '🏆' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : '🎉'}</div>
           <h2 style={{ fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px' }}>{myRank === 1 ? 'You Won!' : 'Game Over!'}</h2>
-          <p style={{ opacity: 0.8, fontSize: '18px', margin: '0 0 24px' }}>You scored {score} points — rank #{myRank}</p>
+          <p style={{ opacity: 0.8, fontSize: '18px', margin: '0 0 24px' }}>
+            {gameType === 'jeopardy'
+              ? `Final rank: #${myRank}`
+              : `You scored ${score} points — rank #${myRank}`}
+          </p>
           <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
             {leaderboard.map((p: any, i: number) => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: i < leaderboard.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
                 <span style={{ fontSize: '20px' }}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}</span>
                 <span style={{ flex: 1, textAlign: 'left', fontWeight: p.id === playerId ? 'bold' : 'normal', color: p.id === playerId ? '#fbbf24' : 'white' }}>{p.nickname}</span>
-                <span style={{ fontWeight: 'bold' }}>{p.score} pts</span>
+                <span style={{ fontWeight: 'bold' }}>{gameType === 'jeopardy' ? (p.score || 0).toLocaleString() : p.score} pts</span>
               </div>
             ))}
           </div>
@@ -217,11 +274,60 @@ function PlayPage() {
     )
   }
 
-  // PLAYING
+  // PLAYING — JEOPARDY
+  if (gameType === 'jeopardy') {
+    const hasActiveTile = jeopardyState?.buzzPhase && jeopardyState?.currentTile
+    const activeCat = hasActiveTile ? jeopardyState.currentTile.cat : null
+    const activeRow = hasActiveTile ? jeopardyState.currentTile.row : null
+    const activeQ = hasActiveTile ? jeopardyState.board[activeCat][activeRow] : null
+    const isDaily = hasActiveTile && jeopardyState.dailyDouble === `${activeCat}-${activeRow}`
+    const pts = activeQ ? (isDaily ? activeQ.points * 2 : activeQ.points) : 0
+
+    return (
+      <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d1b69)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+        <div style={{ maxWidth: '500px', width: '100%', textAlign: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>Hi {nickname}!</span>
+            <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>💰 {(score || 0).toLocaleString()}</span>
+          </div>
+          {!hasActiveTile ? (
+            <div>
+              <div style={{ fontSize: '72px', marginBottom: '20px' }}>🎯</div>
+              <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', margin: '0 0 8px' }}>Get Ready!</h2>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '16px' }}>Waiting for teacher to pick a question...</p>
+            </div>
+          ) : answered ? (
+            <div>
+              <div style={{ fontSize: '72px', marginBottom: '16px' }}>🔔</div>
+              <h2 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px' }}>You buzzed in!</h2>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '16px' }}>Waiting for the teacher...</p>
+            </div>
+          ) : (
+            <div>
+              {isDaily && (
+                <div style={{ background: 'linear-gradient(135deg, #f59e0b, #fbbf24)', borderRadius: '12px', padding: '12px', marginBottom: '16px' }}>
+                  <p style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '16px', margin: 0 }}>⭐ DAILY DOUBLE — worth {pts} points!</p>
+                </div>
+              )}
+              <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', margin: '0 0 10px' }}>For {pts} points...</p>
+                <p style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0, lineHeight: '1.5' }}>{activeQ.question}</p>
+              </div>
+              <button onClick={buzzIn}
+                style={{ width: '100%', background: 'linear-gradient(135deg, #f59e0b, #fbbf24)', color: '#1a1a2e', border: 'none', borderRadius: '20px', padding: '32px', fontSize: '28px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 8px 32px rgba(245,158,11,0.4)' }}>
+                🔔 BUZZ IN!
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
+    )
+  }
+
+  // PLAYING — TRUE OR FALSE
   const q = questions[current]
   if (!q) return null
 
-  // True or False playing screen
   if (gameType === 'true-or-false') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #0c4a6e, #0891b2)', minHeight: '100vh', padding: '20px 16px' }}>
@@ -263,7 +369,7 @@ function PlayPage() {
     )
   }
 
-  // Word Scramble playing screen
+  // PLAYING — WORD SCRAMBLE
   if (gameType === 'word-scramble') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #4c1d95, #7C3AED)', minHeight: '100vh', padding: '20px 16px' }}>
@@ -318,7 +424,7 @@ function PlayPage() {
     )
   }
 
-  // Vocab Quiz playing screen
+  // PLAYING — VOCAB QUIZ
   return (
     <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', minHeight: '100vh', padding: '20px 16px' }}>
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>

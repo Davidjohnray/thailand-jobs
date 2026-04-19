@@ -29,6 +29,15 @@ const games = [
   age: 'Ages 7+',
   time: '10-15 min',
 },
+{
+  slug: 'jeopardy',
+  title: 'Jeopardy Quiz',
+  emoji: '🎯',
+  desc: 'Pick a category and point value from the board. Higher points = harder questions. Buzz in to answer and climb the leaderboard!',
+  topics: ['Animals', 'Food', 'English', 'Numbers', 'World'],
+  age: 'Ages 8+',
+  time: '15-25 min',
+},
 ]
 
 const modes = [
