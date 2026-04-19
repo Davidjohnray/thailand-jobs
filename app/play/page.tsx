@@ -118,6 +118,8 @@ function PlayPage() {
     let correct = false
     if (gameType === 'word-scramble') {
       correct = answer.toUpperCase() === questions[current]?.word?.toUpperCase()
+    } else if (gameType === 'true-or-false') {
+      correct = answer === questions[current]?.answer?.toString()
     } else {
       correct = answer === questions[current]?.answer
     }
@@ -219,6 +221,48 @@ function PlayPage() {
   const q = questions[current]
   if (!q) return null
 
+  // True or False playing screen
+  if (gameType === 'true-or-false') {
+    return (
+      <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #0c4a6e, #0891b2)', minHeight: '100vh', padding: '20px 16px' }}>
+        <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Q{current + 1}/10</span>
+            <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>⭐ {score}</span>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '28px', marginBottom: '24px', textAlign: 'center' }}>
+            <p style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0, lineHeight: '1.5' }}>{q.statement}</p>
+          </div>
+          {answered ? (
+            <div style={{ textAlign: 'center', padding: '24px' }}>
+              <div style={{ fontSize: '64px', marginBottom: '12px' }}>{selected === q.answer?.toString() ? '✅' : '❌'}</div>
+              <p style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px' }}>
+                {selected === q.answer?.toString() ? 'Correct! 🎉' : 'Not quite!'}
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0 }}>
+                The answer is <strong style={{ color: 'white' }}>{q.answer ? 'TRUE ✅' : 'FALSE ❌'}</strong>
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginTop: '16px' }}>Waiting for next question...</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <button onClick={() => submitAnswer('true')}
+                style={{ background: '#16a34a', border: 'none', borderRadius: '16px', padding: '28px 12px', cursor: 'pointer', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '40px' }}>✅</span>
+                <span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px' }}>TRUE</span>
+              </button>
+              <button onClick={() => submitAnswer('false')}
+                style={{ background: '#ef4444', border: 'none', borderRadius: '16px', padding: '28px 12px', cursor: 'pointer', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '40px' }}>❌</span>
+                <span style={{ color: 'white', fontWeight: 'bold', fontSize: '20px' }}>FALSE</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
+    )
+  }
+
   // Word Scramble playing screen
   if (gameType === 'word-scramble') {
     return (
@@ -257,11 +301,7 @@ function PlayPage() {
               <input
                 value={scrambleInput}
                 onChange={e => setScrambleInput(e.target.value.toUpperCase())}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    submitAnswer(scrambleInput)
-                  }
-                }}
+                onKeyDown={e => { if (e.key === 'Enter') submitAnswer(scrambleInput) }}
                 placeholder="Type your answer..."
                 autoFocus
                 style={{ width: '100%', border: 'none', borderRadius: '12px', padding: '14px 16px', fontSize: '20px', fontWeight: 'bold', textAlign: 'center', letterSpacing: '4px', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'sans-serif', textTransform: 'uppercase' as const, marginBottom: '12px' }}

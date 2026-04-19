@@ -20,6 +20,15 @@ const games = [
     age: 'Ages 7+',
     time: '10-15 min',
   },
+  {
+  slug: 'true-or-false',
+  title: 'True or False Buzzer',
+  emoji: '✅',
+  desc: 'Is the statement true or false? Buzz in before your classmates and climb the leaderboard!',
+  topics: ['Animals', 'Food', 'Science', 'Geography', 'History', 'Thailand', 'English', 'Sport'],
+  age: 'Ages 7+',
+  time: '10-15 min',
+},
 ]
 
 const modes = [
