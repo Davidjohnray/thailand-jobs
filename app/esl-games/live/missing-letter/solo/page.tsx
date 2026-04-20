@@ -33,22 +33,25 @@ function SoloGame() {
 
   const q = questions[current]
 
+  function checkAnswer(letters: string[]): boolean {
+    return q.missingIndexes.every((idx, i) => letters[i] === q.word[idx])
+  }
+
   function handleAnswer(option: string) {
     if (answered) return
     const newSelected = [...selectedLetters, option]
 
     if (q.missingIndexes.length === 1) {
-      // Single missing letter — answer immediately
-      setAnswered(true)
       const isCorrect = option === q.word[q.missingIndexes[0]]
+      setSelectedLetters(newSelected)
+      setAnswered(true)
       setCorrect(isCorrect)
       if (isCorrect) setScore(s => s + 1)
     } else {
-      // Two missing letters — need both
       setSelectedLetters(newSelected)
       if (newSelected.length === q.missingIndexes.length) {
+        const isCorrect = checkAnswer(newSelected)
         setAnswered(true)
-        const isCorrect = q.missingIndexes.every((idx, i) => newSelected[i] === q.word[idx])
         setCorrect(isCorrect)
         if (isCorrect) setScore(s => s + 1)
       }
@@ -72,6 +75,9 @@ function SoloGame() {
             <div style={{ fontSize: '48px', fontWeight: 'bold', color: '#1e3a5f' }}>{score}/{questions.length}</div>
             <div style={{ color: '#666', fontSize: '16px', marginTop: '4px' }}>{pct}% correct</div>
           </div>
+          <p style={{ color: '#444', fontSize: '15px', marginBottom: '28px' }}>
+            {pct >= 80 ? 'Excellent spelling! 🌟' : pct >= 50 ? 'Good effort! Keep practising.' : 'Keep trying — you will improve!'}
+          </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
             <button onClick={() => window.location.reload()} style={{ background: '#1e3a5f', color: 'white', padding: '12px 24px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}>Play Again</button>
             <Link href="/esl-games/live/missing-letter" style={{ background: '#f0f0f0', color: '#1a1a2e', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>Change Topic</Link>
@@ -83,6 +89,7 @@ function SoloGame() {
 
   const timerColor = timeLeft > 8 ? '#16a34a' : timeLeft > 4 ? '#f59e0b' : '#ef4444'
   const displayWord = buildDisplayWord(q.word, q.missingIndexes, false)
+  const isDisabled = answered || selectedLetters.length >= q.missingIndexes.length
 
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh', padding: '24px' }}>
@@ -104,10 +111,11 @@ function SoloGame() {
             <div style={{ background: answered ? '#94a3b8' : timerColor, height: '8px', borderRadius: '8px', width: answered ? '0%' : `${(timeLeft / 15) * 100}%`, transition: 'width 1s linear' }} />
           </div>
 
-          <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', marginBottom: '8px' }}>💡 {q.hint}</p>
-          <p style={{ color: '#666', fontSize: '13px', textAlign: 'center', marginBottom: '16px' }}>
-            {q.missingIndexes.length === 1 ? 'Find the missing letter:' : `Find the ${q.missingIndexes.length} missing letters:`}
-            {q.missingIndexes.length > 1 && selectedLetters.length > 0 && ` (${selectedLetters.length}/${q.missingIndexes.length} selected)`}
+          <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', marginBottom: '6px' }}>💡 {q.hint}</p>
+          <p style={{ color: '#aaa', fontSize: '13px', textAlign: 'center', marginBottom: '20px' }}>
+            {q.missingIndexes.length === 1
+              ? 'Find the missing letter:'
+              : `Find the ${q.missingIndexes.length} missing letters (${selectedLetters.length}/${q.missingIndexes.length} selected):`}
           </p>
 
           {/* Word display */}
@@ -115,23 +123,34 @@ function SoloGame() {
             {displayWord.map((letter, i) => {
               const isMissing = q.missingIndexes.includes(i)
               const missingPos = q.missingIndexes.indexOf(i)
-              const filledLetter = answered
-                ? q.word[i]
-                : (isMissing && selectedLetters[missingPos] ? selectedLetters[missingPos] : letter)
+              const filledLetter = isMissing && selectedLetters[missingPos] ? selectedLetters[missingPos] : letter
+
+              let bg = '#f8f9fa'
+              let color = '#1a1a2e'
+              let border = '2px solid #e2e8f0'
+
+              if (isMissing) {
+                if (answered) {
+                  bg = correct ? '#dcfce7' : '#fee2e2'
+                  color = correct ? '#15803d' : '#dc2626'
+                  border = `2px solid ${correct ? '#16a34a' : '#ef4444'}`
+                } else if (selectedLetters[missingPos]) {
+                  bg = '#dbeafe'
+                  color = '#1e3a5f'
+                  border = '2px solid #2D6BE4'
+                } else {
+                  bg = '#1e3a5f'
+                  color = 'white'
+                  border = '2px solid transparent'
+                }
+              }
 
               return (
                 <div key={i} style={{
                   width: '52px', height: '60px',
-                  background: answered
-                    ? (isMissing ? (correct ? '#dcfce7' : '#fee2e2') : '#f8f9fa')
-                    : (isMissing ? (selectedLetters[missingPos] ? '#dbeafe' : '#1e3a5f') : '#f8f9fa'),
-                  borderRadius: '10px',
+                  background: bg, borderRadius: '10px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '28px', fontWeight: 'bold',
-                  color: answered
-                    ? (isMissing ? (correct ? '#15803d' : '#dc2626') : '#1a1a2e')
-                    : (isMissing ? 'white' : '#1a1a2e'),
-                  border: isMissing ? '2px solid transparent' : '2px solid #e2e8f0',
+                  fontSize: '28px', fontWeight: 'bold', color, border,
                 }}>
                   {filledLetter === '_' ? '' : filledLetter}
                 </div>
@@ -141,22 +160,22 @@ function SoloGame() {
 
           {!answered ? (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              {q.options.map((opt, i) => {
-                const isSelected = selectedLetters.includes(opt)
-                return (
-                  <button key={i} onClick={() => handleAnswer(opt)}
-                    disabled={isSelected}
-                    style={{
-                      background: isSelected ? '#dbeafe' : ['#E85D26', '#0891b2', '#7C3AED', '#16a34a'][i],
-                      border: isSelected ? '2px solid #2D6BE4' : '2px solid transparent',
-                      borderRadius: '14px', padding: '20px 12px', cursor: isSelected ? 'default' : 'pointer',
-                      color: 'white', fontWeight: 'bold', fontSize: '28px', letterSpacing: '4px',
-                      opacity: isSelected ? 0.7 : 1,
-                    }}>
-                    {opt}
-                  </button>
-                )
-              })}
+              {q.options.map((opt, i) => (
+                <button key={i} onClick={() => handleAnswer(opt)}
+                  disabled={isDisabled}
+                  style={{
+                    background: isDisabled ? '#e2e8f0' : ['#E85D26', '#0891b2', '#7C3AED', '#16a34a'][i],
+                    border: 'none',
+                    borderRadius: '14px', padding: '20px 12px',
+                    cursor: isDisabled ? 'default' : 'pointer',
+                    color: isDisabled ? '#999' : 'white',
+                    fontWeight: 'bold', fontSize: '28px',
+                    opacity: isDisabled ? 0.5 : 1,
+                    transition: 'opacity 0.2s',
+                  }}>
+                  {opt}
+                </button>
+              ))}
             </div>
           ) : (
             <>
