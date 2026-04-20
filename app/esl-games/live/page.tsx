@@ -38,6 +38,15 @@ const games = [
   age: 'Ages 8+',
   time: '15-25 min',
 },
+{
+  slug: 'missing-letter',
+  title: 'Missing Letter',
+  emoji: '🔤',
+  desc: 'Find the missing letter in the word before the timer runs out. One or two letters missing depending on difficulty!',
+  topics: ['Animals', 'Food', 'School', 'Nature', 'Sports', 'Travel', 'Technology', 'Countries'],
+  age: 'Ages 6+',
+  time: '10-15 min',
+},
 ]
 
 const modes = [

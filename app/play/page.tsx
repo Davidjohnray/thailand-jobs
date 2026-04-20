@@ -34,11 +34,15 @@ function PlayPage() {
   const [scrambledWord, setScrambledWord] = useState('')
   const [jeopardyState, setJeopardyState] = useState<any>(null)
   const [currentTileKey, setCurrentTileKey] = useState<string | null>(null)
+  const [mlSelected, setMlSelected] = useState<string[]>([])
 
   useEffect(() => {
     if (gameType === 'word-scramble' && questions[current]) {
       setScrambledWord(scrambleWord(questions[current].word))
       setScrambleInput('')
+    }
+    if (gameType === 'missing-letter') {
+      setMlSelected([])
     }
   }, [current, gameType, questions])
 
@@ -114,6 +118,7 @@ function PlayPage() {
         setSelected(null)
         setAnswered(false)
         setScrambleInput('')
+        setMlSelected([])
       }
     }, 2000)
     return () => clearInterval(interval)
@@ -186,6 +191,34 @@ function PlayPage() {
     }])
   }
 
+  async function handleMLAnswer(option: string, q: any) {
+    if (answered) return
+    const newSelected = [...mlSelected, option]
+    if (q.missingIndexes.length === 1) {
+      setSelected(option)
+      setAnswered(true)
+      const correct = option === q.word[q.missingIndexes[0]]
+      if (correct) setScore(s => s + 1)
+      await supabase.from('live_game_answers').insert([{
+        room_code: room.code, player_id: playerId,
+        question_index: current, answer: option, correct,
+      }])
+    } else {
+      setMlSelected(newSelected)
+      if (newSelected.length === q.missingIndexes.length) {
+        setAnswered(true)
+        const answerStr = newSelected.join(',')
+        const correctStr = q.missingIndexes.map((idx: number) => q.word[idx]).join(',')
+        const correct = answerStr === correctStr
+        if (correct) setScore(s => s + 1)
+        await supabase.from('live_game_answers').insert([{
+          room_code: room.code, player_id: playerId,
+          question_index: current, answer: answerStr, correct,
+        }])
+      }
+    }
+  }
+
   // JOIN SCREEN
   if (phase === 'join') {
     return (
@@ -253,9 +286,7 @@ function PlayPage() {
           <div style={{ fontSize: '80px', marginBottom: '16px' }}>{myRank === 1 ? '🏆' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : '🎉'}</div>
           <h2 style={{ fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px' }}>{myRank === 1 ? 'You Won!' : 'Game Over!'}</h2>
           <p style={{ opacity: 0.8, fontSize: '18px', margin: '0 0 24px' }}>
-            {gameType === 'jeopardy'
-              ? `Final rank: #${myRank}`
-              : `You scored ${score} points — rank #${myRank}`}
+            {gameType === 'jeopardy' ? `Final rank: #${myRank}` : `You scored ${score} points — rank #${myRank}`}
           </p>
           <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
             {leaderboard.map((p: any, i: number) => (
@@ -324,10 +355,11 @@ function PlayPage() {
     )
   }
 
-  // PLAYING — TRUE OR FALSE
+  // PLAYING
   const q = questions[current]
   if (!q) return null
 
+  // TRUE OR FALSE
   if (gameType === 'true-or-false') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #0c4a6e, #0891b2)', minHeight: '100vh', padding: '20px 16px' }}>
@@ -369,7 +401,7 @@ function PlayPage() {
     )
   }
 
-  // PLAYING — WORD SCRAMBLE
+  // WORD SCRAMBLE
   if (gameType === 'word-scramble') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #4c1d95, #7C3AED)', minHeight: '100vh', padding: '20px 16px' }}>
@@ -412,8 +444,7 @@ function PlayPage() {
                 autoFocus
                 style={{ width: '100%', border: 'none', borderRadius: '12px', padding: '14px 16px', fontSize: '20px', fontWeight: 'bold', textAlign: 'center', letterSpacing: '4px', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'sans-serif', textTransform: 'uppercase' as const, marginBottom: '12px' }}
               />
-              <button
-                onClick={() => submitAnswer(scrambleInput)}
+              <button onClick={() => submitAnswer(scrambleInput)}
                 style={{ width: '100%', background: '#7C3AED', border: 'none', borderRadius: '12px', padding: '14px', fontSize: '18px', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>
                 Submit ✓
               </button>
@@ -424,7 +455,87 @@ function PlayPage() {
     )
   }
 
-  // PLAYING — VOCAB QUIZ
+  // MISSING LETTER
+  if (gameType === 'missing-letter') {
+    const displayWord = q.word.split('').map((letter: string, i: number) => {
+      if (q.missingIndexes.includes(i)) {
+        const pos = q.missingIndexes.indexOf(i)
+        return mlSelected[pos] || '_'
+      }
+      return letter
+    })
+    const isCorrect = q.missingIndexes.length === 1
+      ? selected === q.word[q.missingIndexes[0]]
+      : mlSelected.join(',') === q.missingIndexes.map((idx: number) => q.word[idx]).join(',')
+
+    return (
+      <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', minHeight: '100vh', padding: '20px 16px' }}>
+        <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Word {current + 1}/10</span>
+            <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>⭐ {score}</span>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', marginBottom: '20px', textAlign: 'center' }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: '0 0 8px' }}>💡 {q.hint}</p>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: '0 0 20px' }}>
+              {q.missingIndexes.length === 1 ? 'Find the missing letter' : `Find the ${q.missingIndexes.length} missing letters`}
+              {q.missingIndexes.length > 1 && mlSelected.length > 0 && ` (${mlSelected.length}/${q.missingIndexes.length})`}
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              {displayWord.map((letter: string, i: number) => {
+                const isMissing = q.missingIndexes.includes(i)
+                const pos = q.missingIndexes.indexOf(i)
+                return (
+                  <div key={i} style={{
+                    width: '44px', height: '52px',
+                    background: isMissing
+                      ? (answered ? (isCorrect ? 'rgba(22,163,74,0.5)' : 'rgba(239,68,68,0.5)') : (mlSelected[pos] ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)'))
+                      : 'rgba(255,255,255,0.1)',
+                    borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontSize: '24px', fontWeight: 'bold',
+                    border: isMissing ? '2px solid rgba(255,255,255,0.3)' : '2px solid transparent',
+                  }}>
+                    {letter === '_' ? '' : letter}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          {answered ? (
+            <div style={{ textAlign: 'center', padding: '24px' }}>
+              <div style={{ fontSize: '64px', marginBottom: '12px' }}>{isCorrect ? '✅' : '❌'}</div>
+              <p style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: '0 0 8px' }}>
+                {isCorrect ? 'Correct! 🎉' : 'Not quite!'}
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0 }}>
+                The word is <strong style={{ color: 'white', letterSpacing: '4px' }}>{q.word}</strong>
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginTop: '16px' }}>Waiting for next question...</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              {q.options.map((opt: string, i: number) => {
+                const isSelected = mlSelected.includes(opt)
+                return (
+                  <button key={i} onClick={() => handleMLAnswer(opt, q)} disabled={isSelected}
+                    style={{
+                      background: isSelected ? 'rgba(255,255,255,0.2)' : optionColors[i],
+                      border: isSelected ? '2px solid white' : 'none',
+                      borderRadius: '14px', padding: '24px 12px', cursor: isSelected ? 'default' : 'pointer',
+                      color: 'white', fontWeight: 'bold', fontSize: '32px', opacity: isSelected ? 0.6 : 1,
+                    }}>
+                    {opt}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </main>
+    )
+  }
+
+  // VOCAB QUIZ
   return (
     <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', minHeight: '100vh', padding: '20px 16px' }}>
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>
