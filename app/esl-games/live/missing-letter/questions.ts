@@ -270,7 +270,21 @@ export const mlBank: Record<string, MLQuestion[]> = {
 
 export function getMLQuestions(category: string, difficulty: Difficulty): MLQuestion[] {
   const bank = mlBank[category] || mlBank['Animals']
-  return bank.filter(q => q.difficulty === difficulty)
+  return bank.filter(q => q.difficulty === difficulty).map(q => {
+    // Get the correct missing letters
+    const correctLetters = q.missingIndexes.map(idx => q.word[idx])
+    // Start with the correct letters guaranteed in options
+    let options = [...new Set([...correctLetters, ...q.options])].slice(0, 4)
+    // If we still need more options to make 4, add from a pool
+    const pool = ['A', 'E', 'I', 'O', 'U', 'R', 'S', 'T', 'N', 'L']
+    for (const letter of pool) {
+      if (options.length >= 4) break
+      if (!options.includes(letter)) options.push(letter)
+    }
+    // Shuffle so correct answer isn't always first
+    options = options.sort(() => Math.random() - 0.5)
+    return { ...q, options }
+  })
 }
 
 export function shuffle<T>(arr: T[]): T[] {
