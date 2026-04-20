@@ -515,19 +515,19 @@ function PlayPage() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               {q.options.map((opt: string, i: number) => {
-                const isSelected = mlSelected.includes(opt)
-                return (
-                  <button key={i} onClick={() => handleMLAnswer(opt, q)} disabled={isSelected}
-                    style={{
-                      background: isSelected ? 'rgba(255,255,255,0.2)' : optionColors[i],
-                      border: isSelected ? '2px solid white' : 'none',
-                      borderRadius: '14px', padding: '24px 12px', cursor: isSelected ? 'default' : 'pointer',
-                      color: 'white', fontWeight: 'bold', fontSize: '32px', opacity: isSelected ? 0.6 : 1,
-                    }}>
-                    {opt}
-                  </button>
-                )
-              })}
+  const isDisabled = mlSelected.length >= q.missingIndexes.length
+  return (
+    <button key={i} onClick={() => handleMLAnswer(opt, q)} disabled={isDisabled}
+      style={{
+        background: isDisabled ? 'rgba(255,255,255,0.1)' : optionColors[i],
+        border: 'none',
+        borderRadius: '14px', padding: '24px 12px', cursor: isDisabled ? 'default' : 'pointer',
+        color: 'white', fontWeight: 'bold', fontSize: '32px', opacity: isDisabled ? 0.5 : 1,
+      }}>
+      {opt}
+    </button>
+  )
+})}
             </div>
           )}
         </div>
