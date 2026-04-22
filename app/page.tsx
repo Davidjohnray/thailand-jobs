@@ -160,12 +160,21 @@ export default async function Home() {
               </div>
             </div>
           </Link>
-          <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '10px' }}>📚</div>
-            <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
-            <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>TEFL courses, visa services, expat resources</div>
-            <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
-          </div>
+          <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+  <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', transition: 'transform 0.2s' }}
+    onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
+    onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}>
+    <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
+      <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
+    </div>
+    <div style={{ padding: '20px 16px', textAlign: 'center' }}>
+      <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '180px', height: 'auto', marginBottom: '12px' }} />
+      <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>Learn Thai in Thailand</div>
+      <div style={{ color: '#666', fontSize: '12px', marginBottom: '14px', lineHeight: '1.5' }}>Professional Thai language courses for expats and teachers</div>
+      <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Visit Duke Language →</div>
+    </div>
+  </div>
+</a>
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>🎓</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
