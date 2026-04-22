@@ -3,24 +3,22 @@ import { useEffect } from 'react'
 
 export default function DukeLanguageRedirect() {
   useEffect(() => {
-    // Fire GA event
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'sponsor_click', {
-        sponsor_name: 'Duke Language School',
-        destination: 'https://dukelanguage.com',
-      })
-    }
-    // Redirect after a tiny delay so GA has time to fire
-    const timer = setTimeout(() => {
-      window.location.href = 'https://dukelanguage.com/?utm_source=jobsinthailand&utm_medium=banner&utm_campaign=sidebar'
-    }, 300)
-    return () => clearTimeout(timer)
+    // Try GA tracking
+    try {
+      const w = window as any
+      if (w.gtag) {
+        w.gtag('event', 'sponsor_click', { sponsor_name: 'Duke Language School' })
+      }
+    } catch(e) {}
+    
+    // Redirect immediately
+    window.location.replace('https://dukelanguage.com/?utm_source=jobsinthailand&utm_medium=banner&utm_campaign=sidebar')
   }, [])
 
   return (
-    <div style={{ fontFamily: 'sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
+    <div style={{ fontFamily: 'sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px', background: 'white' }}>
       <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '200px' }} />
-      <p style={{ color: '#666', fontSize: '16px' }}>Taking you to Duke Language School...</p>
+      <p style={{ color: '#666' }}>Redirecting to Duke Language School...</p>
     </div>
   )
 }

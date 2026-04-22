@@ -127,7 +127,8 @@ export default async function Home() {
               </div>
             </a>
 
-            <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            {/* DUKE LANGUAGE - MOBILE */}
+            <a href="/sponsors/duke-language" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
                 <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
                   <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
@@ -176,8 +177,8 @@ export default async function Home() {
             </div>
           </Link>
 
-          {/* DUKE LANGUAGE SCHOOL BANNER */}
-          <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+          {/* DUKE LANGUAGE SCHOOL BANNER - SIDEBAR */}
+          <a href="/sponsors/duke-language" style={{ textDecoration: 'none' }}>
             <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
               <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
                 <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
