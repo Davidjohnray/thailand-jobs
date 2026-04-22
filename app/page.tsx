@@ -54,14 +54,14 @@ export default async function Home() {
           </div>
 
           {/* RIGHT AD BOX - MAYA */}
-<Link href="/ask-maya" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
-  <div style={{ width: '250px', height: '250px', background: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)', border: '2px solid #06b6d4', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-    <div style={{ fontSize: '44px', marginBottom: '4px' }}>👩‍🏫</div>
-    <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>AI Assistant Maya</div>
-    <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', lineHeight: '1.5' }}>Ask about jobs, ESL games,<br />visa advice & more</div>
-    <div style={{ background: 'white', color: '#0891b2', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Chat with Maya →</div>
-  </div>
-</Link>
+          <Link href="/ask-maya" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
+            <div style={{ width: '250px', height: '250px', background: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)', border: '2px solid #06b6d4', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '44px', marginBottom: '4px' }}>👩‍🏫</div>
+              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>AI Assistant Maya</div>
+              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', lineHeight: '1.5' }}>Ask about jobs, ESL games,<br />visa advice & more</div>
+              <div style={{ background: 'white', color: '#0891b2', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Chat with Maya →</div>
+            </div>
+          </Link>
 
         </div>
       </section>
@@ -127,6 +127,20 @@ export default async function Home() {
               </div>
             </a>
 
+            <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
+                <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
+                  <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
+                </div>
+                <div style={{ padding: '16px', textAlign: 'center' }}>
+                  <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '160px', height: 'auto', marginBottom: '10px' }} />
+                  <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '4px' }}>Learn Thai in Thailand</div>
+                  <div style={{ color: '#666', fontSize: '12px', marginBottom: '12px', lineHeight: '1.5' }}>Professional Thai language courses for expats and teachers</div>
+                  <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Visit Duke Language →</div>
+                </div>
+              </div>
+            </a>
+
             <Link href="/coming-soon" style={{ textDecoration: 'none' }}>
               <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', border: '2px solid #E85D26' }}>
                 <div style={{ background: '#E85D26', padding: '8px', textAlign: 'center' }}>
@@ -147,6 +161,7 @@ export default async function Home() {
         {/* AD SIDEBAR COLUMN 1 */}
         <div className="ad-sidebar" style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
+
           <Link href="/coming-soon" style={{ textDecoration: 'none' }}>
             <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #E85D26' }}>
               <div style={{ background: '#E85D26', padding: '10px', textAlign: 'center' }}>
@@ -160,21 +175,22 @@ export default async function Home() {
               </div>
             </div>
           </Link>
+
+          {/* DUKE LANGUAGE SCHOOL BANNER */}
           <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-  <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', transition: 'transform 0.2s' }}
-    onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-    onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}>
-    <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
-      <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
-    </div>
-    <div style={{ padding: '20px 16px', textAlign: 'center' }}>
-      <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '180px', height: 'auto', marginBottom: '12px' }} />
-      <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>Learn Thai in Thailand</div>
-      <div style={{ color: '#666', fontSize: '12px', marginBottom: '14px', lineHeight: '1.5' }}>Professional Thai language courses for expats and teachers</div>
-      <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Visit Duke Language →</div>
-    </div>
-  </div>
-</a>
+            <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
+              <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
+                <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
+              </div>
+              <div style={{ padding: '20px 16px', textAlign: 'center' }}>
+                <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '180px', height: 'auto', marginBottom: '12px' }} />
+                <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>Learn Thai in Thailand</div>
+                <div style={{ color: '#666', fontSize: '12px', marginBottom: '14px', lineHeight: '1.5' }}>Professional Thai language courses for expats and teachers</div>
+                <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Visit Duke Language →</div>
+              </div>
+            </div>
+          </a>
+
           <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '10px' }}>🎓</div>
             <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
