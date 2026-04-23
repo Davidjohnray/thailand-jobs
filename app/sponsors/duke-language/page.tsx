@@ -3,15 +3,13 @@ import { useEffect } from 'react'
 
 export default function DukeLanguageRedirect() {
   useEffect(() => {
-    // Try GA tracking
     try {
       const w = window as any
       if (w.gtag) {
         w.gtag('event', 'sponsor_click', { sponsor_name: 'Duke Language School' })
       }
     } catch(e) {}
-    
-    // Redirect immediately
+
     window.location.replace('https://dukelanguage.com/?utm_source=jobsinthailand&utm_medium=banner&utm_campaign=sidebar')
   }, [])
 
