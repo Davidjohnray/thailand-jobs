@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
-Sitemap: https://www.jobsinthailand.net/sitemap.xml
