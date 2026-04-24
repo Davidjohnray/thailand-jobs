@@ -72,7 +72,7 @@ export default function Navbar() {
     <>
       <nav style={{ background: '#E85D26', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '62px', position: 'sticky', top: 0, zIndex: 999, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
 
-        {/* ── LEFT — Logo + Bell ── */}
+        {/* LEFT — Logo + Bell */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Link href="/" style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', textDecoration: 'none', whiteSpace: 'nowrap' }}>
             🇹🇭 Thailand Jobs
@@ -83,7 +83,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* ── DESKTOP LINKS ── */}
+        {/* DESKTOP LINKS */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} className="desktop-nav">
 
           {/* Jobs dropdown */}
@@ -166,12 +166,12 @@ export default function Navbar() {
 
           {/* Auth */}
           {isLoggedIn ? (
-            <Link href="/dashboard"
+            <Link href="/account/dashboard"
               style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.2)', fontWeight: 'bold' }}>
               👤 My Account
             </Link>
           ) : (
-            <Link href="/login"
+            <Link href="/account/login"
               style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.2)', fontWeight: 'bold' }}>
               👤 Login
             </Link>
@@ -190,7 +190,7 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* ── MOBILE HAMBURGER ── */}
+        {/* MOBILE HAMBURGER */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="mobile-menu-btn"
@@ -199,7 +199,7 @@ export default function Navbar() {
         </button>
       </nav>
 
-      {/* ── MOBILE MENU ── */}
+      {/* MOBILE MENU */}
       {mobileOpen && (
         <div style={{ position: 'fixed', top: '62px', left: 0, right: 0, bottom: 0, background: '#E85D26', zIndex: 998, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }} className="mobile-nav">
 
@@ -267,12 +267,12 @@ export default function Navbar() {
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '10px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {isLoggedIn ? (
-              <Link href="/dashboard" onClick={closeMobile}
+              <Link href="/account/dashboard" onClick={closeMobile}
                 style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold' }}>
                 👤 My Account
               </Link>
             ) : (
-              <Link href="/login" onClick={closeMobile}
+              <Link href="/account/login" onClick={closeMobile}
                 style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold' }}>
                 👤 Login / Register
               </Link>
