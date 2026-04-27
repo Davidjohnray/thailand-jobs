@@ -15,7 +15,12 @@ const optionLabels = ['A', 'B', 'C', 'D']
 function HostGame() {
   const searchParams = useSearchParams()
   const topic = searchParams.get('topic') || 'Animals'
-  const [questions] = useState(() => shuffle(questionBank[topic] || questionBank['Animals']).slice(0, 10))
+  const difficulty = searchParams.get('difficulty') || 'Easy'
+
+  const [questions] = useState(() => {
+    const pool = questionBank[topic]?.[difficulty] || questionBank['Animals']['Easy']
+    return shuffle(pool).slice(0, 10)
+  })
 
   const [roomCode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -36,6 +41,9 @@ function HostGame() {
   const [running, setRunning] = useState(false)
   const [answers, setAnswers] = useState<any[]>([])
 
+  const difficultyColor = difficulty === 'Easy' ? '#16a34a' : difficulty === 'Medium' ? '#f59e0b' : '#ef4444'
+  const difficultyEmoji = difficulty === 'Easy' ? '🟢' : difficulty === 'Medium' ? '🟡' : '🔴'
+
   async function clearRoom() {
     await supabase.from('live_game_answers').delete().eq('room_code', roomCode)
     await supabase.from('live_game_players').delete().eq('room_code', roomCode)
@@ -44,7 +52,6 @@ function HostGame() {
     window.location.reload()
   }
 
-  // Create room in Supabase on mount
   useEffect(() => {
     const orderJson = JSON.stringify(questions)
     supabase.from('live_game_rooms').insert([{
@@ -56,17 +63,12 @@ function HostGame() {
       question_order: orderJson,
     }]).then(({ error }: any) => {
       if (error && error.code !== '23505') console.error('Room insert error:', error.message)
-      else console.log('Room ready:', roomCode)
     })
   }, [])
 
-  // Poll for new players joining
   useEffect(() => {
     const fetchPlayers = async () => {
-      const { data }: any = await supabase
-        .from('live_game_players')
-        .select('*')
-        .eq('room_code', roomCode)
+      const { data }: any = await supabase.from('live_game_players').select('*').eq('room_code', roomCode)
       setPlayers(data || [])
     }
     fetchPlayers()
@@ -74,15 +76,10 @@ function HostGame() {
     return () => clearInterval(interval)
   }, [roomCode])
 
-  // Poll for answers during game
   useEffect(() => {
     if (phase !== 'playing') return
     const fetchAnswers = async () => {
-      const { data }: any = await supabase
-        .from('live_game_answers')
-        .select('*')
-        .eq('room_code', roomCode)
-        .eq('question_index', current)
+      const { data }: any = await supabase.from('live_game_answers').select('*').eq('room_code', roomCode).eq('question_index', current)
       setAnswers(data || [])
     }
     fetchAnswers()
@@ -90,7 +87,6 @@ function HostGame() {
     return () => clearInterval(interval)
   }, [roomCode, current, phase])
 
-  // Timer
   useEffect(() => {
     if (!running || revealed) return
     if (timeLeft === 0) { handleReveal(); return }
@@ -108,18 +104,12 @@ function HostGame() {
     setRevealed(true)
     setRunning(false)
     const correctAnswer = questions[current].answer
-    const { data: roundAnswers }: any = await supabase
-      .from('live_game_answers')
-      .select('*')
-      .eq('room_code', roomCode)
-      .eq('question_index', current)
+    const { data: roundAnswers }: any = await supabase.from('live_game_answers').select('*').eq('room_code', roomCode).eq('question_index', current)
     if (roundAnswers) {
       for (const ans of roundAnswers) {
         if (ans.answer === correctAnswer) {
           const player = players.find((p: any) => p.id === ans.player_id)
-          await supabase.from('live_game_players')
-            .update({ score: (player?.score || 0) + 1 })
-            .eq('id', ans.player_id)
+          await supabase.from('live_game_players').update({ score: (player?.score || 0) + 1 }).eq('id', ans.player_id)
         }
       }
       const { data }: any = await supabase.from('live_game_players').select('*').eq('room_code', roomCode)
@@ -146,7 +136,6 @@ function HostGame() {
   const q = questions[current]
   const timerColor = timeLeft > 8 ? '#16a34a' : timeLeft > 4 ? '#f59e0b' : '#ef4444'
 
-  // LOBBY
   if (phase === 'lobby') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh', padding: '32px 24px' }}>
@@ -155,7 +144,11 @@ function HostGame() {
           <div style={{ background: 'white', borderRadius: '20px', padding: '40px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', marginTop: '20px', textAlign: 'center' }}>
             <div style={{ fontSize: '48px', marginBottom: '12px' }}>📱</div>
             <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 8px' }}>Game Lobby</h1>
-            <p style={{ color: '#666', fontSize: '15px', margin: '0 0 32px' }}>Share this code with your students</p>
+            <p style={{ color: '#666', fontSize: '15px', margin: '0 0 16px' }}>Share this code with your students</p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '24px' }}>
+              <span style={{ background: '#f0f4ff', color: '#2D6BE4', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>{topic}</span>
+              <span style={{ background: difficultyColor + '20', color: difficultyColor, padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>{difficultyEmoji} {difficulty}</span>
+            </div>
             <div style={{ background: '#1a1a2e', borderRadius: '16px', padding: '28px', marginBottom: '28px' }}>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Room Code</p>
               <div style={{ color: 'white', fontSize: '72px', fontWeight: 'bold', letterSpacing: '12px', lineHeight: 1 }}>{roomCode}</div>
@@ -166,7 +159,6 @@ function HostGame() {
             <div style={{ background: '#f0f4ff', borderRadius: '12px', padding: '16px', marginBottom: '28px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>👥 Players joined: {players.length}</span>
-                <span style={{ background: '#0891b2', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px' }}>{topic}</span>
               </div>
               {players.length === 0 ? (
                 <p style={{ color: '#888', fontSize: '14px', margin: 0 }}>Waiting for players to join...</p>
@@ -180,14 +172,11 @@ function HostGame() {
                 </div>
               )}
             </div>
-            <button
-              onClick={startGame}
-              disabled={players.length === 0}
+            <button onClick={startGame} disabled={players.length === 0}
               style={{ background: players.length > 0 ? '#16a34a' : '#cbd5e1', color: 'white', padding: '14px 48px', borderRadius: '12px', border: 'none', fontSize: '18px', fontWeight: 'bold', cursor: players.length > 0 ? 'pointer' : 'default', width: '100%' }}>
               {players.length === 0 ? 'Waiting for players...' : `Start Game with ${players.length} player${players.length > 1 ? 's' : ''} →`}
             </button>
-            <button onClick={clearRoom}
-              style={{ background: 'transparent', color: '#888', padding: '10px', border: 'none', fontSize: '14px', cursor: 'pointer', marginTop: '8px', width: '100%' }}>
+            <button onClick={clearRoom} style={{ background: 'transparent', color: '#888', padding: '10px', border: 'none', fontSize: '14px', cursor: 'pointer', marginTop: '8px', width: '100%' }}>
               ✕ Cancel and start fresh
             </button>
           </div>
@@ -196,7 +185,6 @@ function HostGame() {
     )
   }
 
-  // FINISHED
   if (phase === 'finished') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: '#1a1a2e', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -225,7 +213,6 @@ function HostGame() {
     )
   }
 
-  // PLAYING
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh', padding: '20px 24px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -233,6 +220,7 @@ function HostGame() {
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <span style={{ background: '#1a1a2e', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>Room: {roomCode}</span>
             <span style={{ background: '#f0f4ff', color: '#2D6BE4', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: '600' }}>{topic}</span>
+            <span style={{ background: difficultyColor + '20', color: difficultyColor, padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: '600' }}>{difficultyEmoji} {difficulty}</span>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <span style={{ background: '#f0fdf4', color: '#16a34a', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: '600' }}>👥 {players.length} players</span>
