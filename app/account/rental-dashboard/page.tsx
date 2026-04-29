@@ -144,11 +144,16 @@ export default function RentalDashboard() {
   }
 
   const handleSubmit = async () => {
-    if (!form.title || !form.location || !form.price) {
-      alert('Please fill in title, location and price')
-      return
-    }
-    setSubmitting(true)
+  if (!form.title.trim()) {
+    alert('Please enter a property title')
+    return
+  }
+  if (!form.price || isNaN(parseInt(form.price)) || parseInt(form.price) <= 0) {
+    alert('Please enter a valid monthly rent price')
+    return
+  }
+  setSubmitting(true)
+  // ... rest of function stays the same
 
     const propertyData = {
       user_id: user.id,
