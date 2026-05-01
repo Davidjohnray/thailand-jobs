@@ -35,6 +35,10 @@ function PlayPage() {
   const [jeopardyState, setJeopardyState] = useState<any>(null)
   const [currentTileKey, setCurrentTileKey] = useState<string | null>(null)
   const [mlSelected, setMlSelected] = useState<string[]>([])
+  const [catInput, setCatInput] = useState('')
+  const [catCorrect, setCatCorrect] = useState<string[]>([])
+  const [catShake, setCatShake] = useState(false)
+  const [catAnswers, setCatAnswers] = useState<string[]>([])
 
   useEffect(() => {
     if (gameType === 'word-scramble' && questions[current]) {
@@ -69,6 +73,12 @@ function PlayPage() {
     if (gt === 'jeopardy') {
       const state = roomData.question_order ? JSON.parse(roomData.question_order) : null
       setJeopardyState(state)
+    } else if (gt === 'category-race') {
+      try {
+        const parsed = JSON.parse(roomData.question_order)
+        if (parsed[0]?.answers) setCatAnswers(parsed[0].answers)
+      } catch(e) {}
+      setQuestions([])
     } else {
       const qs = roomData.question_order ? JSON.parse(roomData.question_order) : []
       setQuestions(qs)
@@ -76,7 +86,6 @@ function PlayPage() {
     setPhase('lobby')
   }
 
-  // Poll for game to start
   useEffect(() => {
     if (phase !== 'lobby' || !room) return
     const interval = setInterval(async () => {
@@ -93,9 +102,8 @@ function PlayPage() {
     return () => clearInterval(interval)
   }, [phase, room])
 
-  // Poll for question changes during non-jeopardy games
   useEffect(() => {
-    if (phase !== 'playing' || !room || gameType === 'jeopardy') return
+    if (phase !== 'playing' || !room || gameType === 'jeopardy' || gameType === 'category-race') return
     const interval = setInterval(async () => {
       const { data }: any = await supabase
         .from('live_game_rooms')
@@ -124,7 +132,6 @@ function PlayPage() {
     return () => clearInterval(interval)
   }, [phase, room, current, gameType])
 
-  // Jeopardy polling
   useEffect(() => {
     if (phase !== 'playing' || !room || gameType !== 'jeopardy') return
     const interval = setInterval(async () => {
@@ -155,6 +162,28 @@ function PlayPage() {
     }, 1500)
     return () => clearInterval(interval)
   }, [phase, room, gameType, currentTileKey])
+
+  useEffect(() => {
+    if (phase !== 'playing' || !room || gameType !== 'category-race') return
+    const interval = setInterval(async () => {
+      const { data }: any = await supabase
+        .from('live_game_rooms')
+        .select('*')
+        .eq('code', room.code)
+        .single()
+      if (!data) return
+      if (data.status === 'finished') {
+        const { data: lb }: any = await supabase
+          .from('live_game_players')
+          .select('*')
+          .eq('room_code', room.code)
+          .order('score', { ascending: false })
+        setLeaderboard(lb || [])
+        setPhase('finished')
+      }
+    }, 1500)
+    return () => clearInterval(interval)
+  }, [phase, room, gameType])
 
   async function submitAnswer(answer: string) {
     if (answered || !playerId || !room) return
@@ -219,7 +248,32 @@ function PlayPage() {
     }
   }
 
-  // JOIN SCREEN
+  async function submitCatAnswer(e: React.FormEvent) {
+    e.preventDefault()
+    const trimmed = catInput.trim()
+    if (!trimmed || !playerId || !room) return
+    if (catCorrect.map(a => a.toLowerCase()).includes(trimmed.toLowerCase())) {
+      setCatInput('')
+      return
+    }
+    const isCorrect = catAnswers.some((a: string) => a.toLowerCase() === trimmed.toLowerCase())
+    await supabase.from('live_game_answers').insert([{
+      room_code: room.code,
+      player_id: playerId,
+      answer: isCorrect ? 'correct' : 'wrong',
+      question_index: catCorrect.length,
+    }])
+    if (isCorrect) {
+      setCatCorrect(prev => [...prev, trimmed])
+      setScore(s => s + 1)
+      setCatInput('')
+    } else {
+      setCatShake(true)
+      setTimeout(() => setCatShake(false), 400)
+      setCatInput('')
+    }
+  }
+
   if (phase === 'join') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -259,7 +313,6 @@ function PlayPage() {
     )
   }
 
-  // LOBBY
   if (phase === 'lobby') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -277,7 +330,6 @@ function PlayPage() {
     )
   }
 
-  // FINISHED
   if (phase === 'finished') {
     const myRank = leaderboard.findIndex((p: any) => p.id === playerId) + 1
     return (
@@ -286,14 +338,20 @@ function PlayPage() {
           <div style={{ fontSize: '80px', marginBottom: '16px' }}>{myRank === 1 ? '🏆' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : '🎉'}</div>
           <h2 style={{ fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px' }}>{myRank === 1 ? 'You Won!' : 'Game Over!'}</h2>
           <p style={{ opacity: 0.8, fontSize: '18px', margin: '0 0 24px' }}>
-            {gameType === 'jeopardy' ? `Final rank: #${myRank}` : `You scored ${score} points — rank #${myRank}`}
+            {gameType === 'category-race'
+              ? `You named ${catCorrect.length} things — rank #${myRank}`
+              : gameType === 'jeopardy'
+                ? `Final rank: #${myRank}`
+                : `You scored ${score} points — rank #${myRank}`}
           </p>
           <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
             {leaderboard.map((p: any, i: number) => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: i < leaderboard.length - 1 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
                 <span style={{ fontSize: '20px' }}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}</span>
                 <span style={{ flex: 1, textAlign: 'left', fontWeight: p.id === playerId ? 'bold' : 'normal', color: p.id === playerId ? '#fbbf24' : 'white' }}>{p.nickname}</span>
-                <span style={{ fontWeight: 'bold' }}>{gameType === 'jeopardy' ? (p.score || 0).toLocaleString() : p.score} pts</span>
+                <span style={{ fontWeight: 'bold' }}>
+                  {gameType === 'category-race' ? `${p.score} answers` : gameType === 'jeopardy' ? (p.score || 0).toLocaleString() : `${p.score} pts`}
+                </span>
               </div>
             ))}
           </div>
@@ -305,7 +363,55 @@ function PlayPage() {
     )
   }
 
-  // PLAYING — JEOPARDY
+  if (gameType === 'category-race') {
+    return (
+      <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #065f46, #047857)', minHeight: '100vh', padding: '20px 16px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ maxWidth: '500px', margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', fontWeight: '600' }}>Hi {nickname}! 👋</span>
+            <span style={{ background: 'rgba(255,255,255,0.2)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>✅ {catCorrect.length}</span>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '20px', padding: '28px', marginBottom: '16px', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '15px', marginBottom: '8px' }}>Name as many as you can...</div>
+            <h2 style={{ color: 'white', fontSize: '28px', fontWeight: 'bold', margin: '0 0 24px', lineHeight: '1.3' }}>{room?.topic}</h2>
+            <form onSubmit={submitCatAnswer}>
+              <input
+                value={catInput}
+                onChange={e => setCatInput(e.target.value)}
+                placeholder="Type and press Enter..."
+                autoFocus
+                style={{
+                  width: '100%', padding: '16px', fontSize: '18px', borderRadius: '12px',
+                  border: catShake ? '3px solid #f87171' : '3px solid rgba(255,255,255,0.3)',
+                  background: 'rgba(255,255,255,0.9)', outline: 'none',
+                  boxSizing: 'border-box' as const, textAlign: 'center', fontFamily: 'sans-serif',
+                  animation: catShake ? 'shake 0.3s ease-in-out' : 'none',
+                }} />
+              <button type="submit" style={{ display: 'none' }} />
+            </form>
+          </div>
+          {catCorrect.length > 0 && (
+            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '14px' }}>
+              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>✅ Your answers:</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {catCorrect.map(a => (
+                  <span key={a} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>{a}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          <style>{`
+            @keyframes shake {
+              0%, 100% { transform: translateX(0); }
+              25% { transform: translateX(-8px); }
+              75% { transform: translateX(8px); }
+            }
+          `}</style>
+        </div>
+      </main>
+    )
+  }
+
   if (gameType === 'jeopardy') {
     const hasActiveTile = jeopardyState?.buzzPhase && jeopardyState?.currentTile
     const activeCat = hasActiveTile ? jeopardyState.currentTile.cat : null
@@ -313,7 +419,6 @@ function PlayPage() {
     const activeQ = hasActiveTile ? jeopardyState.board[activeCat][activeRow] : null
     const isDaily = hasActiveTile && jeopardyState.dailyDouble === `${activeCat}-${activeRow}`
     const pts = activeQ ? (isDaily ? activeQ.points * 2 : activeQ.points) : 0
-
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d1b69)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
         <div style={{ maxWidth: '500px', width: '100%', textAlign: 'center' }}>
@@ -355,11 +460,9 @@ function PlayPage() {
     )
   }
 
-  // PLAYING
   const q = questions[current]
   if (!q) return null
 
-  // TRUE OR FALSE
   if (gameType === 'true-or-false') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #0c4a6e, #0891b2)', minHeight: '100vh', padding: '20px 16px' }}>
@@ -401,7 +504,6 @@ function PlayPage() {
     )
   }
 
-  // WORD SCRAMBLE
   if (gameType === 'word-scramble') {
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #4c1d95, #7C3AED)', minHeight: '100vh', padding: '20px 16px' }}>
@@ -455,7 +557,6 @@ function PlayPage() {
     )
   }
 
-  // MISSING LETTER
   if (gameType === 'missing-letter') {
     const displayWord = q.word.split('').map((letter: string, i: number) => {
       if (q.missingIndexes.includes(i)) {
@@ -467,7 +568,6 @@ function PlayPage() {
     const isCorrect = q.missingIndexes.length === 1
       ? selected === q.word[q.missingIndexes[0]]
       : mlSelected.join(',') === q.missingIndexes.map((idx: number) => q.word[idx]).join(',')
-
     return (
       <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', minHeight: '100vh', padding: '20px 16px' }}>
         <div style={{ maxWidth: '500px', margin: '0 auto' }}>
@@ -515,19 +615,19 @@ function PlayPage() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               {q.options.map((opt: string, i: number) => {
-  const isDisabled = mlSelected.length >= q.missingIndexes.length
-  return (
-    <button key={i} onClick={() => handleMLAnswer(opt, q)} disabled={isDisabled}
-      style={{
-        background: isDisabled ? 'rgba(255,255,255,0.1)' : optionColors[i],
-        border: 'none',
-        borderRadius: '14px', padding: '24px 12px', cursor: isDisabled ? 'default' : 'pointer',
-        color: 'white', fontWeight: 'bold', fontSize: '32px', opacity: isDisabled ? 0.5 : 1,
-      }}>
-      {opt}
-    </button>
-  )
-})}
+                const isDisabled = mlSelected.length >= q.missingIndexes.length
+                return (
+                  <button key={i} onClick={() => handleMLAnswer(opt, q)} disabled={isDisabled}
+                    style={{
+                      background: isDisabled ? 'rgba(255,255,255,0.1)' : optionColors[i],
+                      border: 'none', borderRadius: '14px', padding: '24px 12px',
+                      cursor: isDisabled ? 'default' : 'pointer',
+                      color: 'white', fontWeight: 'bold', fontSize: '32px', opacity: isDisabled ? 0.5 : 1,
+                    }}>
+                    {opt}
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>
@@ -535,7 +635,6 @@ function PlayPage() {
     )
   }
 
-  // VOCAB QUIZ
   return (
     <main style={{ fontFamily: 'sans-serif', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', minHeight: '100vh', padding: '20px 16px' }}>
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>
