@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 
 const templates = [
   { id: 'classic', name: 'Classic', color: '#E85D26', layout: 'standard' },
@@ -10,112 +11,231 @@ const templates = [
   { id: 'bold', name: 'Bold', color: '#9333ea', layout: 'standard' },
   { id: 'elegant', name: 'Elegant', color: '#b45309', layout: 'sidebar' },
   { id: 'creative', name: 'Creative', color: '#db2777', layout: 'sidebar' },
-  { id: 'executive', name: 'Executive', color: '#0f172a', layout: 'twopage' },
+  { id: 'executive', name: 'Executive', color: '#0f172a', layout: 'standard' },
 ]
+
+type CVData = {
+  name: string; email: string; phone: string; location: string; linkedin: string
+  summary: string
+  experience: { title: string; company: string; dates: string; description: string }[]
+  education: { degree: string; school: string; dates: string }[]
+  skills: string; languages: string; certifications: string; hobbies: string; references: string
+}
+
+type CoverData = { hiringManager: string; company: string; position: string; body: string }
+
+function makePdfStyles(accentColor: string) {
+  return StyleSheet.create({
+    page: { fontFamily: 'Helvetica', padding: 40, backgroundColor: '#ffffff', fontSize: 10, color: '#333333' },
+    header: { borderBottomWidth: 3, borderBottomColor: accentColor, borderBottomStyle: 'solid', paddingBottom: 12, marginBottom: 16 },
+    name: { fontSize: 22, fontFamily: 'Helvetica-Bold', color: '#1a1a2e', marginBottom: 6 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap' },
+    contactItem: { fontSize: 9, color: '#555555', marginRight: 12 },
+    sectionTitle: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: accentColor, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6, marginTop: 14 },
+    sectionDivider: { borderBottomWidth: 0.5, borderBottomColor: '#eeeeee', borderBottomStyle: 'solid', marginBottom: 8 },
+    summaryText: { fontSize: 10, color: '#444444', lineHeight: 1.6 },
+    expBlock: { marginBottom: 10 },
+    expRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
+    expTitle: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#1a1a2e' },
+    expDates: { fontSize: 9, color: '#888888' },
+    expCompany: { fontSize: 9, color: accentColor, fontFamily: 'Helvetica-Bold', marginBottom: 3 },
+    expDesc: { fontSize: 9, color: '#666666', lineHeight: 1.5 },
+    eduBlock: { marginBottom: 8 },
+    eduRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 },
+    eduDegree: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#1a1a2e' },
+    eduDates: { fontSize: 9, color: '#888888' },
+    eduSchool: { fontSize: 9, color: '#555555' },
+    twoCol: { flexDirection: 'row', gap: 24 },
+    col: { flex: 1 },
+    bodyText: { fontSize: 10, color: '#444444', lineHeight: 1.6 },
+    // sidebar layout
+    sidebarPage: { fontFamily: 'Helvetica', backgroundColor: '#ffffff', fontSize: 10, color: '#333333', flexDirection: 'row', minHeight: '100%' },
+    sidebar: { width: 160, backgroundColor: accentColor, padding: 24 },
+    sidebarName: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: 'white', marginBottom: 12, textAlign: 'center' },
+    sidebarContact: { fontSize: 8, color: 'rgba(255,255,255,0.9)', marginBottom: 5 },
+    sidebarSectionTitle: { fontSize: 8, fontFamily: 'Helvetica-Bold', color: 'white', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 5, marginTop: 12 },
+    sidebarText: { fontSize: 8, color: 'rgba(255,255,255,0.9)', lineHeight: 1.5 },
+    mainContent: { flex: 1, padding: 28 },
+    // cover letter
+    coverHeader: { borderBottomWidth: 3, borderBottomColor: accentColor, borderBottomStyle: 'solid', paddingBottom: 12, marginBottom: 24 },
+    coverName: { fontSize: 20, fontFamily: 'Helvetica-Bold', color: '#1a1a2e', marginBottom: 4 },
+    coverContact: { fontSize: 9, color: '#555555' },
+    coverBody: { fontSize: 10, color: '#444444', lineHeight: 1.7 },
+    coverPara: { marginBottom: 14, fontSize: 10, color: '#444444', lineHeight: 1.7 },
+  })
+}
+
+function CVDocumentStandard({ cv, accentColor }: { cv: CVData; accentColor: string }) {
+  const s = makePdfStyles(accentColor)
+  return (
+    <Document>
+      <Page size="A4" style={s.page}>
+        <View style={s.header}>
+          <Text style={s.name}>{cv.name || 'Your Name'}</Text>
+          <View style={s.contactRow}>
+            {cv.email ? <Text style={s.contactItem}>{cv.email}</Text> : null}
+            {cv.phone ? <Text style={s.contactItem}>{cv.phone}</Text> : null}
+            {cv.location ? <Text style={s.contactItem}>{cv.location}</Text> : null}
+            {cv.linkedin ? <Text style={s.contactItem}>{cv.linkedin}</Text> : null}
+          </View>
+        </View>
+        {cv.summary ? <View><Text style={s.sectionTitle}>Professional Summary</Text><View style={s.sectionDivider} /><Text style={s.summaryText}>{cv.summary}</Text></View> : null}
+        {cv.experience.some(e => e.title || e.company) ? (
+          <View>
+            <Text style={s.sectionTitle}>Work Experience</Text>
+            <View style={s.sectionDivider} />
+            {cv.experience.map((exp, i) => exp.title || exp.company ? (
+              <View key={i} style={s.expBlock}>
+                <View style={s.expRow}><Text style={s.expTitle}>{exp.title}</Text><Text style={s.expDates}>{exp.dates}</Text></View>
+                <Text style={s.expCompany}>{exp.company}</Text>
+                {exp.description ? <Text style={s.expDesc}>{exp.description}</Text> : null}
+              </View>
+            ) : null)}
+          </View>
+        ) : null}
+        {cv.education.some(e => e.degree || e.school) ? (
+          <View>
+            <Text style={s.sectionTitle}>Education</Text>
+            <View style={s.sectionDivider} />
+            {cv.education.map((edu, i) => edu.degree || edu.school ? (
+              <View key={i} style={s.eduBlock}>
+                <View style={s.eduRow}><Text style={s.eduDegree}>{edu.degree}</Text><Text style={s.eduDates}>{edu.dates}</Text></View>
+                <Text style={s.eduSchool}>{edu.school}</Text>
+              </View>
+            ) : null)}
+          </View>
+        ) : null}
+        <View style={s.twoCol}>
+          <View style={s.col}>
+            {cv.skills ? <View><Text style={s.sectionTitle}>Skills</Text><View style={s.sectionDivider} /><Text style={s.bodyText}>{cv.skills}</Text></View> : null}
+            {cv.languages ? <View><Text style={s.sectionTitle}>Languages</Text><View style={s.sectionDivider} /><Text style={s.bodyText}>{cv.languages}</Text></View> : null}
+            {cv.hobbies ? <View><Text style={s.sectionTitle}>Hobbies & Interests</Text><View style={s.sectionDivider} /><Text style={s.bodyText}>{cv.hobbies}</Text></View> : null}
+          </View>
+          <View style={s.col}>
+            {cv.certifications ? <View><Text style={s.sectionTitle}>Certifications</Text><View style={s.sectionDivider} /><Text style={s.bodyText}>{cv.certifications}</Text></View> : null}
+            {cv.references ? <View><Text style={s.sectionTitle}>References</Text><View style={s.sectionDivider} /><Text style={s.bodyText}>{cv.references}</Text></View> : null}
+          </View>
+        </View>
+      </Page>
+    </Document>
+  )
+}
+
+function CVDocumentSidebar({ cv, accentColor }: { cv: CVData; accentColor: string }) {
+  const s = makePdfStyles(accentColor)
+  return (
+    <Document>
+      <Page size="A4" style={s.sidebarPage}>
+        <View style={s.sidebar}>
+          <Text style={s.sidebarName}>{cv.name || 'Your Name'}</Text>
+          {cv.email ? <Text style={s.sidebarContact}>{cv.email}</Text> : null}
+          {cv.phone ? <Text style={s.sidebarContact}>{cv.phone}</Text> : null}
+          {cv.location ? <Text style={s.sidebarContact}>{cv.location}</Text> : null}
+          {cv.linkedin ? <Text style={s.sidebarContact}>{cv.linkedin}</Text> : null}
+          {cv.skills ? <View><Text style={s.sidebarSectionTitle}>Skills</Text><Text style={s.sidebarText}>{cv.skills}</Text></View> : null}
+          {cv.languages ? <View><Text style={s.sidebarSectionTitle}>Languages</Text><Text style={s.sidebarText}>{cv.languages}</Text></View> : null}
+          {cv.hobbies ? <View><Text style={s.sidebarSectionTitle}>Interests</Text><Text style={s.sidebarText}>{cv.hobbies}</Text></View> : null}
+        </View>
+        <View style={s.mainContent}>
+          {cv.summary ? <View><Text style={s.sectionTitle}>Profile</Text><View style={s.sectionDivider} /><Text style={s.summaryText}>{cv.summary}</Text></View> : null}
+          {cv.experience.some(e => e.title || e.company) ? (
+            <View>
+              <Text style={s.sectionTitle}>Experience</Text>
+              <View style={s.sectionDivider} />
+              {cv.experience.map((exp, i) => exp.title || exp.company ? (
+                <View key={i} style={s.expBlock}>
+                  <View style={s.expRow}><Text style={s.expTitle}>{exp.title}</Text><Text style={s.expDates}>{exp.dates}</Text></View>
+                  <Text style={s.expCompany}>{exp.company}</Text>
+                  {exp.description ? <Text style={s.expDesc}>{exp.description}</Text> : null}
+                </View>
+              ) : null)}
+            </View>
+          ) : null}
+          {cv.education.some(e => e.degree || e.school) ? (
+            <View>
+              <Text style={s.sectionTitle}>Education</Text>
+              <View style={s.sectionDivider} />
+              {cv.education.map((edu, i) => edu.degree || edu.school ? (
+                <View key={i} style={s.eduBlock}>
+                  <View style={s.eduRow}><Text style={s.eduDegree}>{edu.degree}</Text><Text style={s.eduDates}>{edu.dates}</Text></View>
+                  <Text style={s.eduSchool}>{edu.school}</Text>
+                </View>
+              ) : null)}
+            </View>
+          ) : null}
+          {cv.certifications ? <View><Text style={s.sectionTitle}>Certifications</Text><View style={s.sectionDivider} /><Text style={s.bodyText}>{cv.certifications}</Text></View> : null}
+          {cv.references ? <View><Text style={s.sectionTitle}>References</Text><View style={s.sectionDivider} /><Text style={s.bodyText}>{cv.references}</Text></View> : null}
+        </View>
+      </Page>
+    </Document>
+  )
+}
+
+function CoverLetterDocument({ cv, cover, accentColor }: { cv: CVData; cover: CoverData; accentColor: string }) {
+  const s = makePdfStyles(accentColor)
+  return (
+    <Document>
+      <Page size="A4" style={s.page}>
+        <View style={s.coverHeader}>
+          <Text style={s.coverName}>{cv.name || 'Your Name'}</Text>
+          <Text style={s.coverContact}>{[cv.email, cv.phone].filter(Boolean).join('  •  ')}</Text>
+        </View>
+        <Text style={s.coverPara}>Dear {cover.hiringManager || 'Hiring Manager'},</Text>
+        <Text style={s.coverPara}>I am writing to apply for the {cover.position || '[Position]'} position at {cover.company || '[Company]'}.</Text>
+        {cover.body ? <Text style={s.coverPara}>{cover.body}</Text> : null}
+        <Text style={s.coverPara}>Kind regards,</Text>
+        <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#1a1a2e' }}>{cv.name || 'Your Name'}</Text>
+      </Page>
+    </Document>
+  )
+}
 
 export default function PremiumBuilderPage() {
   const router = useRouter()
   const [template, setTemplate] = useState('classic')
   const [activeTab, setActiveTab] = useState('cv')
   const [photo, setPhoto] = useState<string | null>(null)
+  const [downloading, setDownloading] = useState(false)
   const [aiLoading, setAiLoading] = useState<string | null>(null)
-  const [cv, setCv] = useState({
+  const [cv, setCv] = useState<CVData>({
     name: '', email: '', phone: '', location: '', linkedin: '',
     summary: '',
     experience: [{ title: '', company: '', dates: '', description: '' }],
     education: [{ degree: '', school: '', dates: '' }],
-    skills: '',
-    languages: '',
-    certifications: '',
-    hobbies: '',
-    references: '',
+    skills: '', languages: '', certifications: '', hobbies: '', references: '',
   })
-  const [coverLetter, setCoverLetter] = useState({
-    hiringManager: '', company: '', position: '', body: ''
-  })
+  const [coverLetter, setCoverLetter] = useState<CoverData>({ hiringManager: '', company: '', position: '', body: '' })
 
   useEffect(() => {
     const plan = localStorage.getItem('cv_plan')
-    if (plan !== 'premium') {
-      router.push('/cv-builder/unlock')
-    }
+    if (plan !== 'premium') router.push('/cv-builder/unlock')
   }, [])
 
   const updateField = (field: string, value: string) => setCv(prev => ({ ...prev, [field]: value }))
   const updateExperience = (index: number, field: string, value: string) => {
-    const updated = [...cv.experience]
-    updated[index] = { ...updated[index], [field]: value }
+    const updated = [...cv.experience]; updated[index] = { ...updated[index], [field]: value }
     setCv(prev => ({ ...prev, experience: updated }))
   }
   const updateEducation = (index: number, field: string, value: string) => {
-    const updated = [...cv.education]
-    updated[index] = { ...updated[index], [field]: value }
+    const updated = [...cv.education]; updated[index] = { ...updated[index], [field]: value }
     setCv(prev => ({ ...prev, education: updated }))
   }
   const addExperience = () => setCv(prev => ({ ...prev, experience: [...prev.experience, { title: '', company: '', dates: '', description: '' }] }))
   const addEducation = () => setCv(prev => ({ ...prev, education: [...prev.education, { degree: '', school: '', dates: '' }] }))
-
   const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = () => setPhoto(reader.result as string)
-      reader.readAsDataURL(file)
-    }
+    if (file) { const reader = new FileReader(); reader.onload = () => setPhoto(reader.result as string); reader.readAsDataURL(file) }
   }
-
-  const handleDownload = () => {
-  const element = document.querySelector('.cv-print-area') as HTMLElement
-  if (!element) return
-
-  const printWindow = window.open('', '_blank')
-  if (!printWindow) return
-
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>CV</title>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: sans-serif; background: white; }
-          @page { margin: 1cm; size: A4; }
-          @media print {
-            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-          }
-        </style>
-      </head>
-      <body>
-        ${element.outerHTML}
-      </body>
-    </html>
-  `)
-  printWindow.document.close()
-  printWindow.focus()
-  setTimeout(() => {
-    printWindow.print()
-    printWindow.close()
-  }, 600)
-}
 
   const improveWithAI = async (field: string, text: string, type: string) => {
     if (!text.trim()) return
     setAiLoading(field)
     try {
-      const res = await fetch('/api/improve-cv', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, type }),
-      })
+      const res = await fetch('/api/improve-cv', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, type }) })
       const data = await res.json()
-      if (field === 'cover') {
-        setCoverLetter(prev => ({ ...prev, body: data.improved }))
-      } else {
-        updateField(field, data.improved)
-      }
-    } catch (e) {
-      console.error('AI error:', e)
-    }
+      if (field === 'cover') setCoverLetter(prev => ({ ...prev, body: data.improved }))
+      else updateField(field, data.improved)
+    } catch (e) { console.error('AI error:', e) }
     setAiLoading(null)
   }
 
@@ -123,23 +243,15 @@ export default function PremiumBuilderPage() {
     if (!text.trim()) return
     setAiLoading(`exp_${index}`)
     try {
-      const res = await fetch('/api/improve-cv', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, type: 'experience' }),
-      })
+      const res = await fetch('/api/improve-cv', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, type: 'experience' }) })
       const data = await res.json()
       updateExperience(index, 'description', data.improved)
-    } catch (e) {
-      console.error('AI error:', e)
-    }
+    } catch (e) { console.error('AI error:', e) }
     setAiLoading(null)
   }
 
-  const AIButton = ({ field, text, type }: { field: string, text: string, type: string }) => (
-    <button
-      onClick={() => improveWithAI(field, text, type)}
-      disabled={aiLoading === field || !text.trim()}
+  const AIButton = ({ field, text, type }: { field: string; text: string; type: string }) => (
+    <button onClick={() => improveWithAI(field, text, type)} disabled={aiLoading === field || !text.trim()}
       style={{ background: aiLoading === field ? '#ddd' : '#7c3aed', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', cursor: aiLoading === field ? 'not-allowed' : 'pointer', fontWeight: 'bold', marginTop: '6px' }}>
       {aiLoading === field ? '✨ Improving...' : '✨ Improve with AI'}
     </button>
@@ -149,115 +261,36 @@ export default function PremiumBuilderPage() {
   const accentColor = selectedTemplate.color
   const layout = selectedTemplate.layout
 
-  const CVPreview = () => (
-    <div className="cv-print-area" style={{ background: 'white', padding: layout === 'sidebar' ? '0' : '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '900px', overflow: 'hidden' }}>
-
-      {layout === 'sidebar' ? (
-        <div style={{ display: 'flex', minHeight: '900px' }}>
-          <div style={{ width: '200px', background: accentColor, padding: '32px 20px', flexShrink: 0 }}>
-            {photo && <img src={photo} style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid white', display: 'block', margin: '0 auto 16px' }} />}
-            <h1 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', marginBottom: '4px', textAlign: 'center' }}>{cv.name || 'Your Name'}</h1>
-            <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {cv.email && <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', margin: 0 }}>✉ {cv.email}</p>}
-              {cv.phone && <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', margin: 0 }}>📞 {cv.phone}</p>}
-              {cv.location && <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', margin: 0 }}>📍 {cv.location}</p>}
-              {cv.linkedin && <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', margin: 0 }}>🔗 {cv.linkedin}</p>}
-            </div>
-            {cv.skills && <div style={{ marginTop: '24px' }}><h3 style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Skills</h3><p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', lineHeight: '1.6', margin: 0 }}>{cv.skills}</p></div>}
-            {cv.languages && <div style={{ marginTop: '16px' }}><h3 style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Languages</h3><p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', lineHeight: '1.6', margin: 0 }}>{cv.languages}</p></div>}
-            {cv.hobbies && <div style={{ marginTop: '16px' }}><h3 style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Interests</h3><p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', lineHeight: '1.6', margin: 0 }}>{cv.hobbies}</p></div>}
-          </div>
-          <div style={{ flex: 1, padding: '32px 28px' }}>
-            {cv.summary && <div style={{ marginBottom: '20px' }}><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Profile</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.summary}</p></div>}
-            {cv.experience.some(e => e.title || e.company) && (
-              <div style={{ marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Experience</h2>
-                {cv.experience.map((exp, i) => exp.title || exp.company ? (
-                  <div key={i} style={{ marginBottom: '14px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><b style={{ fontSize: '13px', color: '#1a1a2e' }}>{exp.title}</b><span style={{ fontSize: '11px', color: '#888' }}>{exp.dates}</span></div>
-                    <div style={{ fontSize: '12px', color: accentColor, fontWeight: '600' }}>{exp.company}</div>
-                    {exp.description && <p style={{ fontSize: '11px', color: '#666', lineHeight: '1.5', margin: '4px 0 0' }}>{exp.description}</p>}
-                  </div>
-                ) : null)}
-              </div>
-            )}
-            {cv.education.some(e => e.degree || e.school) && (
-              <div style={{ marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Education</h2>
-                {cv.education.map((edu, i) => edu.degree || edu.school ? (
-                  <div key={i} style={{ marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><b style={{ fontSize: '13px', color: '#1a1a2e' }}>{edu.degree}</b><span style={{ fontSize: '11px', color: '#888' }}>{edu.dates}</span></div>
-                    <div style={{ fontSize: '12px', color: '#555' }}>{edu.school}</div>
-                  </div>
-                ) : null)}
-              </div>
-            )}
-            {cv.certifications && <div style={{ marginBottom: '16px' }}><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Certifications</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.certifications}</p></div>}
-            {cv.references && <div><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>References</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.references}</p></div>}
-          </div>
-        </div>
-      ) : (
-        <>
-          <div style={{ borderBottom: `3px solid ${accentColor}`, paddingBottom: '16px', marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-            {photo && <img src={photo} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${accentColor}`, flexShrink: 0 }} />}
-            <div>
-              <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 6px' }}>{cv.name || 'Your Name'}</h1>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontSize: '12px', color: '#555' }}>
-                {cv.email && <span>✉ {cv.email}</span>}
-                {cv.phone && <span>📞 {cv.phone}</span>}
-                {cv.location && <span>📍 {cv.location}</span>}
-                {cv.linkedin && <span>🔗 {cv.linkedin}</span>}
-              </div>
-            </div>
-          </div>
-          {cv.summary && <div style={{ marginBottom: '18px' }}><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Professional Summary</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.summary}</p></div>}
-          {cv.experience.some(e => e.title || e.company) && (
-            <div style={{ marginBottom: '18px' }}>
-              <h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Work Experience</h2>
-              {cv.experience.map((exp, i) => exp.title || exp.company ? (
-                <div key={i} style={{ marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}><b style={{ fontSize: '13px', color: '#1a1a2e' }}>{exp.title}</b><span style={{ fontSize: '11px', color: '#888' }}>{exp.dates}</span></div>
-                  <div style={{ fontSize: '12px', color: accentColor, fontWeight: '600', marginBottom: '3px' }}>{exp.company}</div>
-                  {exp.description && <p style={{ fontSize: '11px', color: '#666', lineHeight: '1.5', margin: 0 }}>{exp.description}</p>}
-                </div>
-              ) : null)}
-            </div>
-          )}
-          {cv.education.some(e => e.degree || e.school) && (
-            <div style={{ marginBottom: '18px' }}>
-              <h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Education</h2>
-              {cv.education.map((edu, i) => edu.degree || edu.school ? (
-                <div key={i} style={{ marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}><b style={{ fontSize: '13px', color: '#1a1a2e' }}>{edu.degree}</b><span style={{ fontSize: '11px', color: '#888' }}>{edu.dates}</span></div>
-                  <div style={{ fontSize: '12px', color: '#555' }}>{edu.school}</div>
-                </div>
-              ) : null)}
-            </div>
-          )}
-          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '140px' }}>
-              {cv.skills && <div style={{ marginBottom: '14px' }}><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Skills</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.skills}</p></div>}
-              {cv.languages && <div style={{ marginBottom: '14px' }}><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Languages</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.languages}</p></div>}
-              {cv.hobbies && <div style={{ marginBottom: '14px' }}><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Hobbies</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.hobbies}</p></div>}
-            </div>
-            <div style={{ flex: 1, minWidth: '140px' }}>
-              {cv.certifications && <div style={{ marginBottom: '14px' }}><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Certifications</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.certifications}</p></div>}
-              {cv.references && <div><h2 style={{ fontSize: '13px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>References</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.references}</p></div>}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  )
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      let docElement
+      if (activeTab === 'cover') {
+        docElement = <CoverLetterDocument cv={cv} cover={coverLetter} accentColor={accentColor} />
+      } else if (layout === 'sidebar') {
+        docElement = <CVDocumentSidebar cv={cv} accentColor={accentColor} />
+      } else {
+        docElement = <CVDocumentStandard cv={cv} accentColor={accentColor} />
+      }
+      const blob = await pdf(docElement).toBlob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${cv.name || 'my-cv'}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e) { console.error('PDF error:', e) }
+    setDownloading(false)
+  }
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
 
       <div style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📄 CV Builder — 💎 Premium Plan</h1>
-        <button onClick={handleDownload}
-          style={{ background: '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
-          ⬇ Download PDF
+        <button onClick={handleDownload} disabled={downloading}
+          style={{ background: downloading ? '#aaa' : '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: downloading ? 'not-allowed' : 'pointer', fontSize: '15px' }}>
+          {downloading ? '⏳ Generating...' : '⬇ Download PDF'}
         </button>
       </div>
 
@@ -292,8 +325,7 @@ export default function PremiumBuilderPage() {
                   {photo ? <img src={photo} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${accentColor}` }} /> : <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>👤</div>}
                   <div>
                     <label style={{ background: accentColor, color: 'white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
-                      Upload Photo
-                      <input type="file" accept="image/*" onChange={handlePhoto} style={{ display: 'none' }} />
+                      Upload Photo<input type="file" accept="image/*" onChange={handlePhoto} style={{ display: 'none' }} />
                     </label>
                     {photo && <button onClick={() => setPhoto(null)} style={{ marginLeft: '8px', background: 'none', border: '1px solid #ddd', color: '#666', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>Remove</button>}
                   </div>
@@ -370,37 +402,77 @@ export default function PremiumBuilderPage() {
                 <AIButton field="skills" text={cv.skills} type="skills" />
               </div>
 
-              <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '12px', color: '#1a1a2e' }}>🌍 Languages</h3>
-                <textarea value={cv.languages} onChange={e => updateField('languages', e.target.value)} placeholder="e.g. English (Native), Thai (Conversational)..." rows={2}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-              </div>
-
-              <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '12px', color: '#1a1a2e' }}>🏆 Certifications</h3>
-                <textarea value={cv.certifications} onChange={e => updateField('certifications', e.target.value)} placeholder="e.g. TEFL Certificate (2023)..." rows={3}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-              </div>
-
-              <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '12px', color: '#1a1a2e' }}>⚽ Hobbies & Interests</h3>
-                <textarea value={cv.hobbies} onChange={e => updateField('hobbies', e.target.value)} placeholder="e.g. Travelling, Photography, Yoga..." rows={2}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-              </div>
-
-              <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '12px', color: '#1a1a2e' }}>📋 References</h3>
-                <textarea value={cv.references} onChange={e => updateField('references', e.target.value)} placeholder="e.g. Available upon request..." rows={3}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-              </div>
+              {[
+                { label: '🌍 Languages', field: 'languages', placeholder: 'e.g. English (Native), Thai (Conversational)...' },
+                { label: '🏆 Certifications', field: 'certifications', placeholder: 'e.g. TEFL Certificate (2023)...' },
+                { label: '⚽ Hobbies & Interests', field: 'hobbies', placeholder: 'e.g. Travelling, Photography, Yoga...' },
+                { label: '📋 References', field: 'references', placeholder: 'e.g. Available upon request...' },
+              ].map(f => (
+                <div key={f.field} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '12px', color: '#1a1a2e' }}>{f.label}</h3>
+                  <textarea value={(cv as any)[f.field]} onChange={e => updateField(f.field, e.target.value)} placeholder={f.placeholder} rows={2}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                </div>
+              ))}
 
             </div>
 
+            {/* CV PREVIEW */}
             <div style={{ flex: 1, minWidth: '300px' }}>
               <div style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
-                LIVE PREVIEW — {selectedTemplate.name.toUpperCase()} {layout === 'sidebar' ? '(SIDEBAR LAYOUT)' : ''}
+                LIVE PREVIEW — {selectedTemplate.name.toUpperCase()} {layout === 'sidebar' ? '(SIDEBAR)' : ''}
               </div>
-              <CVPreview />
+              <div style={{ background: 'white', padding: layout === 'sidebar' ? '0' : '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '900px', overflow: 'hidden' }}>
+                {layout === 'sidebar' ? (
+                  <div style={{ display: 'flex', minHeight: '900px' }}>
+                    <div style={{ width: '200px', background: accentColor, padding: '32px 20px', flexShrink: 0 }}>
+                      {photo && <img src={photo} style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid white', display: 'block', margin: '0 auto 16px' }} />}
+                      <h1 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', marginBottom: '4px', textAlign: 'center' }}>{cv.name || 'Your Name'}</h1>
+                      <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {cv.email && <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', margin: 0 }}>{cv.email}</p>}
+                        {cv.phone && <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', margin: 0 }}>{cv.phone}</p>}
+                        {cv.location && <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', margin: 0 }}>{cv.location}</p>}
+                      </div>
+                      {cv.skills && <div style={{ marginTop: '20px' }}><h3 style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Skills</h3><p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', lineHeight: '1.5', margin: 0 }}>{cv.skills}</p></div>}
+                      {cv.languages && <div style={{ marginTop: '14px' }}><h3 style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Languages</h3><p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px', lineHeight: '1.5', margin: 0 }}>{cv.languages}</p></div>}
+                    </div>
+                    <div style={{ flex: 1, padding: '32px 28px' }}>
+                      {cv.summary && <div style={{ marginBottom: '18px' }}><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Profile</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.summary}</p></div>}
+                      {cv.experience.some(e => e.title || e.company) && <div style={{ marginBottom: '18px' }}><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Experience</h2>{cv.experience.map((exp, i) => exp.title || exp.company ? <div key={i} style={{ marginBottom: '10px' }}><div style={{ display: 'flex', justifyContent: 'space-between' }}><b style={{ fontSize: '12px', color: '#1a1a2e' }}>{exp.title}</b><span style={{ fontSize: '10px', color: '#888' }}>{exp.dates}</span></div><div style={{ fontSize: '11px', color: accentColor, fontWeight: '600' }}>{exp.company}</div>{exp.description && <p style={{ fontSize: '10px', color: '#666', lineHeight: '1.4', margin: '3px 0 0' }}>{exp.description}</p>}</div> : null)}</div>}
+                      {cv.education.some(e => e.degree || e.school) && <div><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Education</h2>{cv.education.map((edu, i) => edu.degree || edu.school ? <div key={i} style={{ marginBottom: '8px' }}><div style={{ display: 'flex', justifyContent: 'space-between' }}><b style={{ fontSize: '12px', color: '#1a1a2e' }}>{edu.degree}</b><span style={{ fontSize: '10px', color: '#888' }}>{edu.dates}</span></div><div style={{ fontSize: '11px', color: '#555' }}>{edu.school}</div></div> : null)}</div>}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ padding: '40px' }}>
+                    <div style={{ borderBottom: `3px solid ${accentColor}`, paddingBottom: '16px', marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+                      {photo && <img src={photo} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${accentColor}`, flexShrink: 0 }} />}
+                      <div>
+                        <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 6px' }}>{cv.name || 'Your Name'}</h1>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontSize: '12px', color: '#555' }}>
+                          {cv.email && <span>{cv.email}</span>}
+                          {cv.phone && <span>{cv.phone}</span>}
+                          {cv.location && <span>{cv.location}</span>}
+                          {cv.linkedin && <span>{cv.linkedin}</span>}
+                        </div>
+                      </div>
+                    </div>
+                    {cv.summary && <div style={{ marginBottom: '16px' }}><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Professional Summary</h2><p style={{ fontSize: '12px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.summary}</p></div>}
+                    {cv.experience.some(e => e.title || e.company) && <div style={{ marginBottom: '16px' }}><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Work Experience</h2>{cv.experience.map((exp, i) => exp.title || exp.company ? <div key={i} style={{ marginBottom: '10px' }}><div style={{ display: 'flex', justifyContent: 'space-between' }}><b style={{ fontSize: '12px', color: '#1a1a2e' }}>{exp.title}</b><span style={{ fontSize: '10px', color: '#888' }}>{exp.dates}</span></div><div style={{ fontSize: '11px', color: accentColor, fontWeight: '600' }}>{exp.company}</div>{exp.description && <p style={{ fontSize: '10px', color: '#666', lineHeight: '1.4', margin: '2px 0 0' }}>{exp.description}</p>}</div> : null)}</div>}
+                    {cv.education.some(e => e.degree || e.school) && <div style={{ marginBottom: '16px' }}><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Education</h2>{cv.education.map((edu, i) => edu.degree || edu.school ? <div key={i} style={{ marginBottom: '6px' }}><div style={{ display: 'flex', justifyContent: 'space-between' }}><b style={{ fontSize: '12px', color: '#1a1a2e' }}>{edu.degree}</b><span style={{ fontSize: '10px', color: '#888' }}>{edu.dates}</span></div><div style={{ fontSize: '11px', color: '#555' }}>{edu.school}</div></div> : null)}</div>}
+                    <div style={{ display: 'flex', gap: '24px' }}>
+                      <div style={{ flex: 1 }}>
+                        {cv.skills && <div style={{ marginBottom: '12px' }}><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Skills</h2><p style={{ fontSize: '11px', color: '#444', lineHeight: '1.5', margin: 0 }}>{cv.skills}</p></div>}
+                        {cv.languages && <div style={{ marginBottom: '12px' }}><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Languages</h2><p style={{ fontSize: '11px', color: '#444', lineHeight: '1.5', margin: 0 }}>{cv.languages}</p></div>}
+                        {cv.hobbies && <div><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Hobbies</h2><p style={{ fontSize: '11px', color: '#444', lineHeight: '1.5', margin: 0 }}>{cv.hobbies}</p></div>}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        {cv.certifications && <div style={{ marginBottom: '12px' }}><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Certifications</h2><p style={{ fontSize: '11px', color: '#444', lineHeight: '1.5', margin: 0 }}>{cv.certifications}</p></div>}
+                        {cv.references && <div><h2 style={{ fontSize: '12px', fontWeight: 'bold', color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>References</h2><p style={{ fontSize: '11px', color: '#444', lineHeight: '1.5', margin: 0 }}>{cv.references}</p></div>}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         ) : (
@@ -410,21 +482,17 @@ export default function PremiumBuilderPage() {
                 <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '4px', color: '#1a1a2e' }}>✉️ Cover Letter</h3>
                 <p style={{ color: '#999', fontSize: '12px', marginBottom: '16px' }}>💎 AI can improve your cover letter body</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '4px' }}>Hiring Manager Name</label>
-                    <input value={coverLetter.hiringManager} onChange={e => setCoverLetter(p => ({ ...p, hiringManager: e.target.value }))} placeholder="e.g. Mr. Smith"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '4px' }}>Company / School</label>
-                    <input value={coverLetter.company} onChange={e => setCoverLetter(p => ({ ...p, company: e.target.value }))} placeholder="e.g. Bangkok International School"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '4px' }}>Position</label>
-                    <input value={coverLetter.position} onChange={e => setCoverLetter(p => ({ ...p, position: e.target.value }))} placeholder="e.g. English Teacher"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-                  </div>
+                  {[
+                    { label: 'Hiring Manager Name', field: 'hiringManager', placeholder: 'e.g. Mr. Smith' },
+                    { label: 'Company / School', field: 'company', placeholder: 'e.g. Bangkok International School' },
+                    { label: 'Position', field: 'position', placeholder: 'e.g. English Teacher' },
+                  ].map(f => (
+                    <div key={f.field}>
+                      <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '4px' }}>{f.label}</label>
+                      <input value={(coverLetter as any)[f.field]} onChange={e => setCoverLetter(p => ({ ...p, [f.field]: e.target.value }))} placeholder={f.placeholder}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  ))}
                   <div>
                     <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '4px' }}>Cover Letter Body</label>
                     <textarea value={coverLetter.body} onChange={e => setCoverLetter(p => ({ ...p, body: e.target.value }))} placeholder="Write your cover letter here..." rows={10}
@@ -434,20 +502,15 @@ export default function PremiumBuilderPage() {
                 </div>
               </div>
             </div>
-
             <div style={{ flex: 1, minWidth: '280px' }}>
-              <div style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
-                COVER LETTER PREVIEW
-              </div>
-              <div className="cv-print-area" style={{ background: 'white', padding: '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '600px' }}>
+              <div style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>COVER LETTER PREVIEW</div>
+              <div style={{ background: 'white', padding: '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '600px' }}>
                 <div style={{ borderBottom: `3px solid ${accentColor}`, paddingBottom: '16px', marginBottom: '24px' }}>
                   <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' }}>{cv.name || 'Your Name'}</h1>
                   <p style={{ fontSize: '13px', color: '#555', margin: 0 }}>{cv.email} {cv.phone ? `• ${cv.phone}` : ''}</p>
                 </div>
                 <p style={{ fontSize: '13px', color: '#444', marginBottom: '16px' }}>Dear {coverLetter.hiringManager || 'Hiring Manager'},</p>
-                <p style={{ fontSize: '13px', color: '#444', marginBottom: '16px', lineHeight: '1.6' }}>
-                  I am writing to apply for the <strong>{coverLetter.position || '[Position]'}</strong> position at <strong>{coverLetter.company || '[Company]'}</strong>.
-                </p>
+                <p style={{ fontSize: '13px', color: '#444', marginBottom: '16px', lineHeight: '1.6' }}>I am writing to apply for the <strong>{coverLetter.position || '[Position]'}</strong> position at <strong>{coverLetter.company || '[Company]'}</strong>.</p>
                 {coverLetter.body && <p style={{ fontSize: '13px', color: '#444', lineHeight: '1.6', whiteSpace: 'pre-wrap', marginBottom: '16px' }}>{coverLetter.body}</p>}
                 <p style={{ fontSize: '13px', color: '#444', marginBottom: '8px' }}>Kind regards,</p>
                 <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#1a1a2e' }}>{cv.name || 'Your Name'}</p>
