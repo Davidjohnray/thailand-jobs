@@ -224,10 +224,17 @@ export default function AdminPage() {
   }
 
   const deleteBlogPost = async (id: string) => {
-    if (!confirm('Delete this article?')) return
-    await adminSupabase.from('blog_posts').delete().eq('id', id)
-    loadBlogPosts()
-  }
+  if (!confirm('Delete this article?')) return
+  await adminSupabase.from('blog_posts').delete().eq('id', id)
+  loadBlogPosts()
+}
+
+const deleteAllMemberMessages = async () => {
+  if (!confirm(`Delete ALL ${memberMessages.length} member messages? This cannot be undone.`)) return
+  const { error } = await adminSupabase.from('member_messages').delete().neq('id', 0)
+  if (error) { alert('Error: ' + error.message); return }
+  setMemberMessages([])
+}
 
   const approveEslOrder = async (order: any) => {
     if (!confirm(`Approve order for ${order.buyer_name} and send download link to ${order.buyer_email}?`)) return
