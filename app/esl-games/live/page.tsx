@@ -47,6 +47,15 @@ const games = [
   age: 'Ages 6+',
   time: '10-15 min',
 },
+{
+  slug: 'category-race',
+  title: 'Category Race',
+  emoji: '🎭',
+  desc: 'A category appears on screen — race to name as many things as you can in 30 seconds! Teams shout answers or students type on their phones.',
+  topics: ['Animals', 'Food & Drink', 'World', 'Colours', 'School', 'Clothes', 'Home', 'Sports'],
+  age: 'Ages 6+',
+  time: '5-10 min',
+},
 ]
 
 const modes = [
