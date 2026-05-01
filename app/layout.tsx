@@ -6,18 +6,18 @@ import MarqueeBar from '../components/MarqueeBar'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
+    default: 'Jobs in Thailand 2026 | Teaching, Hospitality & Expat Jobs',
     template: '%s | Jobs in Thailand',
   },
   description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand. Browse hundreds of jobs in Bangkok, Chiang Mai, Phuket and more. Free to join — members see jobs 1 hour early!',
-  keywords: ['jobs in Thailand', 'teaching jobs Thailand', 'ESL jobs Thailand', 'expat jobs Thailand', 'Bangkok jobs', 'Chiang Mai jobs', 'Phuket jobs', 'TEFL Thailand', 'work in Thailand'],
+  keywords: ['jobs in Thailand', 'teaching jobs Thailand', 'ESL jobs Thailand', 'expat jobs Thailand', 'Bangkok jobs', 'Chiang Mai jobs', 'Phuket jobs', 'TEFL Thailand', 'work in Thailand', 'jobs in Thailand 2026', 'English teacher jobs Thailand'],
   metadataBase: new URL('https://www.jobsinthailand.net'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://www.jobsinthailand.net',
     siteName: 'Jobs in Thailand',
-    title: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
+    title: 'Jobs in Thailand 2026 | Teaching, Hospitality & Expat Jobs',
     description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand. Free to join — members see jobs 1 hour early!',
     images: [
       {
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
+    title: 'Jobs in Thailand 2026 | Teaching, Hospitality & Expat Jobs',
     description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand.',
     images: ['https://www.jobsinthailand.net/og-banner.jpg'],
   },
