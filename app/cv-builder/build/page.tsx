@@ -1,17 +1,216 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { pdf, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+
+const accentColor = '#E85D26'
+
+const pdfStyles = StyleSheet.create({
+  page: {
+    fontFamily: 'Helvetica',
+    padding: 40,
+    backgroundColor: '#ffffff',
+    fontSize: 10,
+    color: '#333333',
+  },
+  header: {
+    borderBottomWidth: 3,
+    borderBottomColor: accentColor,
+    borderBottomStyle: 'solid',
+    paddingBottom: 12,
+    marginBottom: 16,
+  },
+  name: {
+    fontSize: 22,
+    fontFamily: 'Helvetica-Bold',
+    color: '#1a1a2e',
+    marginBottom: 6,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  contactItem: {
+    fontSize: 9,
+    color: '#555555',
+    marginRight: 12,
+  },
+  sectionTitle: {
+    fontSize: 9,
+    fontFamily: 'Helvetica-Bold',
+    color: accentColor,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 8,
+    marginTop: 14,
+  },
+  sectionDivider: {
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#eeeeee',
+    borderBottomStyle: 'solid',
+    marginBottom: 8,
+  },
+  summaryText: {
+    fontSize: 10,
+    color: '#444444',
+    lineHeight: 1.6,
+  },
+  expBlock: {
+    marginBottom: 10,
+  },
+  expRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  expTitle: {
+    fontSize: 10,
+    fontFamily: 'Helvetica-Bold',
+    color: '#1a1a2e',
+  },
+  expDates: {
+    fontSize: 9,
+    color: '#888888',
+  },
+  expCompany: {
+    fontSize: 9,
+    color: '#555555',
+    marginBottom: 3,
+  },
+  expDesc: {
+    fontSize: 9,
+    color: '#666666',
+    lineHeight: 1.5,
+  },
+  eduBlock: {
+    marginBottom: 8,
+  },
+  eduRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  eduDegree: {
+    fontSize: 10,
+    fontFamily: 'Helvetica-Bold',
+    color: '#1a1a2e',
+  },
+  eduDates: {
+    fontSize: 9,
+    color: '#888888',
+  },
+  eduSchool: {
+    fontSize: 9,
+    color: '#555555',
+  },
+  skillsText: {
+    fontSize: 10,
+    color: '#444444',
+    lineHeight: 1.6,
+  },
+})
+
+type CVData = {
+  name: string
+  email: string
+  phone: string
+  location: string
+  linkedin: string
+  summary: string
+  experience: { title: string; company: string; dates: string; description: string }[]
+  education: { degree: string; school: string; dates: string }[]
+  skills: string
+}
+
+function CVDocument({ cv }: { cv: CVData }) {
+  return (
+    <Document>
+      <Page size="A4" style={pdfStyles.page}>
+
+        {/* HEADER */}
+        <View style={pdfStyles.header}>
+          <Text style={pdfStyles.name}>{cv.name || 'Your Name'}</Text>
+          <View style={pdfStyles.contactRow}>
+            {cv.email ? <Text style={pdfStyles.contactItem}>{cv.email}</Text> : null}
+            {cv.phone ? <Text style={pdfStyles.contactItem}>{cv.phone}</Text> : null}
+            {cv.location ? <Text style={pdfStyles.contactItem}>{cv.location}</Text> : null}
+            {cv.linkedin ? <Text style={pdfStyles.contactItem}>{cv.linkedin}</Text> : null}
+          </View>
+        </View>
+
+        {/* SUMMARY */}
+        {cv.summary ? (
+          <View>
+            <Text style={pdfStyles.sectionTitle}>Professional Summary</Text>
+            <View style={pdfStyles.sectionDivider} />
+            <Text style={pdfStyles.summaryText}>{cv.summary}</Text>
+          </View>
+        ) : null}
+
+        {/* EXPERIENCE */}
+        {cv.experience.some(e => e.title || e.company) ? (
+          <View>
+            <Text style={pdfStyles.sectionTitle}>Work Experience</Text>
+            <View style={pdfStyles.sectionDivider} />
+            {cv.experience.map((exp, i) =>
+              exp.title || exp.company ? (
+                <View key={i} style={pdfStyles.expBlock}>
+                  <View style={pdfStyles.expRow}>
+                    <Text style={pdfStyles.expTitle}>{exp.title}</Text>
+                    <Text style={pdfStyles.expDates}>{exp.dates}</Text>
+                  </View>
+                  <Text style={pdfStyles.expCompany}>{exp.company}</Text>
+                  {exp.description ? <Text style={pdfStyles.expDesc}>{exp.description}</Text> : null}
+                </View>
+              ) : null
+            )}
+          </View>
+        ) : null}
+
+        {/* EDUCATION */}
+        {cv.education.some(e => e.degree || e.school) ? (
+          <View>
+            <Text style={pdfStyles.sectionTitle}>Education</Text>
+            <View style={pdfStyles.sectionDivider} />
+            {cv.education.map((edu, i) =>
+              edu.degree || edu.school ? (
+                <View key={i} style={pdfStyles.eduBlock}>
+                  <View style={pdfStyles.eduRow}>
+                    <Text style={pdfStyles.eduDegree}>{edu.degree}</Text>
+                    <Text style={pdfStyles.eduDates}>{edu.dates}</Text>
+                  </View>
+                  <Text style={pdfStyles.eduSchool}>{edu.school}</Text>
+                </View>
+              ) : null
+            )}
+          </View>
+        ) : null}
+
+        {/* SKILLS */}
+        {cv.skills ? (
+          <View>
+            <Text style={pdfStyles.sectionTitle}>Skills</Text>
+            <View style={pdfStyles.sectionDivider} />
+            <Text style={pdfStyles.skillsText}>{cv.skills}</Text>
+          </View>
+        ) : null}
+
+      </Page>
+    </Document>
+  )
+}
 
 export default function CVBuildPage() {
-  const [cv, setCv] = useState({
+  const [cv, setCv] = useState<CVData>({
     name: '', email: '', phone: '', location: '', linkedin: '',
     summary: '',
     experience: [{ title: '', company: '', dates: '', description: '' }],
     education: [{ degree: '', school: '', dates: '' }],
     skills: '',
   })
-  const printRef = useRef<HTMLDivElement>(null)
   const [downloadCount, setDownloadCount] = useState<number>(35)
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -42,41 +241,44 @@ export default function CVBuildPage() {
   const addExperience = () => setCv(prev => ({ ...prev, experience: [...prev.experience, { title: '', company: '', dates: '', description: '' }] }))
   const addEducation = () => setCv(prev => ({ ...prev, education: [...prev.education, { degree: '', school: '', dates: '' }] }))
 
-  const handlePrint = async () => {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-    const { data } = await supabase.from('stats').select('count').eq('id', 'cv_downloads').single()
-    if (data) {
-      const newCount = data.count + 1
-      await supabase.from('stats').update({ count: newCount }).eq('id', 'cv_downloads')
-      setDownloadCount(newCount)
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      const { data } = await supabase.from('stats').select('count').eq('id', 'cv_downloads').single()
+      if (data) {
+        const newCount = data.count + 1
+        await supabase.from('stats').update({ count: newCount }).eq('id', 'cv_downloads')
+        setDownloadCount(newCount)
+      }
+      const blob = await pdf(<CVDocument cv={cv} />).toBlob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${cv.name || 'my-cv'}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error('PDF error:', e)
     }
-    window.print()
+    setDownloading(false)
   }
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
 
-      <style>{`
-  @media print {
-    .no-print { display: none !important; }
-    nav { display: none !important; }
-    body { background: white; }
-    @page { margin: 1cm; }
-  }
-`}</style>
-
-      <div className="no-print" style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📄 CV Builder — Free Plan</h1>
         <div style={{ textAlign: 'right' }}>
           <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '8px' }}>
             📥 <strong style={{ color: 'white' }}>{downloadCount.toLocaleString()}</strong> CVs downloaded so far!
           </div>
-          <button onClick={handlePrint}
-            style={{ background: '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
-            ⬇ Download PDF
+          <button onClick={handleDownload} disabled={downloading}
+            style={{ background: downloading ? '#aaa' : '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: downloading ? 'not-allowed' : 'pointer', fontSize: '15px' }}>
+            {downloading ? '⏳ Generating...' : '⬇ Download PDF'}
           </button>
         </div>
       </div>
@@ -84,7 +286,7 @@ export default function CVBuildPage() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 16px', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
 
         {/* FORM */}
-        <div className="no-print" style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' }}>👤 Personal Information</h3>
@@ -170,11 +372,10 @@ export default function CVBuildPage() {
 
         {/* CV PREVIEW */}
         <div style={{ flex: 1, minWidth: '300px' }}>
-          <div className="no-print" style={{ background: '#E85D26', color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
+          <div style={{ background: '#E85D26', color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
             LIVE PREVIEW
           </div>
-          <div ref={printRef} className="cv-print-area" style={{ background: 'white', padding: '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '800px' }}>
-
+          <div className="cv-print-area" style={{ background: 'white', padding: '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '800px' }}>
             <div style={{ borderBottom: '3px solid #E85D26', paddingBottom: '16px', marginBottom: '20px' }}>
               <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 6px' }}>{cv.name || 'Your Name'}</h1>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '13px', color: '#555' }}>
@@ -184,14 +385,12 @@ export default function CVBuildPage() {
                 {cv.linkedin && <span>🔗 {cv.linkedin}</span>}
               </div>
             </div>
-
             {cv.summary && (
               <div style={{ marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E85D26', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Professional Summary</h2>
                 <p style={{ fontSize: '13px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.summary}</p>
               </div>
             )}
-
             {cv.experience.some(e => e.title || e.company) && (
               <div style={{ marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E85D26', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Work Experience</h2>
@@ -209,7 +408,6 @@ export default function CVBuildPage() {
                 ))}
               </div>
             )}
-
             {cv.education.some(e => e.degree || e.school) && (
               <div style={{ marginBottom: '20px' }}>
                 <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E85D26', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Education</h2>
@@ -226,14 +424,12 @@ export default function CVBuildPage() {
                 ))}
               </div>
             )}
-
             {cv.skills && (
               <div>
                 <h2 style={{ fontSize: '14px', fontWeight: 'bold', color: '#E85D26', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Skills</h2>
                 <p style={{ fontSize: '13px', color: '#444', lineHeight: '1.6', margin: 0 }}>{cv.skills}</p>
               </div>
             )}
-
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 const templates = [
@@ -59,29 +59,55 @@ export default function StandardBuilderPage() {
     }
   }
 
+  const handleDownload = () => {
+  const element = document.querySelector('.cv-print-area') as HTMLElement
+  if (!element) return
+
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) return
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>CV</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: sans-serif; background: white; }
+          @page { margin: 1cm; size: A4; }
+          @media print {
+            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          }
+        </style>
+      </head>
+      <body>
+        ${element.outerHTML}
+      </body>
+    </html>
+  `)
+  printWindow.document.close()
+  printWindow.focus()
+  setTimeout(() => {
+    printWindow.print()
+    printWindow.close()
+  }, 600)
+}
+
   const selectedTemplate = templates.find(t => t.id === template) || templates[0]
   const accentColor = selectedTemplate.color
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
-      <style>{`
-  @media print {
-    .no-print { display: none !important; }
-    nav { display: none !important; }
-    body { background: white; }
-    @page { margin: 1cm; }
-  }
-`}</style>
 
-      <div className="no-print" style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📄 CV Builder — ⭐ Standard Plan</h1>
-        <button onClick={() => window.print()}
+        <button onClick={handleDownload}
           style={{ background: '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
           ⬇ Download PDF
         </button>
       </div>
 
-      <div className="no-print" style={{ background: 'white', padding: '16px 24px', borderBottom: '1px solid #eee', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ background: 'white', padding: '16px 24px', borderBottom: '1px solid #eee', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#555' }}>Template:</span>
         {templates.map(t => (
           <button key={t.id} onClick={() => setTemplate(t.id)}
@@ -93,7 +119,8 @@ export default function StandardBuilderPage() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 16px', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
 
-        <div className="no-print" style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* FORM */}
+        <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' }}>📷 Profile Photo</h3>
@@ -215,7 +242,7 @@ export default function StandardBuilderPage() {
 
         {/* CV PREVIEW */}
         <div style={{ flex: 1, minWidth: '300px' }}>
-          <div className="no-print" style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
+          <div style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
             LIVE PREVIEW — {selectedTemplate.name.toUpperCase()} TEMPLATE
           </div>
           <div className="cv-print-area" style={{ background: 'white', padding: '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '900px' }}>

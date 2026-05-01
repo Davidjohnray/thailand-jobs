@@ -64,6 +64,40 @@ export default function PremiumBuilderPage() {
     }
   }
 
+  const handleDownload = () => {
+  const element = document.querySelector('.cv-print-area') as HTMLElement
+  if (!element) return
+
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) return
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>CV</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: sans-serif; background: white; }
+          @page { margin: 1cm; size: A4; }
+          @media print {
+            body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          }
+        </style>
+      </head>
+      <body>
+        ${element.outerHTML}
+      </body>
+    </html>
+  `)
+  printWindow.document.close()
+  printWindow.focus()
+  setTimeout(() => {
+    printWindow.print()
+    printWindow.close()
+  }, 600)
+}
+
   const improveWithAI = async (field: string, text: string, type: string) => {
     if (!text.trim()) return
     setAiLoading(field)
@@ -218,24 +252,16 @@ export default function PremiumBuilderPage() {
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
-      <style>{`
-  @media print {
-    .no-print { display: none !important; }
-    nav { display: none !important; }
-    body { background: white; }
-    @page { margin: 1cm; }
-  }
-`}</style>
 
-      <div className="no-print" style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📄 CV Builder — 💎 Premium Plan</h1>
-        <button onClick={() => window.print()}
+        <button onClick={handleDownload}
           style={{ background: '#E85D26', color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
           ⬇ Download PDF
         </button>
       </div>
 
-      <div className="no-print" style={{ background: 'white', borderBottom: '1px solid #eee', display: 'flex' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #eee', display: 'flex' }}>
         {[{ id: 'cv', label: '📄 CV Builder' }, { id: 'cover', label: '✉️ Cover Letter' }].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
             style={{ padding: '14px 24px', border: 'none', background: 'none', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer', color: activeTab === tab.id ? '#E85D26' : '#666', borderBottom: activeTab === tab.id ? '3px solid #E85D26' : '3px solid transparent' }}>
@@ -244,7 +270,7 @@ export default function PremiumBuilderPage() {
         ))}
       </div>
 
-      <div className="no-print" style={{ background: 'white', padding: '12px 24px', borderBottom: '1px solid #eee', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ background: 'white', padding: '12px 24px', borderBottom: '1px solid #eee', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontWeight: 'bold', fontSize: '13px', color: '#555' }}>Template:</span>
         {templates.map(t => (
           <button key={t.id} onClick={() => setTemplate(t.id)}
@@ -258,7 +284,7 @@ export default function PremiumBuilderPage() {
 
         {activeTab === 'cv' ? (
           <>
-            <div className="no-print" style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
               <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' }}>📷 Profile Photo</h3>
@@ -371,7 +397,7 @@ export default function PremiumBuilderPage() {
             </div>
 
             <div style={{ flex: 1, minWidth: '300px' }}>
-              <div className="no-print" style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
+              <div style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
                 LIVE PREVIEW — {selectedTemplate.name.toUpperCase()} {layout === 'sidebar' ? '(SIDEBAR LAYOUT)' : ''}
               </div>
               <CVPreview />
@@ -379,7 +405,7 @@ export default function PremiumBuilderPage() {
           </>
         ) : (
           <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-            <div className="no-print" style={{ flex: 1, minWidth: '280px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ flex: 1, minWidth: '280px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '4px', color: '#1a1a2e' }}>✉️ Cover Letter</h3>
                 <p style={{ color: '#999', fontSize: '12px', marginBottom: '16px' }}>💎 AI can improve your cover letter body</p>
@@ -410,7 +436,7 @@ export default function PremiumBuilderPage() {
             </div>
 
             <div style={{ flex: 1, minWidth: '280px' }}>
-              <div className="no-print" style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
+              <div style={{ background: accentColor, color: 'white', padding: '10px 16px', borderRadius: '8px 8px 0 0', fontSize: '13px', fontWeight: 'bold', textAlign: 'center' }}>
                 COVER LETTER PREVIEW
               </div>
               <div className="cv-print-area" style={{ background: 'white', padding: '40px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', minHeight: '600px' }}>
