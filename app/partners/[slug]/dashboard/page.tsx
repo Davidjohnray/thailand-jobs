@@ -47,7 +47,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
   const [expanded, setExpanded] = useState<string | null>(null)
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
 
-  // Check session
   useEffect(() => {
     const saved = sessionStorage.getItem(`partner_authed_${slug}`)
     if (saved === 'true') setAuthed(true)
@@ -79,14 +78,14 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
   }, [authed, slug])
 
   const handleLogin = (e: any) => {
-  e.preventDefault()
-  if (password === 'partner_teach-bridge_2026') {
-    setAuthed(true)
-    sessionStorage.setItem(`partner_authed_${slug}`, 'true')
-  } else {
-    setWrongPassword(true)
+    e.preventDefault()
+    if (password === 'partner_teach-bridge_2026') {
+      setAuthed(true)
+      sessionStorage.setItem(`partner_authed_${slug}`, 'true')
+    } else {
+      setWrongPassword(true)
+    }
   }
-}
 
   const handleLogout = () => {
     setAuthed(false)
@@ -106,7 +105,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
     setCvs(prev => prev.filter(cv => cv.id !== id))
   }
 
-  // Unique job titles for filter
   const jobTitles = ['all', ...Array.from(new Set(cvs.map(cv => cv.job_title || 'General Application').filter(Boolean)))]
 
   const filtered = cvs.filter(cv => {
@@ -166,7 +164,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
 
-      {/* HEADER */}
       <div style={{ background: '#1a1a2e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {partner?.logo_url && (
@@ -193,7 +190,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
 
-        {/* STATS */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', marginBottom: '32px' }}>
           {[
             { label: 'Total CVs', value: counts.all, bg: '#1a1a2e', color: 'white' },
@@ -209,7 +205,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
           ))}
         </div>
 
-        {/* FILTERS */}
         <div style={{ background: 'white', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
             <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#555' }}>Status:</span>
@@ -231,7 +226,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
           )}
         </div>
 
-        {/* CV LIST */}
         {filtered.length === 0 ? (
           <div style={{ background: 'white', borderRadius: '12px', padding: '60px', textAlign: 'center', color: '#888', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
@@ -245,7 +239,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
               return (
                 <div key={cv.id} style={{ background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: cv.status === 'new' ? '2px solid #E85D26' : '1px solid #eee', overflow: 'hidden' }}>
 
-                  {/* CV HEADER */}
                   <div style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
@@ -272,7 +265,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
                       </div>
                     </div>
 
-                    {/* ACTIONS */}
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                       <a href={cv.cv_url} target="_blank" rel="noopener noreferrer"
                         style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
@@ -289,7 +281,6 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
                     </div>
                   </div>
 
-                  {/* EXPANDED DETAILS */}
                   {isExpanded && (
                     <div style={{ borderTop: '1px solid #eee', padding: '20px 24px', background: '#fafafa' }}>
 
@@ -318,16 +309,27 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', gap: '10px' }}>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <a href={`https://mail.google.com/mail/?view=cm&to=${cv.email}&su=Re: Your application - ${cv.job_title || 'General Application'}`}
+                          target="_blank" rel="noopener noreferrer"
+                          style={{ background: '#E85D26', color: 'white', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                          📧 Gmail
+                        </a>
+                        <a href={`https://compose.mail.yahoo.com/?to=${cv.email}&subject=Re: Your application - ${cv.job_title || 'General Application'}`}
+                          target="_blank" rel="noopener noreferrer"
+                          style={{ background: '#6001D2', color: 'white', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                          📧 Yahoo
+                        </a>
                         <a href={`mailto:${cv.email}?subject=Re: Your application - ${cv.job_title || 'General Application'}`}
-                          style={{ background: '#1a1a2e', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                          ✉️ Email Applicant
+                          style={{ background: '#1a1a2e', color: 'white', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                          📧 Mail App
                         </a>
                         <button onClick={() => deleteCV(cv.id)}
                           style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
                           🗑 Delete
                         </button>
                       </div>
+
                     </div>
                   )}
 
