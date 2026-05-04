@@ -29,8 +29,13 @@ type Partner = {
   logo_url: string
 }
 
-export default function PartnerDashboard({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default function PartnerDashboard({ params }: { params: Promise<{ slug: string }> }) {
+  const [slug, setSlug] = useState('')
+
+  useEffect(() => {
+    params.then(p => setSlug(p.slug))
+  }, [params])
+
   const [partner, setPartner] = useState<Partner | null>(null)
   const [cvs, setCvs] = useState<CV[]>([])
   const [loading, setLoading] = useState(true)
@@ -50,6 +55,7 @@ export default function PartnerDashboard({ params }: { params: { slug: string } 
 
   useEffect(() => {
     if (!authed) return
+    if (!slug) return
     const load = async () => {
       const { data: partnerData } = await supabase
         .from('partners')
