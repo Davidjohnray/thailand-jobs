@@ -74,8 +74,12 @@ const emptyForm: FormData = {
   cover_note: '',
 }
 
-export default function PartnerPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default function PartnerPage({ params }: { params: Promise<{ slug: string }> }) {
+  const [slug, setSlug] = useState('')
+
+  useEffect(() => {
+    params.then(p => setSlug(p.slug))
+  }, [params])
   const [partner, setPartner] = useState<Partner | null>(null)
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -90,8 +94,9 @@ export default function PartnerPage({ params }: { params: { slug: string } }) {
   const formRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const load = async () => {
-      const { data: partnerData } = await supabase
+  if (!slug) return
+  const load = async () => {
+    const { data: partnerData } = await supabase
         .from('partners')
         .select('*')
         .eq('slug', slug)
