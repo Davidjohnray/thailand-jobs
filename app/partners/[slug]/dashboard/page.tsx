@@ -73,16 +73,14 @@ export default function PartnerDashboard({ params }: { params: { slug: string } 
   }, [authed, slug])
 
   const handleLogin = (e: any) => {
-    e.preventDefault()
-    // Password stored in partners table — check against partner's dashboard_password field
-    // For now using a simple check — replace with proper auth when needed
-    if (password === `partner_${slug}_2026`) {
-      setAuthed(true)
-      sessionStorage.setItem(`partner_authed_${slug}`, 'true')
-    } else {
-      setWrongPassword(true)
-    }
+  e.preventDefault()
+  if (password === 'partner_teach-bridge_2026') {
+    setAuthed(true)
+    sessionStorage.setItem(`partner_authed_${slug}`, 'true')
+  } else {
+    setWrongPassword(true)
   }
+}
 
   const handleLogout = () => {
     setAuthed(false)
