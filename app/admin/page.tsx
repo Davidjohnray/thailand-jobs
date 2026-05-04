@@ -87,8 +87,12 @@ export default function AdminPage() {
   const [eslOrders, setEslOrders] = useState<any[]>([])
   const [blogPosts, setBlogPosts] = useState<any[]>([])
   const [allMembers, setAllMembers] = useState<any[]>([])
+  const [partners, setPartners] = useState<any[]>([])
+  const [allJobs, setAllJobs] = useState<any[]>([])
+  const [assigningJob, setAssigningJob] = useState<string | null>(null)
+  const [jobPartnerMap, setJobPartnerMap] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null)
@@ -115,6 +119,7 @@ export default function AdminPage() {
       loadTeachers()
       loadEslOrders()
       loadBlogPosts()
+      loadPartnerJobs()
       adminSupabase.from('profiles').select('id, email').then(({ data }) => setAllMembers(data || []))
     }
   }, [authed])
@@ -206,6 +211,16 @@ export default function AdminPage() {
     setBlogPosts(data || [])
   }
 
+  const loadPartnerJobs = async () => {
+    const { data: partnerData } = await adminSupabase.from('partners').select('*').order('name')
+    setPartners(partnerData || [])
+    const { data: jobData } = await adminSupabase.from('jobs').select('id, title, company, location, created_at, partner_id').order('created_at', { ascending: false }).limit(200)
+    setAllJobs(jobData || [])
+    const map: Record<string, string> = {}
+    jobData?.forEach((j: any) => { if (j.partner_id) map[j.id] = j.partner_id })
+    setJobPartnerMap(map)
+  }
+
   const saveBlogPost = async () => {
     if (!blogForm.title || !blogForm.slug) return alert('Title and slug are required')
     let error
@@ -224,17 +239,17 @@ export default function AdminPage() {
   }
 
   const deleteBlogPost = async (id: string) => {
-  if (!confirm('Delete this article?')) return
-  await adminSupabase.from('blog_posts').delete().eq('id', id)
-  loadBlogPosts()
-}
+    if (!confirm('Delete this article?')) return
+    await adminSupabase.from('blog_posts').delete().eq('id', id)
+    loadBlogPosts()
+  }
 
-const deleteAllMemberMessages = async () => {
-  if (!confirm(`Delete ALL ${memberMessages.length} member messages? This cannot be undone.`)) return
-  const { error } = await adminSupabase.from('member_messages').delete().neq('id', 0)
-  if (error) { alert('Error: ' + error.message); return }
-  setMemberMessages([])
-}
+  const deleteAllMemberMessages = async () => {
+    if (!confirm(`Delete ALL ${memberMessages.length} member messages? This cannot be undone.`)) return
+    const { error } = await adminSupabase.from('member_messages').delete().neq('id', 0)
+    if (error) { alert('Error: ' + error.message); return }
+    setMemberMessages([])
+  }
 
   const approveEslOrder = async (order: any) => {
     if (!confirm(`Approve order for ${order.buyer_name} and send download link to ${order.buyer_email}?`)) return
@@ -368,7 +383,7 @@ const deleteAllMemberMessages = async () => {
               {unreadCount + unreadMemberCount + pendingRentalCount + pendingTeacherCount + pendingEslCount} pending
             </span>
           )}
-          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts() }}
+          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs() }}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             🔄 Refresh
           </button>
@@ -390,6 +405,7 @@ const deleteAllMemberMessages = async () => {
             { id: 'teachers', label: `🎓 Teachers (${teachers.length})${pendingTeacherCount > 0 ? ' 🔴' : ''}` },
             { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
             { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
+            { id: 'partners', label: `🤝 Partners` },
             { id: 'direct', label: `📩 Message Member` },
             { id: 'email', label: '📧 Email Members' },
           ].map(tab => (
@@ -400,61 +416,79 @@ const deleteAllMemberMessages = async () => {
           ))}
         </div>
 
+        {/* PARTNERS TAB */}
+        {activeTab === 'partners' && (
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '6px' }}>🤝 Assign Jobs to Partners</h2>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Assign any job to a recruitment partner — it will automatically appear on their partner page.</p>
+            {allJobs.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#888' }}>No jobs found</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {allJobs.map((job: any) => (
+                  <div key={job.id} style={{ background: 'white', borderRadius: '10px', padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e', marginBottom: '2px' }}>{job.title}</div>
+                      <div style={{ color: '#888', fontSize: '13px' }}>{job.company} • {job.location} • {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      {jobPartnerMap[job.id] && (
+                        <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>
+                          ✓ {partners.find(p => p.id === jobPartnerMap[job.id])?.name || 'Assigned'}
+                        </span>
+                      )}
+                      <select
+                        value={jobPartnerMap[job.id] || ''}
+                        onChange={e => setJobPartnerMap(prev => ({ ...prev, [job.id]: e.target.value }))}
+                        style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '13px', outline: 'none', background: 'white' }}>
+                        <option value=''>— No partner —</option>
+                        {partners.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      </select>
+                      <button
+                        disabled={assigningJob === job.id}
+                        onClick={async () => {
+                          setAssigningJob(job.id)
+                          const partnerId = jobPartnerMap[job.id] || null
+                          await adminSupabase.from('jobs').update({ partner_id: partnerId }).eq('id', job.id)
+                          setAssigningJob(null)
+                        }}
+                        style={{ background: assigningJob === job.id ? '#ccc' : '#1a1a2e', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: assigningJob === job.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
+                        {assigningJob === job.id ? '...' : 'Save'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* EMAIL TAB */}
         {activeTab === 'email' && <EmailMembers />}
 
         {/* DIRECT MESSAGE TAB */}
         {activeTab === 'direct' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-            {/* SEND TO ALL */}
             <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '2px solid #1a1a2e' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>📢 Send to ALL Members</h2>
               <p style={{ color: '#666', fontSize: '13px', marginBottom: '20px' }}>Sends a dashboard inbox message to every single member at once. ({allMembers.length} members)</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <input
-                  placeholder="Subject — e.g. New jobs just added!"
-                  value={directSubject}
-                  onChange={e => setDirectSubject(e.target.value)}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
-                />
-                <textarea
-                  placeholder="Type your message to all members..."
-                  value={directMessage}
-                  onChange={e => setDirectMessage(e.target.value)}
-                  rows={5}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }}
-                />
+                <input placeholder="Subject — e.g. New jobs just added!" value={directSubject} onChange={e => setDirectSubject(e.target.value)}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }} />
+                <textarea placeholder="Type your message to all members..." value={directMessage} onChange={e => setDirectMessage(e.target.value)} rows={5}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }} />
                 {directSent && (
-                  <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
-                    ✅ Message sent to all members!
-                  </div>
+                  <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>✅ Message sent to all members!</div>
                 )}
-                <button
-                  disabled={sendingDirect || !directSubject.trim() || !directMessage.trim()}
+                <button disabled={sendingDirect || !directSubject.trim() || !directMessage.trim()}
                   onClick={async () => {
                     if (!directSubject.trim() || !directMessage.trim()) return alert('Please fill in subject and message')
                     if (!confirm(`Send this message to ALL ${allMembers.length} members? This cannot be undone.`)) return
                     setSendingDirect(true)
                     if (allMembers.length === 0) { alert('No members found'); setSendingDirect(false); return }
-                    const rows = allMembers.map((p: any) => ({
-                      user_id: p.id,
-                      user_email: p.email,
-                      subject: directSubject,
-                      message: '📢 Message from Jobs in Thailand',
-                      reply: directMessage,
-                      replied_at: new Date().toISOString(),
-                      read_by_admin: true,
-                      read_by_user: false,
-                      admin_initiated: true,
-                    }))
+                    const rows = allMembers.map((p: any) => ({ user_id: p.id, user_email: p.email, subject: directSubject, message: '📢 Message from Jobs in Thailand', reply: directMessage, replied_at: new Date().toISOString(), read_by_admin: true, read_by_user: false, admin_initiated: true }))
                     const { error } = await adminSupabase.from('member_messages').insert(rows)
-                    if (error) { alert('Error: ' + error.message) } else {
-                      setDirectSent(true)
-                      setDirectSubject('')
-                      setDirectMessage('')
-                      setTimeout(() => setDirectSent(false), 4000)
-                    }
+                    if (error) { alert('Error: ' + error.message) } else { setDirectSent(true); setDirectSubject(''); setDirectMessage(''); setTimeout(() => setDirectSent(false), 4000) }
                     setSendingDirect(false)
                   }}
                   style={{ background: sendingDirect ? '#ccc' : '#1a1a2e', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sendingDirect ? 'not-allowed' : 'pointer' }}>
@@ -462,84 +496,46 @@ const deleteAllMemberMessages = async () => {
                 </button>
               </div>
             </div>
-
-            {/* SEND TO ONE MEMBER */}
             <div style={{ background: 'white', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>📩 Send to One Member</h2>
               <p style={{ color: '#666', fontSize: '13px', marginBottom: '20px' }}>Pick any member from the full list or type their email directly.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
                   <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Pick from member list ({allMembers.length} members)</label>
-                  <select
-                    value={directEmail}
-                    onChange={e => setDirectEmail(e.target.value)}
+                  <select value={directEmail} onChange={e => setDirectEmail(e.target.value)}
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' as any }}>
                     <option value=''>— Select a member —</option>
-                    {allMembers
-                      .sort((a: any, b: any) => (a.email || '').localeCompare(b.email || ''))
-                      .map((m: any) => (
-                        <option key={m.id} value={m.email}>{m.email}</option>
-                      ))}
+                    {allMembers.sort((a: any, b: any) => (a.email || '').localeCompare(b.email || '')).map((m: any) => (
+                      <option key={m.id} value={m.email}>{m.email}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Or type email directly</label>
-                  <input
-                    value={directEmail}
-                    onChange={e => setDirectEmail(e.target.value)}
-                    placeholder="e.g. teacher@gmail.com"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
-                  />
+                  <input value={directEmail} onChange={e => setDirectEmail(e.target.value)} placeholder="e.g. teacher@gmail.com"
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }} />
                 </div>
                 <div>
                   <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Subject</label>
-                  <input
-                    value={directSubject}
-                    onChange={e => setDirectSubject(e.target.value)}
-                    placeholder="e.g. New job match for you!"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }}
-                  />
+                  <input value={directSubject} onChange={e => setDirectSubject(e.target.value)} placeholder="e.g. New job match for you!"
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }} />
                 </div>
                 <div>
                   <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '6px' }}>Message</label>
-                  <textarea
-                    value={directMessage}
-                    onChange={e => setDirectMessage(e.target.value)}
-                    placeholder="Type your message to this member..."
-                    rows={8}
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }}
-                  />
+                  <textarea value={directMessage} onChange={e => setDirectMessage(e.target.value)} placeholder="Type your message to this member..." rows={8}
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }} />
                 </div>
                 {directSent && (
                   <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '14px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
                     ✅ Message sent! The member will see it in their dashboard inbox with a notification badge.
                   </div>
                 )}
-                <button
-                  onClick={sendDirectMessage}
-                  disabled={sendingDirect || !directEmail.trim() || !directSubject.trim() || !directMessage.trim()}
+                <button onClick={sendDirectMessage} disabled={sendingDirect || !directEmail.trim() || !directSubject.trim() || !directMessage.trim()}
                   style={{ background: sendingDirect || !directEmail.trim() ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sendingDirect ? 'not-allowed' : 'pointer' }}>
                   {sendingDirect ? 'Sending...' : '📩 Send to This Member'}
                 </button>
               </div>
             </div>
-
-            {/* TIPS */}
-            <div style={{ padding: '20px', background: '#f9f9f9', borderRadius: '10px', border: '1px solid #eee' }}>
-              <h3 style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e', margin: '0 0 10px' }}>💡 What can you use this for?</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {[
-                  '📌 Tell a member their teacher profile is now live',
-                  '🎯 Send a personalised job match you spotted',
-                  '💬 Follow up on a rental inquiry',
-                  '🔔 Notify a specific member about a new opportunity',
-                  '✅ Confirm a payment or order has been received',
-                ].map((item, i) => (
-                  <div key={i} style={{ color: '#555', fontSize: '14px' }}>{item}</div>
-                ))}
-              </div>
-            </div>
-
           </div>
         )}
 
@@ -553,7 +549,6 @@ const deleteAllMemberMessages = async () => {
                 + New Article
               </button>
             </div>
-
             {showBlogForm && (
               <div style={{ background: 'white', borderRadius: '12px', padding: '28px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
                 <h3 style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 'bold' }}>{editingPost ? 'Edit Article' : 'New Article'}</h3>
@@ -561,14 +556,11 @@ const deleteAllMemberMessages = async () => {
                   <input placeholder="Title" value={blogForm.title}
                     onChange={e => setBlogForm({ ...blogForm, title: e.target.value, slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') })}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '15px', width: '100%', boxSizing: 'border-box' as any }} />
-                  <input placeholder="Slug (auto-generated)" value={blogForm.slug}
-                    onChange={e => setBlogForm({ ...blogForm, slug: e.target.value })}
+                  <input placeholder="Slug (auto-generated)" value={blogForm.slug} onChange={e => setBlogForm({ ...blogForm, slug: e.target.value })}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any, color: '#888' }} />
-                  <input placeholder="Category (e.g. teaching, visa, expat life)" value={blogForm.category}
-                    onChange={e => setBlogForm({ ...blogForm, category: e.target.value })}
+                  <input placeholder="Category (e.g. teaching, visa, expat life)" value={blogForm.category} onChange={e => setBlogForm({ ...blogForm, category: e.target.value })}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any }} />
-                  <input placeholder="Author name" value={blogForm.author}
-                    onChange={e => setBlogForm({ ...blogForm, author: e.target.value })}
+                  <input placeholder="Author name" value={blogForm.author} onChange={e => setBlogForm({ ...blogForm, author: e.target.value })}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any }} />
                   <div>
                     <label style={{ fontWeight: 'bold', fontSize: '13px', color: '#555', display: 'block', marginBottom: '8px' }}>Cover Image</label>
@@ -583,19 +575,15 @@ const deleteAllMemberMessages = async () => {
                           <img src={blogForm.cover_image_url} alt="Cover preview" style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e5e7eb' }} />
                           <span style={{ color: '#22c55e', fontSize: '13px', fontWeight: 'bold' }}>✓ Image uploaded</span>
                           <button type="button" onClick={() => setBlogForm(prev => ({ ...prev, cover_image_url: '' }))}
-                            style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>
-                            Remove
-                          </button>
+                            style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
                         </div>
                       )}
                       {!blogForm.cover_image_url && <span style={{ color: '#aaa', fontSize: '13px' }}>No image selected — JPG, PNG or WebP</span>}
                     </div>
                   </div>
-                  <textarea placeholder="Short excerpt (shown on listing page)" value={blogForm.excerpt}
-                    onChange={e => setBlogForm({ ...blogForm, excerpt: e.target.value })} rows={2}
+                  <textarea placeholder="Short excerpt (shown on listing page)" value={blogForm.excerpt} onChange={e => setBlogForm({ ...blogForm, excerpt: e.target.value })} rows={2}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any, resize: 'vertical' as any }} />
-                  <textarea placeholder="Full article content (use blank lines to separate paragraphs)" value={blogForm.content}
-                    onChange={e => setBlogForm({ ...blogForm, content: e.target.value })} rows={20}
+                  <textarea placeholder="Full article content (use blank lines to separate paragraphs)" value={blogForm.content} onChange={e => setBlogForm({ ...blogForm, content: e.target.value })} rows={20}
                     style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', width: '100%', boxSizing: 'border-box' as any, resize: 'vertical' as any, fontFamily: 'sans-serif', lineHeight: '1.6' }} />
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                     <input type="checkbox" checked={blogForm.is_published} onChange={e => setBlogForm({ ...blogForm, is_published: e.target.checked })} />
@@ -603,18 +591,14 @@ const deleteAllMemberMessages = async () => {
                   </label>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-                  <button onClick={saveBlogPost}
-                    style={{ background: '#1a1a2e', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                  <button onClick={saveBlogPost} style={{ background: '#1a1a2e', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
                     {editingPost ? 'Save Changes' : 'Create Article'}
                   </button>
                   <button onClick={() => { setShowBlogForm(false); setEditingPost(null); setBlogForm(emptyBlogForm) }}
-                    style={{ background: '#f3f4f6', color: '#666', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>
-                    Cancel
-                  </button>
+                    style={{ background: '#f3f4f6', color: '#666', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
                 </div>
               </div>
             )}
-
             {blogPosts.length === 0 ? (
               <div style={{ background: 'white', borderRadius: '12px', padding: '60px', textAlign: 'center', color: '#888' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>✍️</div>
@@ -625,9 +609,7 @@ const deleteAllMemberMessages = async () => {
                 {blogPosts.map((post: any) => (
                   <div key={post.id} style={{ background: 'white', borderRadius: '10px', padding: '18px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1 }}>
-                      {post.cover_image_url && (
-                        <img src={post.cover_image_url} alt={post.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }} />
-                      )}
+                      {post.cover_image_url && <img src={post.cover_image_url} alt={post.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee', flexShrink: 0 }} />}
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                           <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{post.title}</span>
@@ -635,24 +617,14 @@ const deleteAllMemberMessages = async () => {
                             {post.is_published ? 'Published' : 'Draft'}
                           </span>
                         </div>
-                        <span style={{ color: '#888', fontSize: '12px' }}>
-                          {post.category && `${post.category} · `}{new Date(post.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </span>
+                        <span style={{ color: '#888', fontSize: '12px' }}>{post.category && `${post.category} · `}{new Date(post.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                      <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"
-                        style={{ background: '#f0f4ff', color: '#2D6BE4', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', textDecoration: 'none' }}>
-                        View
-                      </a>
+                      <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer" style={{ background: '#f0f4ff', color: '#2D6BE4', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', textDecoration: 'none' }}>View</a>
                       <button onClick={() => { setEditingPost(post); setBlogForm({ title: post.title, slug: post.slug, excerpt: post.excerpt || '', content: post.content || '', author: post.author || '', category: post.category || '', cover_image_url: post.cover_image_url || '', is_published: post.is_published }); setShowBlogForm(true) }}
-                        style={{ background: '#f3f4f6', color: '#333', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
-                        Edit
-                      </button>
-                      <button onClick={() => deleteBlogPost(post.id)}
-                        style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
-                        Delete
-                      </button>
+                        style={{ background: '#f3f4f6', color: '#333', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Edit</button>
+                      <button onClick={() => deleteBlogPost(post.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Delete</button>
                     </div>
                   </div>
                 ))}
@@ -665,8 +637,7 @@ const deleteAllMemberMessages = async () => {
         {activeTab === 'esl' && (
           eslOrders.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
-              <p>No ESL orders yet</p>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div><p>No ESL orders yet</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -685,22 +656,13 @@ const deleteAllMemberMessages = async () => {
                       <div style={{ color: '#999', fontSize: '12px' }}>{new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '160px' }}>
-                      {order.slip_url && (
-                        <a href={order.slip_url} target="_blank" rel="noopener noreferrer"
-                          style={{ display: 'block', background: '#f0f4ff', color: '#2D6BE4', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none', textAlign: 'center' }}>
-                          🧾 View Slip
-                        </a>
-                      )}
+                      {order.slip_url && <a href={order.slip_url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', background: '#f0f4ff', color: '#2D6BE4', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none', textAlign: 'center' }}>🧾 View Slip</a>}
                       {order.status === 'pending' && (
                         <>
-                          <button onClick={() => approveEslOrder(order)} disabled={approvingOrder === order.id}
-                            style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
+                          <button onClick={() => approveEslOrder(order)} disabled={approvingOrder === order.id} style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
                             {approvingOrder === order.id ? 'Approving...' : '✅ Approve & Send Link'}
                           </button>
-                          <button onClick={() => rejectEslOrder(order.id)}
-                            style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                            ❌ Reject
-                          </button>
+                          <button onClick={() => rejectEslOrder(order.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>❌ Reject</button>
                         </>
                       )}
                     </div>
@@ -715,8 +677,7 @@ const deleteAllMemberMessages = async () => {
         {activeTab === 'teachers' && (
           teachers.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎓</div>
-              <p>No teacher applications yet</p>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎓</div><p>No teacher applications yet</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -724,48 +685,26 @@ const deleteAllMemberMessages = async () => {
                 <div key={teacher.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: teacher.status === 'pending' ? '2px solid #E85D26' : '1px solid #eee' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                      {teacher.photo_url ? (
-                        <img src={teacher.photo_url} alt={teacher.name} style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #eee' }} />
-                      ) : (
-                        <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>👤</div>
-                      )}
+                      {teacher.photo_url ? <img src={teacher.photo_url} alt={teacher.name} style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #eee' }} /> : <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>👤</div>}
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                           <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#1a1a2e' }}>{teacher.name}</span>
-                          {teacher.status === 'pending' ? (
-                            <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending</span>
-                          ) : (
-                            <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Live</span>
-                          )}
+                          {teacher.status === 'pending' ? <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending</span> : <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Live</span>}
                         </div>
-                        <div style={{ color: '#666', fontSize: '13px' }}>
-                          {teacher.nationality && `🌍 ${teacher.nationality} · `}📍 {teacher.location}{teacher.experience_years && ` · ⭐ ${teacher.experience_years} yrs`}
-                        </div>
+                        <div style={{ color: '#666', fontSize: '13px' }}>{teacher.nationality && `🌍 ${teacher.nationality} · `}📍 {teacher.location}{teacher.experience_years && ` · ⭐ ${teacher.experience_years} yrs`}</div>
                         <div style={{ color: '#999', fontSize: '12px', marginTop: '2px' }}>Applied: {new Date(teacher.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '160px' }}>
                       {teacher.status === 'pending' ? (
                         <>
-                          <button onClick={() => approveTeacher(teacher.id)}
-                            style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
-                            ✅ Approve & Go Live
-                          </button>
-                          <button onClick={() => rejectTeacher(teacher.id)}
-                            style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                            ❌ Reject & Delete
-                          </button>
+                          <button onClick={() => approveTeacher(teacher.id)} style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>✅ Approve & Go Live</button>
+                          <button onClick={() => rejectTeacher(teacher.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>❌ Reject & Delete</button>
                         </>
                       ) : (
                         <>
-                          <a href={`/teachers/${teacher.slug}`} target="_blank" rel="noopener noreferrer"
-                            style={{ display: 'block', background: '#e8f0fe', color: '#2D6BE4', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none', textAlign: 'center' }}>
-                            👁 View Live Page
-                          </a>
-                          <button onClick={() => deactivateTeacher(teacher.id)}
-                            style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                            ⛔ Deactivate
-                          </button>
+                          <a href={`/teachers/${teacher.slug}`} target="_blank" rel="noopener noreferrer" style={{ display: 'block', background: '#e8f0fe', color: '#2D6BE4', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none', textAlign: 'center' }}>👁 View Live Page</a>
+                          <button onClick={() => deactivateTeacher(teacher.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>⛔ Deactivate</button>
                         </>
                       )}
                     </div>
@@ -773,22 +712,16 @@ const deleteAllMemberMessages = async () => {
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
                     {teacher.hourly_rate && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>💰 {teacher.hourly_rate}</span>}
                     {teacher.online_available && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>🌐 Online</span>}
-                    {teacher.subjects?.slice(0, 4).map((s: string) => (
-                      <span key={s} style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>{s}</span>
-                    ))}
+                    {teacher.subjects?.slice(0, 4).map((s: string) => <span key={s} style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>{s}</span>)}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#555' }}>🎨 Template:</span>
                     {['modern', 'bold', 'professional', 'friendly'].map(t => (
-                      <button key={t} type="button"
-                        onClick={() => setTeacherTemplate(prev => ({ ...prev, [teacher.id]: t }))}
-                        style={{ padding: '5px 12px', borderRadius: '20px', border: '1px solid', borderColor: teacherTemplate[teacher.id] === t ? '#E85D26' : '#ddd', background: teacherTemplate[teacher.id] === t ? '#fff3ed' : 'white', color: teacherTemplate[teacher.id] === t ? '#E85D26' : '#555', cursor: 'pointer', fontSize: '12px', fontWeight: teacherTemplate[teacher.id] === t ? 'bold' : 'normal' }}>
-                        {t}
-                      </button>
+                      <button key={t} type="button" onClick={() => setTeacherTemplate(prev => ({ ...prev, [teacher.id]: t }))}
+                        style={{ padding: '5px 12px', borderRadius: '20px', border: '1px solid', borderColor: teacherTemplate[teacher.id] === t ? '#E85D26' : '#ddd', background: teacherTemplate[teacher.id] === t ? '#fff3ed' : 'white', color: teacherTemplate[teacher.id] === t ? '#E85D26' : '#555', cursor: 'pointer', fontSize: '12px', fontWeight: teacherTemplate[teacher.id] === t ? 'bold' : 'normal' }}>{t}</button>
                     ))}
                   </div>
-                  <button onClick={() => setExpandedTeacher(expandedTeacher === teacher.id ? null : teacher.id)}
-                    style={{ background: '#f9f9f9', border: '1px solid #eee', color: '#555', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', width: '100%' }}>
+                  <button onClick={() => setExpandedTeacher(expandedTeacher === teacher.id ? null : teacher.id)} style={{ background: '#f9f9f9', border: '1px solid #eee', color: '#555', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', width: '100%' }}>
                     {expandedTeacher === teacher.id ? '▲ Hide Details' : '▼ View Full Application'}
                   </button>
                   {expandedTeacher === teacher.id && (
@@ -814,8 +747,7 @@ const deleteAllMemberMessages = async () => {
         {activeTab === 'rentals' && (
           rentalMembers.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏠</div>
-              <p>No rental member applications yet</p>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏠</div><p>No rental member applications yet</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -832,14 +764,10 @@ const deleteAllMemberMessages = async () => {
                       <div style={{ color: '#999', fontSize: '12px' }}>Registered: {new Date(member.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <button onClick={() => toggleRentalActivation(member.id, member.active)}
-                        style={{ background: member.active ? '#ffeaea' : '#e8f5e9', color: member.active ? '#c62828' : '#2e7d32', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
+                      <button onClick={() => toggleRentalActivation(member.id, member.active)} style={{ background: member.active ? '#ffeaea' : '#e8f5e9', color: member.active ? '#c62828' : '#2e7d32', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
                         {member.active ? '⛔ Deactivate' : '✅ Activate'}
                       </button>
-                      <button onClick={() => deleteRentalMember(member.id)}
-                        style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                        🗑 Delete
-                      </button>
+                      <button onClick={() => deleteRentalMember(member.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>🗑 Delete</button>
                     </div>
                   </div>
                 </div>
@@ -849,7 +777,7 @@ const deleteAllMemberMessages = async () => {
         )}
 
         {/* CONTACT MESSAGES */}
-        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && (
+        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
@@ -869,25 +797,12 @@ const deleteAllMemberMessages = async () => {
                       </div>
                       <div style={{ color: '#666', fontSize: '14px' }}>{msg.email}</div>
                     </div>
-                    <div style={{ color: '#999', fontSize: '12px' }}>
-                      {new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                    </div>
+                    <div style={{ color: '#999', fontSize: '12px' }}>{new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                   </div>
-                  {msg.job_title && (
-                    <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', fontSize: '13px' }}>
-                      <span style={{ color: '#E85D26', fontWeight: 'bold' }}>⭐ Featured job: </span>
-                      <span style={{ color: '#555' }}>{msg.job_title} — {msg.company}</span>
-                    </div>
-                  )}
-                  <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>
-                    {msg.message}
-                  </div>
+                  {msg.job_title && <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', fontSize: '13px' }}><span style={{ color: '#E85D26', fontWeight: 'bold' }}>⭐ Featured job: </span><span style={{ color: '#555' }}>{msg.job_title} — {msg.company}</span></div>}
+                  <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>{msg.message}</div>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    {!msg.read ? (
-                      <button onClick={() => markRead(msg.id)} style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>✓ Mark as Read</button>
-                    ) : (
-                      <button onClick={() => markUnread(msg.id)} style={{ background: '#f0f0f0', color: '#666', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>Mark Unread</button>
-                    )}
+                    {!msg.read ? <button onClick={() => markRead(msg.id)} style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>✓ Mark as Read</button> : <button onClick={() => markUnread(msg.id)} style={{ background: '#f0f0f0', color: '#666', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>Mark Unread</button>}
                     <button onClick={() => deleteMessage(msg.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>🗑 Delete</button>
                   </div>
                 </div>
@@ -900,50 +815,45 @@ const deleteAllMemberMessages = async () => {
         {activeTab === 'members' && (
           memberMessages.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#666' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
-              <p>No member messages yet</p>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div><p>No member messages yet</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-    <button onClick={deleteAllMemberMessages}
-      style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
-      🗑 Delete All Messages ({memberMessages.length})
-    </button>
-  </div>
-  {memberMessages.map(msg => (
-    <div key={msg.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: !msg.read_by_admin ? '2px solid #E85D26' : '1px solid #eee' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-            <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{msg.subject}</span>
-            {!msg.read_by_admin && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>NEW</span>}
-            {msg.admin_initiated && <span style={{ background: '#2D6BE4', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>📩 Admin Sent</span>}
-          </div>
-          <div style={{ color: '#666', fontSize: '13px' }}>👤 {msg.user_email}</div>
-        </div>
-        <div style={{ color: '#999', fontSize: '12px' }}>{new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-      </div>
-      <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>{msg.message}</div>
-      {msg.reply && (
-        <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '14px', marginBottom: '16px', border: '1px solid #ffd4b8' }}>
-          <div style={{ fontWeight: 'bold', color: '#E85D26', fontSize: '13px', marginBottom: '6px' }}>Your reply:</div>
-          <div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6' }}>{msg.reply}</div>
-        </div>
-      )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button onClick={deleteAllMemberMessages} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
+                  🗑 Delete All Messages ({memberMessages.length})
+                </button>
+              </div>
+              {memberMessages.map(msg => (
+                <div key={msg.id} style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: !msg.read_by_admin ? '2px solid #E85D26' : '1px solid #eee' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{msg.subject}</span>
+                        {!msg.read_by_admin && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>NEW</span>}
+                        {msg.admin_initiated && <span style={{ background: '#2D6BE4', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>📩 Admin Sent</span>}
+                      </div>
+                      <div style={{ color: '#666', fontSize: '13px' }}>👤 {msg.user_email}</div>
+                    </div>
+                    <div style={{ color: '#999', fontSize: '12px' }}>{new Date(msg.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                  </div>
+                  <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '14px', marginBottom: '16px', color: '#444', fontSize: '14px', lineHeight: '1.6' }}>{msg.message}</div>
+                  {msg.reply && (
+                    <div style={{ background: '#fff3ed', borderRadius: '8px', padding: '14px', marginBottom: '16px', border: '1px solid #ffd4b8' }}>
+                      <div style={{ fontWeight: 'bold', color: '#E85D26', fontSize: '13px', marginBottom: '6px' }}>Your reply:</div>
+                      <div style={{ color: '#444', fontSize: '14px', lineHeight: '1.6' }}>{msg.reply}</div>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <textarea value={replyText[msg.id] || ''} onChange={e => setReplyText(prev => ({ ...prev, [msg.id]: e.target.value }))}
-                      placeholder={msg.reply ? 'Update your reply...' : 'Type your reply here...'}
-                      rows={3}
+                      placeholder={msg.reply ? 'Update your reply...' : 'Type your reply here...'} rows={3}
                       style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }} />
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button onClick={() => sendReply(msg.id)} disabled={replying === msg.id || !replyText[msg.id]?.trim()}
                         style={{ background: replying === msg.id ? '#ccc' : '#E85D26', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: replying === msg.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
                         {replying === msg.id ? 'Sending...' : msg.reply ? '📝 Update Reply' : '📨 Send Reply to Member'}
                       </button>
-                      {!msg.read_by_admin && (
-                        <button onClick={() => markMemberRead(msg.id)} style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>✓ Mark Read</button>
-                      )}
+                      {!msg.read_by_admin && <button onClick={() => markMemberRead(msg.id)} style={{ background: '#e8f5e9', color: '#2e7d32', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>✓ Mark Read</button>}
                       <button onClick={() => deleteMemberMessage(msg.id)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', marginLeft: 'auto' }}>🗑 Delete</button>
                     </div>
                   </div>
