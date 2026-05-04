@@ -10,6 +10,18 @@ export const metadata: Metadata = {
     url: 'https://www.jobsinthailand.net/jobs',
     siteName: 'Jobs in Thailand',
     type: 'website',
+    images: [
+      {
+        url: 'https://www.jobsinthailand.net/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Jobs in Thailand — Teaching, Hospitality & Expat Jobs',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['https://www.jobsinthailand.net/og-image.jpg'],
   },
 }
 
