@@ -66,20 +66,35 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* LINE COMMUNITY BANNER */}
-      <section style={{ background: '#06C755', padding: '24px' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '32px' }}>💬</span>
-          <div style={{ textAlign: 'left' }}>
-            <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>Join our FREE LINE Community — Thailand Teaching Jobs!</div>
-            <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}>Get job tips, visa advice & connect with teachers across Thailand</div>
-          </div>
-          <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
-            style={{ background: 'white', color: '#06C755', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>
-            Join Now →
-          </a>
-        </div>
-      </section>
+      {/* COMMUNITY BANNERS */}
+<section style={{ display: 'flex', flexWrap: 'wrap' }}>
+  <div style={{ background: '#06C755', padding: '24px', flex: 1, minWidth: '280px' }}>
+    <div style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+      <span style={{ fontSize: '32px' }}>💬</span>
+      <div style={{ textAlign: 'left' }}>
+        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>Join our FREE LINE Community!</div>
+        <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}>Job tips, visa advice & teachers across Thailand</div>
+      </div>
+      <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
+        style={{ background: 'white', color: '#06C755', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>
+        Join LINE →
+      </a>
+    </div>
+  </div>
+  <div style={{ background: '#25D366', padding: '24px', flex: 1, minWidth: '280px' }}>
+    <div style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+      <span style={{ fontSize: '32px' }}>💬</span>
+      <div style={{ textAlign: 'left' }}>
+        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px' }}>Join our FREE WhatsApp Community!</div>
+        <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}>Job tips, visa advice & teachers across Thailand</div>
+      </div>
+      <a href="https://chat.whatsapp.com/L3fBobRIr7u1tSaiHBxfzv" target="_blank" rel="noopener noreferrer"
+        style={{ background: 'white', color: '#25D366', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>
+        Join WhatsApp →
+      </a>
+    </div>
+  </div>
+</section>
 
       {/* MAIN CONTENT */}
       <section className="main-content" style={{ maxWidth: '1300px', margin: '0 auto', padding: '40px 16px', display: 'flex', gap: '24px', alignItems: 'flex-start' }}>

@@ -57,6 +57,27 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
   const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=' + job.email + '&su=Job Application - ' + encodeURIComponent(job.title) + '&body=' + emailBody
   const mailtoUrl = 'mailto:' + job.email + '?subject=Job Application - ' + encodeURIComponent(job.title) + '&body=' + emailBody
 
+  const CommunityBars = () => (
+    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+      <div style={{ background: '#06C755', borderRadius: '12px', padding: '24px', textAlign: 'center', flex: 1, minWidth: '200px' }}>
+        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px' }}>💬 Join our LINE Community</div>
+        <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px', marginBottom: '16px' }}>Free tips, advice & job alerts!</div>
+        <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
+          style={{ background: 'white', color: '#06C755', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+          Join LINE →
+        </a>
+      </div>
+      <div style={{ background: '#25D366', borderRadius: '12px', padding: '24px', textAlign: 'center', flex: 1, minWidth: '200px' }}>
+        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px' }}>💬 Join our WhatsApp Community</div>
+        <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px', marginBottom: '16px' }}>Free tips, advice & job alerts!</div>
+        <a href="https://chat.whatsapp.com/L3fBobRIr7u1tSaiHBxfzv" target="_blank" rel="noopener noreferrer"
+          style={{ background: 'white', color: '#25D366', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+          Join WhatsApp →
+        </a>
+      </div>
+    </div>
+  )
+
   if (locked && !isLoggedIn) return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
@@ -91,14 +112,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
           </div>
           <p style={{ color: '#666', fontSize: '13px', marginTop: '16px' }}>Free to join • No spam • Cancel anytime</p>
         </div>
-        <div style={{ background: '#06C755', borderRadius: '12px', padding: '24px', textAlign: 'center' }}>
-          <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px' }}>💬 Join our LINE Teaching Community</div>
-          <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px', marginBottom: '16px' }}>Connect with teachers across Thailand — free tips, advice & job alerts!</div>
-          <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
-            style={{ background: 'white', color: '#06C755', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
-            Join Free →
-          </a>
-        </div>
+        <CommunityBars />
       </div>
     </main>
   )
@@ -168,14 +182,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
             Or email directly: <span style={{ color: 'white', fontWeight: 'bold' }}>{job.email}</span>
           </p>
         </div>
-        <div style={{ background: '#06C755', borderRadius: '12px', padding: '24px', textAlign: 'center' }}>
-          <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px' }}>💬 Join our LINE Teaching Community</div>
-          <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px', marginBottom: '16px' }}>Connect with teachers across Thailand — free tips, advice & job alerts!</div>
-          <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
-            style={{ background: 'white', color: '#06C755', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
-            Join Free →
-          </a>
-        </div>
+        <CommunityBars />
       </div>
     </main>
   )
