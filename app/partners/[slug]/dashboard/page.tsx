@@ -17,6 +17,7 @@ type CV = {
   experience: string
   cover_note: string
   cv_url: string
+  video_url: string | null
   job_title: string | null
   submitted_at: string
   status: string
@@ -252,6 +253,11 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
                         {!cv.job_title && (
                           <span style={{ background: '#f0f0f0', color: '#666', fontSize: '11px', padding: '2px 10px', borderRadius: '20px' }}>General Application</span>
                         )}
+                        {cv.video_url && (
+                          <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>
+                            🎥 Video
+                          </span>
+                        )}
                       </div>
                       <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '13px', color: '#666' }}>
                         <span>✉️ {cv.email}</span>
@@ -274,6 +280,12 @@ export default function PartnerDashboard({ params }: { params: Promise<{ slug: s
                         style={{ background: '#f0f4ff', color: '#2D6BE4', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
                         ⬇ Download
                       </a>
+                      {cv.video_url && (
+                        <a href={cv.video_url} target="_blank" rel="noopener noreferrer"
+                          style={{ background: '#e8f5e9', color: '#2e7d32', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
+                          ▶ Watch Video
+                        </a>
+                      )}
                       <button onClick={() => setExpanded(isExpanded ? null : cv.id)}
                         style={{ background: '#f0f0f0', color: '#555', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
                         {isExpanded ? '▲ Less' : '▼ More'}

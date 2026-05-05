@@ -62,6 +62,7 @@ type FormData = {
   location: string
   experience: string
   cover_note: string
+  video_url: string
 }
 
 const emptyForm: FormData = {
@@ -72,6 +73,7 @@ const emptyForm: FormData = {
   location: '',
   experience: '',
   cover_note: '',
+  video_url: '',
 }
 
 export default function PartnerPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -80,6 +82,7 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
   useEffect(() => {
     params.then(p => setSlug(p.slug))
   }, [params])
+
   const [partner, setPartner] = useState<Partner | null>(null)
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -94,9 +97,9 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
   const formRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-  if (!slug) return
-  const load = async () => {
-    const { data: partnerData } = await supabase
+    if (!slug) return
+    const load = async () => {
+      const { data: partnerData } = await supabase
         .from('partners')
         .select('*')
         .eq('slug', slug)
@@ -167,7 +170,6 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
     setError('')
 
     try {
-      // Upload CV to Supabase Storage
       const filename = `${Date.now()}-${form.full_name.replace(/\s+/g, '-').toLowerCase()}.pdf`
       const { error: uploadError } = await supabase.storage
         .from('partner-cvs')
@@ -179,7 +181,6 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
         .from('partner-cvs')
         .getPublicUrl(`${partner.slug}/${filename}`)
 
-      // Save to partner_cvs table
       const { error: dbError } = await supabase.from('partner_cvs').insert([{
         partner_id: partner.id,
         partner_slug: partner.slug,
@@ -192,6 +193,7 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
         location: form.location,
         experience: form.experience,
         cover_note: form.cover_note,
+        video_url: form.video_url.trim() || null,
         cv_url: urlData.publicUrl,
         submitted_at: new Date().toISOString(),
         status: 'new',
@@ -415,6 +417,27 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
                     style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
                 </div>
 
+                {/* VIDEO INTRO */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={labelStyle}>🎥 Video Introduction (optional)</label>
+                  <div style={{ background: '#f0f7ff', border: '1px solid #2D6BE4', borderRadius: '10px', padding: '16px', marginBottom: '10px' }}>
+                    <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '13px', margin: '0 0 6px' }}>📱 How to add a video intro:</p>
+                    <ol style={{ color: '#555', fontSize: '13px', margin: 0, paddingLeft: '20px', lineHeight: '1.8' }}>
+                      <li>Record a short 1-2 minute intro video on your phone</li>
+                      <li>Upload it to <strong>Google Drive</strong></li>
+                      <li>Tap <strong>Share → Anyone with the link → Copy link</strong></li>
+                      <li>Paste the link below</li>
+                    </ol>
+                    <p style={{ color: '#888', fontSize: '12px', margin: '8px 0 0' }}>YouTube, Loom or any shareable link also works!</p>
+                  </div>
+                  <input
+                    value={form.video_url}
+                    onChange={e => updateForm('video_url', e.target.value)}
+                    placeholder="Paste your Google Drive / YouTube / Loom link here..."
+                    style={inputStyle}
+                  />
+                </div>
+
                 <div style={{ marginBottom: '24px' }}>
                   <label style={labelStyle}>Upload CV (PDF only) *</label>
                   <div
@@ -456,7 +479,7 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
           </div>
         )}
 
-        {/* GENERAL DROP CV CTA (always visible at bottom) */}
+        {/* GENERAL DROP CV CTA */}
         {activeSection !== 'drop-cv' && (
           <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', borderRadius: '16px', padding: '36px', textAlign: 'center', color: 'white' }}>
             <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
