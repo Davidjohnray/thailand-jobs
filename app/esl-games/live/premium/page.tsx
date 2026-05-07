@@ -53,7 +53,7 @@ const premiumGames = [
     subjects: ['Geography', 'History', 'Culture', 'Citizenship'],
     ages: 'P1 – M3',
     questions: '20 questions',
-    available: false,
+    available: true,
     color: '#0891b2',
   },
   {
