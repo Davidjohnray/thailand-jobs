@@ -1,0 +1,229 @@
+'use client'
+import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+import Link from 'next/link'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+const SESSION_KEY = 'premium_games_session'
+const PASSWORD_KEY = 'premium_games_password'
+
+export default function PremiumGamesPage() {
+  const [authed, setAuthed] = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [checking, setChecking] = useState(false)
+  const [sessionKicked, setSessionKicked] = useState(false)
+
+  useEffect(() => {
+    const savedPassword = localStorage.getItem(PASSWORD_KEY)
+    const savedSession = localStorage.getItem(SESSION_KEY)
+    if (savedPassword && savedSession) {
+      verifyExistingSession(savedPassword, savedSession)
+    } else {
+      setLoading(false)
+    }
+  }, [])
+
+  const verifyExistingSession = async (savedPassword: string, savedSession: string) => {
+    const { data } = await supabase
+      .from('pro_game_passwords')
+      .select('session_token, active')
+      .eq('password', savedPassword)
+      .single()
+
+    if (!data || !data.active) {
+      localStorage.removeItem(PASSWORD_KEY)
+      localStorage.removeItem(SESSION_KEY)
+      setLoading(false)
+      return
+    }
+
+    if (data.session_token === savedSession) {
+      setAuthed(true)
+    } else {
+      localStorage.removeItem(PASSWORD_KEY)
+      localStorage.removeItem(SESSION_KEY)
+      setSessionKicked(true)
+    }
+    setLoading(false)
+  }
+
+  const handleLogin = async () => {
+    if (!password.trim()) return
+    setChecking(true)
+    setError('')
+
+    const { data } = await supabase
+      .from('pro_game_passwords')
+      .select('id, active, session_token')
+      .eq('password', password.trim())
+      .single()
+
+    if (!data || !data.active) {
+      setError('Invalid password. Please check your password and try again.')
+      setChecking(false)
+      return
+    }
+
+    // Generate new session token — kicks out anyone else using this password
+    const newToken = Math.random().toString(36).substring(2) + Date.now().toString(36)
+
+    await supabase
+      .from('pro_game_passwords')
+      .update({ session_token: newToken, last_login: new Date().toISOString() })
+      .eq('id', data.id)
+
+    localStorage.setItem(PASSWORD_KEY, password.trim())
+    localStorage.setItem(SESSION_KEY, newToken)
+    setAuthed(true)
+    setChecking(false)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem(PASSWORD_KEY)
+    localStorage.removeItem(SESSION_KEY)
+    setAuthed(false)
+    setPassword('')
+  }
+
+  if (loading) return (
+    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9f9f9' }}>
+      <p style={{ color: '#888' }}>Loading...</p>
+    </main>
+  )
+
+  if (!authed) return (
+    <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ width: '100%', maxWidth: '480px' }}>
+
+        {/* HEADER */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ fontSize: '56px', marginBottom: '12px' }}>🎮</div>
+          <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px' }}>Premium Live Games</h1>
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px' }}>Exclusive live classroom games for ESL teachers in Thailand</p>
+        </div>
+
+        {sessionKicked && (
+          <div style={{ background: '#ffeaea', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', textAlign: 'center' }}>
+            <p style={{ color: '#c62828', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>⚠️ You have been signed out</p>
+            <p style={{ color: '#c62828', fontSize: '13px', margin: 0 }}>Your password was used on another device. Please log in again.</p>
+          </div>
+        )}
+
+        {/* LOGIN BOX */}
+        <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>Enter your password</h2>
+          <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>Already purchased? Enter your unique premium password below.</p>
+
+          <input
+            type="password"
+            value={password}
+            onChange={e => { setPassword(e.target.value); setError('') }}
+            onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            placeholder="Enter premium password..."
+            style={{ width: '100%', padding: '14px', borderRadius: '8px', border: error ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', textAlign: 'center', letterSpacing: '2px', marginBottom: '8px' }}
+          />
+          {error && <p style={{ color: 'red', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
+
+          <button
+            onClick={handleLogin}
+            disabled={checking || !password.trim()}
+            style={{ width: '100%', background: checking ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: checking ? 'not-allowed' : 'pointer', marginTop: '8px' }}>
+            {checking ? 'Checking...' : '🔓 Unlock Premium Games'}
+          </button>
+        </div>
+
+        {/* GET ACCESS BOX */}
+        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', textAlign: 'center' }}>
+          <div style={{ color: 'white', fontWeight: 'bold', fontSize: '18px', marginBottom: '8px' }}>🚀 Get Premium Access</div>
+          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', marginBottom: '6px' }}>One-time payment of <strong style={{ color: '#E85D26', fontSize: '20px' }}>฿199</strong></div>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', marginBottom: '20px' }}>Lifetime access • Unique password • New games added regularly</div>
+
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
+            <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
+              style={{ background: '#06C755', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+              💬 Contact via LINE
+            </a>
+            <a href="https://chat.whatsapp.com/L3fBobRIr7u1tSaiHBxfzv" target="_blank" rel="noopener noreferrer"
+              style={{ background: '#25D366', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+              💬 Contact via WhatsApp
+            </a>
+          </div>
+          <Link href="/contact"
+            style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textDecoration: 'underline' }}>
+            Or send us a message on the website →
+          </Link>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <Link href="/esl-games/live" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', textDecoration: 'none' }}>
+            ← Back to Free Games
+          </Link>
+        </div>
+
+      </div>
+    </main>
+  )
+
+  return (
+    <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
+
+      {/* HEADER */}
+      <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', padding: '40px 24px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '900px', margin: '0 auto 24px' }}>
+          <Link href="/esl-games/live" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px' }}>← Free Games</Link>
+          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
+            Logout
+          </button>
+        </div>
+        <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎮</div>
+        <h1 style={{ color: 'white', fontSize: '36px', fontWeight: 'bold', margin: '0 0 8px' }}>Premium Live Games</h1>
+        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '16px', margin: 0 }}>Exclusive games for premium members</p>
+        <div style={{ display: 'inline-block', background: '#E85D26', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', marginTop: '12px' }}>
+          ✅ Premium Access Active
+        </div>
+      </div>
+
+      {/* COMING SOON */}
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '60px 24px', textAlign: 'center' }}>
+
+        <div style={{ background: 'white', borderRadius: '20px', padding: '60px 40px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '2px solid #E85D26' }}>
+          <div style={{ fontSize: '72px', marginBottom: '24px' }}>🚀</div>
+          <h2 style={{ fontSize: '40px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 16px' }}>Coming Soon!</h2>
+          <p style={{ color: '#666', fontSize: '18px', lineHeight: '1.8', maxWidth: '560px', margin: '0 auto 24px' }}>
+            We are working hard on a brand new collection of premium live classroom games exclusively for our premium members.
+          </p>
+          <p style={{ color: '#888', fontSize: '15px', marginBottom: '32px' }}>
+            Your access is ready — new games will appear here as soon as they launch. Check back soon!
+          </p>
+
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
+            {['🎯 Vocabulary Blitz', '⚡ Grammar Race', '🏆 Team Quiz Battle', '🎲 Word Challenge', '🌟 Spelling Sprint', '🎪 Class Tournament'].map(game => (
+              <div key={game} style={{ background: '#f9f9f9', border: '2px dashed #ddd', borderRadius: '12px', padding: '16px 20px', color: '#aaa', fontSize: '14px', fontWeight: 'bold' }}>
+                {game}<br />
+                <span style={{ fontSize: '11px', fontWeight: 'normal' }}>Coming Soon</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background: '#fff3ed', borderRadius: '12px', padding: '20px', display: 'inline-block' }}>
+            <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', margin: '0 0 6px' }}>🔔 Want to be notified?</p>
+            <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>Follow our LINE or WhatsApp community for updates on new premium games!</p>
+          </div>
+        </div>
+
+        <div style={{ marginTop: '32px' }}>
+          <Link href="/esl-games" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
+            ← Browse all free ESL games while you wait
+          </Link>
+        </div>
+
+      </div>
+    </main>
+  )
+}

@@ -91,8 +91,12 @@ export default function AdminPage() {
   const [allJobs, setAllJobs] = useState<any[]>([])
   const [assigningJob, setAssigningJob] = useState<string | null>(null)
   const [jobPartnerMap, setJobPartnerMap] = useState<Record<string, string>>({})
+  const [premiumPasswords, setPremiumPasswords] = useState<any[]>([])
+  const [generatingPassword, setGeneratingPassword] = useState(false)
+  const [newBuyerName, setNewBuyerName] = useState('')
+  const [newBuyerEmail, setNewBuyerEmail] = useState('')
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null)
@@ -120,6 +124,7 @@ export default function AdminPage() {
       loadEslOrders()
       loadBlogPosts()
       loadPartnerJobs()
+      loadPremiumPasswords()
       adminSupabase.from('profiles').select('id, email').then(({ data }) => setAllMembers(data || []))
     }
   }, [authed])
@@ -219,6 +224,36 @@ export default function AdminPage() {
     const map: Record<string, string> = {}
     jobData?.forEach((j: any) => { if (j.partner_id) map[j.id] = j.partner_id })
     setJobPartnerMap(map)
+  }
+
+  const loadPremiumPasswords = async () => {
+    const { data } = await adminSupabase.from('pro_game_passwords').select('*').order('created_at', { ascending: false })
+    setPremiumPasswords(data || [])
+  }
+
+  const generatePassword = async () => {
+    if (!newBuyerName.trim()) return
+    setGeneratingPassword(true)
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+    const part1 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    const part2 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    const pwd = `ESL-${part1}-${part2}`
+    const { error } = await adminSupabase.from('pro_game_passwords').insert([{
+      password: pwd,
+      buyer_name: newBuyerName.trim(),
+      buyer_email: newBuyerEmail.trim() || null,
+      active: true,
+    }])
+    if (error) {
+      alert('Error: ' + error.message)
+    } else {
+      const buyerName = newBuyerName.trim()
+      setNewBuyerName('')
+      setNewBuyerEmail('')
+      loadPremiumPasswords()
+      alert(`✅ Password generated!\n\nSend this to ${buyerName}:\n\n${pwd}\n\nURL: https://www.jobsinthailand.net/esl-games/live/premium`)
+    }
+    setGeneratingPassword(false)
   }
 
   const saveBlogPost = async () => {
@@ -383,7 +418,7 @@ export default function AdminPage() {
               {unreadCount + unreadMemberCount + pendingRentalCount + pendingTeacherCount + pendingEslCount} pending
             </span>
           )}
-          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs() }}
+          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs(); loadPremiumPasswords() }}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             🔄 Refresh
           </button>
@@ -406,6 +441,7 @@ export default function AdminPage() {
             { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
             { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
             { id: 'partners', label: `🤝 Partners` },
+            { id: 'premium', label: `🎮 Premium (${premiumPasswords.length})` },
             { id: 'direct', label: `📩 Message Member` },
             { id: 'email', label: '📧 Email Members' },
           ].map(tab => (
@@ -415,6 +451,78 @@ export default function AdminPage() {
             </button>
           ))}
         </div>
+
+        {/* PREMIUM PASSWORDS TAB */}
+        {activeTab === 'premium' && (
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '6px' }}>🎮 Premium Games Passwords</h2>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Generate unique passwords for premium game buyers. Each password is single-session only — if someone shares it, the sharer gets kicked out when the other person logs in.</p>
+
+            <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: '#1a1a2e' }}>Generate New Password</h3>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                <input value={newBuyerName} onChange={e => setNewBuyerName(e.target.value)} placeholder="Buyer name *"
+                  style={{ flex: 1, minWidth: '160px', padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none' }} />
+                <input value={newBuyerEmail} onChange={e => setNewBuyerEmail(e.target.value)} placeholder="Buyer email (optional)"
+                  style={{ flex: 1, minWidth: '160px', padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none' }} />
+                <button
+                  disabled={generatingPassword || !newBuyerName.trim()}
+                  onClick={generatePassword}
+                  style={{ background: generatingPassword || !newBuyerName.trim() ? '#ccc' : '#1a1a2e', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: generatingPassword || !newBuyerName.trim() ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
+                  {generatingPassword ? 'Generating...' : '🎲 Generate Password'}
+                </button>
+              </div>
+              <p style={{ color: '#aaa', fontSize: '12px', margin: 0 }}>Password format: ESL-XXXX-XXXX — unique per buyer. After generating, an alert will show the password to copy and send.</p>
+            </div>
+
+            {premiumPasswords.length === 0 ? (
+              <div style={{ background: 'white', borderRadius: '12px', padding: '60px', textAlign: 'center', color: '#888', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎮</div>
+                <p>No passwords generated yet. Add your first buyer above!</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {premiumPasswords.map((p: any) => (
+                  <div key={p.id} style={{ background: 'white', borderRadius: '10px', padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e' }}>{p.buyer_name}</span>
+                        <span style={{ background: p.active ? '#e8f5e9' : '#ffeaea', color: p.active ? '#2e7d32' : '#c62828', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>
+                          {p.active ? '✓ Active' : '✗ Revoked'}
+                        </span>
+                        {p.session_token && (
+                          <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '11px', padding: '2px 8px', borderRadius: '20px' }}>🟢 Logged In</span>
+                        )}
+                      </div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '15px', color: '#E85D26', fontWeight: 'bold', marginBottom: '2px' }}>{p.password}</div>
+                      <div style={{ color: '#888', fontSize: '12px' }}>
+                        {p.buyer_email && `${p.buyer_email} • `}
+                        Created: {new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {p.last_login && ` • Last login: ${new Date(p.last_login).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(p.password).then(() => alert(`Copied!\n\n${p.password}\n\nURL: https://www.jobsinthailand.net/esl-games/live/premium`))}
+                        style={{ background: '#f0f4ff', color: '#2D6BE4', border: 'none', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                        📋 Copy
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (!confirm(p.active ? 'Revoke this password? The buyer will lose access.' : 'Re-activate this password?')) return
+                          await adminSupabase.from('pro_game_passwords').update({ active: !p.active, session_token: null }).eq('id', p.id)
+                          loadPremiumPasswords()
+                        }}
+                        style={{ background: p.active ? '#ffeaea' : '#e8f5e9', color: p.active ? '#c62828' : '#2e7d32', border: 'none', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                        {p.active ? '⛔ Revoke' : '✅ Activate'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* PARTNERS TAB */}
         {activeTab === 'partners' && (
@@ -777,7 +885,7 @@ export default function AdminPage() {
         )}
 
         {/* CONTACT MESSAGES */}
-        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && (
+        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && activeTab !== 'premium' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
