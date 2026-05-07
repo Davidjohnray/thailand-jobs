@@ -42,7 +42,7 @@ const premiumGames = [
     subjects: ['Biology', 'Physics', 'Chemistry', 'Earth Science'],
     ages: 'P1 – M3',
     questions: '20 questions',
-    available: false,
+    available: true,
     color: '#16a34a',
   },
   {
