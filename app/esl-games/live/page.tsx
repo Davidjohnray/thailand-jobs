@@ -21,41 +21,41 @@ const games = [
     time: '10-15 min',
   },
   {
-  slug: 'true-or-false',
-  title: 'True or False Buzzer',
-  emoji: '✅',
-  desc: 'Is the statement true or false? Buzz in before your classmates and climb the leaderboard!',
-  topics: ['Animals', 'Food', 'Science', 'Geography', 'History', 'Thailand', 'English', 'Sport'],
-  age: 'Ages 7+',
-  time: '10-15 min',
-},
-{
-  slug: 'jeopardy',
-  title: 'Jeopardy Quiz',
-  emoji: '🎯',
-  desc: 'Pick a category and point value from the board. Higher points = harder questions. Buzz in to answer and climb the leaderboard!',
-  topics: ['Animals', 'Food', 'English', 'Numbers', 'World'],
-  age: 'Ages 8+',
-  time: '15-25 min',
-},
-{
-  slug: 'missing-letter',
-  title: 'Missing Letter',
-  emoji: '🔤',
-  desc: 'Find the missing letter in the word before the timer runs out. One or two letters missing depending on difficulty!',
-  topics: ['Animals', 'Food', 'School', 'Nature', 'Sports', 'Travel', 'Technology', 'Countries'],
-  age: 'Ages 6+',
-  time: '10-15 min',
-},
-{
-  slug: 'category-race',
-  title: 'Category Race',
-  emoji: '🎭',
-  desc: 'A category appears on screen — race to name as many things as you can in 30 seconds! Teams shout answers or students type on their phones.',
-  topics: ['Animals', 'Food & Drink', 'World', 'Colours', 'School', 'Clothes', 'Home', 'Sports'],
-  age: 'Ages 6+',
-  time: '5-10 min',
-},
+    slug: 'true-or-false',
+    title: 'True or False Buzzer',
+    emoji: '✅',
+    desc: 'Is the statement true or false? Buzz in before your classmates and climb the leaderboard!',
+    topics: ['Animals', 'Food', 'Science', 'Geography', 'History', 'Thailand', 'English', 'Sport'],
+    age: 'Ages 7+',
+    time: '10-15 min',
+  },
+  {
+    slug: 'jeopardy',
+    title: 'Jeopardy Quiz',
+    emoji: '🎯',
+    desc: 'Pick a category and point value from the board. Higher points = harder questions. Buzz in to answer and climb the leaderboard!',
+    topics: ['Animals', 'Food', 'English', 'Numbers', 'World'],
+    age: 'Ages 8+',
+    time: '15-25 min',
+  },
+  {
+    slug: 'missing-letter',
+    title: 'Missing Letter',
+    emoji: '🔤',
+    desc: 'Find the missing letter in the word before the timer runs out. One or two letters missing depending on difficulty!',
+    topics: ['Animals', 'Food', 'School', 'Nature', 'Sports', 'Travel', 'Technology', 'Countries'],
+    age: 'Ages 6+',
+    time: '10-15 min',
+  },
+  {
+    slug: 'category-race',
+    title: 'Category Race',
+    emoji: '🎭',
+    desc: 'A category appears on screen — race to name as many things as you can in 30 seconds! Teams shout answers or students type on their phones.',
+    topics: ['Animals', 'Food & Drink', 'World', 'Colours', 'School', 'Clothes', 'Home', 'Sports'],
+    age: 'Ages 6+',
+    time: '5-10 min',
+  },
 ]
 
 const modes = [
@@ -85,9 +85,28 @@ export default function LiveGamesHub() {
         </div>
       </div>
 
+      {/* PREMIUM BANNER */}
+      <div style={{ background: 'linear-gradient(135deg, #7C3AED, #5b21b6)', padding: '32px 24px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
+            <div style={{ fontSize: '48px' }}>⭐</div>
+            <div>
+              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', marginBottom: '4px' }}>Premium Games — Coming Soon!</div>
+              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', lineHeight: '1.5' }}>
+                Exclusive premium games for ESL teachers. One-time payment of <strong style={{ color: '#fbbf24' }}>฿199</strong> — lifetime access with new games added regularly.
+              </div>
+            </div>
+          </div>
+          <Link href="/esl-games/live/premium"
+            style={{ background: '#fbbf24', color: '#1a1a2e', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            🔓 Unlock Premium →
+          </Link>
+        </div>
+      </div>
+
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '48px 24px' }}>
-        <h2 style={{ fontSize: '26px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px', textAlign: 'center' }}>Available Games</h2>
-        <p style={{ color: '#888', textAlign: 'center', marginBottom: '36px', fontSize: '15px' }}>More games coming soon</p>
+        <h2 style={{ fontSize: '26px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px', textAlign: 'center' }}>Free Games</h2>
+        <p style={{ color: '#888', textAlign: 'center', marginBottom: '36px', fontSize: '15px' }}>All free — play anytime, no login needed</p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {games.map(game => (
