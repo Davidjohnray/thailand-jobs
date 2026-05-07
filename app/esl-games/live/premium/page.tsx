@@ -31,7 +31,7 @@ const premiumGames = [
     subjects: ['Numbers', 'Operations', 'Geometry', 'Problem Solving'],
     ages: 'P1 – M3',
     questions: '20 questions',
-    available: false,
+    available: true,
     color: '#2D6BE4',
   },
   {
