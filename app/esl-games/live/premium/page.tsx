@@ -11,6 +11,64 @@ const supabase = createClient(
 const SESSION_KEY = 'premium_games_session'
 const PASSWORD_KEY = 'premium_games_password'
 
+const premiumGames = [
+  {
+    slug: 'english',
+    emoji: '🔤',
+    title: 'English Quiz',
+    desc: 'Grammar, vocabulary, literature & language. Four age groups from P1 all the way to M3.',
+    subjects: ['Grammar', 'Vocabulary', 'Literature', 'Spelling'],
+    ages: 'P1 – M3',
+    questions: '20 questions',
+    available: true,
+    color: '#7C3AED',
+  },
+  {
+    slug: 'maths',
+    emoji: '🔢',
+    title: 'Maths Quiz',
+    desc: 'Numbers, operations, geometry and problem solving across all primary levels.',
+    subjects: ['Numbers', 'Operations', 'Geometry', 'Problem Solving'],
+    ages: 'P1 – M3',
+    questions: '20 questions',
+    available: false,
+    color: '#2D6BE4',
+  },
+  {
+    slug: 'science',
+    emoji: '🔬',
+    title: 'Science Quiz',
+    desc: 'Biology, physics, chemistry and earth science for primary school students.',
+    subjects: ['Biology', 'Physics', 'Chemistry', 'Earth Science'],
+    ages: 'P1 – M3',
+    questions: '20 questions',
+    available: false,
+    color: '#16a34a',
+  },
+  {
+    slug: 'social',
+    emoji: '🌍',
+    title: 'Social Studies Quiz',
+    desc: 'Geography, history, culture and citizenship for young learners.',
+    subjects: ['Geography', 'History', 'Culture', 'Citizenship'],
+    ages: 'P1 – M3',
+    questions: '20 questions',
+    available: false,
+    color: '#0891b2',
+  },
+  {
+    slug: 'general',
+    emoji: '🌟',
+    title: 'General Knowledge Quiz',
+    desc: 'Fun facts, world records, animals, food and more for all ages.',
+    subjects: ['Fun Facts', 'Animals', 'World', 'Food'],
+    ages: 'P1 – M3',
+    questions: '20 questions',
+    available: false,
+    color: '#E85D26',
+  },
+]
+
 export default function PremiumGamesPage() {
   const [authed, setAuthed] = useState(false)
   const [password, setPassword] = useState('')
@@ -70,9 +128,7 @@ export default function PremiumGamesPage() {
       return
     }
 
-    // Generate new session token — kicks out anyone else using this password
     const newToken = Math.random().toString(36).substring(2) + Date.now().toString(36)
-
     await supabase
       .from('pro_game_passwords')
       .update({ session_token: newToken, last_login: new Date().toISOString() })
@@ -101,11 +157,10 @@ export default function PremiumGamesPage() {
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
 
-        {/* HEADER */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ fontSize: '56px', marginBottom: '12px' }}>🎮</div>
           <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px' }}>Premium Live Games</h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px' }}>Exclusive live classroom games for ESL teachers in Thailand</p>
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px' }}>Exclusive classroom games for primary school teachers</p>
         </div>
 
         {sessionKicked && (
@@ -115,11 +170,9 @@ export default function PremiumGamesPage() {
           </div>
         )}
 
-        {/* LOGIN BOX */}
         <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>Enter your password</h2>
           <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>Already purchased? Enter your unique premium password below.</p>
-
           <input
             type="password"
             value={password}
@@ -129,21 +182,16 @@ export default function PremiumGamesPage() {
             style={{ width: '100%', padding: '14px', borderRadius: '8px', border: error ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', textAlign: 'center', letterSpacing: '2px', marginBottom: '8px' }}
           />
           {error && <p style={{ color: 'red', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
-
-          <button
-            onClick={handleLogin}
-            disabled={checking || !password.trim()}
+          <button onClick={handleLogin} disabled={checking || !password.trim()}
             style={{ width: '100%', background: checking ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: checking ? 'not-allowed' : 'pointer', marginTop: '8px' }}>
             {checking ? 'Checking...' : '🔓 Unlock Premium Games'}
           </button>
         </div>
 
-        {/* GET ACCESS BOX */}
         <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '24px', textAlign: 'center' }}>
           <div style={{ color: 'white', fontWeight: 'bold', fontSize: '18px', marginBottom: '8px' }}>🚀 Get Premium Access</div>
           <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', marginBottom: '6px' }}>One-time payment of <strong style={{ color: '#E85D26', fontSize: '20px' }}>฿199</strong></div>
           <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', marginBottom: '20px' }}>Lifetime access • Unique password • New games added regularly</div>
-
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
             <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
               style={{ background: '#06C755', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
@@ -154,8 +202,7 @@ export default function PremiumGamesPage() {
               💬 Contact via WhatsApp
             </a>
           </div>
-          <Link href="/contact"
-            style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textDecoration: 'underline' }}>
+          <Link href="/contact" style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textDecoration: 'underline' }}>
             Or send us a message on the website →
           </Link>
         </div>
@@ -165,7 +212,6 @@ export default function PremiumGamesPage() {
             ← Back to Free Games
           </Link>
         </div>
-
       </div>
     </main>
   )
@@ -183,46 +229,67 @@ export default function PremiumGamesPage() {
         </div>
         <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎮</div>
         <h1 style={{ color: 'white', fontSize: '36px', fontWeight: 'bold', margin: '0 0 8px' }}>Premium Live Games</h1>
-        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '16px', margin: 0 }}>Exclusive games for premium members</p>
+        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '16px', margin: 0 }}>Multi-subject quiz games for primary school classrooms</p>
         <div style={{ display: 'inline-block', background: '#E85D26', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', marginTop: '12px' }}>
           ✅ Premium Access Active
         </div>
       </div>
 
-      {/* COMING SOON */}
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '60px 24px', textAlign: 'center' }}>
+      {/* GAMES LIST */}
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
 
-        <div style={{ background: 'white', borderRadius: '20px', padding: '60px 40px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '2px solid #E85D26' }}>
-          <div style={{ fontSize: '72px', marginBottom: '24px' }}>🚀</div>
-          <h2 style={{ fontSize: '40px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 16px' }}>Coming Soon!</h2>
-          <p style={{ color: '#666', fontSize: '18px', lineHeight: '1.8', maxWidth: '560px', margin: '0 auto 24px' }}>
-            We are working hard on a brand new collection of premium live classroom games exclusively for our premium members.
-          </p>
-          <p style={{ color: '#888', fontSize: '15px', marginBottom: '32px' }}>
-            Your access is ready — new games will appear here as soon as they launch. Check back soon!
-          </p>
-
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
-            {['🎯 Vocabulary Blitz', '⚡ Grammar Race', '🏆 Team Quiz Battle', '🎲 Word Challenge', '🌟 Spelling Sprint', '🎪 Class Tournament'].map(game => (
-              <div key={game} style={{ background: '#f9f9f9', border: '2px dashed #ddd', borderRadius: '12px', padding: '16px 20px', color: '#aaa', fontSize: '14px', fontWeight: 'bold' }}>
-                {game}<br />
-                <span style={{ fontSize: '11px', fontWeight: 'normal' }}>Coming Soon</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {premiumGames.map(game => (
+            <div key={game.slug} style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: game.available ? `2px solid ${game.color}` : '1px solid #eee', opacity: game.available ? 1 : 0.8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
+                  <div style={{ fontSize: '48px', flexShrink: 0 }}>{game.emoji}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                      <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>{game.title}</h3>
+                      {game.available ? (
+                        <span style={{ background: game.color, color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>✓ Available Now</span>
+                      ) : (
+                        <span style={{ background: '#f0f0f0', color: '#888', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>⏳ Coming Soon</span>
+                      )}
+                    </div>
+                    <p style={{ color: '#666', fontSize: '14px', margin: '0 0 10px', lineHeight: '1.5' }}>{game.desc}</p>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {game.subjects.map(s => (
+                        <span key={s} style={{ background: '#f0f4ff', color: '#2D6BE4', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>{s}</span>
+                      ))}
+                      <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>👥 {game.ages}</span>
+                      <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>❓ {game.questions}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ flexShrink: 0 }}>
+                  {game.available ? (
+                    <Link href={`/esl-games/live/premium/${game.slug}`}
+                      style={{ background: game.color, color: 'white', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px', display: 'inline-block', whiteSpace: 'nowrap' }}>
+                      Play Now →
+                    </Link>
+                  ) : (
+                    <div style={{ background: '#f0f0f0', color: '#aaa', padding: '14px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '15px', whiteSpace: 'nowrap' }}>
+                      Coming Soon
+                    </div>
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
-
-          <div style={{ background: '#fff3ed', borderRadius: '12px', padding: '20px', display: 'inline-block' }}>
-            <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', margin: '0 0 6px' }}>🔔 Want to be notified?</p>
-            <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>Follow our LINE or WhatsApp community for updates on new premium games!</p>
-          </div>
+            </div>
+          ))}
         </div>
 
-        <div style={{ marginTop: '32px' }}>
+        <div style={{ marginTop: '32px', textAlign: 'center', background: '#fff3ed', borderRadius: '12px', padding: '20px' }}>
+          <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', margin: '0 0 6px' }}>🔔 More games coming soon!</p>
+          <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>Follow our LINE or WhatsApp community to be notified when new premium games launch.</p>
+        </div>
+
+        <div style={{ marginTop: '24px', textAlign: 'center' }}>
           <Link href="/esl-games" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
-            ← Browse all free ESL games while you wait
+            ← Browse all free ESL games
           </Link>
         </div>
-
       </div>
     </main>
   )
