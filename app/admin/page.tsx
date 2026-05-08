@@ -397,6 +397,7 @@ export default function AdminPage() {
   const pendingRentalCount = rentalMembers.filter(m => !m.active).length
   const pendingTeacherCount = teachers.filter(t => t.status === 'pending').length
   const pendingEslCount = eslOrders.filter(o => o.status === 'pending').length
+  const untaggedJobCount = allJobs.filter(j => !jobLogoMap[j.id]).length
   const displayed = activeTab === 'unread' ? messages.filter(m => !m.read) : activeTab === 'all' ? messages : memberMessages
 
   if (!authed) return (
@@ -454,7 +455,7 @@ export default function AdminPage() {
             { id: 'teachers', label: `🎓 Teachers (${teachers.length})${pendingTeacherCount > 0 ? ' 🔴' : ''}` },
             { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
             { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
-            { id: 'partners', label: `🤝 Partners` },
+            { id: 'partners', label: `🤝 Partners${untaggedJobCount > 0 ? ` (${untaggedJobCount}) 🔴` : ''}` },
             { id: 'premium', label: `🎮 Premium (${premiumPasswords.length})` },
             { id: 'direct', label: `📩 Message Member` },
             { id: 'email', label: '📧 Email Members' },
@@ -539,7 +540,7 @@ export default function AdminPage() {
               <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#888' }}>No jobs found</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {allJobs.map((job: any) => (
+                {[...allJobs].sort((a, b) => (!!jobLogoMap[a.id] === !!jobLogoMap[b.id] ? 0 : jobLogoMap[a.id] ? 1 : -1)).map((job: any) => (
                   <div key={job.id} style={{ background: 'white', borderRadius: '10px', padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: jobLogoMap[job.id] ? '1px solid #e8f5e9' : '1px solid #eee' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
