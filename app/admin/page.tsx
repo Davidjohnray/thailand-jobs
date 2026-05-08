@@ -3,8 +3,10 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../src/lib/supabase'
 
 const ADMIN_PASSWORD = 'thailand2024'
-
 const adminSupabase = supabase
+
+const JIT_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/jobsinthailand%20job%20logo.png'
+const TB_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/teach%20bridge%20asia.jpg'
 
 function EmailMembers() {
   const [subject, setSubject] = useState('')
@@ -91,6 +93,8 @@ export default function AdminPage() {
   const [allJobs, setAllJobs] = useState<any[]>([])
   const [assigningJob, setAssigningJob] = useState<string | null>(null)
   const [jobPartnerMap, setJobPartnerMap] = useState<Record<string, string>>({})
+  const [jobLogoMap, setJobLogoMap] = useState<Record<string, string | null>>({})
+  const [savingLogo, setSavingLogo] = useState<string | null>(null)
   const [premiumPasswords, setPremiumPasswords] = useState<any[]>([])
   const [generatingPassword, setGeneratingPassword] = useState(false)
   const [newBuyerName, setNewBuyerName] = useState('')
@@ -219,16 +223,26 @@ export default function AdminPage() {
   const loadPartnerJobs = async () => {
     const { data: partnerData } = await adminSupabase.from('partners').select('*').order('name')
     setPartners(partnerData || [])
-    const { data: jobData } = await adminSupabase.from('jobs').select('id, title, company, location, created_at, partner_id').order('created_at', { ascending: false }).limit(200)
+    const { data: jobData } = await adminSupabase.from('jobs').select('id, title, company, location, created_at, partner_id, source_logo').order('created_at', { ascending: false }).limit(200)
     setAllJobs(jobData || [])
     const map: Record<string, string> = {}
     jobData?.forEach((j: any) => { if (j.partner_id) map[j.id] = j.partner_id })
     setJobPartnerMap(map)
+    const logoMap: Record<string, string | null> = {}
+    jobData?.forEach((j: any) => { logoMap[j.id] = j.source_logo || null })
+    setJobLogoMap(logoMap)
   }
 
   const loadPremiumPasswords = async () => {
     const { data } = await adminSupabase.from('pro_game_passwords').select('*').order('created_at', { ascending: false })
     setPremiumPasswords(data || [])
+  }
+
+  const assignLogo = async (jobId: string, logo: string | null) => {
+    setSavingLogo(jobId)
+    await adminSupabase.from('jobs').update({ source_logo: logo }).eq('id', jobId)
+    setJobLogoMap(prev => ({ ...prev, [jobId]: logo }))
+    setSavingLogo(null)
   }
 
   const generatePassword = async () => {
@@ -457,7 +471,6 @@ export default function AdminPage() {
           <div>
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '6px' }}>🎮 Premium Games Passwords</h2>
             <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Generate unique passwords for premium game buyers. Each password is single-session only — if someone shares it, the sharer gets kicked out when the other person logs in.</p>
-
             <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: '#1a1a2e' }}>Generate New Password</h3>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
@@ -465,16 +478,13 @@ export default function AdminPage() {
                   style={{ flex: 1, minWidth: '160px', padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none' }} />
                 <input value={newBuyerEmail} onChange={e => setNewBuyerEmail(e.target.value)} placeholder="Buyer email (optional)"
                   style={{ flex: 1, minWidth: '160px', padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none' }} />
-                <button
-                  disabled={generatingPassword || !newBuyerName.trim()}
-                  onClick={generatePassword}
+                <button disabled={generatingPassword || !newBuyerName.trim()} onClick={generatePassword}
                   style={{ background: generatingPassword || !newBuyerName.trim() ? '#ccc' : '#1a1a2e', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '14px', cursor: generatingPassword || !newBuyerName.trim() ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
                   {generatingPassword ? 'Generating...' : '🎲 Generate Password'}
                 </button>
               </div>
               <p style={{ color: '#aaa', fontSize: '12px', margin: 0 }}>Password format: ESL-XXXX-XXXX — unique per buyer. After generating, an alert will show the password to copy and send.</p>
             </div>
-
             {premiumPasswords.length === 0 ? (
               <div style={{ background: 'white', borderRadius: '12px', padding: '60px', textAlign: 'center', color: '#888', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎮</div>
@@ -490,9 +500,7 @@ export default function AdminPage() {
                         <span style={{ background: p.active ? '#e8f5e9' : '#ffeaea', color: p.active ? '#2e7d32' : '#c62828', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>
                           {p.active ? '✓ Active' : '✗ Revoked'}
                         </span>
-                        {p.session_token && (
-                          <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '11px', padding: '2px 8px', borderRadius: '20px' }}>🟢 Logged In</span>
-                        )}
+                        {p.session_token && <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '11px', padding: '2px 8px', borderRadius: '20px' }}>🟢 Logged In</span>}
                       </div>
                       <div style={{ fontFamily: 'monospace', fontSize: '15px', color: '#E85D26', fontWeight: 'bold', marginBottom: '2px' }}>{p.password}</div>
                       <div style={{ color: '#888', fontSize: '12px' }}>
@@ -502,17 +510,15 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      <button
-                        onClick={() => navigator.clipboard.writeText(p.password).then(() => alert(`Copied!\n\n${p.password}\n\nURL: https://www.jobsinthailand.net/esl-games/live/premium`))}
+                      <button onClick={() => navigator.clipboard.writeText(p.password).then(() => alert(`Copied!\n\n${p.password}\n\nURL: https://www.jobsinthailand.net/esl-games/live/premium`))}
                         style={{ background: '#f0f4ff', color: '#2D6BE4', border: 'none', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
                         📋 Copy
                       </button>
-                      <button
-                        onClick={async () => {
-                          if (!confirm(p.active ? 'Revoke this password? The buyer will lose access.' : 'Re-activate this password?')) return
-                          await adminSupabase.from('pro_game_passwords').update({ active: !p.active, session_token: null }).eq('id', p.id)
-                          loadPremiumPasswords()
-                        }}
+                      <button onClick={async () => {
+                        if (!confirm(p.active ? 'Revoke this password? The buyer will lose access.' : 'Re-activate this password?')) return
+                        await adminSupabase.from('pro_game_passwords').update({ active: !p.active, session_token: null }).eq('id', p.id)
+                        loadPremiumPasswords()
+                      }}
                         style={{ background: p.active ? '#ffeaea' : '#e8f5e9', color: p.active ? '#c62828' : '#2e7d32', border: 'none', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
                         {p.active ? '⛔ Revoke' : '✅ Activate'}
                       </button>
@@ -527,42 +533,76 @@ export default function AdminPage() {
         {/* PARTNERS TAB */}
         {activeTab === 'partners' && (
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '6px' }}>🤝 Assign Jobs to Partners</h2>
-            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Assign any job to a recruitment partner — it will automatically appear on their partner page.</p>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '6px' }}>🤝 Assign Jobs to Partners & Logos</h2>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Assign jobs to partners and mark which jobs you posted. <strong>🏷️ Mine</strong> = your logo, <strong>🤝 TB</strong> = Teach Bridge logo, no logo = employer posted.</p>
             {allJobs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#888' }}>No jobs found</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {allJobs.map((job: any) => (
-                  <div key={job.id} style={{ background: 'white', borderRadius: '10px', padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e', marginBottom: '2px' }}>{job.title}</div>
-                      <div style={{ color: '#888', fontSize: '13px' }}>{job.company} • {job.location} • {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      {jobPartnerMap[job.id] && (
-                        <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>
-                          ✓ {partners.find(p => p.id === jobPartnerMap[job.id])?.name || 'Assigned'}
-                        </span>
-                      )}
-                      <select
-                        value={jobPartnerMap[job.id] || ''}
-                        onChange={e => setJobPartnerMap(prev => ({ ...prev, [job.id]: e.target.value }))}
-                        style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '13px', outline: 'none', background: 'white' }}>
-                        <option value=''>— No partner —</option>
-                        {partners.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      </select>
-                      <button
-                        disabled={assigningJob === job.id}
-                        onClick={async () => {
-                          setAssigningJob(job.id)
-                          const partnerId = jobPartnerMap[job.id] || null
-                          await adminSupabase.from('jobs').update({ partner_id: partnerId }).eq('id', job.id)
-                          setAssigningJob(null)
-                        }}
-                        style={{ background: assigningJob === job.id ? '#ccc' : '#1a1a2e', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: assigningJob === job.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
-                        {assigningJob === job.id ? '...' : 'Save'}
-                      </button>
+                  <div key={job.id} style={{ background: 'white', borderRadius: '10px', padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: jobLogoMap[job.id] ? '1px solid #e8f5e9' : '1px solid #eee' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {jobLogoMap[job.id] && (
+                          <img src={jobLogoMap[job.id]!} alt="logo"
+                            style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee', flexShrink: 0 }} />
+                        )}
+                        <div>
+                          <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e', marginBottom: '2px' }}>{job.title}</div>
+                          <div style={{ color: '#888', fontSize: '13px' }}>{job.company} • {job.location} • {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                        </div>
+                      </div>
+
+                      {/* LOGO BUTTONS */}
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <button
+                          disabled={savingLogo === job.id}
+                          onClick={() => assignLogo(job.id, JIT_LOGO)}
+                          style={{ background: jobLogoMap[job.id] === JIT_LOGO ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === JIT_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                          {savingLogo === job.id ? '...' : '🏷️ Mine'}
+                        </button>
+                        <button
+                          disabled={savingLogo === job.id}
+                          onClick={() => assignLogo(job.id, TB_LOGO)}
+                          style={{ background: jobLogoMap[job.id] === TB_LOGO ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === TB_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                          🤝 TB
+                        </button>
+                        {jobLogoMap[job.id] && (
+                          <button
+                            disabled={savingLogo === job.id}
+                            onClick={() => assignLogo(job.id, null)}
+                            style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>
+                            ✕
+                          </button>
+                        )}
+                      </div>
+
+                      {/* PARTNER DROPDOWN */}
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {jobPartnerMap[job.id] && (
+                          <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>
+                            ✓ {partners.find(p => p.id === jobPartnerMap[job.id])?.name || 'Assigned'}
+                          </span>
+                        )}
+                        <select
+                          value={jobPartnerMap[job.id] || ''}
+                          onChange={e => setJobPartnerMap(prev => ({ ...prev, [job.id]: e.target.value }))}
+                          style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '13px', outline: 'none', background: 'white' }}>
+                          <option value=''>— No partner —</option>
+                          {partners.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                        </select>
+                        <button
+                          disabled={assigningJob === job.id}
+                          onClick={async () => {
+                            setAssigningJob(job.id)
+                            const partnerId = jobPartnerMap[job.id] || null
+                            await adminSupabase.from('jobs').update({ partner_id: partnerId }).eq('id', job.id)
+                            setAssigningJob(null)
+                          }}
+                          style={{ background: assigningJob === job.id ? '#ccc' : '#1a1a2e', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: assigningJob === job.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
+                          {assigningJob === job.id ? '...' : 'Save'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -585,9 +625,7 @@ export default function AdminPage() {
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' as any }} />
                 <textarea placeholder="Type your message to all members..." value={directMessage} onChange={e => setDirectMessage(e.target.value)} rows={5}
                   style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }} />
-                {directSent && (
-                  <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>✅ Message sent to all members!</div>
-                )}
+                {directSent && <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>✅ Message sent to all members!</div>}
                 <button disabled={sendingDirect || !directSubject.trim() || !directMessage.trim()}
                   onClick={async () => {
                     if (!directSubject.trim() || !directMessage.trim()) return alert('Please fill in subject and message')
@@ -633,11 +671,7 @@ export default function AdminPage() {
                   <textarea value={directMessage} onChange={e => setDirectMessage(e.target.value)} placeholder="Type your message to this member..." rows={8}
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' as any, boxSizing: 'border-box' as any }} />
                 </div>
-                {directSent && (
-                  <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '14px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>
-                    ✅ Message sent! The member will see it in their dashboard inbox with a notification badge.
-                  </div>
-                )}
+                {directSent && <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '14px', color: '#2e7d32', fontWeight: 'bold', fontSize: '14px' }}>✅ Message sent! The member will see it in their dashboard inbox.</div>}
                 <button onClick={sendDirectMessage} disabled={sendingDirect || !directEmail.trim() || !directSubject.trim() || !directMessage.trim()}
                   style={{ background: sendingDirect || !directEmail.trim() ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: sendingDirect ? 'not-allowed' : 'pointer' }}>
                   {sendingDirect ? 'Sending...' : '📩 Send to This Member'}
