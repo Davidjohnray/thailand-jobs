@@ -223,7 +223,8 @@ export default function AdminPage() {
   const loadPartnerJobs = async () => {
     const { data: partnerData } = await adminSupabase.from('partners').select('*').order('name')
     setPartners(partnerData || [])
-    const { data: jobData } = await adminSupabase.from('jobs').select('id, title, company, location, created_at, partner_id, source_logo').order('created_at', { ascending: false }).limit(900)
+    const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+const { data: jobData } = await adminSupabase.from('jobs').select('id, title, company, location, created_at, partner_id, source_logo').gte('created_at', twoWeeksAgo).order('created_at', { ascending: false })
     setAllJobs(jobData || [])
     const map: Record<string, string> = {}
     jobData?.forEach((j: any) => { if (j.partner_id) map[j.id] = j.partner_id })
