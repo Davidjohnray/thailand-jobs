@@ -4,93 +4,41 @@ import Link from 'next/link'
 import { supabase } from '../../src/lib/supabase'
 import { MemberLockCard, isJobLocked } from '../../components/MemberLock'
 
+const DAVID_EMAIL = 'raydave8@hotmail.com'
+const TEACH_BRIDGE_ID = '67d153a2-bc28-4e33-98d1-07eff635191d'
+const JIT_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/jobsinthailand%20job%20logo.png'
+const TB_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/teach%20bridge%20asia.jpg'
+
+function JobLogo({ job }: { job: any }) {
+  if (job.email === DAVID_EMAIL) {
+    return (
+      <img src={JIT_LOGO} alt="Jobs in Thailand" title="Posted by Jobs in Thailand"
+        style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee', flexShrink: 0 }} />
+    )
+  }
+  if (job.partner_id === TEACH_BRIDGE_ID) {
+    return (
+      <img src={TB_LOGO} alt="Teach Bridge Asia" title="Posted by Teach Bridge Asia"
+        style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee', flexShrink: 0 }} />
+    )
+  }
+  return null
+}
+
 const thaiProvinces = [
   'All Locations',
-  // Central
-  'Bangkok',
-  'Nonthaburi',
-  'Pathum Thani',
-  'Samut Prakan',
-  'Samut Sakhon',
-  'Samut Songkhram',
-  'Nakhon Pathom',
-  'Suphan Buri',
-  'Ratchaburi',
-  'Kanchanaburi',
-  'Phetchaburi',
-  'Prachuap Khiri Khan',
-  'Ayutthaya',
-  'Ang Thong',
-  'Lopburi',
-  'Sing Buri',
-  'Chai Nat',
-  'Saraburi',
-  'Nakhon Nayok',
-  'Chachoengsao',
-  'Prachin Buri',
-  'Sa Kaeo',
-  // East
-  'Chon Buri',
-  'Rayong',
-  'Chanthaburi',
-  'Trat',
-  // North
-  'Chiang Mai',
-  'Chiang Rai',
-  'Lampang',
-  'Lamphun',
-  'Mae Hong Son',
-  'Nan',
-  'Phayao',
-  'Phrae',
-  'Uttaradit',
-  // Upper North Central
-  'Tak',
-  'Sukhothai',
-  'Phitsanulok',
-  'Phichit',
-  'Nakhon Sawan',
-  'Uthai Thani',
-  'Kamphaeng Phet',
-  'Phetchabun',
-  // Northeast
-  'Nakhon Ratchasima',
-  'Khon Kaen',
-  'Udon Thani',
-  'Ubon Ratchathani',
-  'Buriram',
-  'Surin',
-  'Si Sa Ket',
-  'Chaiyaphum',
-  'Loei',
-  'Nong Khai',
-  'Nong Bua Lamphu',
-  'Sakon Nakhon',
-  'Nakhon Phanom',
-  'Mukdahan',
-  'Kalasin',
-  'Maha Sarakham',
-  'Roi Et',
-  'Yasothon',
-  'Amnat Charoen',
-  'Bueng Kan',
-  // South
-  'Surat Thani',
-  'Chumphon',
-  'Ranong',
-  'Phangnga',
-  'Phuket',
-  'Krabi',
-  'Nakhon Si Thammarat',
-  'Trang',
-  'Phatthalung',
-  'Songkhla',
-  'Satun',
-  'Pattani',
-  'Yala',
-  'Narathiwat',
-  // Other
-  'Remote',
+  'Bangkok', 'Nonthaburi', 'Pathum Thani', 'Samut Prakan', 'Samut Sakhon', 'Samut Songkhram',
+  'Nakhon Pathom', 'Suphan Buri', 'Ratchaburi', 'Kanchanaburi', 'Phetchaburi', 'Prachuap Khiri Khan',
+  'Ayutthaya', 'Ang Thong', 'Lopburi', 'Sing Buri', 'Chai Nat', 'Saraburi', 'Nakhon Nayok',
+  'Chachoengsao', 'Prachin Buri', 'Sa Kaeo',
+  'Chon Buri', 'Rayong', 'Chanthaburi', 'Trat',
+  'Chiang Mai', 'Chiang Rai', 'Lampang', 'Lamphun', 'Mae Hong Son', 'Nan', 'Phayao', 'Phrae', 'Uttaradit',
+  'Tak', 'Sukhothai', 'Phitsanulok', 'Phichit', 'Nakhon Sawan', 'Uthai Thani', 'Kamphaeng Phet', 'Phetchabun',
+  'Nakhon Ratchasima', 'Khon Kaen', 'Udon Thani', 'Ubon Ratchathani', 'Buriram', 'Surin', 'Si Sa Ket',
+  'Chaiyaphum', 'Loei', 'Nong Khai', 'Nong Bua Lamphu', 'Sakon Nakhon', 'Nakhon Phanom', 'Mukdahan',
+  'Kalasin', 'Maha Sarakham', 'Roi Et', 'Yasothon', 'Amnat Charoen', 'Bueng Kan',
+  'Surat Thani', 'Chumphon', 'Ranong', 'Phangnga', 'Phuket', 'Krabi', 'Nakhon Si Thammarat',
+  'Trang', 'Phatthalung', 'Songkhla', 'Satun', 'Pattani', 'Yala', 'Narathiwat', 'Remote',
 ]
 
 const allCategories = ['Teaching', 'Hospitality', 'Technology', 'Tourism', 'Finance', 'Marketing', 'Healthcare', 'Creative', 'Other']
@@ -109,12 +57,12 @@ export default function JobsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-  supabase.auth.getSession().then(({ data: { session } }: any) => setIsLoggedIn(!!session))
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-    setIsLoggedIn(!!session)
-  })
-  return () => subscription.unsubscribe()
-}, [])
+    supabase.auth.getSession().then(({ data: { session } }: any) => setIsLoggedIn(!!session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      setIsLoggedIn(!!session)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -230,13 +178,19 @@ export default function JobsPage() {
                       <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', border: job.featured ? '2px solid #E85D26' : '1px solid #eee' }}>
                         <div className="job-card-inner" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
+
+                            {/* TITLE ROW WITH LOGO */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                              <JobLogo job={job} />
                               <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e' }}>{job.title}</span>
                               {job.featured && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Featured</span>}
                               {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>}
                               {isLoggedIn && isJobLocked(job.created_at) && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Early Access</span>}
-                              {job.email !== 'raydave8@hotmail.com' && <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>🏫 Employer</span>}
+                              {job.email !== DAVID_EMAIL && job.partner_id !== TEACH_BRIDGE_ID && (
+                                <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>🏫 Employer</span>
+                              )}
                             </div>
+
                             <div style={{ color: '#666', fontSize: '14px', marginBottom: '4px' }}>{job.company} • {job.location}</div>
                             <div style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
                               Posted: {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
