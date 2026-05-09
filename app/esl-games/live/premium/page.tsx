@@ -64,7 +64,7 @@ const premiumGames = [
     subjects: ['Fun Facts', 'Animals', 'World', 'Food'],
     ages: 'P1 – M3',
     questions: '20 questions',
-    available: false,
+    available: true,
     color: '#E85D26',
   },
 ]
