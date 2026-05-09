@@ -67,6 +67,17 @@ const premiumGames = [
     available: true,
     color: '#E85D26',
   },
+  {
+  slug: 'spelling',
+  emoji: '🔤',
+  title: 'Spelling Bee',
+  desc: 'See the definition — pick the correct spelling! Great for building vocabulary and spelling skills.',
+  subjects: ['Spelling', 'Vocabulary', 'Definitions', 'Word Skills'],
+  ages: 'P1 – M3',
+  questions: '20 questions',
+  available: true,
+  color: '#db2777',
+},
 ]
 
 export default function PremiumGamesPage() {
