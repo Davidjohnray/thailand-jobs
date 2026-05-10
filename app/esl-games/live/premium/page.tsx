@@ -89,6 +89,17 @@ const premiumGames = [
   available: true,
   color: '#0d9488',
 },
+{
+  slug: 'food',
+  emoji: '🍕',
+  title: 'Food Around the World',
+  desc: 'Food vocabulary, cooking methods, world cuisines and kitchen English.',
+  subjects: ['Food Vocabulary', 'Cooking English', 'World Cuisine', 'Kitchen Terms'],
+  ages: 'P1 – M3',
+  questions: '20 questions',
+  available: true,
+  color: '#f59e0b',
+},
 ]
 
 export default function PremiumGamesPage() {
