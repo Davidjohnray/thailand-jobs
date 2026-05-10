@@ -81,7 +81,7 @@ function TVGame() {
               ))}
             </div>
           </div>
-          <button onClick={() => { setPhase('playing'); setRunning(true) }}
+          <button onClick={() => { setPhase('playing'); setRunning(false) }}
             style={{ width: '100%', background: COLOR, color: 'white', padding: '14px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '17px', cursor: 'pointer' }}>
             🚀 Start Game →
           </button>
@@ -154,7 +154,9 @@ function TVGame() {
               })}
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
-              {!revealed && <button onClick={() => { setRevealed(true); setRunning(false) }} style={{ background: COLOR, color: 'white', padding: '12px 24px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', flex: 1 }}>💡 Reveal Answer</button>}
+              {!running && !revealed && <button onClick={() => setRunning(true)} style={{ background: '#1a1a2e', color: 'white', padding: '12px 24px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', flex: 1 }}>▶ Start Timer</button>}
+{running && !revealed && <button onClick={() => { setRevealed(true); setRunning(false) }} style={{ background: COLOR, color: 'white', padding: '12px 24px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', flex: 1 }}>💡 Reveal Answer</button>}
+{revealed && <button onClick={next} style={{ background: '#16a34a', color: 'white', padding: '12px 24px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', flex: 1 }}>{current + 1 >= questions.length ? '🏆 Final Scores' : 'Next Question →'}</button>}
               {revealed && <button onClick={next} style={{ background: '#16a34a', color: 'white', padding: '12px 24px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', flex: 1 }}>{current + 1 >= questions.length ? '🏆 Final Scores' : 'Next Question →'}</button>}
             </div>
           </div>
