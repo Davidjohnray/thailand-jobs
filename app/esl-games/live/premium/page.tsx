@@ -78,6 +78,17 @@ const premiumGames = [
   available: true,
   color: '#db2777',
 },
+{
+  slug: 'idioms',
+  emoji: '🗣️',
+  title: 'Idioms & Phrases',
+  desc: 'What does the idiom mean? Master common English expressions used in everyday conversation.',
+  subjects: ['Idioms', 'Phrases', 'Expressions', 'Vocabulary'],
+  ages: 'P1 – M3',
+  questions: '20 questions',
+  available: true,
+  color: '#0d9488',
+},
 ]
 
 export default function PremiumGamesPage() {
