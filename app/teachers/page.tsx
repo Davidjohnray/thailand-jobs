@@ -113,9 +113,9 @@ export default function TeacherDirectoryPage() {
                 <div style={{ background: '#1a1a2e', padding: '20px', display: 'flex', gap: '16px', alignItems: 'center' }}>
                   {teacher.photo_url ? (
                     <img src={teacher.photo_url} alt={teacher.name}
-                      style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #E85D26', flexShrink: 0 }} />
+                      style={{ width: '144px', height: '144px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #E85D26', flexShrink: 0 }} />
                   ) : (
-                    <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#E85D26', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>👤</div>
+                    <div style={{ width: '144px', height: '144px', borderRadius: '50%', background: '#E85D26', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>👤</div>
                   )}
                   <div>
                     <h3 style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: '0 0 4px' }}>{teacher.name}</h3>
@@ -200,15 +200,15 @@ export default function TeacherDirectoryPage() {
               <div style={{ border: '2px solid #E85D26', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
                 <div style={{ fontSize: '24px', marginBottom: '4px' }}>1️⃣</div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e', marginBottom: '4px' }}>1 Month</div>
-                <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#E85D26' }}>฿1,500</div>
+                <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#E85D26' }}>฿500</div>
                 <div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>Full directory access</div>
               </div>
               <div style={{ border: '2px solid #2D6BE4', borderRadius: '12px', padding: '16px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: '8px', right: '-12px', background: '#2D6BE4', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '2px 20px', transform: 'rotate(45deg)' }}>SAVE</div>
                 <div style={{ fontSize: '24px', marginBottom: '4px' }}>3️⃣</div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e', marginBottom: '4px' }}>3 Months</div>
-                <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2D6BE4' }}>฿3,500</div>
-                <div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>Save ฿1,000</div>
+                <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2D6BE4' }}>฿1,400</div>
+                <div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>Save ฿100</div>
               </div>
             </div>
 
