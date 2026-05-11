@@ -125,7 +125,7 @@ export default function Navbar() {
               <div style={dropdownStyle}>
                 {[
                   { href: '/rentals',       label: '🏠 Rentals' },
-                  { href: '/teachers',      label: '🎓 Private Teachers' },
+                  { href: '/teachers',      label: '🎓 Teachers Directory' },
                   { href: '/training',      label: '📚 Training' },
                   { href: '/cv-builder',    label: '📄 CV Builder' },
                   { href: '/esl-resources', label: '📖 ESL Resources' },
