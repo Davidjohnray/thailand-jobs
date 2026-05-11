@@ -100,6 +100,17 @@ const premiumGames = [
   available: true,
   color: '#f59e0b',
 },
+{
+  slug: 'animal',
+  emoji: '🐾',
+  title: 'Animal Kingdom',
+  desc: 'Animal vocabulary, habitats, groups and wildlife English for ESL learners.',
+  subjects: ['Animals', 'Vocabulary', 'Nature', 'Science'],
+  ages: 'P1 – M3',
+  questions: '20 questions',
+  available: true,
+  color: '#16a34a',
+},
 ]
 
 export default function PremiumGamesPage() {
