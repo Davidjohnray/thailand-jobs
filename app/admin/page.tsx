@@ -7,6 +7,8 @@ const adminSupabase = supabase
 
 const JIT_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/jobsinthailand%20job%20logo.png'
 const TB_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/teach%20bridge%20asia.jpg'
+const FILIPINO_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/nnes-logo.png'
+const NNES_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/nnes-global-logo.png'
 
 function EmailMembers() {
   const [subject, setSubject] = useState('')
@@ -223,8 +225,7 @@ export default function AdminPage() {
   const loadPartnerJobs = async () => {
     const { data: partnerData } = await adminSupabase.from('partners').select('*').order('name')
     setPartners(partnerData || [])
-    const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-const { data: jobData } = await adminSupabase.from('jobs').select('id, title, company, location, created_at, partner_id, source_logo').gte('created_at', twoWeeksAgo).order('created_at', { ascending: false })
+    const { data: jobData } = await adminSupabase.from('jobs').select('id, title, company, location, created_at, partner_id, source_logo').order('created_at', { ascending: false }).limit(200)
     setAllJobs(jobData || [])
     const map: Record<string, string> = {}
     jobData?.forEach((j: any) => { if (j.partner_id) map[j.id] = j.partner_id })
@@ -398,7 +399,6 @@ const { data: jobData } = await adminSupabase.from('jobs').select('id, title, co
   const pendingRentalCount = rentalMembers.filter(m => !m.active).length
   const pendingTeacherCount = teachers.filter(t => t.status === 'pending').length
   const pendingEslCount = eslOrders.filter(o => o.status === 'pending').length
-  const untaggedJobCount = allJobs.filter(j => !jobLogoMap[j.id]).length
   const displayed = activeTab === 'unread' ? messages.filter(m => !m.read) : activeTab === 'all' ? messages : memberMessages
 
   if (!authed) return (
@@ -456,7 +456,7 @@ const { data: jobData } = await adminSupabase.from('jobs').select('id, title, co
             { id: 'teachers', label: `🎓 Teachers (${teachers.length})${pendingTeacherCount > 0 ? ' 🔴' : ''}` },
             { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
             { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
-            { id: 'partners', label: `🤝 Partners${untaggedJobCount > 0 ? ` (${untaggedJobCount}) 🔴` : ''}` },
+            { id: 'partners', label: `🤝 Partners` },
             { id: 'premium', label: `🎮 Premium (${premiumPasswords.length})` },
             { id: 'direct', label: `📩 Message Member` },
             { id: 'email', label: '📧 Email Members' },
@@ -536,12 +536,12 @@ const { data: jobData } = await adminSupabase.from('jobs').select('id, title, co
         {activeTab === 'partners' && (
           <div>
             <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '6px' }}>🤝 Assign Jobs to Partners & Logos</h2>
-            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Assign jobs to partners and mark which jobs you posted. <strong>🏷️ Mine</strong> = your logo, <strong>🤝 TB</strong> = Teach Bridge logo, no logo = employer posted.</p>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Assign jobs to partners and mark which jobs you posted. <strong>🏷️ Mine</strong> = your logo, <strong>🤝 TB</strong> = Teach Bridge, <strong>🇵🇭 Filipino</strong> = Filipino jobs, <strong>🌏 NNES</strong> = NNES jobs, no logo = employer posted.</p>
             {allJobs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#888' }}>No jobs found</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {[...allJobs].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((job: any) => (
+                {allJobs.map((job: any) => (
                   <div key={job.id} style={{ background: 'white', borderRadius: '10px', padding: '16px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: jobLogoMap[job.id] ? '1px solid #e8f5e9' : '1px solid #eee' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -568,6 +568,18 @@ const { data: jobData } = await adminSupabase.from('jobs').select('id, title, co
                           onClick={() => assignLogo(job.id, TB_LOGO)}
                           style={{ background: jobLogoMap[job.id] === TB_LOGO ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === TB_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
                           🤝 TB
+                        </button>
+                        <button
+                          disabled={savingLogo === job.id}
+                          onClick={() => assignLogo(job.id, FILIPINO_LOGO)}
+                          style={{ background: jobLogoMap[job.id] === FILIPINO_LOGO ? '#0038A8' : '#f0f0f0', color: jobLogoMap[job.id] === FILIPINO_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                          🇵🇭 Filipino
+                        </button>
+                        <button
+                          disabled={savingLogo === job.id}
+                          onClick={() => assignLogo(job.id, NNES_LOGO)}
+                          style={{ background: jobLogoMap[job.id] === NNES_LOGO ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === NNES_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
+                          🌏 NNES
                         </button>
                         {jobLogoMap[job.id] && (
                           <button
