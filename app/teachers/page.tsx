@@ -261,15 +261,15 @@ export default function TeacherDirectoryPage() {
               <div style={{ border: '2px solid #E85D26', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
                 <div style={{ fontSize: '24px', marginBottom: '4px' }}>1️⃣</div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e', marginBottom: '4px' }}>1 Month</div>
-                <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#E85D26' }}>฿1,500</div>
+                <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#E85D26' }}>฿500</div>
                 <div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>Full directory access</div>
               </div>
               <div style={{ border: '2px solid #2D6BE4', borderRadius: '12px', padding: '16px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: '8px', right: '-12px', background: '#2D6BE4', color: 'white', fontSize: '10px', fontWeight: 'bold', padding: '2px 20px', transform: 'rotate(45deg)' }}>SAVE</div>
                 <div style={{ fontSize: '24px', marginBottom: '4px' }}>3️⃣</div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e', marginBottom: '4px' }}>3 Months</div>
-                <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2D6BE4' }}>฿3,500</div>
-                <div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>Save ฿1,000</div>
+                <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2D6BE4' }}>฿1,400</div>
+<div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>Save ฿100</div>
               </div>
             </div>
             <p style={{ color: '#555', fontSize: '14px', marginBottom: '20px', textAlign: 'center' }}>
@@ -293,8 +293,8 @@ export default function TeacherDirectoryPage() {
                   style={{ padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none' }} />
                 <select value={form.plan} onChange={e => setForm({ ...form, plan: e.target.value })}
                   style={{ padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', background: 'white', outline: 'none' }}>
-                  <option>1 month — ฿1,500</option>
-                  <option>3 months — ฿3,500</option>
+                  <option>1 month — ฿500</option>
+<option>3 months — ฿1,400</option>
                 </select>
                 <textarea value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} placeholder="Any questions? (optional)" rows={3}
                   style={{ padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' }} />
