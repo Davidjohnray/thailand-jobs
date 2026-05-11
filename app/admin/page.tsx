@@ -669,6 +669,17 @@ export default function AdminPage() {
                           style={{ display: 'block', background: '#e8f5e9', color: '#2e7d32', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', textAlign: 'center' }}>
                           📧 Reply by Email
                         </a>
+                        <button onClick={async () => {
+                          const months = req.plan?.includes('3') ? 3 : 1
+                          const expires = new Date()
+                          expires.setMonth(expires.getMonth() + months)
+                          await adminSupabase.from('recruiter_access').upsert([{ email: req.email, plan: req.plan, expires_at: expires.toISOString() }], { onConflict: 'email' })
+                          await adminSupabase.from('recruiter_requests').update({ status: 'contacted' }).eq('id', req.id)
+                          setRecruiterRequests(prev => prev.map((r: any) => r.id === req.id ? { ...r, status: 'contacted' } : r))
+                          alert(`✅ Access activated for ${req.email} until ${expires.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`)
+                        }} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
+                          🔓 Activate Access
+                        </button>
                         {req.status === 'pending' && (
                           <button onClick={async () => {
                             await adminSupabase.from('recruiter_requests').update({ status: 'contacted' }).eq('id', req.id)
