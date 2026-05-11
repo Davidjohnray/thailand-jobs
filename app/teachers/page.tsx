@@ -24,7 +24,7 @@ export default function TeacherDirectoryPage() {
   const [subject, setSubject] = useState('All Subjects')
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ name: '', school: '', email: '', phone: '', plan: '1 month — ฿1,500', message: '' })
+  const [form, setForm] = useState({ name: '', school: '', email: '', phone: '', plan: '1 month — ฿500', message: '' })
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
 
@@ -47,7 +47,7 @@ export default function TeacherDirectoryPage() {
     await supabase.from('recruiter_requests').insert([{ ...form }])
     setSending(false)
     setSent(true)
-    setTimeout(() => { setShowModal(false); setSent(false); setForm({ name: '', school: '', email: '', phone: '', plan: '1 month — ฿1,500', message: '' }) }, 3000)
+    setTimeout(() => { setShowModal(false); setSent(false); setForm({ name: '', school: '', email: '', phone: '', plan: '1 month — ฿500', message: '' }) }, 3000)
   }
 
   return (
@@ -235,8 +235,8 @@ export default function TeacherDirectoryPage() {
                   style={{ padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none' }} />
                 <select value={form.plan} onChange={e => setForm({ ...form, plan: e.target.value })}
                   style={{ padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', background: 'white', outline: 'none' }}>
-                  <option>1 month — ฿1,500</option>
-                  <option>3 months — ฿3,500</option>
+                  <option>1 month — ฿500</option>
+                  <option>3 months — ฿1,400</option>
                 </select>
                 <textarea value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} placeholder="Any questions or requirements? (optional)" rows={3}
                   style={{ padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' }} />
