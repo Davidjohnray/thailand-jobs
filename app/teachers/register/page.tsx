@@ -1,537 +1,262 @@
 'use client'
 import { useState, useRef } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import HCaptcha from '@hcaptcha/react-hcaptcha'
+import Link from 'next/link'
+import { supabase } from '../../../src/lib/supabase'
 
-const db = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-const subjects = [
-  'English', 'Maths', 'Science', 'Physics', 'Chemistry', 'Biology',
-  'History', 'Geography', 'French', 'Spanish', 'Mandarin Chinese', 'Japanese',
-  'Korean', 'Thai', 'Art', 'Music', 'Drama', 'PE / Sports',
-  'IT / Computer Science', 'Business Studies', 'Economics', 'IELTS / TOEFL Prep',
-  'SAT / ACT Prep', 'Primary School Subjects', 'Special Needs', 'Other'
+const qualificationOptions = ['BA', 'BSc', 'BEd', 'MA', 'MEd', 'PGCE', 'TEFL', 'CELTA', 'DELTA', 'PhD', 'Diploma', 'Certificate']
+const subjectOptions = ['English', 'Mathematics', 'Science', 'Social Studies', 'PE', 'Art', 'Music', 'ICT', 'Drama', 'Phonics', 'IELTS/TOEIC Prep', 'Business English', 'Kindergarten', 'Other']
+const nationalities = [
+  'Filipino', 'British', 'American', 'Canadian', 'Australian', 'South African',
+  'Zimbabwean', 'Indian', 'Irish', 'New Zealander', 'Scottish', 'Welsh',
+  'French', 'German', 'Dutch', 'Belgian', 'Swiss', 'Spanish', 'Italian',
+  'Nigerian', 'Ghanaian', 'Kenyan', 'Ugandan', 'Jamaican', 'Other'
 ]
-
-const levels = [
-  'Pre-School / Kindergarten', 'Primary (Ages 6-11)', 'Secondary (Ages 11-16)',
-  'High School (Ages 16-18)', 'University / Adult', 'Business Professionals', 'All Ages'
-]
-
-const certificationOptions = [
-  'TEFL', 'TESOL', 'CELTA', 'DELTA', 'QTS (UK)', 'PGCE',
-  'Bachelor of Education', 'Masters in Education', 'PhD', 'Other'
-]
-
-const languageOptions = [
-  'English', 'Thai', 'Mandarin', 'French', 'Spanish', 'German',
-  'Japanese', 'Korean', 'Arabic', 'Hindi', 'Other'
-]
-
-const templates = [
-  { id: 'modern', label: '🎨 Modern', desc: 'Clean white minimal design', color: '#2D6BE4' },
-  { id: 'bold', label: '🔥 Bold', desc: 'Vibrant colourful design', color: '#E85D26' },
-  { id: 'professional', label: '💼 Professional', desc: 'Dark corporate style', color: '#1a1a2e' },
-  { id: 'friendly', label: '😊 Friendly', desc: 'Warm casual feel', color: '#16a34a' },
-]
-
-const steps = [
-  { num: 1, label: 'Personal Info' },
-  { num: 2, label: 'Teaching' },
-  { num: 3, label: 'Contact' },
+const thaiProvinces = [
+  'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya / Chonburi', 'Koh Samui / Surat Thani',
+  'Hua Hin', 'Krabi', 'Rayong', 'Chiang Rai', 'Nakhon Ratchasima', 'Khon Kaen',
+  'Udon Thani', 'Ubon Ratchathani', 'Nonthaburi', 'Ayutthaya', 'Remote / Online',
+  'Multiple Locations', 'Other'
 ]
 
 export default function TeacherRegisterPage() {
-  const [step, setStep] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [captchaToken, setCaptchaToken] = useState('')
-  const captchaRef = useRef<HCaptcha>(null)
-  const [errors, setErrors] = useState<Record<string, string>>({})
-
   const [form, setForm] = useState({
-    name: '', nationality: '', location: '', tagline: '', bio: '',
-    teaching_style: '', subjects: [] as string[], levels: [] as string[],
-    qualifications: '', certifications: [] as string[], languages: [] as string[],
-    experience_years: '', hourly_rate: '', online_available: false,
-    email: '', phone: '', line_id: '', whatsapp: '', facebook: '',
-    photo_url: '', preferred_template: 'modern', notes: '',
+    name: '', age: '', nationality: '', location: '',
+    qualifications: [] as string[], subjects: [] as string[],
+    experience_years: '', bio: '', video_url: '',
+    email: '', phone: '', line_id: '',
   })
+  const [photo, setPhoto] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
 
-  const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
-    setErrors(prev => ({ ...prev, [name]: '' }))
+  function toggleQual(q: string) {
+    setForm(prev => ({ ...prev, qualifications: prev.qualifications.includes(q) ? prev.qualifications.filter(x => x !== q) : [...prev.qualifications, q] }))
+  }
+  function toggleSubject(s: string) {
+    setForm(prev => ({ ...prev, subjects: prev.subjects.includes(s) ? prev.subjects.filter(x => x !== s) : [...prev.subjects, s] }))
   }
 
-  const toggleArray = (field: string, value: string) => {
-    setForm(prev => ({
-      ...prev,
-      [field]: (prev as any)[field].includes(value)
-        ? (prev as any)[field].filter((v: string) => v !== value)
-        : [...(prev as any)[field], value]
-    }))
-  }
-
-  const handlePhotoUpload = async (e: any) => {
+  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    setUploading(true)
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-    const { error } = await db.storage
-      .from('teacher-images')
-      .upload(fileName, file, { cacheControl: '3600', upsert: false })
-    if (error) { alert('Upload error: ' + error.message); setUploading(false); return }
-    const { data: { publicUrl } } = db.storage.from('teacher-images').getPublicUrl(fileName)
-    setForm(prev => ({ ...prev, photo_url: publicUrl }))
-    setUploading(false)
+    setPhoto(file)
+    setPhotoPreview(URL.createObjectURL(file))
   }
 
-  const validate = (s: number) => {
-    const e: Record<string, string> = {}
-    if (s === 1) {
-      if (!form.name.trim()) e.name = 'Your name is required'
-      if (!form.location.trim()) e.location = 'Location is required'
-      if (!form.bio.trim()) e.bio = 'Please write a short bio'
+  async function handleSubmit() {
+    if (!form.name || !form.nationality || !form.location || !form.email) {
+      setError('Please fill in all required fields (name, nationality, location, email)')
+      return
     }
-    if (s === 2) {
-      if (form.subjects.length === 0) e.subjects = 'Please select at least one subject'
-      if (form.levels.length === 0) e.levels = 'Please select at least one level'
+    setError('')
+    setSubmitting(true)
+
+    let photo_url = ''
+    if (photo) {
+      setUploading(true)
+      const ext = photo.name.split('.').pop()
+      const filename = `teacher-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage.from('teacher-photos').upload(filename, photo, { upsert: true })
+      if (uploadError) {
+        // Try partner-cvs bucket as fallback
+        const { error: uploadError2 } = await supabase.storage.from('partner-cvs').upload(filename, photo, { upsert: true })
+        if (!uploadError2) {
+          const { data } = supabase.storage.from('partner-cvs').getPublicUrl(filename)
+          photo_url = data.publicUrl
+        }
+      } else {
+        const { data } = supabase.storage.from('teacher-photos').getPublicUrl(filename)
+        photo_url = data.publicUrl
+      }
+      setUploading(false)
     }
-    if (s === 3) {
-      if (!form.email.trim()) e.email = 'Email is required'
-      if (form.email && !/\S+@\S+\.\S+/.test(form.email)) e.email = 'Please enter a valid email'
-      if (!form.hourly_rate.trim()) e.hourly_rate = 'Please enter your hourly rate'
-      if (!captchaToken) e.captcha = 'Please complete the CAPTCHA'
-    }
-    setErrors(e)
-    return Object.keys(e).length === 0
-  }
 
-  const next = () => {
-    if (validate(step)) { setStep(s => s + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }
-    else window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+    const slug = form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now().toString(36)
 
-  const back = () => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }
-
-  const generateSlug = (name: string) =>
-    name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim()
-    + '-' + Date.now().toString().slice(-4)
-
-  const handleSubmit = async () => {
-    if (!validate(3)) { window.scrollTo({ top: 0, behavior: 'smooth' }); return }
-    setLoading(true)
-    const { error } = await db.from('teachers').insert([{
-      slug: generateSlug(form.name),
+    const { error: insertError } = await supabase.from('teachers').insert([{
       name: form.name,
-      nationality: form.nationality || null,
+      age: form.age ? parseInt(form.age) : null,
+      nationality: form.nationality,
       location: form.location,
-      tagline: form.tagline || null,
-      bio: form.bio,
-      teaching_style: form.teaching_style || null,
+      qualifications: form.qualifications,
       subjects: form.subjects,
-      levels: form.levels,
-      qualifications: form.qualifications ? form.qualifications.split('\n').filter(q => q.trim()) : [],
-      certifications: form.certifications,
-      languages: form.languages,
       experience_years: form.experience_years ? parseInt(form.experience_years) : null,
-      hourly_rate: form.hourly_rate,
-      online_available: form.online_available,
+      bio: form.bio,
+      video_url: form.video_url || null,
       email: form.email,
       phone: form.phone || null,
       line_id: form.line_id || null,
-      whatsapp: form.whatsapp || null,
-      facebook: form.facebook || null,
-      photo_url: form.photo_url || null,
-      template: form.preferred_template,
-      notes: form.notes || null,
-      status: 'pending',
+      photo_url,
+      slug,
       active: false,
+      status: 'pending',
+      template: 'modern',
     }])
-    if (error) {
-      alert('Error: ' + error.message)
-      captchaRef.current?.resetCaptcha()
-      setCaptchaToken('')
-      setLoading(false)
-      return
+
+    setSubmitting(false)
+    if (insertError) {
+      setError('Something went wrong. Please try again.')
+    } else {
+      setSubmitted(true)
     }
-    setSuccess(true)
-    setLoading(false)
   }
 
-  // ---- SUCCESS ----
-  if (success) return (
-    <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-      <div style={{ background: 'white', borderRadius: '24px', padding: '48px 40px', maxWidth: '540px', width: '100%', textAlign: 'center' }}>
-        <div style={{ fontSize: '80px', marginBottom: '20px' }}>🎉</div>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '12px' }}>Profile Submitted!</h1>
-        <p style={{ color: '#666', marginBottom: '24px', lineHeight: '1.7' }}>
-          Thank you! We'll review your profile and be in touch within 24 hours.
+  if (submitted) return (
+    <main style={{ minHeight: '100vh', background: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ background: 'white', borderRadius: '16px', padding: '48px', maxWidth: '500px', width: '100%', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+        <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '12px' }}>Application Submitted!</h2>
+        <p style={{ color: '#666', fontSize: '15px', marginBottom: '24px', lineHeight: '1.6' }}>
+          Your profile has been submitted for review. We'll check it and make it live within 24 hours.
+          You'll appear in the Teacher Directory once approved.
         </p>
-
-        {/* WHAT HAPPENS NEXT */}
-        <div style={{ background: '#f9f9f9', borderRadius: '12px', padding: '20px', marginBottom: '20px', textAlign: 'left' }}>
-          <div style={{ fontWeight: 'bold', color: '#1a1a2e', marginBottom: '10px', fontSize: '14px' }}>What happens next:</div>
-          {[
-            'We review your profile (within 24hrs)',
-            'We contact you with Thai bank payment details',
-            'You pay the one-time 200 THB listing fee',
-            'Your profile goes live — listed forever!',
-            'Share your unique link to find students!'
-          ].map((item, i) => (
-            <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px', fontSize: '13px', color: '#555' }}>
-              <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✓</span> {item}
-            </div>
-          ))}
-        </div>
-
-        {/* PAYMENT NOTE */}
-        <div style={{ background: '#fff3ed', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', textAlign: 'left', border: '1px solid #ffd4b8' }}>
-          <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', margin: '0 0 6px' }}>💰 One-Time Fee: 200 THB</p>
-          <p style={{ color: '#666', fontSize: '13px', margin: 0, lineHeight: '1.6' }}>
-            We'll send you our Thai bank account details to complete your payment. Once received your profile goes live and stays live forever — no monthly fees!
-          </p>
-        </div>
-
-        {/* MEMBER ACCOUNT PROMPT */}
-        <div style={{ background: '#e8f0fe', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', textAlign: 'left', border: '1px solid #c7d9f8' }}>
-          <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 8px' }}>📌 One more step!</p>
-          <p style={{ color: '#555', fontSize: '13px', margin: '0 0 12px', lineHeight: '1.6' }}>
-            Create a free member account using the <strong>same email address</strong> to manage and edit your teacher profile once approved — all from your dashboard!
-          </p>
-          <a href="/account/register" style={{ display: 'inline-block', background: '#2D6BE4', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-            Create Member Account →
-          </a>
-        </div>
-
-        <a href="/teachers" style={{ display: 'block', background: '#E85D26', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
-          Browse Teacher Profiles →
-        </a>
+        <Link href="/teachers" style={{ background: '#E85D26', color: 'white', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
+          View Teacher Directory →
+        </Link>
       </div>
     </main>
   )
 
-  const tagStyle = (active: boolean, color = '#E85D26') => ({
-    padding: '7px 14px', borderRadius: '20px', border: `1px solid ${active ? color : '#ddd'}`,
-    background: active ? color + '18' : 'white', color: active ? color : '#555',
-    cursor: 'pointer' as const, fontSize: '13px', fontWeight: active ? 'bold' : 'normal' as const,
-  })
-
   return (
-    <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', padding: '40px 24px' }}>
+    <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '32px 24px' }}>
       <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+        <Link href="/teachers" style={{ color: '#888', textDecoration: 'none', fontSize: '14px' }}>← Back to Teacher Directory</Link>
 
-        {/* HEADER */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '10px' }}>🎓</div>
-          <h1 style={{ color: 'white', fontSize: '30px', fontWeight: 'bold', margin: '0 0 8px' }}>List Your Teaching Profile</h1>
-          <p style={{ color: '#ccc', fontSize: '15px', margin: '0 0 16px' }}>Join our growing directory of private teachers</p>
+        <div style={{ textAlign: 'center', margin: '20px 0 32px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '8px' }}>🎓</div>
+          <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 8px' }}>Post Your Teacher CV</h1>
+          <p style={{ color: '#666', fontSize: '15px', margin: 0 }}>Free to post — get found by schools and recruiters across Thailand</p>
         </div>
 
-        {/* PRICING BANNER */}
-        <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '12px', padding: '16px 20px', marginBottom: '28px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)' }}>
-          <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px' }}>💰 One-Time Listing Fee: 200 THB — Listed Forever!</div>
-          <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '8px' }}>Fill in your profile below — we'll contact you with payment details after submission</div>
-          <div style={{ color: '#E85D26', fontSize: '13px', fontWeight: 'bold' }}>✨ Share your unique profile link to attract students and get teaching jobs!</div>
-        </div>
+        <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.07)' }}>
 
-        {/* STEP INDICATOR */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
-          {steps.map((s, i) => (
-            <div key={s.num} style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '15px', background: step >= s.num ? '#E85D26' : 'rgba(255,255,255,0.15)', color: 'white' }}>
-                  {step > s.num ? '✓' : s.num}
-                </div>
-                <div style={{ fontSize: '11px', color: step >= s.num ? '#E85D26' : '#888', fontWeight: step >= s.num ? 'bold' : 'normal', whiteSpace: 'nowrap' }}>{s.label}</div>
-              </div>
-              {i < steps.length - 1 && <div style={{ width: '60px', height: '2px', background: step > s.num ? '#E85D26' : 'rgba(255,255,255,0.15)', margin: '0 8px', marginBottom: '18px' }} />}
-            </div>
-          ))}
-        </div>
+          {error && <div style={{ background: '#ffeaea', borderRadius: '8px', padding: '12px 16px', color: '#c62828', fontSize: '14px', marginBottom: '20px' }}>{error}</div>}
 
-        {/* ERRORS */}
-        {Object.values(errors).some(e => e !== '') && (
-          <div style={{ background: '#ffeaea', border: '2px solid red', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px' }}>
-            <div style={{ fontWeight: 'bold', color: 'red', marginBottom: '6px', fontSize: '14px' }}>⚠️ Please fix the following:</div>
-            {Object.values(errors).filter(e => e !== '').map((err, i) => (
-              <div key={i} style={{ color: 'red', fontSize: '13px', marginBottom: '3px' }}>• {err}</div>
-            ))}
-          </div>
-        )}
-
-        <div style={{ background: 'white', borderRadius: '20px', padding: '36px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-
-          {/* STEP 1 */}
-          {step === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+          {/* PHOTO */}
+          <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+            <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: 'none' }} />
+            {photoPreview ? (
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' }}>👤 Personal Information</h2>
-                <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Tell us about yourself</p>
+                <img src={photoPreview} alt="Preview" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #E85D26', marginBottom: '8px' }} />
+                <br />
+                <button type="button" onClick={() => fileRef.current?.click()} style={{ background: 'none', border: 'none', color: '#E85D26', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>Change photo</button>
               </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Full Name *</label>
-                <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. Sarah Johnson"
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.name ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                {errors.name && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.name}</p>}
-              </div>
-
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Nationality</label>
-                  <input name="nationality" value={form.nationality} onChange={handleChange} placeholder="e.g. British, American"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Location *</label>
-                  <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Bangkok, London, Online"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.location ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                  {errors.location && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.location}</p>}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Profile Tagline</label>
-                <input name="tagline" value={form.tagline} onChange={handleChange}
-                  placeholder="e.g. Experienced English teacher helping students achieve their best"
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                <p style={{ color: '#aaa', fontSize: '12px', marginTop: '4px' }}>A short catchy phrase shown on your profile</p>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>About Me *</label>
-                <textarea name="bio" value={form.bio} onChange={handleChange} rows={5}
-                  placeholder="Tell students and parents about yourself — your background, experience and what makes you a great teacher..."
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.bio ? '2px solid red' : '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-                {errors.bio && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.bio}</p>}
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>My Teaching Style</label>
-                <textarea name="teaching_style" value={form.teaching_style} onChange={handleChange} rows={3}
-                  placeholder="Describe your teaching approach and what students can expect..."
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-              </div>
-
-              {/* PHOTO UPLOAD */}
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333', fontSize: '14px' }}>📸 Profile Photo</label>
-
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: uploading ? '#ccc' : '#1a1a2e', color: 'white', padding: '11px 20px', borderRadius: '8px', cursor: uploading ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: 'bold', marginBottom: '12px' }}>
-                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload} disabled={uploading} style={{ display: 'none' }} />
-                  {uploading ? '⏳ Uploading...' : '📷 Upload Photo from Device'}
-                </label>
-
-                {form.photo_url && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-                    <img src={form.photo_url} alt="Preview" style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #E85D26' }} />
-                    <span style={{ color: '#16a34a', fontSize: '13px', fontWeight: 'bold' }}>✅ Photo uploaded!</span>
-                  </div>
-                )}
-
-                <p style={{ color: '#aaa', fontSize: '12px', margin: '0 0 6px' }}>JPG, PNG or WEBP — max 5MB. Or paste a URL:</p>
-                <input name="photo_url" value={form.photo_url} onChange={handleChange}
-                  placeholder="https://example.com/your-photo.jpg"
-                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }} />
-              </div>
-
-              {/* TEMPLATE */}
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>Choose Your Profile Style</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  {templates.map(t => (
-                    <button key={t.id} type="button" onClick={() => setForm(prev => ({ ...prev, preferred_template: t.id }))}
-                      style={{ padding: '14px', borderRadius: '10px', border: `2px solid ${form.preferred_template === t.id ? t.color : '#ddd'}`, background: form.preferred_template === t.id ? t.color + '12' : 'white', cursor: 'pointer', textAlign: 'left' }}>
-                      <div style={{ fontWeight: 'bold', fontSize: '14px', color: form.preferred_template === t.id ? t.color : '#333', marginBottom: '2px' }}>{t.label}</div>
-                      <div style={{ fontSize: '11px', color: '#999' }}>{t.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button onClick={next} style={{ background: '#E85D26', color: 'white', padding: '14px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>
-                Next — Teaching Details →
+            ) : (
+              <button type="button" onClick={() => fileRef.current?.click()}
+                style={{ width: '100px', height: '100px', borderRadius: '50%', border: '3px dashed #ddd', background: '#f9f9f9', cursor: 'pointer', fontSize: '28px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '4px' }}>
+                <span>📷</span>
+                <span style={{ fontSize: '10px', color: '#888' }}>Add Photo</span>
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* STEP 2 */}
-          {step === 2 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+            {/* BASIC INFO */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' }}>📚 Teaching Details</h2>
-                <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Tell us what and who you teach</p>
+                <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>Full Name *</label>
+                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Maria Santos"
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
-
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>
-                  Subjects I Teach * <span style={{ color: '#999', fontWeight: 'normal' }}>(select all that apply)</span>
-                </label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {subjects.map(s => (
-                    <button key={s} type="button" onClick={() => toggleArray('subjects', s)} style={tagStyle(form.subjects.includes(s), '#E85D26')}>
-                      {form.subjects.includes(s) ? '✓ ' : ''}{s}
-                    </button>
-                  ))}
-                </div>
-                {errors.subjects && <p style={{ color: 'red', fontSize: '12px', marginTop: '8px' }}>{errors.subjects}</p>}
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>
-                  Student Levels * <span style={{ color: '#999', fontWeight: 'normal' }}>(select all that apply)</span>
-                </label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {levels.map(l => (
-                    <button key={l} type="button" onClick={() => toggleArray('levels', l)} style={tagStyle(form.levels.includes(l), '#2D6BE4')}>
-                      {form.levels.includes(l) ? '✓ ' : ''}{l}
-                    </button>
-                  ))}
-                </div>
-                {errors.levels && <p style={{ color: 'red', fontSize: '12px', marginTop: '8px' }}>{errors.levels}</p>}
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>Certifications</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {certificationOptions.map(c => (
-                    <button key={c} type="button" onClick={() => toggleArray('certifications', c)} style={tagStyle(form.certifications.includes(c), '#16a34a')}>
-                      {form.certifications.includes(c) ? '✓ ' : ''}{c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Qualifications</label>
-                <textarea name="qualifications" value={form.qualifications} onChange={handleChange} rows={3}
-                  placeholder="One per line e.g.&#10;Bachelor of Education, University of Manchester&#10;Masters in TESOL, Leeds University"
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '10px', color: '#333', fontSize: '14px' }}>Languages I Speak</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {languageOptions.map(l => (
-                    <button key={l} type="button" onClick={() => toggleArray('languages', l)} style={tagStyle(form.languages.includes(l), '#7C3AED')}>
-                      {form.languages.includes(l) ? '✓ ' : ''}{l}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Years of Experience</label>
-                  <input name="experience_years" value={form.experience_years} onChange={handleChange} type="number" placeholder="e.g. 5"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-                <div style={{ flex: 1, minWidth: '180px', paddingTop: '22px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                    <input type="checkbox" name="online_available" checked={form.online_available} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
-                    <span style={{ fontWeight: 'bold', color: '#333', fontSize: '14px' }}>🌐 Available online</span>
-                  </label>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={back} style={{ background: '#f0f0f0', color: '#555', padding: '14px 20px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}>← Back</button>
-                <button onClick={next} style={{ flex: 1, background: '#E85D26', color: 'white', padding: '14px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>Next — Contact Details →</button>
+                <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>Age</label>
+                <input value={form.age} onChange={e => setForm({ ...form, age: e.target.value })} placeholder="e.g. 28" type="number"
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
             </div>
-          )}
 
-          {/* STEP 3 */}
-          {step === 3 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' }}>📞 Contact Details</h2>
-                <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>How students and parents can reach you</p>
+                <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>Nationality *</label>
+                <select value={form.nationality} onChange={e => setForm({ ...form, nationality: e.target.value })}
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', background: 'white', outline: 'none' }}>
+                  <option value=''>Select nationality</option>
+                  {nationalities.map(n => <option key={n}>{n}</option>)}
+                </select>
               </div>
-
-              <div style={{ background: '#fff3ed', borderRadius: '10px', padding: '14px', fontSize: '13px', color: '#E85D26', border: '1px solid #ffd4b8' }}>
-                ⭐ Your contact details appear on your profile so students can reach you directly. Add as many as you like!
-              </div>
-
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '200px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Hourly Rate *</label>
-                  <input name="hourly_rate" value={form.hourly_rate} onChange={handleChange} placeholder="e.g. 500 THB / hour"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.hourly_rate ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                  {errors.hourly_rate && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.hourly_rate}</p>}
-                </div>
-                <div style={{ flex: 1, minWidth: '200px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Email Address *</label>
-                  <input name="email" value={form.email} onChange={handleChange} type="email" placeholder="your@email.com"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: errors.email ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                  {errors.email && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.email}</p>}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Phone Number</label>
-                  <input name="phone" value={form.phone} onChange={handleChange} placeholder="e.g. 0812345678"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>LINE ID</label>
-                  <input name="line_id" value={form.line_id} onChange={handleChange} placeholder="your LINE ID"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>WhatsApp</label>
-                  <input name="whatsapp" value={form.whatsapp} onChange={handleChange} placeholder="+66812345678"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-                <div style={{ flex: 1, minWidth: '180px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Facebook Page</label>
-                  <input name="facebook" value={form.facebook} onChange={handleChange} placeholder="https://facebook.com/yourpage"
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box' }} />
-                </div>
-              </div>
-
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '6px', color: '#333', fontSize: '14px' }}>Anything else for our team?</label>
-                <textarea name="notes" value={form.notes} onChange={handleChange} rows={3}
-                  placeholder="Any questions or extra info for us..."
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+                <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>Location in Thailand *</label>
+                <select value={form.location} onChange={e => setForm({ ...form, location: e.target.value })}
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', background: 'white', outline: 'none' }}>
+                  <option value=''>Select location</option>
+                  {thaiProvinces.map(p => <option key={p}>{p}</option>)}
+                </select>
               </div>
-
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <HCaptcha
-                  ref={captchaRef}
-                  sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
-                  onVerify={token => { setCaptchaToken(token); setErrors(prev => ({ ...prev, captcha: '' })) }}
-                  onExpire={() => setCaptchaToken('')}
-                />
-              </div>
-              {errors.captcha && <p style={{ color: 'red', fontSize: '12px', textAlign: 'center' }}>{errors.captcha}</p>}
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={back} style={{ background: '#f0f0f0', color: '#555', padding: '14px 20px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}>← Back</button>
-                <button onClick={handleSubmit} disabled={loading}
-                  style={{ flex: 1, background: loading ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer' }}>
-                  {loading ? 'Submitting...' : '🎓 Submit My Profile →'}
-                </button>
-              </div>
-
-              <p style={{ textAlign: 'center', color: '#999', fontSize: '12px', margin: 0 }}>
-                Your profile will be reviewed before going live — we'll contact you with payment details
-              </p>
             </div>
-          )}
 
+            <div>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>Years of Teaching Experience</label>
+              <input value={form.experience_years} onChange={e => setForm({ ...form, experience_years: e.target.value })} placeholder="e.g. 5" type="number"
+                style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+
+            {/* QUALIFICATIONS */}
+            <div>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '10px' }}>Qualifications</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {qualificationOptions.map(q => (
+                  <button key={q} type="button" onClick={() => toggleQual(q)}
+                    style={{ padding: '6px 14px', borderRadius: '20px', border: `2px solid ${form.qualifications.includes(q) ? '#2D6BE4' : '#ddd'}`, background: form.qualifications.includes(q) ? '#e8f0fe' : 'white', color: form.qualifications.includes(q) ? '#2D6BE4' : '#555', cursor: 'pointer', fontSize: '13px', fontWeight: form.qualifications.includes(q) ? 'bold' : 'normal' }}>
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* SUBJECTS */}
+            <div>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '10px' }}>Subjects You Teach</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {subjectOptions.map(s => (
+                  <button key={s} type="button" onClick={() => toggleSubject(s)}
+                    style={{ padding: '6px 14px', borderRadius: '20px', border: `2px solid ${form.subjects.includes(s) ? '#E85D26' : '#ddd'}`, background: form.subjects.includes(s) ? '#fff3ed' : 'white', color: form.subjects.includes(s) ? '#E85D26' : '#555', cursor: 'pointer', fontSize: '13px', fontWeight: form.subjects.includes(s) ? 'bold' : 'normal' }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* BIO */}
+            <div>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>About You</label>
+              <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })}
+                placeholder="Tell schools about yourself — your experience, teaching style, what makes you a great teacher..."
+                rows={5} style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+            </div>
+
+            {/* VIDEO */}
+            <div>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '6px' }}>▶ Introduction Video Link (optional)</label>
+              <input value={form.video_url} onChange={e => setForm({ ...form, video_url: e.target.value })}
+                placeholder="e.g. https://www.youtube.com/watch?v=..."
+                style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+              <p style={{ color: '#888', fontSize: '12px', margin: '4px 0 0' }}>YouTube, Vimeo or any video link. A short 1–2 minute introduction works best.</p>
+            </div>
+
+            {/* CONTACT */}
+            <div style={{ background: '#f9f9f9', borderRadius: '10px', padding: '16px', border: '1px solid #eee' }}>
+              <p style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', margin: '0 0 12px' }}>🔒 Contact Details (only visible to paid recruiters)</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="Email address *" type="email"
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="Phone number"
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                <input value={form.line_id} onChange={e => setForm({ ...form, line_id: e.target.value })} placeholder="LINE ID"
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+            </div>
+
+            <button onClick={handleSubmit} disabled={submitting || uploading}
+              style={{ background: submitting || uploading ? '#ccc' : '#E85D26', color: 'white', padding: '16px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: submitting || uploading ? 'not-allowed' : 'pointer' }}>
+              {uploading ? '⏳ Uploading photo...' : submitting ? 'Submitting...' : '🎓 Submit My CV — Free'}
+            </button>
+            <p style={{ color: '#888', fontSize: '12px', textAlign: 'center', margin: 0 }}>Your profile will be reviewed and made live within 24 hours. Free forever.</p>
+          </div>
         </div>
       </div>
     </main>

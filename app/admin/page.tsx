@@ -97,12 +97,13 @@ export default function AdminPage() {
   const [jobPartnerMap, setJobPartnerMap] = useState<Record<string, string>>({})
   const [jobLogoMap, setJobLogoMap] = useState<Record<string, string | null>>({})
   const [savingLogo, setSavingLogo] = useState<string | null>(null)
+  const [recruiterRequests, setRecruiterRequests] = useState<any[]>([])
   const [premiumPasswords, setPremiumPasswords] = useState<any[]>([])
   const [generatingPassword, setGeneratingPassword] = useState(false)
   const [newBuyerName, setNewBuyerName] = useState('')
   const [newBuyerEmail, setNewBuyerEmail] = useState('')
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium' | 'recruiter'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null)
@@ -131,6 +132,7 @@ export default function AdminPage() {
       loadBlogPosts()
       loadPartnerJobs()
       loadPremiumPasswords()
+      loadRecruiterRequests()
       adminSupabase.from('profiles').select('id, email').then(({ data }) => setAllMembers(data || []))
     }
   }, [authed])
@@ -233,6 +235,11 @@ export default function AdminPage() {
     const logoMap: Record<string, string | null> = {}
     jobData?.forEach((j: any) => { logoMap[j.id] = j.source_logo || null })
     setJobLogoMap(logoMap)
+  }
+
+  const loadRecruiterRequests = async () => {
+    const { data } = await adminSupabase.from('recruiter_requests').select('*').order('created_at', { ascending: false })
+    setRecruiterRequests(data || [])
   }
 
   const loadPremiumPasswords = async () => {
@@ -399,6 +406,7 @@ export default function AdminPage() {
   const pendingRentalCount = rentalMembers.filter(m => !m.active).length
   const pendingTeacherCount = teachers.filter(t => t.status === 'pending').length
   const pendingEslCount = eslOrders.filter(o => o.status === 'pending').length
+  const pendingRecruiterCount = recruiterRequests.filter(r => r.status === 'pending').length
   const displayed = activeTab === 'unread' ? messages.filter(m => !m.read) : activeTab === 'all' ? messages : memberMessages
 
   if (!authed) return (
@@ -434,7 +442,7 @@ export default function AdminPage() {
               {unreadCount + unreadMemberCount + pendingRentalCount + pendingTeacherCount + pendingEslCount} pending
             </span>
           )}
-          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs(); loadPremiumPasswords() }}
+          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs(); loadPremiumPasswords(); loadRecruiterRequests() }}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             🔄 Refresh
           </button>
@@ -458,6 +466,7 @@ export default function AdminPage() {
             { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
             { id: 'partners', label: `🤝 Partners` },
             { id: 'premium', label: `🎮 Premium (${premiumPasswords.length})` },
+            { id: 'recruiter', label: `🏫 Recruiters (${recruiterRequests.length})${pendingRecruiterCount > 0 ? ' 🔴' : ''}` },
             { id: 'direct', label: `📩 Message Member` },
             { id: 'email', label: '📧 Email Members' },
           ].map(tab => (
@@ -615,6 +624,65 @@ export default function AdminPage() {
                           }}
                           style={{ background: assigningJob === job.id ? '#ccc' : '#1a1a2e', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: assigningJob === job.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
                           {assigningJob === job.id ? '...' : 'Save'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* RECRUITER REQUESTS TAB */}
+        {activeTab === 'recruiter' && (
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '6px' }}>🏫 Recruiter Access Requests</h2>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Schools and recruiters requesting access to the Teacher Directory contact details.</p>
+            {recruiterRequests.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#888' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏫</div>
+                <p>No recruiter requests yet</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {recruiterRequests.map((req: any) => (
+                  <div key={req.id} style={{ background: 'white', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: req.status === 'pending' ? '2px solid #E85D26' : '1px solid #eee' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{req.name}</span>
+                          {req.status === 'pending' && <span style={{ background: '#ff9800', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⏳ Pending</span>}
+                          {req.status === 'contacted' && <span style={{ background: '#4caf50', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✅ Contacted</span>}
+                        </div>
+                        {req.school && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>🏫 {req.school}</div>}
+                        <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📧 {req.email}</div>
+                        {req.phone && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📞 {req.phone}</div>}
+                        <div style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '20px', display: 'inline-block', marginBottom: '6px' }}>
+                          {req.plan}
+                        </div>
+                        {req.message && <div style={{ color: '#555', fontSize: '13px', background: '#f9f9f9', padding: '10px 12px', borderRadius: '8px', marginTop: '6px' }}>{req.message}</div>}
+                        <div style={{ color: '#999', fontSize: '12px', marginTop: '6px' }}>{new Date(req.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '140px' }}>
+                        <a href={`mailto:${req.email}?subject=Recruiter Access — Teacher Directory&body=Hi ${req.name},%0A%0AThank you for your interest in the Jobs in Thailand Teacher Directory.%0A%0APlease find payment details below:%0A%0A...%0A%0AKind regards%0AJobs in Thailand`}
+                          style={{ display: 'block', background: '#e8f5e9', color: '#2e7d32', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', textAlign: 'center' }}>
+                          📧 Reply by Email
+                        </a>
+                        {req.status === 'pending' && (
+                          <button onClick={async () => {
+                            await adminSupabase.from('recruiter_requests').update({ status: 'contacted' }).eq('id', req.id)
+                            setRecruiterRequests(prev => prev.map((r: any) => r.id === req.id ? { ...r, status: 'contacted' } : r))
+                          }} style={{ background: '#e8f0fe', color: '#2D6BE4', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
+                            ✓ Mark Contacted
+                          </button>
+                        )}
+                        <button onClick={async () => {
+                          if (!confirm('Delete this request?')) return
+                          await adminSupabase.from('recruiter_requests').delete().eq('id', req.id)
+                          setRecruiterRequests(prev => prev.filter((r: any) => r.id !== req.id))
+                        }} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                          🗑 Delete
                         </button>
                       </div>
                     </div>
@@ -933,7 +1001,7 @@ export default function AdminPage() {
         )}
 
         {/* CONTACT MESSAGES */}
-        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && activeTab !== 'premium' && (
+        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && activeTab !== 'premium' && activeTab !== 'recruiter' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
