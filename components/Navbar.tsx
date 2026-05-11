@@ -238,7 +238,7 @@ export default function Navbar() {
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {[
                 { href: '/rentals',       label: '🏠 Rentals' },
-                { href: '/teachers',      label: '🎓 Private Teachers' },
+                { href: '/teachers',      label: '🎓 Teachers Directory' },
                 { href: '/training',      label: '📚 Training' },
                 { href: '/cv-builder',    label: '📄 CV Builder' },
                 { href: '/esl-resources', label: '📖 ESL Resources' },
