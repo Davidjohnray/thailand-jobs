@@ -99,7 +99,9 @@ export default function Navbar() {
                   { href: '/jobs',          label: '📋 All Jobs' },
                   { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
                   { href: '/jobs/other',    label: '💼 Other Jobs' },
-                  { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
+{ href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
+{ href: '/jobs/nnes',     label: '🌏 NNES Teacher Jobs' },
+{ href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
                 ].map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setJobsOpen(false)}
                     style={dropdownLinkStyle}
@@ -215,7 +217,9 @@ export default function Navbar() {
                 { href: '/jobs',          label: '📋 All Jobs' },
                 { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
                 { href: '/jobs/other',    label: '💼 Other Jobs' },
-                { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
+{ href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
+{ href: '/jobs/nnes',     label: '🌏 NNES Teacher Jobs' },
+{ href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
               ].map(item => (
                 <Link key={item.href} href={item.href} onClick={closeMobile}
                   style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
