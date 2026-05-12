@@ -37,7 +37,7 @@ function TVGame() {
 
   function next() {
     if (current + 1 >= questions.length) { setPhase('finished'); return }
-    setCurrent(c => c + 1); setRevealed(false); setTimeLeft(15); setRunning(true); setLastGiven(null)
+    setCurrent(c => c + 1); setRevealed(false); setTimeLeft(20); setRunning(false); setLastGiven(null)
   }
 
   const q = questions[current]
