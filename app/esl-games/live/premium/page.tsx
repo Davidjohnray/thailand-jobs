@@ -111,6 +111,17 @@ const premiumGames = [
   available: true,
   color: '#16a34a',
 },
+{
+  slug: 'sports',
+  emoji: '🏅',
+  title: 'Sports & Games',
+  desc: 'Sports vocabulary, rules, tactics and competition English for ESL learners.',
+  subjects: ['Sports', 'Vocabulary', 'Rules', 'Competition'],
+  ages: 'P1 – M3',
+  questions: '20 questions',
+  available: true,
+  color: '#2D6BE4',
+},
 ]
 
 export default function PremiumGamesPage() {
