@@ -122,6 +122,17 @@ const premiumGames = [
   available: true,
   color: '#2D6BE4',
 },
+{
+  slug: 'grammar',
+  emoji: '✏️',
+  title: 'Grammar Challenge',
+  desc: 'Choose the correct sentence — grammar in context for ESL learners.',
+  subjects: ['Grammar', 'Sentence Structure', 'Tenses', 'English Rules'],
+  ages: 'P1 – M3',
+  questions: '20 questions',
+  available: true,
+  color: '#7C3AED',
+},
 ]
 
 export default function PremiumGamesPage() {
