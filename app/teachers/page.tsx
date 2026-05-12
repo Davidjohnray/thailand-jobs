@@ -24,11 +24,10 @@ export default function TeacherDirectoryPage() {
   const [subject, setSubject] = useState('All Subjects')
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
-  const [form, setForm] = useState({ name: '', school: '', email: '', phone: '', plan: '1 month — ฿1,500', message: '' })
+  const [form, setForm] = useState({ name: '', school: '', email: '', phone: '', plan: '1 month — ฿500', message: '' })
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
 
-  // Recruiter access
   const [recruiterEmail, setRecruiterEmail] = useState('')
   const [recruiterInput, setRecruiterInput] = useState('')
   const [checkingAccess, setCheckingAccess] = useState(false)
@@ -38,7 +37,6 @@ export default function TeacherDirectoryPage() {
   const hasAccess = !!recruiterEmail
 
   useEffect(() => {
-    // Restore recruiter session
     const saved = sessionStorage.getItem('recruiter_email')
     if (saved) setRecruiterEmail(saved)
   }, [])
@@ -79,13 +77,12 @@ export default function TeacherDirectoryPage() {
     await supabase.from('recruiter_requests').insert([{ ...form }])
     setSending(false)
     setSent(true)
-    setTimeout(() => { setShowModal(false); setSent(false); setForm({ name: '', school: '', email: '', phone: '', plan: '1 month — ฿1,500', message: '' }) }, 3000)
+    setTimeout(() => { setShowModal(false); setSent(false); setForm({ name: '', school: '', email: '', phone: '', plan: '1 month — ฿500', message: '' }) }, 3000)
   }
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
 
-      {/* HEADER */}
       <section style={{ background: '#1a1a2e', padding: '40px 24px', textAlign: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '36px', fontWeight: 'bold', margin: '0 0 8px' }}>🎓 Teacher Directory</h1>
         <p style={{ color: '#ccc', fontSize: '16px', margin: '0 0 20px' }}>{filtered.length} teachers seeking positions in Thailand</p>
@@ -114,18 +111,15 @@ export default function TeacherDirectoryPage() {
         </div>
       </section>
 
-      {/* RECRUITER BANNER */}
       {!hasAccess && (
         <div style={{ background: '#fff3ed', borderBottom: '2px solid #E85D26', padding: '12px 24px', textAlign: 'center' }}>
           <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>🏫 Schools & Recruiters — </span>
-          <span style={{ color: '#555', fontSize: '14px' }}>Browse all teacher CVs free. Pay to unlock contact details. </span>
+          <span style={{ color: '#555', fontSize: '14px' }}>Browse all teacher CVs free. Pay to unlock contact details & intro videos. </span>
           <button onClick={() => setShowModal(true)} style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>View pricing →</button>
         </div>
       )}
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 16px' }}>
-
-        {/* FILTERS */}
         <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or location..."
             style={{ flex: 1, minWidth: '200px', padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none' }} />
@@ -144,7 +138,6 @@ export default function TeacherDirectoryPage() {
           </button>
         </div>
 
-        {/* TEACHER GRID */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '80px', color: '#666' }}>Loading teachers...</div>
         ) : filtered.length === 0 ? (
@@ -193,24 +186,25 @@ export default function TeacherDirectoryPage() {
                       {teacher.bio}
                     </p>
                   )}
-                  {teacher.video_url && (
-                    <a href={teacher.video_url} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#E85D26', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', marginBottom: '12px' }}>
-                      ▶ Watch Introduction Video
-                    </a>
-                  )}
 
-                  {/* CONTACT DETAILS */}
+                  {/* Contact — recruiter only, video inside */}
                   {hasAccess ? (
                     <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', border: '1px solid #c8e6c9' }}>
                       <p style={{ color: '#2e7d32', fontSize: '12px', fontWeight: 'bold', margin: '0 0 8px' }}>✅ Contact Details</p>
                       {teacher.email && <p style={{ color: '#444', fontSize: '13px', margin: '0 0 4px' }}>📧 {teacher.email}</p>}
                       {teacher.phone && <p style={{ color: '#444', fontSize: '13px', margin: '0 0 4px' }}>📞 {teacher.phone}</p>}
-                      {teacher.line_id && <p style={{ color: '#444', fontSize: '13px', margin: 0 }}>💬 LINE: {teacher.line_id}</p>}
+                      {teacher.line_id && <p style={{ color: '#444', fontSize: '13px', margin: '0 0 4px' }}>💬 LINE: {teacher.line_id}</p>}
+                      {teacher.video_url && (
+                        <a href={teacher.video_url} target="_blank" rel="noopener noreferrer"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#2e7d32', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', marginTop: '6px' }}>
+                          ▶ Watch Introduction Video
+                        </a>
+                      )}
                     </div>
                   ) : (
                     <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '12px', border: '1px dashed #ddd', textAlign: 'center' }}>
-                      <p style={{ color: '#888', fontSize: '13px', margin: '0 0 8px' }}>🔒 Contact details available to recruiters</p>
+                      <p style={{ color: '#888', fontSize: '13px', margin: '0 0 4px' }}>🔒 Contact details & intro video</p>
+                      <p style={{ color: '#aaa', fontSize: '12px', margin: '0 0 10px' }}>Available to recruiters only</p>
                       <button onClick={() => setShowAccessForm(true)}
                         style={{ background: '#E85D26', color: 'white', padding: '8px 20px', borderRadius: '6px', border: 'none', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}>
                         Get Access
@@ -249,7 +243,7 @@ export default function TeacherDirectoryPage() {
         </div>
       )}
 
-      {/* RECRUITER ACCESS MODAL */}
+      {/* GET ACCESS MODAL */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
           <div style={{ background: 'white', borderRadius: '16px', padding: '32px', maxWidth: '520px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -269,11 +263,12 @@ export default function TeacherDirectoryPage() {
                 <div style={{ fontSize: '24px', marginBottom: '4px' }}>3️⃣</div>
                 <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#1a1a2e', marginBottom: '4px' }}>3 Months</div>
                 <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#2D6BE4' }}>฿1,400</div>
-<div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>Save ฿100</div>
+                <div style={{ color: '#888', fontSize: '12px', marginTop: '4px' }}>Save ฿100</div>
               </div>
             </div>
             <p style={{ color: '#555', fontSize: '14px', marginBottom: '20px', textAlign: 'center' }}>
               ✅ Unlimited access to all teacher contact details<br/>
+              ✅ Watch teacher introduction videos<br/>
               ✅ New teachers added daily<br/>
               ✅ Filter by nationality, subject & location
             </p>
@@ -294,7 +289,7 @@ export default function TeacherDirectoryPage() {
                 <select value={form.plan} onChange={e => setForm({ ...form, plan: e.target.value })}
                   style={{ padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', background: 'white', outline: 'none' }}>
                   <option>1 month — ฿500</option>
-<option>3 months — ฿1,400</option>
+                  <option>3 months — ฿1,400</option>
                 </select>
                 <textarea value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} placeholder="Any questions? (optional)" rows={3}
                   style={{ padding: '11px 14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', outline: 'none', resize: 'vertical' }} />
@@ -311,4 +306,3 @@ export default function TeacherDirectoryPage() {
     </main>
   )
 }
-
