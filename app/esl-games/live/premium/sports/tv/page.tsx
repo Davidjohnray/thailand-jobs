@@ -46,7 +46,6 @@ function TVGame() {
 
   function next() {
     if (current + 1 >= questions.length) { setPhase('finished'); return }
-    // Reset everything including running — teacher must press Start Timer again
     setCurrent(c => c + 1); setRevealed(false); setTimeLeft(20); setRunning(false); setLastGiven(null)
   }
 
