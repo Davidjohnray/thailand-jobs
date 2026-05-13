@@ -42,7 +42,7 @@ export default function TEFLPage() {
             </a>
           </div>
           <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', marginTop: '48px', flexWrap: 'wrap' }}>
-            {[['120', 'Course Hours'], ['P1–M3', 'Age Groups Covered'], ['฿0', 'To Register Interest']].map(([num, label]) => (
+            {[['120', 'Course Hours'], ['All Ages', 'Age Groups Covered'], ['฿0', 'To Register Interest']].map(([num, label]) => (
               <div key={label} style={{ textAlign: 'center' }}>
                 <div style={{ color: '#f59e0b', fontSize: '36px', fontWeight: 'bold' }}>{num}</div>
                 <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginTop: '4px' }}>{label}</div>
