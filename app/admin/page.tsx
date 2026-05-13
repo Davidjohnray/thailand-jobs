@@ -103,7 +103,8 @@ export default function AdminPage() {
   const [newBuyerName, setNewBuyerName] = useState('')
   const [newBuyerEmail, setNewBuyerEmail] = useState('')
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium' | 'recruiter'>('unread')
+  const [teflLeads, setTeflLeads] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium' | 'recruiter' | 'tefl'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null)
@@ -133,6 +134,7 @@ export default function AdminPage() {
       loadPartnerJobs()
       loadPremiumPasswords()
       loadRecruiterRequests()
+      loadTeflLeads()
       adminSupabase.from('profiles').select('id, email').then(({ data }) => setAllMembers(data || []))
     }
   }, [authed])
@@ -245,6 +247,17 @@ export default function AdminPage() {
   const loadPremiumPasswords = async () => {
     const { data } = await adminSupabase.from('pro_game_passwords').select('*').order('created_at', { ascending: false })
     setPremiumPasswords(data || [])
+  }
+
+  const loadTeflLeads = async () => {
+    const { data } = await adminSupabase.from('tefl_leads').select('*').order('created_at', { ascending: false })
+    setTeflLeads(data || [])
+  }
+
+  const deleteTeflLead = async (id: string) => {
+    if (!confirm('Delete this TEFL lead?')) return
+    await adminSupabase.from('tefl_leads').delete().eq('id', id)
+    setTeflLeads(prev => prev.filter(l => l.id !== id))
   }
 
   const assignLogo = async (jobId: string, logo: string | null) => {
@@ -442,7 +455,7 @@ export default function AdminPage() {
               {unreadCount + unreadMemberCount + pendingRentalCount + pendingTeacherCount + pendingEslCount} pending
             </span>
           )}
-          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs(); loadPremiumPasswords(); loadRecruiterRequests() }}
+          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs(); loadPremiumPasswords(); loadRecruiterRequests(); loadTeflLeads() }}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             🔄 Refresh
           </button>
@@ -462,6 +475,7 @@ export default function AdminPage() {
             { id: 'members', label: `Member Messages (${memberMessages.length})${unreadMemberCount > 0 ? ' 🔴' : ''}` },
             { id: 'rentals', label: `🏠 Rentals (${rentalMembers.length})${pendingRentalCount > 0 ? ' 🔴' : ''}` },
             { id: 'teachers', label: `🎓 Teachers (${teachers.length})${pendingTeacherCount > 0 ? ' 🔴' : ''}` },
+            { id: 'tefl', label: `📋 TEFL Leads (${teflLeads.length})` },
             { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
             { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
             { id: 'partners', label: `🤝 Partners` },
@@ -476,6 +490,78 @@ export default function AdminPage() {
             </button>
           ))}
         </div>
+
+        {/* TEFL LEADS TAB */}
+        {activeTab === 'tefl' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📋 TEFL Leads</h2>
+              <span style={{ background: '#2d1b69', color: 'white', borderRadius: '20px', padding: '4px 14px', fontSize: '13px', fontWeight: 'bold' }}>{teflLeads.length} total</span>
+            </div>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Everyone who has registered interest in TEFL certification via the /tefl page.</p>
+
+            {teflLeads.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#888', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+                <p>No TEFL leads yet. Leads will appear here when people register interest on the /tefl page.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {teflLeads.map((lead: any) => (
+                  <div key={lead.id} style={{ background: 'white', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #eee' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e' }}>{lead.name}</span>
+                          {lead.interest && (
+                            <span style={{ background: lead.interest === 'partner' ? '#e8f0fe' : '#f3e8ff', color: lead.interest === 'partner' ? '#2D6BE4' : '#7C3AED', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>
+                              {lead.interest === 'partner' ? '🎓 Partner Course Now' : '⏳ Waiting for Own Course'}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '8px' }}>
+                          <div style={{ color: '#555', fontSize: '13px' }}>📧 <a href={`mailto:${lead.email}`} style={{ color: '#2D6BE4', textDecoration: 'none', fontWeight: 'bold' }}>{lead.email}</a></div>
+                          {lead.phone && <div style={{ color: '#555', fontSize: '13px' }}>📞 {lead.phone}</div>}
+                          {lead.location && <div style={{ color: '#555', fontSize: '13px' }}>📍 {lead.location}</div>}
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                          {lead.study_mode && (
+                            <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: 'bold' }}>
+                              📚 {lead.study_mode}
+                            </span>
+                          )}
+                          {lead.start_date && (
+                            <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: 'bold' }}>
+                              📅 {lead.start_date}
+                            </span>
+                          )}
+                        </div>
+                        {lead.message && (
+                          <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '10px 12px', color: '#555', fontSize: '13px', lineHeight: '1.5', marginTop: '4px' }}>
+                            {lead.message}
+                          </div>
+                        )}
+                        <div style={{ color: '#aaa', fontSize: '12px', marginTop: '8px' }}>
+                          {new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                        <a href={`mailto:${lead.email}?subject=Your TEFL Interest — Jobs in Thailand&body=Hi ${lead.name},%0A%0AThank you for registering your interest in TEFL certification!%0A%0A`}
+                          style={{ display: 'block', background: '#e8f0fe', color: '#2D6BE4', padding: '9px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', textAlign: 'center' }}>
+                          📧 Email
+                        </a>
+                        <button onClick={() => deleteTeflLead(lead.id)}
+                          style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '9px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                          🗑 Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* PREMIUM PASSWORDS TAB */}
         {activeTab === 'premium' && (
@@ -563,65 +649,46 @@ export default function AdminPage() {
                           <div style={{ color: '#888', fontSize: '13px' }}>{job.company} • {job.location} • {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                         </div>
                       </div>
-
-                      {/* LOGO BUTTONS */}
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <button
-                          disabled={savingLogo === job.id}
-                          onClick={() => assignLogo(job.id, JIT_LOGO)}
+                        <button disabled={savingLogo === job.id} onClick={() => assignLogo(job.id, JIT_LOGO)}
                           style={{ background: jobLogoMap[job.id] === JIT_LOGO ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === JIT_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
                           {savingLogo === job.id ? '...' : '🏷️ Mine'}
                         </button>
-                        <button
-                          disabled={savingLogo === job.id}
-                          onClick={() => assignLogo(job.id, TB_LOGO)}
+                        <button disabled={savingLogo === job.id} onClick={() => assignLogo(job.id, TB_LOGO)}
                           style={{ background: jobLogoMap[job.id] === TB_LOGO ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === TB_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
                           🤝 TB
                         </button>
-                        <button
-                          disabled={savingLogo === job.id}
-                          onClick={() => assignLogo(job.id, FILIPINO_LOGO)}
+                        <button disabled={savingLogo === job.id} onClick={() => assignLogo(job.id, FILIPINO_LOGO)}
                           style={{ background: jobLogoMap[job.id] === FILIPINO_LOGO ? '#0038A8' : '#f0f0f0', color: jobLogoMap[job.id] === FILIPINO_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
                           🇵🇭 Filipino
                         </button>
-                        <button
-                          disabled={savingLogo === job.id}
-                          onClick={() => assignLogo(job.id, NNES_LOGO)}
+                        <button disabled={savingLogo === job.id} onClick={() => assignLogo(job.id, NNES_LOGO)}
                           style={{ background: jobLogoMap[job.id] === NNES_LOGO ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === NNES_LOGO ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
                           🌏 NNES
                         </button>
                         {jobLogoMap[job.id] && (
-                          <button
-                            disabled={savingLogo === job.id}
-                            onClick={() => assignLogo(job.id, null)}
+                          <button disabled={savingLogo === job.id} onClick={() => assignLogo(job.id, null)}
                             style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>
                             ✕
                           </button>
                         )}
                       </div>
-
-                      {/* PARTNER DROPDOWN */}
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         {jobPartnerMap[job.id] && (
                           <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>
                             ✓ {partners.find(p => p.id === jobPartnerMap[job.id])?.name || 'Assigned'}
                           </span>
                         )}
-                        <select
-                          value={jobPartnerMap[job.id] || ''}
-                          onChange={e => setJobPartnerMap(prev => ({ ...prev, [job.id]: e.target.value }))}
+                        <select value={jobPartnerMap[job.id] || ''} onChange={e => setJobPartnerMap(prev => ({ ...prev, [job.id]: e.target.value }))}
                           style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '13px', outline: 'none', background: 'white' }}>
                           <option value=''>— No partner —</option>
                           {partners.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                         </select>
-                        <button
-                          disabled={assigningJob === job.id}
-                          onClick={async () => {
-                            setAssigningJob(job.id)
-                            const partnerId = jobPartnerMap[job.id] || null
-                            await adminSupabase.from('jobs').update({ partner_id: partnerId }).eq('id', job.id)
-                            setAssigningJob(null)
-                          }}
+                        <button disabled={assigningJob === job.id} onClick={async () => {
+                          setAssigningJob(job.id)
+                          await adminSupabase.from('jobs').update({ partner_id: jobPartnerMap[job.id] || null }).eq('id', job.id)
+                          setAssigningJob(null)
+                        }}
                           style={{ background: assigningJob === job.id ? '#ccc' : '#1a1a2e', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: assigningJob === job.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
                           {assigningJob === job.id ? '...' : 'Save'}
                         </button>
@@ -658,14 +725,12 @@ export default function AdminPage() {
                         {req.school && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>🏫 {req.school}</div>}
                         <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📧 {req.email}</div>
                         {req.phone && <div style={{ color: '#666', fontSize: '13px', marginBottom: '4px' }}>📞 {req.phone}</div>}
-                        <div style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '20px', display: 'inline-block', marginBottom: '6px' }}>
-                          {req.plan}
-                        </div>
+                        <div style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '20px', display: 'inline-block', marginBottom: '6px' }}>{req.plan}</div>
                         {req.message && <div style={{ color: '#555', fontSize: '13px', background: '#f9f9f9', padding: '10px 12px', borderRadius: '8px', marginTop: '6px' }}>{req.message}</div>}
                         <div style={{ color: '#999', fontSize: '12px', marginTop: '6px' }}>{new Date(req.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '140px' }}>
-                        <a href={`mailto:${req.email}?subject=Recruiter Access — Teacher Directory&body=Hi ${req.name},%0A%0AThank you for your interest in the Jobs in Thailand Teacher Directory.%0A%0APlease find payment details below:%0A%0A...%0A%0AKind regards%0AJobs in Thailand`}
+                        <a href={`mailto:${req.email}?subject=Recruiter Access — Teacher Directory&body=Hi ${req.name},%0A%0AThank you for your interest in the Jobs in Thailand Teacher Directory.%0A%0A`}
                           style={{ display: 'block', background: '#e8f5e9', color: '#2e7d32', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', textAlign: 'center' }}>
                           📧 Reply by Email
                         </a>
@@ -1012,7 +1077,7 @@ export default function AdminPage() {
         )}
 
         {/* CONTACT MESSAGES */}
-        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && activeTab !== 'premium' && activeTab !== 'recruiter' && (
+        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && activeTab !== 'premium' && activeTab !== 'recruiter' && activeTab !== 'tefl' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
