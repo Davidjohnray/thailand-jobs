@@ -43,15 +43,20 @@ export default async function Home() {
             <p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
               Teaching jobs, hospitality, tech and more — all across Thailand
             </p>
-            <div className="search-bar" style={{ display: 'flex', justifyContent: 'center' }}>
-              <input type="text" placeholder="Job title, keyword..." className="search-input"
-                style={{ flex: 1, padding: '16px', fontSize: '16px', border: 'none', borderRadius: '8px 0 0 8px', outline: 'none' }} />
-              <Link href="/jobs">
-                <button className="search-btn" style={{ background: '#E85D26', color: 'white', padding: '16px 32px', fontSize: '16px', border: 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', fontWeight: 'bold' }}>
-                  Search Jobs
-                </button>
-              </Link>
-            </div>
+            <Link href="/sponsors/duke-language" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
+  <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)', border: '2px solid #c9a84c', borderRadius: '10px', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+      <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ height: '36px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+      <div style={{ textAlign: 'left' }}>
+        <div style={{ color: '#c9a84c', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>🇹🇭 Sponsored</div>
+        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '15px' }}>Learn Thai in Thailand — Exclusive Member Discount</div>
+      </div>
+    </div>
+    <div style={{ background: '#c9a84c', color: '#1a1a2e', padding: '10px 22px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', whiteSpace: 'nowrap' as any }}>
+      Claim Discount →
+    </div>
+  </div>
+</Link>
           </div>
 
           {/* RIGHT AD BOX - TEFL */}
