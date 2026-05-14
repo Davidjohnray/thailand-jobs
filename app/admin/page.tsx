@@ -104,7 +104,8 @@ export default function AdminPage() {
   const [newBuyerEmail, setNewBuyerEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [teflLeads, setTeflLeads] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium' | 'recruiter' | 'tefl'>('unread')
+  const [dukeLeads, setDukeLeads] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium' | 'recruiter' | 'tefl' | 'duke'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null)
@@ -135,6 +136,7 @@ export default function AdminPage() {
       loadPremiumPasswords()
       loadRecruiterRequests()
       loadTeflLeads()
+      loadDukeLeads()
       adminSupabase.from('profiles').select('id, email').then(({ data }) => setAllMembers(data || []))
     }
   }, [authed])
@@ -254,10 +256,21 @@ export default function AdminPage() {
     setTeflLeads(data || [])
   }
 
+  const loadDukeLeads = async () => {
+    const { data } = await adminSupabase.from('duke_leads').select('*').order('created_at', { ascending: false })
+    setDukeLeads(data || [])
+  }
+
   const deleteTeflLead = async (id: string) => {
     if (!confirm('Delete this TEFL lead?')) return
     await adminSupabase.from('tefl_leads').delete().eq('id', id)
     setTeflLeads(prev => prev.filter(l => l.id !== id))
+  }
+
+  const deleteDukeLead = async (id: string) => {
+    if (!confirm('Delete this Duke lead?')) return
+    await adminSupabase.from('duke_leads').delete().eq('id', id)
+    setDukeLeads(prev => prev.filter(l => l.id !== id))
   }
 
   const assignLogo = async (jobId: string, logo: string | null) => {
@@ -455,7 +468,7 @@ export default function AdminPage() {
               {unreadCount + unreadMemberCount + pendingRentalCount + pendingTeacherCount + pendingEslCount} pending
             </span>
           )}
-          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs(); loadPremiumPasswords(); loadRecruiterRequests(); loadTeflLeads() }}
+          <button onClick={() => { loadMessages(); loadMemberMessages(); loadRentalMembers(); loadTeachers(); loadEslOrders(); loadBlogPosts(); loadPartnerJobs(); loadPremiumPasswords(); loadRecruiterRequests(); loadTeflLeads(); loadDukeLeads() }}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}>
             🔄 Refresh
           </button>
@@ -476,6 +489,7 @@ export default function AdminPage() {
             { id: 'rentals', label: `🏠 Rentals (${rentalMembers.length})${pendingRentalCount > 0 ? ' 🔴' : ''}` },
             { id: 'teachers', label: `🎓 Teachers (${teachers.length})${pendingTeacherCount > 0 ? ' 🔴' : ''}` },
             { id: 'tefl', label: `📋 TEFL Leads (${teflLeads.length})` },
+            { id: 'duke', label: `🇹🇭 Duke Leads (${dukeLeads.length})` },
             { id: 'esl', label: `📖 ESL Orders (${eslOrders.length})${pendingEslCount > 0 ? ' 🔴' : ''}` },
             { id: 'blog', label: `✍️ Blog (${blogPosts.length})` },
             { id: 'partners', label: `🤝 Partners` },
@@ -499,7 +513,6 @@ export default function AdminPage() {
               <span style={{ background: '#2d1b69', color: 'white', borderRadius: '20px', padding: '4px 14px', fontSize: '13px', fontWeight: 'bold' }}>{teflLeads.length} total</span>
             </div>
             <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Everyone who has registered interest in TEFL certification via the /tefl page.</p>
-
             {teflLeads.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#888', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
@@ -525,22 +538,10 @@ export default function AdminPage() {
                           {lead.location && <div style={{ color: '#555', fontSize: '13px' }}>📍 {lead.location}</div>}
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
-                          {lead.study_mode && (
-                            <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: 'bold' }}>
-                              📚 {lead.study_mode}
-                            </span>
-                          )}
-                          {lead.start_date && (
-                            <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: 'bold' }}>
-                              📅 {lead.start_date}
-                            </span>
-                          )}
+                          {lead.study_mode && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: 'bold' }}>📚 {lead.study_mode}</span>}
+                          {lead.start_date && <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: 'bold' }}>📅 {lead.start_date}</span>}
                         </div>
-                        {lead.message && (
-                          <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '10px 12px', color: '#555', fontSize: '13px', lineHeight: '1.5', marginTop: '4px' }}>
-                            {lead.message}
-                          </div>
-                        )}
+                        {lead.message && <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '10px 12px', color: '#555', fontSize: '13px', lineHeight: '1.5', marginTop: '4px' }}>{lead.message}</div>}
                         <div style={{ color: '#aaa', fontSize: '12px', marginTop: '8px' }}>
                           {new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </div>
@@ -551,6 +552,56 @@ export default function AdminPage() {
                           📧 Email
                         </a>
                         <button onClick={() => deleteTeflLead(lead.id)}
+                          style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '9px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                          🗑 Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* DUKE LEADS TAB */}
+        {activeTab === 'duke' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🇹🇭 Duke Language Leads</h2>
+              <span style={{ background: '#0f3460', color: 'white', borderRadius: '20px', padding: '4px 14px', fontSize: '13px', fontWeight: 'bold' }}>{dukeLeads.length} total</span>
+            </div>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Everyone who registered to unlock the Duke Language School discount via /sponsors/duke-language.</p>
+            {dukeLeads.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', background: 'white', borderRadius: '12px', color: '#888', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🇹🇭</div>
+                <p>No Duke leads yet. Leads will appear here when people register on the Duke landing page.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {dukeLeads.map((lead: any) => (
+                  <div key={lead.id} style={{ background: 'white', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '1px solid #eee' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 'bold', fontSize: '17px', color: '#1a1a2e', marginBottom: '8px' }}>{lead.name}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '8px' }}>
+                          <div style={{ color: '#555', fontSize: '13px' }}>📧 <a href={`mailto:${lead.email}`} style={{ color: '#2D6BE4', textDecoration: 'none', fontWeight: 'bold' }}>{lead.email}</a></div>
+                          {lead.phone && <div style={{ color: '#555', fontSize: '13px' }}>📞 {lead.phone}</div>}
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                          {lead.level && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: 'bold' }}>📚 {lead.level}</span>}
+                          {lead.goal && <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '12px', padding: '3px 10px', borderRadius: '20px', fontWeight: 'bold' }}>🎯 {lead.goal}</span>}
+                        </div>
+                        <div style={{ color: '#aaa', fontSize: '12px', marginTop: '4px' }}>
+                          {new Date(lead.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                        <a href={`mailto:${lead.email}?subject=Your Thai Language Course Discount — Jobs in Thailand&body=Hi ${lead.name},%0A%0AThank you for registering your interest in learning Thai with Duke Language School!%0A%0A`}
+                          style={{ display: 'block', background: '#e8f0fe', color: '#2D6BE4', padding: '9px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', textAlign: 'center' }}>
+                          📧 Email
+                        </a>
+                        <button onClick={() => deleteDukeLead(lead.id)}
                           style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '9px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
                           🗑 Delete
                         </button>
@@ -641,8 +692,7 @@ export default function AdminPage() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
                         {jobLogoMap[job.id] && (
-                          <img src={jobLogoMap[job.id]!} alt="logo"
-                            style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee', flexShrink: 0 }} />
+                          <img src={jobLogoMap[job.id]!} alt="logo" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee', flexShrink: 0 }} />
                         )}
                         <div>
                           <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e', marginBottom: '2px' }}>{job.title}</div>
@@ -1077,7 +1127,7 @@ export default function AdminPage() {
         )}
 
         {/* CONTACT MESSAGES */}
-        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && activeTab !== 'premium' && activeTab !== 'recruiter' && activeTab !== 'tefl' && (
+        {activeTab !== 'members' && activeTab !== 'email' && activeTab !== 'rentals' && activeTab !== 'teachers' && activeTab !== 'esl' && activeTab !== 'blog' && activeTab !== 'direct' && activeTab !== 'partners' && activeTab !== 'premium' && activeTab !== 'recruiter' && activeTab !== 'tefl' && activeTab !== 'duke' && (
           loading ? (
             <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading messages...</div>
           ) : displayed.length === 0 ? (
