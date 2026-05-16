@@ -54,6 +54,13 @@ const labelStyle = {
   marginBottom: '6px',
 }
 
+const SUBJECT_OPTIONS = [
+  'English', 'Math', 'Science', 'Social Studies', 'PE', 'Art',
+  'Music', 'ICT / Computing', 'Thai', 'Chinese', 'Japanese',
+  'Business Studies', 'Economics', 'History', 'Geography',
+  'Biology', 'Chemistry', 'Physics', 'Drama', 'EFL / ESL',
+]
+
 type FormData = {
   full_name: string
   email: string
@@ -63,6 +70,12 @@ type FormData = {
   experience: string
   cover_note: string
   video_url: string
+  // Teacher directory fields
+  bio: string
+  subjects: string[]
+  hourly_rate: string
+  online_available: boolean
+  add_to_directory: boolean
 }
 
 const emptyForm: FormData = {
@@ -74,6 +87,11 @@ const emptyForm: FormData = {
   experience: '',
   cover_note: '',
   video_url: '',
+  bio: '',
+  subjects: [],
+  hourly_rate: '',
+  online_available: false,
+  add_to_directory: true,
 }
 
 export default function PartnerPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -90,10 +108,13 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [form, setForm] = useState<FormData>(emptyForm)
   const [cvFile, setCvFile] = useState<File | null>(null)
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+  const photoRef = useRef<HTMLInputElement>(null)
   const formRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -123,8 +144,17 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
     load()
   }, [slug])
 
-  const updateForm = (field: keyof FormData, value: string) =>
+  const updateForm = (field: keyof FormData, value: any) =>
     setForm(prev => ({ ...prev, [field]: value }))
+
+  const toggleSubject = (subject: string) => {
+    setForm(prev => ({
+      ...prev,
+      subjects: prev.subjects.includes(subject)
+        ? prev.subjects.filter(s => s !== subject)
+        : [...prev.subjects, subject],
+    }))
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -137,12 +167,22 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
     }
   }
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      setPhotoFile(file)
+      setPhotoPreview(URL.createObjectURL(file))
+    }
+  }
+
   const openApply = (job: Job) => {
     setSelectedJob(job)
     setActiveSection('drop-cv')
     setSubmitted(false)
     setForm(emptyForm)
     setCvFile(null)
+    setPhotoFile(null)
+    setPhotoPreview(null)
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
   }
 
@@ -152,6 +192,8 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
     setSubmitted(false)
     setForm(emptyForm)
     setCvFile(null)
+    setPhotoFile(null)
+    setPhotoPreview(null)
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
   }
 
@@ -170,6 +212,7 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
     setError('')
 
     try {
+      // Upload CV
       const filename = `${Date.now()}-${form.full_name.replace(/\s+/g, '-').toLowerCase()}.pdf`
       const { error: uploadError } = await supabase.storage
         .from('partner-cvs')
@@ -181,6 +224,23 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
         .from('partner-cvs')
         .getPublicUrl(`${partner.slug}/${filename}`)
 
+      // Upload photo if provided
+      let photoUrl: string | null = null
+      if (photoFile) {
+        const photoExt = photoFile.name.split('.').pop()
+        const photoFilename = `${Date.now()}-${form.full_name.replace(/\s+/g, '-').toLowerCase()}.${photoExt}`
+        const { error: photoError } = await supabase.storage
+          .from('teacher-photos')
+          .upload(photoFilename, photoFile, { upsert: false })
+        if (!photoError) {
+          const { data: photoData } = supabase.storage
+            .from('teacher-photos')
+            .getPublicUrl(photoFilename)
+          photoUrl = photoData.publicUrl
+        }
+      }
+
+      // Insert into partner_cvs
       const { error: dbError } = await supabase.from('partner_cvs').insert([{
         partner_id: partner.id,
         partner_slug: partner.slug,
@@ -201,9 +261,48 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
 
       if (dbError) throw new Error('Submission failed: ' + dbError.message)
 
+      // Auto-create teacher directory profile if opted in
+      if (form.add_to_directory) {
+        // Check for duplicate email first
+        const { data: existing } = await supabase
+          .from('teachers')
+          .select('id')
+          .eq('email', form.email.trim().toLowerCase())
+          .maybeSingle()
+
+        if (!existing) {
+          // Generate a slug from their name
+          const teacherSlug = form.full_name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '') + '-' + Date.now().toString().slice(-4)
+
+          await supabase.from('teachers').insert([{
+            name: form.full_name,
+            email: form.email.trim().toLowerCase(),
+            phone: form.phone || null,
+            nationality: form.nationality || null,
+            location: form.location || null,
+            experience_years: form.experience || null,
+            bio: form.bio || null,
+            subjects: form.subjects.length > 0 ? form.subjects : null,
+            hourly_rate: form.hourly_rate || null,
+            online_available: form.online_available,
+            photo_url: photoUrl,
+            slug: teacherSlug,
+            status: 'pending',
+            active: false,
+            template: 'modern',
+            source: 'teach-bridge-form',
+          }])
+        }
+      }
+
       setSubmitted(true)
       setForm(emptyForm)
       setCvFile(null)
+      setPhotoFile(null)
+      setPhotoPreview(null)
     } catch (e: any) {
       setError(e.message || 'Something went wrong. Please try again.')
     }
@@ -338,6 +437,11 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
                     : `Your CV has been sent directly to ${partner.name}.`}
                   <br />They will be in touch if there's a suitable match.
                 </p>
+                {form.add_to_directory && (
+                  <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px', padding: '14px 20px', marginBottom: '20px', color: '#16a34a', fontSize: '14px', fontWeight: 'bold' }}>
+                    🎓 Your Teacher Directory profile has been created and is pending review. Schools will be able to find you directly once approved!
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button onClick={() => { setSubmitted(false); setSelectedJob(null); setActiveSection(null) }}
                     style={{ background: '#1a1a2e', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -369,6 +473,7 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
                   )}
                 </div>
 
+                {/* BASIC DETAILS */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
                   <div>
                     <label style={labelStyle}>Full Name *</label>
@@ -438,6 +543,7 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
                   />
                 </div>
 
+                {/* CV UPLOAD */}
                 <div style={{ marginBottom: '24px' }}>
                   <label style={labelStyle}>Upload CV (PDF only) *</label>
                   <div
@@ -458,6 +564,122 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
                       </>
                     )}
                   </div>
+                </div>
+
+                {/* TEACHER DIRECTORY SECTION */}
+                <div style={{ background: '#f8f4ff', border: '2px solid #7C3AED', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#7C3AED', margin: '0 0 4px' }}>🎓 Add me to the Teacher Directory</h3>
+                      <p style={{ color: '#555', fontSize: '13px', margin: 0 }}>Let schools find you directly — free, takes 2 minutes, and gets your profile in front of recruiters across Thailand.</p>
+                    </div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', flexShrink: 0 }}>
+                      <input
+                        type="checkbox"
+                        checked={form.add_to_directory}
+                        onChange={e => updateForm('add_to_directory', e.target.checked)}
+                        style={{ width: '18px', height: '18px', accentColor: '#7C3AED', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#7C3AED' }}>Yes please!</span>
+                    </label>
+                  </div>
+
+                  {form.add_to_directory && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+                      {/* PHOTO */}
+                      <div>
+                        <label style={labelStyle}>Profile Photo</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                          {photoPreview ? (
+                            <img src={photoPreview} alt="Preview"
+                              style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #7C3AED', flexShrink: 0 }} />
+                          ) : (
+                            <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#e9d5ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>👤</div>
+                          )}
+                          <div>
+                            <input ref={photoRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: 'none' }} />
+                            <button type="button" onClick={() => photoRef.current?.click()}
+                              style={{ background: '#7C3AED', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', display: 'block', marginBottom: '4px' }}>
+                              {photoPreview ? '📷 Change Photo' : '📷 Upload Photo'}
+                            </button>
+                            <span style={{ color: '#888', fontSize: '12px' }}>JPG or PNG • A clear headshot works best</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* BIO */}
+                      <div>
+                        <label style={labelStyle}>About Me</label>
+                        <textarea value={form.bio} onChange={e => updateForm('bio', e.target.value)}
+                          placeholder="Write a short intro about yourself — your teaching style, experience, and what makes you a great teacher. 3-5 sentences is ideal."
+                          rows={4}
+                          style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
+                      </div>
+
+                      {/* SUBJECTS */}
+                      <div>
+                        <label style={labelStyle}>Subjects You Teach</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          {SUBJECT_OPTIONS.map(subject => (
+                            <button
+                              key={subject}
+                              type="button"
+                              onClick={() => toggleSubject(subject)}
+                              style={{
+                                padding: '6px 14px',
+                                borderRadius: '20px',
+                                border: '2px solid',
+                                borderColor: form.subjects.includes(subject) ? '#7C3AED' : '#ddd',
+                                background: form.subjects.includes(subject) ? '#7C3AED' : 'white',
+                                color: form.subjects.includes(subject) ? 'white' : '#555',
+                                fontSize: '13px',
+                                fontWeight: form.subjects.includes(subject) ? 'bold' : 'normal',
+                                cursor: 'pointer',
+                              }}>
+                              {subject}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* HOURLY RATE + ONLINE */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                        <div>
+                          <label style={labelStyle}>Expected Hourly Rate (optional)</label>
+                          <input value={form.hourly_rate} onChange={e => updateForm('hourly_rate', e.target.value)}
+                            placeholder="e.g. 500 THB/hr or negotiable"
+                            style={inputStyle} />
+                        </div>
+                        <div>
+                          <label style={labelStyle}>Available for Online Teaching?</label>
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                            {[{ label: '✅ Yes', value: true }, { label: '❌ No', value: false }].map(opt => (
+                              <button
+                                key={String(opt.value)}
+                                type="button"
+                                onClick={() => updateForm('online_available', opt.value)}
+                                style={{
+                                  flex: 1,
+                                  padding: '10px',
+                                  borderRadius: '8px',
+                                  border: '2px solid',
+                                  borderColor: form.online_available === opt.value ? '#7C3AED' : '#ddd',
+                                  background: form.online_available === opt.value ? '#f8f4ff' : 'white',
+                                  color: form.online_available === opt.value ? '#7C3AED' : '#555',
+                                  fontWeight: form.online_available === opt.value ? 'bold' : 'normal',
+                                  cursor: 'pointer',
+                                  fontSize: '13px',
+                                }}>
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
                 </div>
 
                 {error && (
