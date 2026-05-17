@@ -11,6 +11,7 @@ const games = [
     age: 'Ages 5+',
     time: '10-15 min',
   },
+  
   {
     slug: 'word-scramble',
     title: 'Word Scramble Race',
@@ -56,6 +57,16 @@ const games = [
     age: 'Ages 6+',
     time: '5-10 min',
   },
+  {
+  slug: 'animals',
+  emoji: '🐾',
+  title: 'Animal Match',
+  desc: 'Find the right animal! Perfect for young learners. Big pictures, simple choices.',
+  topics: ['Animals', 'Vocabulary', 'Listening'],
+  ages: 'KG – P2',
+  questions: '20 questions',
+  color: '#f59e0b',
+},
 ]
 
 const modes = [
