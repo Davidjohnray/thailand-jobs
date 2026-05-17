@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { questions } from '../questions'
@@ -19,7 +19,7 @@ const DEFAULT_TEAMS: Team[] = [
 const LABELS = ['A', 'B', 'C', 'D']
 const OPTION_COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#22c55e']
 
-export default function HouseTVPage() {
+function HouseTVInner() {
   const params = useSearchParams()
   const ageGroup = params.get('age') || 'P1-P2'
   const qs = questions[ageGroup] || []
@@ -235,4 +235,8 @@ export default function HouseTVPage() {
       </div>
     </main>
   )
+}
+
+export default function HouseTVPage() {
+  return <Suspense fallback={<main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#94a3b8' }}>Loading...</p></main>}><HouseTVInner /></Suspense>
 }

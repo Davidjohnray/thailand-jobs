@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { questions } from '../questions'
@@ -7,7 +7,7 @@ import { questions } from '../questions'
 const SESSION_KEY = 'premium_games_session'
 const TOTAL_TIME = 15
 
-export default function HouseSoloPage() {
+function HouseSoloInner() {
   const params = useSearchParams()
   const ageGroup = params.get('age') || 'P1-P2'
   const qs = questions[ageGroup] || []
@@ -162,4 +162,8 @@ export default function HouseSoloPage() {
       </div>
     </main>
   )
+}
+
+export default function HouseSoloPage() {
+  return <Suspense fallback={<main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#94a3b8' }}>Loading...</p></main>}><HouseSoloInner /></Suspense>
 }

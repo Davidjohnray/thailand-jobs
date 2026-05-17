@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
@@ -15,7 +15,7 @@ const TOTAL_TIME = 15
 const LABELS = ['A', 'B', 'C', 'D']
 const OPTION_COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#22c55e']
 
-export default function HouseHostPage() {
+function HouseHostInner() {
   const params = useSearchParams()
   const ageGroup = params.get('age') || 'P1-P2'
   const roomCode = params.get('room') || ''
@@ -212,4 +212,8 @@ export default function HouseHostPage() {
       </div>
     </main>
   )
+}
+
+export default function HouseHostPage() {
+  return <Suspense fallback={<main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#94a3b8' }}>Loading...</p></main>}><HouseHostInner /></Suspense>
 }
