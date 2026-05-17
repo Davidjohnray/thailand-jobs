@@ -13,59 +13,15 @@ const PASSWORD_KEY = 'premium_games_password'
 
 const kgGames = [
   {
-    slug: 'kg-animals',
-    emoji: '🐾',
-    title: 'Animal Match',
-    desc: 'Find the right animal! Big colourful pictures — perfect for young learners.',
-    subjects: ['Animals', 'Vocabulary', 'Listening'],
-    ages: 'KG – P1',
-    questions: '20 questions',
-    available: false,
-    color: '#f59e0b',
-  },
-  {
-    slug: 'kg-colours',
-    emoji: '🌈',
-    title: 'Colours & Shapes',
-    desc: 'Can you name the colour or shape? Visual and fun for kindergarten classes.',
-    subjects: ['Colours', 'Shapes', 'Vocabulary'],
-    ages: 'KG – P1',
-    questions: '20 questions',
-    available: false,
-    color: '#8b5cf6',
-  },
-  {
-    slug: 'kg-numbers',
+    slug: 'count-match',
     emoji: '🔢',
-    title: 'Numbers 1–20',
-    desc: 'Count and match the numbers! Great for early maths and English together.',
+    title: 'Count & Match',
+    desc: 'Count the objects and find the right number! Big colourful emojis — perfect for young learners.',
     subjects: ['Numbers', 'Counting', 'Maths'],
     ages: 'KG – P1',
     questions: '20 questions',
-    available: false,
-    color: '#ec4899',
-  },
-  {
-    slug: 'kg-body',
-    emoji: '👁️',
-    title: 'Body Parts',
-    desc: 'Head, shoulders, knees and toes — learn body part vocabulary with big visuals.',
-    subjects: ['Body Parts', 'Vocabulary', 'Health'],
-    ages: 'KG – P1',
-    questions: '20 questions',
-    available: false,
-    color: '#22c55e',
-  },
-  {
-    slug: 'kg-food',
-    emoji: '🍎',
-    title: 'Food & Fruit',
-    desc: 'Identify fruits, vegetables and food. Colourful pictures for young learners.',
-    subjects: ['Food', 'Fruit', 'Vocabulary'],
-    ages: 'KG – P1',
-    questions: '20 questions',
-    available: false,
-    color: '#ef4444',
+    available: true,
+    color: '#f59e0b',
   },
 ]
 
@@ -134,7 +90,7 @@ export default function PremiumGamesPage() {
   const [loading, setLoading] = useState(true)
   const [checking, setChecking] = useState(false)
   const [sessionKicked, setSessionKicked] = useState(false)
-  const [activeTab, setActiveTab] = useState<'kg' | 'prathom'>('prathom')
+  const [activeTab, setActiveTab] = useState<'kg' | 'prathom' | 'none'>('prathom')
 
   useEffect(() => {
     const savedPassword = localStorage.getItem(PASSWORD_KEY)
@@ -242,66 +198,81 @@ export default function PremiumGamesPage() {
         </div>
       </div>
 
-      {/* TABS */}
-      <div style={{ background: 'white', borderBottom: '2px solid #eee', padding: '0 24px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', gap: '0' }}>
-          <button onClick={() => setActiveTab('kg')}
-            style={{ padding: '18px 28px', border: 'none', borderBottom: activeTab === 'kg' ? '3px solid #f59e0b' : '3px solid transparent', background: 'none', fontWeight: 'bold', fontSize: '15px', color: activeTab === 'kg' ? '#f59e0b' : '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            🧒 Kindergarten
-          </button>
-          <button onClick={() => setActiveTab('prathom')}
-            style={{ padding: '18px 28px', border: 'none', borderBottom: activeTab === 'prathom' ? '3px solid #E85D26' : '3px solid transparent', background: 'none', fontWeight: 'bold', fontSize: '15px', color: activeTab === 'prathom' ? '#E85D26' : '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            📚 Prathom & Matthayom
-          </button>
-        </div>
-      </div>
-
+      {/* TWO SECTION BUTTONS + CONTENT */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
 
-        {/* KINDERGARTEN TAB */}
-        {activeTab === 'kg' && (
-          <div>
-            <div style={{ background: 'linear-gradient(135deg, #fef3c7, #fde68a)', borderRadius: '16px', padding: '24px', marginBottom: '24px', textAlign: 'center', border: '2px solid #fcd34d' }}>
-              <div style={{ fontSize: '40px', marginBottom: '8px' }}>🧒</div>
-              <h2 style={{ color: '#92400e', fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px' }}>Kindergarten Games</h2>
-              <p style={{ color: '#78350f', fontSize: '14px', margin: 0 }}>
-                Visual emoji-based games designed for young learners aged 4–7. Big pictures, no reading required. Perfect for KG and early Prathom classes.
-              </p>
+        {/* KG BUTTON */}
+        <button onClick={() => setActiveTab(activeTab === 'kg' ? 'none' : 'kg')}
+          style={{
+            width: '100%', padding: '20px 28px', border: '3px solid',
+            borderColor: activeTab === 'kg' ? '#f59e0b' : '#e5e7eb',
+            background: activeTab === 'kg' ? 'linear-gradient(135deg, #f59e0b, #fbbf24)' : 'white',
+            color: activeTab === 'kg' ? 'white' : '#374151',
+            fontWeight: '800', fontSize: '18px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            boxShadow: activeTab === 'kg' ? '0 6px 20px rgba(245,158,11,0.4)' : '0 2px 8px rgba(0,0,0,0.06)',
+            transition: 'all 0.2s', marginBottom: activeTab === 'kg' ? '0' : '12px',
+            borderRadius: activeTab === 'kg' ? '16px 16px 0 0' : '16px',
+          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '32px' }}>🧒</span>
+            <div style={{ textAlign: 'left' }}>
+              <div>Kindergarten Games</div>
+              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.85 }}>Visual emoji games for ages 4–7 • {kgGames.filter(g => g.available).length} available</div>
             </div>
+          </div>
+          <span style={{ fontSize: '20px', transition: 'transform 0.2s', transform: activeTab === 'kg' ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+        </button>
 
+        {/* KG CONTENT */}
+        {activeTab === 'kg' && (
+          <div style={{ background: '#fffbeb', border: '3px solid #f59e0b', borderTop: 'none', borderRadius: '0 0 16px 16px', padding: '24px', marginBottom: '12px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {kgGames.map(game => (
                 <GameCard key={game.slug} game={game} isKg={true} />
               ))}
             </div>
-
-            <div style={{ marginTop: '24px', background: '#fffbeb', borderRadius: '12px', padding: '20px', textAlign: 'center', border: '1px solid #fcd34d' }}>
-              <p style={{ color: '#92400e', fontWeight: 'bold', fontSize: '15px', margin: '0 0 4px' }}>🎨 Kindergarten games coming soon!</p>
-              <p style={{ color: '#78350f', fontSize: '13px', margin: 0 }}>We are building visual, emoji-based games designed specifically for young learners. Watch this space!</p>
+            <div style={{ marginTop: '20px', background: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center', border: '1px solid #fcd34d' }}>
+              <p style={{ color: '#92400e', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>🎨 More kindergarten games coming soon!</p>
+              <p style={{ color: '#78350f', fontSize: '13px', margin: 0 }}>Visual emoji-based games designed specifically for young learners.</p>
             </div>
           </div>
         )}
 
-        {/* PRATHOM & MATTHAYOM TAB */}
-        {activeTab === 'prathom' && (
-          <div>
-            <div style={{ background: 'linear-gradient(135deg, #fff3ed, #fde8d8)', borderRadius: '16px', padding: '24px', marginBottom: '24px', textAlign: 'center', border: '2px solid #fed7aa' }}>
-              <div style={{ fontSize: '40px', marginBottom: '8px' }}>📚</div>
-              <h2 style={{ color: '#9a3412', fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px' }}>Prathom & Matthayom</h2>
-              <p style={{ color: '#7c2d12', fontSize: '14px', margin: 0 }}>
-                Quiz-style games covering English, Maths, Science and more. Four age groups — P1 through M3. Solo play, multiplayer and TV classroom mode.
-              </p>
+        {/* PRATHOM BUTTON */}
+        <button onClick={() => setActiveTab(activeTab === 'prathom' ? 'none' : 'prathom')}
+          style={{
+            width: '100%', padding: '20px 28px', border: '3px solid',
+            borderColor: activeTab === 'prathom' ? '#E85D26' : '#e5e7eb',
+            background: activeTab === 'prathom' ? 'linear-gradient(135deg, #E85D26, #f97316)' : 'white',
+            color: activeTab === 'prathom' ? 'white' : '#374151',
+            fontWeight: '800', fontSize: '18px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            boxShadow: activeTab === 'prathom' ? '0 6px 20px rgba(232,93,38,0.4)' : '0 2px 8px rgba(0,0,0,0.06)',
+            transition: 'all 0.2s',
+            borderRadius: activeTab === 'prathom' ? '16px 16px 0 0' : '16px',
+          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '32px' }}>📚</span>
+            <div style={{ textAlign: 'left' }}>
+              <div>Prathom & Matthayom Games</div>
+              <div style={{ fontSize: '13px', fontWeight: '600', opacity: 0.85 }}>Quiz games for P1 through M3 • {premiumGames.filter(g => g.available).length} available</div>
             </div>
+          </div>
+          <span style={{ fontSize: '20px', transition: 'transform 0.2s', transform: activeTab === 'prathom' ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+        </button>
 
+        {/* PRATHOM CONTENT */}
+        {activeTab === 'prathom' && (
+          <div style={{ background: '#fff7f3', border: '3px solid #E85D26', borderTop: 'none', borderRadius: '0 0 16px 16px', padding: '24px', marginBottom: '12px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {premiumGames.map(game => (
                 <GameCard key={game.slug} game={game} />
               ))}
             </div>
-
-            <div style={{ marginTop: '24px', textAlign: 'center', background: '#fff3ed', borderRadius: '12px', padding: '20px' }}>
-              <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', margin: '0 0 6px' }}>🔔 More games coming soon!</p>
-              <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>Follow our LINE or WhatsApp community to be notified when new premium games launch.</p>
+            <div style={{ marginTop: '20px', background: 'white', borderRadius: '12px', padding: '16px', textAlign: 'center', border: '1px solid #fed7aa' }}>
+              <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>🔔 More games coming soon!</p>
+              <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>Follow our LINE or WhatsApp community to be notified when new games launch.</p>
             </div>
           </div>
         )}
