@@ -23,6 +23,17 @@ const kgGames = [
     available: true,
     color: '#f59e0b',
   },
+  {
+  slug: 'body-parts',
+  emoji: '👁️',
+  title: 'Body Parts',
+  desc: 'Head, shoulders, knees and toes! Big visual emoji cards for young learners.',
+  subjects: ['Body', 'Vocabulary', 'Health'],
+  ages: 'KG – P1',
+  questions: '20 questions',
+  available: true,
+  color: '#22c55e',
+},
 ]
 
 const premiumGames = [
