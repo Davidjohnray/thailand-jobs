@@ -11,151 +11,121 @@ const supabase = createClient(
 const SESSION_KEY = 'premium_games_session'
 const PASSWORD_KEY = 'premium_games_password'
 
-const premiumGames = [
+const kgGames = [
   {
-    slug: 'english',
-    emoji: '🔤',
-    title: 'English Quiz',
-    desc: 'Grammar, vocabulary, literature & language. Four age groups from P1 all the way to M3.',
-    subjects: ['Grammar', 'Vocabulary', 'Literature', 'Spelling'],
-    ages: 'P1 – M3',
+    slug: 'kg-animals',
+    emoji: '🐾',
+    title: 'Animal Match',
+    desc: 'Find the right animal! Big colourful pictures — perfect for young learners.',
+    subjects: ['Animals', 'Vocabulary', 'Listening'],
+    ages: 'KG – P1',
     questions: '20 questions',
-    available: true,
-    color: '#7C3AED',
+    available: false,
+    color: '#f59e0b',
   },
   {
-    slug: 'maths',
+    slug: 'kg-colours',
+    emoji: '🌈',
+    title: 'Colours & Shapes',
+    desc: 'Can you name the colour or shape? Visual and fun for kindergarten classes.',
+    subjects: ['Colours', 'Shapes', 'Vocabulary'],
+    ages: 'KG – P1',
+    questions: '20 questions',
+    available: false,
+    color: '#8b5cf6',
+  },
+  {
+    slug: 'kg-numbers',
     emoji: '🔢',
-    title: 'Maths Quiz',
-    desc: 'Numbers, operations, geometry and problem solving across all primary levels.',
-    subjects: ['Numbers', 'Operations', 'Geometry', 'Problem Solving'],
-    ages: 'P1 – M3',
+    title: 'Numbers 1–20',
+    desc: 'Count and match the numbers! Great for early maths and English together.',
+    subjects: ['Numbers', 'Counting', 'Maths'],
+    ages: 'KG – P1',
     questions: '20 questions',
-    available: true,
-    color: '#2D6BE4',
+    available: false,
+    color: '#ec4899',
   },
   {
-    slug: 'science',
-    emoji: '🔬',
-    title: 'Science Quiz',
-    desc: 'Biology, physics, chemistry and earth science for primary school students.',
-    subjects: ['Biology', 'Physics', 'Chemistry', 'Earth Science'],
-    ages: 'P1 – M3',
+    slug: 'kg-body',
+    emoji: '👁️',
+    title: 'Body Parts',
+    desc: 'Head, shoulders, knees and toes — learn body part vocabulary with big visuals.',
+    subjects: ['Body Parts', 'Vocabulary', 'Health'],
+    ages: 'KG – P1',
     questions: '20 questions',
-    available: true,
-    color: '#16a34a',
+    available: false,
+    color: '#22c55e',
   },
   {
-    slug: 'social',
-    emoji: '🌍',
-    title: 'Social Studies Quiz',
-    desc: 'Geography, history, culture and citizenship for young learners.',
-    subjects: ['Geography', 'History', 'Culture', 'Citizenship'],
-    ages: 'P1 – M3',
+    slug: 'kg-food',
+    emoji: '🍎',
+    title: 'Food & Fruit',
+    desc: 'Identify fruits, vegetables and food. Colourful pictures for young learners.',
+    subjects: ['Food', 'Fruit', 'Vocabulary'],
+    ages: 'KG – P1',
     questions: '20 questions',
-    available: true,
-    color: '#0891b2',
+    available: false,
+    color: '#ef4444',
   },
-  {
-    slug: 'general',
-    emoji: '🌟',
-    title: 'General Knowledge Quiz',
-    desc: 'Fun facts, world records, animals, food and more for all ages.',
-    subjects: ['Fun Facts', 'Animals', 'World', 'Food'],
-    ages: 'P1 – M3',
-    questions: '20 questions',
-    available: true,
-    color: '#E85D26',
-  },
-  {
-  slug: 'spelling',
-  emoji: '🔤',
-  title: 'Spelling Bee',
-  desc: 'See the definition — pick the correct spelling! Great for building vocabulary and spelling skills.',
-  subjects: ['Spelling', 'Vocabulary', 'Definitions', 'Word Skills'],
-  ages: 'P1 – M3',
-  questions: '20 questions',
-  available: true,
-  color: '#db2777',
-},
-{
-  slug: 'idioms',
-  emoji: '🗣️',
-  title: 'Idioms & Phrases',
-  desc: 'What does the idiom mean? Master common English expressions used in everyday conversation.',
-  subjects: ['Idioms', 'Phrases', 'Expressions', 'Vocabulary'],
-  ages: 'P1 – M3',
-  questions: '20 questions',
-  available: true,
-  color: '#0d9488',
-},
-{
-  slug: 'food',
-  emoji: '🍕',
-  title: 'Food Around the World',
-  desc: 'Food vocabulary, cooking methods, world cuisines and kitchen English.',
-  subjects: ['Food Vocabulary', 'Cooking English', 'World Cuisine', 'Kitchen Terms'],
-  ages: 'P1 – M3',
-  questions: '20 questions',
-  available: true,
-  color: '#f59e0b',
-},
-{
-  slug: 'animal',
-  emoji: '🐾',
-  title: 'Animal Kingdom',
-  desc: 'Animal vocabulary, habitats, groups and wildlife English for ESL learners.',
-  subjects: ['Animals', 'Vocabulary', 'Nature', 'Science'],
-  ages: 'P1 – M3',
-  questions: '20 questions',
-  available: true,
-  color: '#16a34a',
-},
-{
-  slug: 'sports',
-  emoji: '🏅',
-  title: 'Sports & Games',
-  desc: 'Sports vocabulary, rules, tactics and competition English for ESL learners.',
-  subjects: ['Sports', 'Vocabulary', 'Rules', 'Competition'],
-  ages: 'P1 – M3',
-  questions: '20 questions',
-  available: true,
-  color: '#2D6BE4',
-},
-{
-  slug: 'grammar',
-  emoji: '✏️',
-  title: 'Grammar Challenge',
-  desc: 'Choose the correct sentence — grammar in context for ESL learners.',
-  subjects: ['Grammar', 'Sentence Structure', 'Tenses', 'English Rules'],
-  ages: 'P1 – M3',
-  questions: '20 questions',
-  available: true,
-  color: '#7C3AED',
-},
-{
-  slug: 'synonyms',
-  emoji: '🔁',
-  title: 'Synonyms & Antonyms',
-  desc: 'Same meaning or opposite? Build vocabulary through synonyms and antonyms.',
-  subjects: ['Vocabulary', 'Synonyms', 'Antonyms', 'Word Building'],
-  ages: 'P1 – M3',
-  questions: '20 questions',
-  available: true,
-  color: '#E85D26',
-},
-{
-  slug: 'house',
-  emoji: '🏠',
-  title: 'Around the House',
-  desc: 'Rooms, furniture and household vocabulary for ESL learners.',
-  subjects: ['Rooms', 'Furniture', 'Vocabulary', 'Daily Life'],
-  ages: 'P1 – M3',
-  questions: '20 questions',
-  available: true,
-  color: '#0d9488',
-},
 ]
+
+const premiumGames = [
+  { slug: 'english', emoji: '🔤', title: 'English Quiz', desc: 'Grammar, vocabulary, literature & language. Four age groups from P1 all the way to M3.', subjects: ['Grammar', 'Vocabulary', 'Literature', 'Spelling'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#7C3AED' },
+  { slug: 'maths', emoji: '🔢', title: 'Maths Quiz', desc: 'Numbers, operations, geometry and problem solving across all primary levels.', subjects: ['Numbers', 'Operations', 'Geometry', 'Problem Solving'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#2D6BE4' },
+  { slug: 'science', emoji: '🔬', title: 'Science Quiz', desc: 'Biology, physics, chemistry and earth science for primary school students.', subjects: ['Biology', 'Physics', 'Chemistry', 'Earth Science'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#16a34a' },
+  { slug: 'social', emoji: '🌍', title: 'Social Studies Quiz', desc: 'Geography, history, culture and citizenship for young learners.', subjects: ['Geography', 'History', 'Culture', 'Citizenship'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#0891b2' },
+  { slug: 'general', emoji: '🌟', title: 'General Knowledge Quiz', desc: 'Fun facts, world records, animals, food and more for all ages.', subjects: ['Fun Facts', 'Animals', 'World', 'Food'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#E85D26' },
+  { slug: 'spelling', emoji: '🔤', title: 'Spelling Bee', desc: 'See the definition — pick the correct spelling! Great for building vocabulary and spelling skills.', subjects: ['Spelling', 'Vocabulary', 'Definitions', 'Word Skills'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#db2777' },
+  { slug: 'idioms', emoji: '🗣️', title: 'Idioms & Phrases', desc: 'What does the idiom mean? Master common English expressions used in everyday conversation.', subjects: ['Idioms', 'Phrases', 'Expressions', 'Vocabulary'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#0d9488' },
+  { slug: 'food', emoji: '🍕', title: 'Food Around the World', desc: 'Food vocabulary, cooking methods, world cuisines and kitchen English.', subjects: ['Food Vocabulary', 'Cooking English', 'World Cuisine', 'Kitchen Terms'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#f59e0b' },
+  { slug: 'animal', emoji: '🐾', title: 'Animal Kingdom', desc: 'Animal vocabulary, habitats, groups and wildlife English for ESL learners.', subjects: ['Animals', 'Vocabulary', 'Nature', 'Science'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#16a34a' },
+  { slug: 'sports', emoji: '🏅', title: 'Sports & Games', desc: 'Sports vocabulary, rules, tactics and competition English for ESL learners.', subjects: ['Sports', 'Vocabulary', 'Rules', 'Competition'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#2D6BE4' },
+  { slug: 'grammar', emoji: '✏️', title: 'Grammar Challenge', desc: 'Choose the correct sentence — grammar in context for ESL learners.', subjects: ['Grammar', 'Sentence Structure', 'Tenses', 'English Rules'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#7C3AED' },
+  { slug: 'synonyms', emoji: '🔁', title: 'Synonyms & Antonyms', desc: 'Same meaning or opposite? Build vocabulary through synonyms and antonyms.', subjects: ['Vocabulary', 'Synonyms', 'Antonyms', 'Word Building'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#E85D26' },
+  { slug: 'house', emoji: '🏠', title: 'Around the House', desc: 'Rooms, furniture and household vocabulary for ESL learners.', subjects: ['Rooms', 'Furniture', 'Vocabulary', 'Daily Life'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#0d9488' },
+]
+
+function GameCard({ game, isKg = false }: { game: typeof premiumGames[0], isKg?: boolean }) {
+  return (
+    <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: game.available ? `2px solid ${game.color}` : '1px solid #eee', opacity: game.available ? 1 : 0.85 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+          <div style={{ fontSize: '44px', flexShrink: 0 }}>{game.emoji}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>{game.title}</h3>
+              {game.available ? (
+                <span style={{ background: game.color, color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>✓ Available Now</span>
+              ) : (
+                <span style={{ background: '#f0f0f0', color: '#888', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>⏳ Coming Soon</span>
+              )}
+            </div>
+            <p style={{ color: '#666', fontSize: '13px', margin: '0 0 8px', lineHeight: '1.5' }}>{game.desc}</p>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {game.subjects.map(s => (
+                <span key={s} style={{ background: isKg ? '#fef3c7' : '#f0f4ff', color: isKg ? '#92400e' : '#2D6BE4', fontSize: '11px', fontWeight: '600', padding: '2px 8px', borderRadius: '20px' }}>{s}</span>
+              ))}
+              <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '11px', fontWeight: '600', padding: '2px 8px', borderRadius: '20px' }}>👥 {game.ages}</span>
+              <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '11px', fontWeight: '600', padding: '2px 8px', borderRadius: '20px' }}>❓ {game.questions}</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ flexShrink: 0 }}>
+          {game.available ? (
+            <Link href={`/esl-games/live/premium/${game.slug}`}
+              style={{ background: game.color, color: 'white', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', display: 'inline-block', whiteSpace: 'nowrap' }}>
+              Play Now →
+            </Link>
+          ) : (
+            <div style={{ background: '#f0f0f0', color: '#aaa', padding: '12px 24px', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>
+              Coming Soon
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function PremiumGamesPage() {
   const [authed, setAuthed] = useState(false)
@@ -164,6 +134,7 @@ export default function PremiumGamesPage() {
   const [loading, setLoading] = useState(true)
   const [checking, setChecking] = useState(false)
   const [sessionKicked, setSessionKicked] = useState(false)
+  const [activeTab, setActiveTab] = useState<'kg' | 'prathom'>('prathom')
 
   useEffect(() => {
     const savedPassword = localStorage.getItem(PASSWORD_KEY)
@@ -176,26 +147,10 @@ export default function PremiumGamesPage() {
   }, [])
 
   const verifyExistingSession = async (savedPassword: string, savedSession: string) => {
-    const { data } = await supabase
-      .from('pro_game_passwords')
-      .select('session_token, active')
-      .eq('password', savedPassword)
-      .single()
-
-    if (!data || !data.active) {
-      localStorage.removeItem(PASSWORD_KEY)
-      localStorage.removeItem(SESSION_KEY)
-      setLoading(false)
-      return
-    }
-
-    if (data.session_token === savedSession) {
-      setAuthed(true)
-    } else {
-      localStorage.removeItem(PASSWORD_KEY)
-      localStorage.removeItem(SESSION_KEY)
-      setSessionKicked(true)
-    }
+    const { data } = await supabase.from('pro_game_passwords').select('session_token, active').eq('password', savedPassword).single()
+    if (!data || !data.active) { localStorage.removeItem(PASSWORD_KEY); localStorage.removeItem(SESSION_KEY); setLoading(false); return }
+    if (data.session_token === savedSession) { setAuthed(true) }
+    else { localStorage.removeItem(PASSWORD_KEY); localStorage.removeItem(SESSION_KEY); setSessionKicked(true) }
     setLoading(false)
   }
 
@@ -203,37 +158,17 @@ export default function PremiumGamesPage() {
     if (!password.trim()) return
     setChecking(true)
     setError('')
-
-    const { data } = await supabase
-      .from('pro_game_passwords')
-      .select('id, active, session_token')
-      .eq('password', password.trim())
-      .single()
-
-    if (!data || !data.active) {
-      setError('Invalid password. Please check your password and try again.')
-      setChecking(false)
-      return
-    }
-
+    const { data } = await supabase.from('pro_game_passwords').select('id, active, session_token').eq('password', password.trim()).single()
+    if (!data || !data.active) { setError('Invalid password. Please check your password and try again.'); setChecking(false); return }
     const newToken = Math.random().toString(36).substring(2) + Date.now().toString(36)
-    await supabase
-      .from('pro_game_passwords')
-      .update({ session_token: newToken, last_login: new Date().toISOString() })
-      .eq('id', data.id)
-
+    await supabase.from('pro_game_passwords').update({ session_token: newToken, last_login: new Date().toISOString() }).eq('id', data.id)
     localStorage.setItem(PASSWORD_KEY, password.trim())
     localStorage.setItem(SESSION_KEY, newToken)
     setAuthed(true)
     setChecking(false)
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem(PASSWORD_KEY)
-    localStorage.removeItem(SESSION_KEY)
-    setAuthed(false)
-    setPassword('')
-  }
+  const handleLogout = () => { localStorage.removeItem(PASSWORD_KEY); localStorage.removeItem(SESSION_KEY); setAuthed(false); setPassword('') }
 
   if (loading) return (
     <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9f9f9' }}>
@@ -244,11 +179,10 @@ export default function PremiumGamesPage() {
   if (!authed) return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '480px' }}>
-
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ fontSize: '56px', marginBottom: '12px' }}>🎮</div>
           <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px' }}>Premium Live Games</h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px' }}>Exclusive classroom games for primary school teachers</p>
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px' }}>Exclusive classroom games for ESL teachers</p>
         </div>
 
         {sessionKicked && (
@@ -261,14 +195,9 @@ export default function PremiumGamesPage() {
         <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px' }}>Enter your password</h2>
           <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>Already purchased? Enter your unique premium password below.</p>
-          <input
-            type="password"
-            value={password}
-            onChange={e => { setPassword(e.target.value); setError('') }}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
+          <input type="password" value={password} onChange={e => { setPassword(e.target.value); setError('') }} onKeyDown={e => e.key === 'Enter' && handleLogin()}
             placeholder="Enter premium password..."
-            style={{ width: '100%', padding: '14px', borderRadius: '8px', border: error ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', textAlign: 'center', letterSpacing: '2px', marginBottom: '8px' }}
-          />
+            style={{ width: '100%', padding: '14px', borderRadius: '8px', border: error ? '2px solid red' : '1px solid #ddd', fontSize: '15px', outline: 'none', boxSizing: 'border-box', textAlign: 'center', letterSpacing: '2px', marginBottom: '8px' }} />
           {error && <p style={{ color: 'red', fontSize: '13px', marginBottom: '12px' }}>{error}</p>}
           <button onClick={handleLogin} disabled={checking || !password.trim()}
             style={{ width: '100%', background: checking ? '#ccc' : '#E85D26', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: checking ? 'not-allowed' : 'pointer', marginTop: '8px' }}>
@@ -282,23 +211,15 @@ export default function PremiumGamesPage() {
           <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', marginBottom: '20px' }}>Lifetime access • Unique password • New games added regularly</div>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
             <a href="https://line.me/ti/g2/MGV6FgMkGOdFSUeaPsHUyMf2P2hYAT5-a6f5Vg" target="_blank" rel="noopener noreferrer"
-              style={{ background: '#06C755', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
-              💬 Contact via LINE
-            </a>
+              style={{ background: '#06C755', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>💬 Contact via LINE</a>
             <a href="https://chat.whatsapp.com/L3fBobRIr7u1tSaiHBxfzv" target="_blank" rel="noopener noreferrer"
-              style={{ background: '#25D366', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
-              💬 Contact via WhatsApp
-            </a>
+              style={{ background: '#25D366', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>💬 Contact via WhatsApp</a>
           </div>
-          <Link href="/contact" style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textDecoration: 'underline' }}>
-            Or send us a message on the website →
-          </Link>
+          <Link href="/contact" style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textDecoration: 'underline' }}>Or send us a message on the website →</Link>
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <Link href="/esl-games/live" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', textDecoration: 'none' }}>
-            ← Back to Free Games
-          </Link>
+          <Link href="/esl-games/live" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', textDecoration: 'none' }}>← Back to Free Games</Link>
         </div>
       </div>
     </main>
@@ -311,67 +232,79 @@ export default function PremiumGamesPage() {
       <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', padding: '40px 24px', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '900px', margin: '0 auto 24px' }}>
           <Link href="/esl-games/live" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px' }}>← Free Games</Link>
-          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>
-            Logout
-          </button>
+          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>Logout</button>
         </div>
         <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎮</div>
         <h1 style={{ color: 'white', fontSize: '36px', fontWeight: 'bold', margin: '0 0 8px' }}>Premium Live Games</h1>
-        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '16px', margin: 0 }}>Multi-subject quiz games for primary school classrooms</p>
-        <div style={{ display: 'inline-block', background: '#E85D26', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', marginTop: '12px' }}>
+        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '16px', margin: '0 0 16px' }}>Interactive ESL games for every classroom — KG through Matthayom</p>
+        <div style={{ display: 'inline-block', background: '#E85D26', color: 'white', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
           ✅ Premium Access Active
         </div>
       </div>
 
-      {/* GAMES LIST */}
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
+      {/* TABS */}
+      <div style={{ background: 'white', borderBottom: '2px solid #eee', padding: '0 24px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', gap: '0' }}>
+          <button onClick={() => setActiveTab('kg')}
+            style={{ padding: '18px 28px', border: 'none', borderBottom: activeTab === 'kg' ? '3px solid #f59e0b' : '3px solid transparent', background: 'none', fontWeight: 'bold', fontSize: '15px', color: activeTab === 'kg' ? '#f59e0b' : '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            🧒 Kindergarten
+          </button>
+          <button onClick={() => setActiveTab('prathom')}
+            style={{ padding: '18px 28px', border: 'none', borderBottom: activeTab === 'prathom' ? '3px solid #E85D26' : '3px solid transparent', background: 'none', fontWeight: 'bold', fontSize: '15px', color: activeTab === 'prathom' ? '#E85D26' : '#6b7280', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            📚 Prathom & Matthayom
+          </button>
+        </div>
+      </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {premiumGames.map(game => (
-            <div key={game.slug} style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: game.available ? `2px solid ${game.color}` : '1px solid #eee', opacity: game.available ? 1 : 0.8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
-                  <div style={{ fontSize: '48px', flexShrink: 0 }}>{game.emoji}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
-                      <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>{game.title}</h3>
-                      {game.available ? (
-                        <span style={{ background: game.color, color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>✓ Available Now</span>
-                      ) : (
-                        <span style={{ background: '#f0f0f0', color: '#888', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '20px' }}>⏳ Coming Soon</span>
-                      )}
-                    </div>
-                    <p style={{ color: '#666', fontSize: '14px', margin: '0 0 10px', lineHeight: '1.5' }}>{game.desc}</p>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      {game.subjects.map(s => (
-                        <span key={s} style={{ background: '#f0f4ff', color: '#2D6BE4', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>{s}</span>
-                      ))}
-                      <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>👥 {game.ages}</span>
-                      <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>❓ {game.questions}</span>
-                    </div>
-                  </div>
-                </div>
-                <div style={{ flexShrink: 0 }}>
-                  {game.available ? (
-                    <Link href={`/esl-games/live/premium/${game.slug}`}
-                      style={{ background: game.color, color: 'white', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                      Play Now →
-                    </Link>
-                  ) : (
-                    <div style={{ background: '#f0f0f0', color: '#aaa', padding: '14px 28px', borderRadius: '10px', fontWeight: 'bold', fontSize: '15px', whiteSpace: 'nowrap' }}>
-                      Coming Soon
-                    </div>
-                  )}
-                </div>
-              </div>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
+
+        {/* KINDERGARTEN TAB */}
+        {activeTab === 'kg' && (
+          <div>
+            <div style={{ background: 'linear-gradient(135deg, #fef3c7, #fde68a)', borderRadius: '16px', padding: '24px', marginBottom: '24px', textAlign: 'center', border: '2px solid #fcd34d' }}>
+              <div style={{ fontSize: '40px', marginBottom: '8px' }}>🧒</div>
+              <h2 style={{ color: '#92400e', fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px' }}>Kindergarten Games</h2>
+              <p style={{ color: '#78350f', fontSize: '14px', margin: 0 }}>
+                Visual emoji-based games designed for young learners aged 4–7. Big pictures, no reading required. Perfect for KG and early Prathom classes.
+              </p>
             </div>
-          ))}
-        </div>
 
-        <div style={{ marginTop: '32px', textAlign: 'center', background: '#fff3ed', borderRadius: '12px', padding: '20px' }}>
-          <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', margin: '0 0 6px' }}>🔔 More games coming soon!</p>
-          <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>Follow our LINE or WhatsApp community to be notified when new premium games launch.</p>
-        </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {kgGames.map(game => (
+                <GameCard key={game.slug} game={game} isKg={true} />
+              ))}
+            </div>
+
+            <div style={{ marginTop: '24px', background: '#fffbeb', borderRadius: '12px', padding: '20px', textAlign: 'center', border: '1px solid #fcd34d' }}>
+              <p style={{ color: '#92400e', fontWeight: 'bold', fontSize: '15px', margin: '0 0 4px' }}>🎨 Kindergarten games coming soon!</p>
+              <p style={{ color: '#78350f', fontSize: '13px', margin: 0 }}>We are building visual, emoji-based games designed specifically for young learners. Watch this space!</p>
+            </div>
+          </div>
+        )}
+
+        {/* PRATHOM & MATTHAYOM TAB */}
+        {activeTab === 'prathom' && (
+          <div>
+            <div style={{ background: 'linear-gradient(135deg, #fff3ed, #fde8d8)', borderRadius: '16px', padding: '24px', marginBottom: '24px', textAlign: 'center', border: '2px solid #fed7aa' }}>
+              <div style={{ fontSize: '40px', marginBottom: '8px' }}>📚</div>
+              <h2 style={{ color: '#9a3412', fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px' }}>Prathom & Matthayom</h2>
+              <p style={{ color: '#7c2d12', fontSize: '14px', margin: 0 }}>
+                Quiz-style games covering English, Maths, Science and more. Four age groups — P1 through M3. Solo play, multiplayer and TV classroom mode.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {premiumGames.map(game => (
+                <GameCard key={game.slug} game={game} />
+              ))}
+            </div>
+
+            <div style={{ marginTop: '24px', textAlign: 'center', background: '#fff3ed', borderRadius: '12px', padding: '20px' }}>
+              <p style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', margin: '0 0 6px' }}>🔔 More games coming soon!</p>
+              <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>Follow our LINE or WhatsApp community to be notified when new premium games launch.</p>
+            </div>
+          </div>
+        )}
 
         <div style={{ marginTop: '24px', textAlign: 'center' }}>
           <Link href="/esl-games" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
