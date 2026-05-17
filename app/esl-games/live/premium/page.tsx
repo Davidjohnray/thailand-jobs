@@ -144,6 +144,17 @@ const premiumGames = [
   available: true,
   color: '#E85D26',
 },
+{
+  slug: 'house',
+  emoji: '🏠',
+  title: 'Around the House',
+  desc: 'Rooms, furniture and household vocabulary for ESL learners.',
+  subjects: ['Rooms', 'Furniture', 'Vocabulary', 'Daily Life'],
+  ages: 'P1 – M3',
+  questions: '20 questions',
+  available: true,
+  color: '#0d9488',
+},
 ]
 
 export default function PremiumGamesPage() {
