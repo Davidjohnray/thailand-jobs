@@ -34,6 +34,17 @@ const kgGames = [
   available: true,
   color: '#22c55e',
 },
+{
+  slug: 'food-fruit',
+  emoji: '🍎',
+  title: 'Food & Fruit',
+  desc: 'Identify fruits, vegetables and food from big colourful pictures!',
+  subjects: ['Food', 'Fruit', 'Vegetables'],
+  ages: 'KG – P1',
+  questions: '20 questions',
+  available: true,
+  color: '#ef4444',
+},
 ]
 
 const premiumGames = [
