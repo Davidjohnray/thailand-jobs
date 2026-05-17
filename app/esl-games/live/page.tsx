@@ -67,6 +67,16 @@ const games = [
   questions: '20 questions',
   color: '#f59e0b',
 },
+{
+  slug: 'colours-shapes',
+  emoji: '🌈',
+  title: 'Colours & Shapes',
+  desc: 'Learn colours and shapes! Big visuals, perfect for young learners.',
+  topics: ['Colours', 'Shapes', 'Vocabulary'],
+  ages: 'KG – P2',
+  questions: '20 questions',
+  color: '#8b5cf6',
+},
 ]
 
 const modes = [
