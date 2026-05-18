@@ -99,9 +99,9 @@ export default function Navbar() {
                   { href: '/jobs',          label: '📋 All Jobs' },
                   { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
                   { href: '/jobs/other',    label: '💼 Other Jobs' },
-{ href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
-{ href: '/jobs/nnes',     label: '🌏 NNES Teacher Jobs' },
-{ href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
+                  { href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
+                  { href: '/jobs/nnes',     label: '🌏 NNES Teacher Jobs' },
+                  { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
                 ].map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setJobsOpen(false)}
                     style={dropdownLinkStyle}
@@ -161,6 +161,12 @@ export default function Navbar() {
             ✍️ Blog
           </Link>
 
+          {/* YouTube Videos — NEW */}
+          <Link href="/videos"
+            style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,0,0,0.35)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            ▶ Videos
+          </Link>
+
           {/* Contact */}
           <Link href="/contact"
             style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#0891b2', fontWeight: 'bold' }}>
@@ -217,9 +223,9 @@ export default function Navbar() {
                 { href: '/jobs',          label: '📋 All Jobs' },
                 { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
                 { href: '/jobs/other',    label: '💼 Other Jobs' },
-{ href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
-{ href: '/jobs/nnes',     label: '🌏 NNES Teacher Jobs' },
-{ href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
+                { href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
+                { href: '/jobs/nnes',     label: '🌏 NNES Teacher Jobs' },
+                { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
               ].map(item => (
                 <Link key={item.href} href={item.href} onClick={closeMobile}
                   style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
@@ -263,6 +269,12 @@ export default function Navbar() {
           <Link href="/blog" onClick={closeMobile}
             style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
             ✍️ Blog
+          </Link>
+
+          {/* YouTube Videos — NEW */}
+          <Link href="/videos" onClick={closeMobile}
+            style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,0,0,0.35)', fontWeight: 'bold' }}>
+            ▶ Videos
           </Link>
 
           {/* Contact */}
