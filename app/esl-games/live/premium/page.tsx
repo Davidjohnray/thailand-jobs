@@ -45,6 +45,17 @@ const kgGames = [
   available: true,
   color: '#ef4444',
 },
+{
+  slug: 'weather',
+  emoji: '⛅',
+  title: 'Weather Watch',
+  desc: 'Sunny, rainy, snowy or stormy? Learn weather words with a changing sky background!',
+  subjects: ['Weather', 'Seasons', 'Vocabulary'],
+  ages: 'KG – P1',
+  questions: '20 questions',
+  available: true,
+  color: '#0ea5e9',
+},
 ]
 
 const premiumGames = [
