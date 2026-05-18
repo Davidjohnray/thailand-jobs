@@ -56,6 +56,17 @@ const kgGames = [
   available: true,
   color: '#0ea5e9',
 },
+{
+  slug: 'family',
+  emoji: '👨‍👩‍👧',
+  title: 'My Family',
+  desc: 'Mum, Dad, Sister, Brother, Grandma and Grandpa! Learn family vocabulary with fun visuals.',
+  subjects: ['Family', 'Vocabulary', 'People'],
+  ages: 'KG – P1',
+  questions: '20 questions',
+  available: true,
+  color: '#ec4899',
+},
 ]
 
 const premiumGames = [
