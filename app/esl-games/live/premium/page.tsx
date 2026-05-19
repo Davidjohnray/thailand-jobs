@@ -67,6 +67,28 @@ const kgGames = [
   available: true,
   color: '#ec4899',
 },
+{
+  slug: 'transport',
+  emoji: '🚗',
+  title: 'Transport',
+  desc: 'Cars, buses, planes, trains and boats! Learn transport vocabulary with fun visuals.',
+  subjects: ['Transport', 'Vocabulary', 'Travel'],
+  ages: 'KG – P1',
+  questions: '20 questions',
+  available: true,
+  color: '#3b82f6',
+},
+{
+  slug: 'shapes',
+  emoji: '🔷',
+  title: 'Shapes',
+  desc: 'Circles, squares, triangles, stars and more! Learn shapes with big colourful visuals.',
+  subjects: ['Shapes', 'Maths', 'Vocabulary'],
+  ages: 'KG – P1',
+  questions: '20 questions',
+  available: true,
+  color: '#a855f7',
+},
 ]
 
 const premiumGames = [
