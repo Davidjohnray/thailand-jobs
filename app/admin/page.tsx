@@ -413,14 +413,51 @@ export default function AdminPage() {
   }
 
   const sendReply = async (id: number) => {
-    const reply = replyText[id]
-    if (!reply?.trim()) return
-    setReplying(id)
-    await adminSupabase.from('member_messages').update({ reply, replied_at: new Date().toISOString(), read_by_admin: true, read_by_user: false }).eq('id', id)
-    setReplyText(prev => ({ ...prev, [id]: '' }))
-    setReplying(null)
-    loadMemberMessages()
+  const reply = replyText[id]
+  if (!reply?.trim()) return
+  setReplying(id)
+
+  // Find the message so we have the user_id and email
+  const msg = memberMessages.find(m => m.id === id)
+
+  // Update the existing message with the reply
+  await adminSupabase.from('member_messages')
+    .update({
+      reply,
+      replied_at: new Date().toISOString(),
+      read_by_admin: true,
+      read_by_user: false
+    })
+    .eq('id', id)
+
+  // If message has no user_id, also create a new row so it appears in their dashboard
+  if (msg && !msg.user_id && msg.user_email) {
+    // Try to find their user_id from profiles table
+    const { data: profile } = await adminSupabase
+      .from('profiles')
+      .select('id')
+      .eq('email', msg.user_email)
+      .single()
+
+    if (profile) {
+      await adminSupabase.from('member_messages').insert([{
+        user_id: profile.id,
+        user_email: msg.user_email,
+        subject: msg.subject || 'Reply from Jobs in Thailand',
+        message: msg.message,
+        reply: reply,
+        replied_at: new Date().toISOString(),
+        read_by_admin: true,
+        read_by_user: false,
+        admin_initiated: false,
+      }])
+    }
   }
+
+  setReplyText(prev => ({ ...prev, [id]: '' }))
+  setReplying(null)
+  loadMemberMessages()
+}
 
   const markMemberRead = async (id: number) => {
     await adminSupabase.from('member_messages').update({ read_by_admin: true }).eq('id', id)
