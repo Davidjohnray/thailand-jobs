@@ -10,10 +10,84 @@ const supabase = createClient(
 
 const nationalities = [
   'All Nationalities',
-  'Filipino', 'British', 'American', 'Canadian', 'Australian', 'South African',
-  'Zimbabwean', 'Indian', 'Irish', 'New Zealander', 'Scottish', 'Welsh',
+
+  // 🌏 East & Southeast Asia
+  'Filipino', 'Indonesian', 'Malaysian', 'Singaporean', 'Thai', 'Vietnamese',
+  'Cambodian', 'Burmese', 'Laotian', 'Bruneian', 'Timorese',
+  'Chinese', 'Japanese', 'Korean', 'Taiwanese', 'Mongolian',
+
+  // 🌏 South Asia
+  'Indian', 'Pakistani', 'Sri Lankan', 'Bangladeshi', 'Nepali',
+  'Bhutanese', 'Maldivian', 'Afghan',
+
+  // 🌍 English-speaking countries
+  'British', 'American', 'Canadian', 'Australian', 'New Zealander',
+  'Irish', 'Scottish', 'Welsh',
+
+  // 🌍 West Africa
+  'Nigerian', 'Ghanaian', 'Ivorian', 'Senegalese', 'Malian',
+  'Beninese', 'Burkinabe', 'Togolese', 'Guinean', 'Sierra Leonean',
+  'Liberian', 'Gambian', 'Cape Verdean', 'Mauritanian', 'Nigerien',
+
+  // 🌍 East Africa
+  'Kenyan', 'Tanzanian', 'Ugandan', 'Ethiopian', 'Rwandan',
+  'Burundian', 'Somali', 'Djiboutian', 'Eritrean', 'South Sudanese',
+  'Sudanese',
+
+  // 🌍 Central Africa
+  'Cameroonian', 'Congolese', 'Gabonese', 'Equatoguinean',
+  'Central African', 'Chadian',
+
+  // 🌍 Southern Africa
+  'South African', 'Zimbabwean', 'Zambian', 'Mozambican', 'Malawian',
+  'Botswanan', 'Namibian', 'Swazi', 'Lesothan', 'Angolan',
+
+  // 🌍 North Africa
+  'Egyptian', 'Moroccan', 'Algerian', 'Tunisian', 'Libyan',
+
+  // 🌍 Indian Ocean Africa
+  'Malagasy', 'Mauritian', 'Seychellois', 'Comorian',
+
+  // 🌎 South America
+  'Brazilian', 'Argentinian', 'Colombian', 'Chilean', 'Peruvian',
+  'Venezuelan', 'Ecuadorian', 'Bolivian', 'Paraguayan', 'Uruguayan',
+  'Guyanese', 'Surinamese',
+
+  // 🌎 Central America & Caribbean
+  'Mexican', 'Jamaican', 'Trinidadian', 'Barbadian', 'Bahamian',
+  'Haitian', 'Dominican', 'Cuban', 'Puerto Rican', 'Belizean',
+  'Guatemalan', 'Honduran', 'Salvadoran', 'Nicaraguan', 'Costa Rican',
+  'Panamanian',
+
+  // 🌍 Middle East
+  'Lebanese', 'Jordanian', 'Syrian', 'Iraqi', 'Israeli',
+  'Palestinian', 'Saudi', 'Emirati', 'Qatari', 'Kuwaiti',
+  'Bahraini', 'Omani', 'Yemeni', 'Iranian', 'Turkish',
+
+  // 🌍 Western Europe
   'French', 'German', 'Dutch', 'Belgian', 'Swiss', 'Spanish', 'Italian',
-  'Nigerian', 'Ghanaian', 'Kenyan', 'Ugandan', 'Jamaican', 'Other'
+  'Portuguese', 'Austrian', 'Luxembourgish',
+
+  // 🌍 Northern Europe
+  'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Icelandic',
+  'Estonian', 'Latvian', 'Lithuanian',
+
+  // 🌍 Eastern Europe
+  'Russian', 'Ukrainian', 'Polish', 'Romanian', 'Hungarian',
+  'Czech', 'Slovak', 'Bulgarian', 'Belarusian', 'Moldovan',
+
+  // 🌍 Southern Europe
+  'Greek', 'Croatian', 'Serbian', 'Slovenian', 'Bosnian',
+  'Macedonian', 'Albanian', 'Montenegrin', 'Maltese',
+
+  // 🌏 Central Asia & Caucasus
+  'Kazakh', 'Uzbek', 'Kyrgyz', 'Tajik', 'Turkmen',
+  'Azerbaijani', 'Georgian', 'Armenian',
+
+  // 🌏 Pacific
+  'Papua New Guinean', 'Samoan', 'Tongan', 'Fijian', 'Vanuatuan',
+
+  'Other'
 ]
 
 const subjectOptions = [
