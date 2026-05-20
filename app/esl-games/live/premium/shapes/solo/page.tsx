@@ -15,32 +15,27 @@ function ShapesSoloInner() {
   const [selected, setSelected] = useState<number | null>(null)
   const [score, setScore] = useState(0)
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME)
+  const [timerRunning, setTimerRunning] = useState(false)
   const [finished, setFinished] = useState(false)
   const [showStar, setShowStar] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    if (!finished && selected === null) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft(t => {
-          if (t <= 1) { handleTimeout(); return 0 }
-          return t - 1
-        })
-      }, 1000)
+    if (timerRunning && timeLeft > 0 && selected === null) {
+      timerRef.current = setTimeout(() => setTimeLeft(t => t - 1), 1000)
+    } else if (timerRunning && timeLeft === 0) {
+      setTimerRunning(false)
+      if (selected === null) { setSelected(-1); setTimeout(nextQuestion, 2000) }
     }
-    return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [current, selected, finished])
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [timerRunning, timeLeft, selected])
 
-  const handleTimeout = () => {
-    if (timerRef.current) clearInterval(timerRef.current)
-    if (selected !== null) return
-    setSelected(-1)
-    setTimeout(nextQuestion, 2000)
-  }
+  const startTimer = () => { setTimeLeft(TOTAL_TIME); setTimerRunning(true) }
 
   const handleAnswer = (idx: number) => {
     if (selected !== null) return
-    if (timerRef.current) clearInterval(timerRef.current)
+    if (timerRef.current) clearTimeout(timerRef.current)
+    setTimerRunning(false)
     setSelected(idx)
     const correct = idx === qs[current].answer
     if (correct) { setScore(s => s + 1); setShowStar(true); setTimeout(() => setShowStar(false), 900) }
@@ -49,10 +44,10 @@ function ShapesSoloInner() {
 
   const nextQuestion = () => {
     if (current + 1 >= qs.length) { setFinished(true); return }
-    setCurrent(c => c + 1); setSelected(null); setTimeLeft(TOTAL_TIME)
+    setCurrent(c => c + 1); setSelected(null); setTimeLeft(TOTAL_TIME); setTimerRunning(false)
   }
 
-  const restart = () => { setCurrent(0); setSelected(null); setScore(0); setTimeLeft(TOTAL_TIME); setFinished(false) }
+  const restart = () => { setCurrent(0); setSelected(null); setScore(0); setTimeLeft(TOTAL_TIME); setTimerRunning(false); setFinished(false) }
 
   if (!authed) return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #faf5ff, #fce7f3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -104,12 +99,24 @@ function ShapesSoloInner() {
           {qs.map((_, i) => <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%', background: i < current ? '#22c55e' : i === current ? '#a855f7' : '#e5e7eb', transition: 'background 0.3s' }} />)}
         </div>
 
+        {/* TIMER with Start button */}
         <div style={{ background: 'white', borderRadius: '16px', padding: '10px 16px', marginBottom: '14px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '24px', fontWeight: '900', color: timerColor, minWidth: '36px', textAlign: 'center' }}>{timeLeft}</span>
+          <span style={{ fontSize: '24px', fontWeight: '900', color: timerRunning || timeLeft < TOTAL_TIME ? timerColor : '#9ca3af', minWidth: '36px', textAlign: 'center' }}>{timeLeft}</span>
           <div style={{ flex: 1, background: '#faf5ff', borderRadius: '8px', height: '10px', overflow: 'hidden' }}>
-            <div style={{ background: timerColor, height: '10px', borderRadius: '8px', width: `${timerPct}%`, transition: 'width 1s linear, background 0.3s' }} />
+            <div style={{ background: timerRunning || timeLeft < TOTAL_TIME ? timerColor : '#d8b4fe', height: '10px', borderRadius: '8px', width: `${timerPct}%`, transition: 'width 1s linear, background 0.3s' }} />
           </div>
-          <span>⏱️</span>
+          {!timerRunning && selected === null && (
+            <button onClick={startTimer}
+              style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 3px 10px rgba(34,197,94,0.4)' }}>
+              ▶ Start
+            </button>
+          )}
+          {timerRunning && (
+            <button onClick={() => setTimerRunning(false)}
+              style={{ background: '#faf5ff', color: '#a855f7', border: 'none', padding: '8px 12px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
+              ⏸
+            </button>
+          )}
         </div>
 
         <div style={{ background: 'white', borderRadius: '28px', padding: '28px', textAlign: 'center', marginBottom: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', border: '3px solid #d8b4fe' }}>
