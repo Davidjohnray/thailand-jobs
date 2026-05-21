@@ -133,6 +133,28 @@ const kgGames = [
     available: true,
     color: '#3b82f6',
   },
+  {
+    slug: 'emotions',
+    emoji: '😊',
+    title: 'Emotions',
+    desc: 'Happy, sad, angry, scared and more! Learn feelings with big expressive faces.',
+    subjects: ['Emotions', 'Vocabulary', 'Social Skills'],
+    ages: 'KG – P1',
+    questions: '20 questions',
+    available: true,
+    color: '#f59e0b',
+  },
+  {
+    slug: 'rooms',
+    emoji: '🏠',
+    title: 'Rooms',
+    desc: 'Bedroom, kitchen, bathroom and living room! Learn every room in the house.',
+    subjects: ['Rooms', 'Vocabulary', 'Home'],
+    ages: 'KG – P1',
+    questions: '20 questions',
+    available: true,
+    color: '#0ea5e9',
+  },
 ]
 
 const premiumGames = [
