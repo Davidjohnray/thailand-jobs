@@ -111,6 +111,28 @@ const kgGames = [
   available: true,
   color: '#a855f7',
 },
+{
+    slug: 'colours',
+    emoji: '🌈',
+    title: 'Colours',
+    desc: 'Red, blue, green, yellow and more! Learn all the colours with bright visuals.',
+    subjects: ['Colours', 'Vocabulary', 'Art'],
+    ages: 'KG – P1',
+    questions: '20 questions',
+    available: true,
+    color: '#f59e0b',
+  },
+  {
+    slug: 'numbers',
+    emoji: '🔢',
+    title: 'Numbers',
+    desc: 'Count from 1 to 10! Find the number, count the objects and more.',
+    subjects: ['Numbers', 'Maths', 'Counting'],
+    ages: 'KG – P1',
+    questions: '20 questions',
+    available: true,
+    color: '#3b82f6',
+  },
 ]
 
 const premiumGames = [
