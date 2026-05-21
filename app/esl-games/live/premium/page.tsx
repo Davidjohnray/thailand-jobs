@@ -155,6 +155,28 @@ const kgGames = [
     available: true,
     color: '#0ea5e9',
   },
+  {
+    slug: 'sea',
+    emoji: '🌊',
+    title: 'Sea Creatures',
+    desc: 'Fish, sharks, dolphins, crabs and more! Explore the ocean world.',
+    subjects: ['Sea', 'Animals', 'Science'],
+    ages: 'KG – P1',
+    questions: '20 questions',
+    available: true,
+    color: '#0ea5e9',
+  },
+  {
+    slug: 'school',
+    emoji: '🏫',
+    title: 'School',
+    desc: 'Pencils, books, bags, scissors and more! Learn all your school supplies.',
+    subjects: ['School', 'Vocabulary', 'Classroom'],
+    ages: 'KG – P1',
+    questions: '20 questions',
+    available: true,
+    color: '#f97316',
+  },
 ]
 
 const premiumGames = [
