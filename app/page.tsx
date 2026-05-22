@@ -43,7 +43,7 @@ export default async function Home() {
             <p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
               Teaching jobs, hospitality, tech and more — all across Thailand
             </p>
-            <Link href="/sponsors/duke-language" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
+            <Link href="https://dukelanguage.com/" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
   <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)', border: '2px solid #c9a84c', borderRadius: '10px', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
       <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ height: '36px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
@@ -172,7 +172,7 @@ export default async function Home() {
             </a>
 
             {/* DUKE LANGUAGE - MOBILE */}
-            <a href="/sponsors/duke-language" style={{ textDecoration: 'none' }}>
+            <a href="https://dukelanguage.com/" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
                 <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
                   <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
@@ -225,7 +225,7 @@ export default async function Home() {
           </Link>
 
           {/* DUKE LANGUAGE SCHOOL BANNER - SIDEBAR */}
-          <a href="/sponsors/duke-language" style={{ textDecoration: 'none' }}>
+          <a href="https://dukelanguage.com/" style={{ textDecoration: 'none' }}>
             <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
               <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
                 <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
