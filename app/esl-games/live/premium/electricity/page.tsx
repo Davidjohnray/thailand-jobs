@@ -27,6 +27,18 @@ const VOCAB = [
   { word: 'Consumption', definition: 'The amount of electrical energy used by a device or household over a period of time.', sentence: 'Turning off lights when you leave a room reduces electricity consumption.' },
 ]
 
+// Split a word into its component words (for two-word terms) and letters
+function getWordGroups(word: string): string[][] {
+  return word.split(' ').map(w => w.split(''))
+}
+
+// Get flat letter index from word group position
+function getFlatIndex(groups: string[][], groupIdx: number, letterIdx: number): number {
+  let idx = 0
+  for (let g = 0; g < groupIdx; g++) idx += groups[g].length
+  return idx + letterIdx
+}
+
 export default function ElectricityPage() {
   const router = useRouter()
   const [authed, setAuthed] = useState(false)
@@ -56,16 +68,18 @@ export default function ElectricityPage() {
     setLogging(false)
   }
 
+  const getTotalLetters = (word: string) => word.replace(/ /g, '').length
+
   const startLesson = () => {
     setLessonIdx(0); setStep(1)
-    setRevealedLetters(new Array(VOCAB[0].word.length).fill(false))
+    setRevealedLetters(new Array(getTotalLetters(VOCAB[0].word)).fill(false))
     setShowSentence(false)
     setPhase('lesson')
   }
 
   const goToStep = (s: 1 | 2 | 3) => {
     setStep(s)
-    if (s === 2) setRevealedLetters(new Array(VOCAB[lessonIdx].word.replace(/ /g, '').length).fill(false))
+    if (s === 2) setRevealedLetters(new Array(getTotalLetters(VOCAB[lessonIdx].word)).fill(false))
     if (s === 3) setShowSentence(false)
   }
 
@@ -73,7 +87,7 @@ export default function ElectricityPage() {
     setRevealedLetters(prev => { const n = [...prev]; n[i] = true; return n })
   }
 
-  const revealAll = () => setRevealedLetters(new Array(VOCAB[lessonIdx].word.replace(/ /g, '').length).fill(true))
+  const revealAll = () => setRevealedLetters(new Array(getTotalLetters(VOCAB[lessonIdx].word)).fill(true))
 
   const nextWord = () => {
     if (lessonIdx + 1 >= VOCAB.length) {
@@ -82,7 +96,7 @@ export default function ElectricityPage() {
       const next = lessonIdx + 1
       setLessonIdx(next)
       setStep(1)
-      setRevealedLetters(new Array(VOCAB[next].word.replace(/ /g, '').length).fill(false))
+      setRevealedLetters(new Array(getTotalLetters(VOCAB[next].word)).fill(false))
       setShowSentence(false)
     }
   }
@@ -92,7 +106,7 @@ export default function ElectricityPage() {
       const prev = lessonIdx - 1
       setLessonIdx(prev)
       setStep(1)
-      setRevealedLetters(new Array(VOCAB[prev].word.replace(/ /g, '').length).fill(false))
+      setRevealedLetters(new Array(getTotalLetters(VOCAB[prev].word)).fill(false))
       setShowSentence(false)
     }
   }
@@ -122,7 +136,8 @@ export default function ElectricityPage() {
   // ============================================================
   if (phase === 'lesson') {
     const v = VOCAB[lessonIdx]
-    const letters = v.word.replace(/ /g, '').split('')
+    const wordGroups = getWordGroups(v.word)
+    const isMultiWord = wordGroups.length > 1
     const isLast = lessonIdx + 1 >= VOCAB.length
     const allRevealed = revealedLetters.every(Boolean)
 
@@ -188,15 +203,53 @@ export default function ElectricityPage() {
             <div style={{ animation: 'fadeIn 0.3s ease' }}>
               <div style={{ background: '#eff6ff', border: '2px solid #93c5fd', borderRadius: '16px', padding: '20px', marginBottom: '16px' }}>
                 <div style={{ color: '#1d4ed8', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '14px' }}>🔤 Tap each letter to reveal the spelling</div>
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
-                  {letters.map((letter, i) => (
-                    <button key={i} onClick={() => revealLetter(i)}
-                      style={{ background: revealedLetters[i] ? '#1d4ed8' : '#e0f2fe', border: revealedLetters[i] ? '2px solid #1d4ed8' : '2px solid #93c5fd', borderRadius: '10px', width: '44px', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '22px', color: revealedLetters[i] ? 'white' : '#93c5fd', cursor: 'pointer', transition: 'all 0.2s', boxShadow: revealedLetters[i] ? '0 4px 12px rgba(29,78,216,0.3)' : 'none' }}>
-                      {revealedLetters[i] ? letter.toUpperCase() : '?'}
-                    </button>
-                  ))}
-                </div>
-                {v.word.includes(' ') && <div style={{ color: '#6b7280', fontSize: '12px', textAlign: 'center', marginBottom: '8px' }}>Note: spaces not shown — "{v.word}" is {v.word.split(' ').length} words</div>}
+
+                {/* MULTI-WORD: one row per word */}
+                {isMultiWord ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
+                    {wordGroups.map((wordLetters, groupIdx) => (
+                      <div key={groupIdx}>
+                        <div style={{ color: '#6b7280', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px', textAlign: 'center' }}>
+                          Word {groupIdx + 1}
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'nowrap' }}>
+                          {wordLetters.map((letter, letterIdx) => {
+                            const flatIdx = getFlatIndex(wordGroups, groupIdx, letterIdx)
+                            return (
+                              <button key={letterIdx} onClick={() => revealLetter(flatIdx)}
+                                style={{ background: revealedLetters[flatIdx] ? '#1d4ed8' : '#e0f2fe', border: revealedLetters[flatIdx] ? '2px solid #1d4ed8' : '2px solid #93c5fd', borderRadius: '10px', width: '44px', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '20px', color: revealedLetters[flatIdx] ? 'white' : '#93c5fd', cursor: 'pointer', transition: 'all 0.2s', boxShadow: revealedLetters[flatIdx] ? '0 4px 12px rgba(29,78,216,0.3)' : 'none', flexShrink: 0 }}>
+                                {revealedLetters[flatIdx] ? letter.toUpperCase() : '?'}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  /* SINGLE WORD: break into rows of max 7 letters */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                    {(() => {
+                      const allLetters = wordGroups[0]
+                      const rowSize = 7
+                      const rows = []
+                      for (let r = 0; r < allLetters.length; r += rowSize) {
+                        rows.push(allLetters.slice(r, r + rowSize).map((letter, li) => ({ letter, flatIdx: r + li })))
+                      }
+                      return rows.map((row, rowIdx) => (
+                        <div key={rowIdx} style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                          {row.map(({ letter, flatIdx }) => (
+                            <button key={flatIdx} onClick={() => revealLetter(flatIdx)}
+                              style={{ background: revealedLetters[flatIdx] ? '#1d4ed8' : '#e0f2fe', border: revealedLetters[flatIdx] ? '2px solid #1d4ed8' : '2px solid #93c5fd', borderRadius: '10px', width: '44px', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '20px', color: revealedLetters[flatIdx] ? 'white' : '#93c5fd', cursor: 'pointer', transition: 'all 0.2s', boxShadow: revealedLetters[flatIdx] ? '0 4px 12px rgba(29,78,216,0.3)' : 'none', flexShrink: 0 }}>
+                              {revealedLetters[flatIdx] ? letter.toUpperCase() : '?'}
+                            </button>
+                          ))}
+                        </div>
+                      ))
+                    })()}
+                  </div>
+                )}
+
                 <button onClick={revealAll} style={{ width: '100%', background: '#eff6ff', color: '#1d4ed8', border: '2px solid #93c5fd', padding: '10px', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
                   👁 Reveal All Letters
                 </button>
@@ -282,7 +335,6 @@ export default function ElectricityPage() {
           ))}
         </div>
 
-        {/* STEP 1 — Learn */}
         <div style={{ background: '#fffbeb', border: '2px solid #fde68a', borderRadius: '20px', padding: '20px', marginBottom: '16px', textAlign: 'left' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
             <div style={{ background: '#f59e0b', color: 'white', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>1</div>
@@ -301,7 +353,6 @@ export default function ElectricityPage() {
           </button>
         </div>
 
-        {/* STEP 2 — Mode */}
         <div style={{ background: '#f9fafb', border: '2px solid #e5e7eb', borderRadius: '20px', padding: '20px', marginBottom: '16px', textAlign: 'left' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
             <div style={{ background: '#6b7280', color: 'white', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>2</div>
@@ -318,7 +369,6 @@ export default function ElectricityPage() {
           </div>
         </div>
 
-        {/* Skip to quiz */}
         <button onClick={() => mode && router.push(`/esl-games/live/premium/electricity/${mode}`)} disabled={!mode}
           style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '2px solid', borderColor: mode ? '#fde68a' : '#e5e7eb', background: 'white', color: mode ? '#92400e' : '#9ca3af', fontWeight: '700', fontSize: '14px', cursor: mode ? 'pointer' : 'not-allowed' }}>
           ⏩ Skip Lesson — Go Straight to Quiz
