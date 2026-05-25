@@ -193,6 +193,7 @@ const premiumGames = [
   { slug: 'grammar', emoji: '✏️', title: 'Grammar Challenge', desc: 'Choose the correct sentence — grammar in context for ESL learners.', subjects: ['Grammar', 'Sentence Structure', 'Tenses', 'English Rules'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#7C3AED' },
   { slug: 'synonyms', emoji: '🔁', title: 'Synonyms & Antonyms', desc: 'Same meaning or opposite? Build vocabulary through synonyms and antonyms.', subjects: ['Vocabulary', 'Synonyms', 'Antonyms', 'Word Building'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#E85D26' },
   { slug: 'house', emoji: '🏠', title: 'Around the House', desc: 'Rooms, furniture and household vocabulary for ESL learners.', subjects: ['Rooms', 'Furniture', 'Vocabulary', 'Daily Life'], ages: 'P1 – M3', questions: '20 questions', available: true, color: '#0d9488' },
+  { slug: 'electricity', emoji: '⚡', title: 'Electricity', desc: 'Electric current, circuits, conductors and more! Science vocabulary for Prathom and Matthayom.', subjects: ['Science', 'Physics', 'Vocabulary'], ages: 'P4 – M3', questions: '20 questions', available: true, color: '#f59e0b' },
 ]
 
 function GameCard({ game, isKg = false }: { game: typeof premiumGames[0], isKg?: boolean }) {
