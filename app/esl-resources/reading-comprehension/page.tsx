@@ -70,11 +70,9 @@ export default function ReadingComprehensionPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '24px' }}>
-          {lessons.map(lesson => (
-            <Link key={lesson.slug} href={`/esl-resources/reading-comprehension/${lesson.slug}`} style={{ textDecoration: 'none' }}>
-              <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: `1px solid #eee`, transition: 'transform 0.2s, box-shadow 0.2s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 28px rgba(0,0,0,0.12)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)' }}>
+  {lessons.map(lesson => (
+    <Link key={lesson.slug} href={`/esl-resources/reading-comprehension/${lesson.slug}`} style={{ textDecoration: 'none' }}>
+      <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee' }}>
 
                 {/* Card Header */}
                 <div style={{ background: lesson.gradient, padding: '28px 24px', position: 'relative' }}>
