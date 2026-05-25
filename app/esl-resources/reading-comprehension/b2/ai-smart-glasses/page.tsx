@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 
 const PARTS = [
@@ -81,6 +82,21 @@ Looking ahead, the success of AI smart glasses will depend on trust, regulation,
   },
 ]
 
+function speak(text: string) {
+  if (typeof window === 'undefined') return
+  window.speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = 'en-GB'
+  utterance.rate = 0.9
+  utterance.pitch = 1
+  window.speechSynthesis.speak(utterance)
+}
+
+function stop() {
+  if (typeof window === 'undefined') return
+  window.speechSynthesis.cancel()
+}
+
 export default function AISmartGlassesPage() {
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
@@ -112,6 +128,7 @@ export default function AISmartGlassesPage() {
               { icon: '📚', label: '12 vocabulary words' },
               { icon: '⏱️', label: '45–60 min lesson' },
               { icon: '👤', label: '1-to-1 or small group' },
+              { icon: '🔊', label: 'Audio included' },
             ].map(s => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.75)', fontSize: '13px' }}>
                 <span>{s.icon}</span> {s.label}
@@ -125,7 +142,7 @@ export default function AISmartGlassesPage() {
       <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '16px 24px' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
           <span style={{ color: '#888', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>How to use:</span>
-          {['📖 Read each part together', '📚 Study the vocabulary below each part', '💬 Answer discussion questions', '🗣️ Share your own opinion'].map((step, i) => (
+          {['🔊 Play the passage aloud', '📚 Study vocabulary below each part', '💬 Answer discussion questions', '🗣️ Share your own opinion'].map((step, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555', fontSize: '13px' }}>
               <span style={{ background: '#E85D26', color: 'white', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', flexShrink: 0 }}>{i + 1}</span>
               {step}
@@ -140,11 +157,24 @@ export default function AISmartGlassesPage() {
           <div key={part.number} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
 
             {/* Part Header */}
-            <div style={{ background: `linear-gradient(135deg, ${part.color}22, ${part.color}08)`, borderLeft: `5px solid ${part.color}`, padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center' }}>
+            <div style={{ background: `linear-gradient(135deg, ${part.color}22, ${part.color}08)`, borderLeft: `5px solid ${part.color}`, padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ background: part.color, color: 'white', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '16px', flexShrink: 0 }}>{part.number}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ color: part.color, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>Part {part.number}</div>
                 <h2 style={{ color: '#1a1a2e', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{part.emoji} {part.title}</h2>
+              </div>
+              {/* Audio buttons for passage */}
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                <button
+                  onClick={() => speak(part.text.replace(/\n\n/g, ' '))}
+                  style={{ background: part.color, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: `0 3px 10px ${part.color}40` }}>
+                  ▶ Play Passage
+                </button>
+                <button
+                  onClick={stop}
+                  style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
+                  ⏹ Stop
+                </button>
               </div>
             </div>
 
@@ -165,9 +195,18 @@ export default function AISmartGlassesPage() {
                 {part.vocab.map((v, i) => (
                   <div key={v.word} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', paddingBottom: i < part.vocab.length - 1 ? '10px' : '0', borderBottom: i < part.vocab.length - 1 ? `1px solid ${part.color}15` : 'none' }}>
                     <div style={{ background: part.color, color: 'white', width: '22px', height: '22px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '11px', flexShrink: 0, marginTop: '2px' }}>{i + 1}</div>
-                    <div>
-                      <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{v.word}</span>
-                      <span style={{ color: '#6b7280', fontSize: '14px' }}> — {v.definition}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
+                        <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{v.word}</span>
+                        {/* Audio button for vocab word */}
+                        <button
+                          onClick={() => speak(v.word)}
+                          title={`Hear "${v.word}"`}
+                          style={{ background: part.color + '15', color: part.color, border: `1px solid ${part.color}30`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0 }}>
+                          🔊
+                        </button>
+                      </div>
+                      <span style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>{v.definition}</span>
                     </div>
                   </div>
                 ))}
