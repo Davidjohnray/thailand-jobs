@@ -228,26 +228,20 @@ export default function ElectricityPage() {
                   </div>
                 ) : (
                   /* SINGLE WORD: break into rows of max 7 letters */
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
-                    {(() => {
-                      const allLetters = wordGroups[0]
-                      const rowSize = 7
-                      const rows = []
-                      for (let r = 0; r < allLetters.length; r += rowSize) {
-                        rows.push(allLetters.slice(r, r + rowSize).map((letter, li) => ({ letter, flatIdx: r + li })))
-                      }
-                      return rows.map((row, rowIdx) => (
-                        <div key={rowIdx} style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                          {row.map(({ letter, flatIdx }) => (
-                            <button key={flatIdx} onClick={() => revealLetter(flatIdx)}
-                              style={{ background: revealedLetters[flatIdx] ? '#1d4ed8' : '#e0f2fe', border: revealedLetters[flatIdx] ? '2px solid #1d4ed8' : '2px solid #93c5fd', borderRadius: '10px', width: '44px', height: '52px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '20px', color: revealedLetters[flatIdx] ? 'white' : '#93c5fd', cursor: 'pointer', transition: 'all 0.2s', boxShadow: revealedLetters[flatIdx] ? '0 4px 12px rgba(29,78,216,0.3)' : 'none', flexShrink: 0 }}>
-                              {revealedLetters[flatIdx] ? letter.toUpperCase() : '?'}
-                            </button>
-                          ))}
-                        </div>
-                      ))
-                    })()}
-                  </div>
+                  <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'nowrap', marginBottom: '12px' }}>
+    {(() => {
+      const allLetters = wordGroups[0]
+      const count = allLetters.length
+      const boxSize = count <= 7 ? 44 : count <= 9 ? 38 : count <= 11 ? 32 : 28
+      const fontSize = count <= 7 ? 20 : count <= 9 ? 18 : count <= 11 ? 15 : 13
+      return allLetters.map((letter, flatIdx) => (
+        <button key={flatIdx} onClick={() => revealLetter(flatIdx)}
+          style={{ background: revealedLetters[flatIdx] ? '#1d4ed8' : '#e0f2fe', border: revealedLetters[flatIdx] ? '2px solid #1d4ed8' : '2px solid #93c5fd', borderRadius: '10px', width: `${boxSize}px`, height: `${boxSize + 8}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: `${fontSize}px`, color: revealedLetters[flatIdx] ? 'white' : '#93c5fd', cursor: 'pointer', transition: 'all 0.2s', boxShadow: revealedLetters[flatIdx] ? '0 4px 12px rgba(29,78,216,0.3)' : 'none', flexShrink: 0 }}>
+          {revealedLetters[flatIdx] ? letter.toUpperCase() : '?'}
+        </button>
+      ))
+    })()}
+  </div>
                 )}
 
                 <button onClick={revealAll} style={{ width: '100%', background: '#eff6ff', color: '#1d4ed8', border: '2px solid #93c5fd', padding: '10px', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
