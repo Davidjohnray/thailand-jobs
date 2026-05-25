@@ -6,9 +6,24 @@ import Link from 'next/link'
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 const SESSION_KEY = 'premium_games_session'
+
 const MODES = [
   { id: 'solo', emoji: '👤', label: 'Solo Play', desc: 'Play on your own!', color: '#3b82f6' },
   { id: 'tv', emoji: '📺', label: 'TV Mode', desc: 'Play on the big screen!', color: '#8b5cf6' },
+]
+
+const VOCAB = [
+  { emoji: '0️⃣', word: 'ZERO', spelling: 'Z – E – R – O', sentence: 'Zero means nothing at all.', tip: 'Zero is nothing — an empty hand has zero fingers up!' },
+  { emoji: '1️⃣', word: 'ONE', spelling: 'O – N – E', sentence: 'I have one nose.', tip: 'Hold up one finger — that is ONE!' },
+  { emoji: '2️⃣', word: 'TWO', spelling: 'T – W – O', sentence: 'I have two eyes.', tip: 'You have two eyes and two ears!' },
+  { emoji: '3️⃣', word: 'THREE', spelling: 'T – H – R – E – E', sentence: 'I have three pets.', tip: 'A triangle has three sides — count them!' },
+  { emoji: '4️⃣', word: 'FOUR', spelling: 'F – O – U – R', sentence: 'A cat has four legs.', tip: 'A square has four sides — count them!' },
+  { emoji: '5️⃣', word: 'FIVE', spelling: 'F – I – V – E', sentence: 'I have five fingers on one hand.', tip: 'Hold up one hand — that is FIVE fingers!' },
+  { emoji: '6️⃣', word: 'SIX', spelling: 'S – I – X', sentence: 'An insect has six legs.', tip: 'Six is one more than five — add one more finger!' },
+  { emoji: '7️⃣', word: 'SEVEN', spelling: 'S – E – V – E – N', sentence: 'There are seven days in a week.', tip: 'Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday — seven days!' },
+  { emoji: '8️⃣', word: 'EIGHT', spelling: 'E – I – G – H – T', sentence: 'A spider has eight legs.', tip: 'Eight sounds like "ate" — you ate eight biscuits!' },
+  { emoji: '9️⃣', word: 'NINE', spelling: 'N – I – N – E', sentence: 'A cat has nine lives.', tip: 'Nine is one less than ten — almost there!' },
+  { emoji: '🔟', word: 'TEN', spelling: 'T – E – N', sentence: 'I have ten fingers in total.', tip: 'Hold up both hands — that is TEN fingers!' },
 ]
 
 export default function NumbersPage() {
@@ -18,7 +33,11 @@ export default function NumbersPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [logging, setLogging] = useState(false)
+  const [phase, setPhase] = useState<'menu' | 'lesson'>('menu')
   const [mode, setMode] = useState('')
+  const [lessonIdx, setLessonIdx] = useState(0)
+  const [showSpelling, setShowSpelling] = useState(false)
+  const [showSentence, setShowSentence] = useState(false)
 
   useEffect(() => { const saved = localStorage.getItem(SESSION_KEY); if (saved) setAuthed(true); setChecking(false) }, [])
 
@@ -30,6 +49,13 @@ export default function NumbersPage() {
     else setError('Invalid password. Please check your access code.')
     setLogging(false)
   }
+
+  const startLesson = () => { setLessonIdx(0); setShowSpelling(false); setShowSentence(false); setPhase('lesson') }
+  const nextWord = () => {
+    if (lessonIdx + 1 >= VOCAB.length) { router.push(`/esl-games/live/premium/numbers/${mode}`) }
+    else { setLessonIdx(i => i + 1); setShowSpelling(false); setShowSentence(false) }
+  }
+  const prevWord = () => { if (lessonIdx > 0) { setLessonIdx(i => i - 1); setShowSpelling(false); setShowSentence(false) } }
 
   if (checking) return <main style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #eff6ff, #f5f3ff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ fontSize: '64px' }}>🔢</div></main>
 
@@ -51,6 +77,59 @@ export default function NumbersPage() {
     </main>
   )
 
+  if (phase === 'lesson') {
+    const v = VOCAB[lessonIdx]
+    const isLast = lessonIdx + 1 >= VOCAB.length
+    return (
+      <main style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #eff6ff 0%, #f5f3ff 50%, #fef9c3 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <style>{`@keyframes wordPop{0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1}} @keyframes numBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}} @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        <div style={{ width: '100%', maxWidth: '560px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button onClick={() => setPhase('menu')} style={{ background: 'white', border: 'none', padding: '8px 16px', borderRadius: '20px', color: '#6b7280', fontWeight: '700', fontSize: '14px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>← Exit Lesson</button>
+          <div style={{ background: 'white', padding: '8px 16px', borderRadius: '20px', fontWeight: '800', fontSize: '14px', color: '#3b82f6', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>📖 {lessonIdx + 1} / {VOCAB.length}</div>
+        </div>
+        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', marginBottom: '16px', flexWrap: 'wrap', maxWidth: '560px' }}>
+          {VOCAB.map((_, i) => <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%', background: i < lessonIdx ? '#22c55e' : i === lessonIdx ? '#3b82f6' : '#e5e7eb', transition: 'background 0.3s' }} />)}
+        </div>
+        <div key={lessonIdx} style={{ background: 'white', borderRadius: '32px', padding: '36px 32px', maxWidth: '560px', width: '100%', textAlign: 'center', boxShadow: '0 12px 40px rgba(0,0,0,0.12)', border: '3px solid #93c5fd', animation: 'wordPop 0.35s ease', marginBottom: '16px' }}>
+          <div style={{ fontSize: '110px', marginBottom: '12px', animation: 'numBounce 2s ease-in-out infinite' }}>{v.emoji}</div>
+          <div style={{ fontSize: '42px', fontWeight: '900', color: '#1e3a5f', marginBottom: '8px', letterSpacing: '3px' }}>{v.word}</div>
+          <div style={{ background: '#eff6ff', borderRadius: '12px', padding: '10px 16px', marginBottom: '16px', color: '#1e40af', fontSize: '14px', fontWeight: '600' }}>💡 {v.tip}</div>
+          {!showSpelling ? (
+            <button onClick={() => setShowSpelling(true)} style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '12px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', marginBottom: '12px', boxShadow: '0 4px 14px rgba(59,130,246,0.35)', width: '100%' }}>🔤 Show Spelling</button>
+          ) : (
+            <div style={{ animation: 'fadeIn 0.3s ease', marginBottom: '12px' }}>
+              <div style={{ background: '#eff6ff', border: '2px solid #93c5fd', borderRadius: '16px', padding: '16px' }}>
+                <div style={{ color: '#1e40af', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>🔤 Spelling</div>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {v.word.split('').map((letter, i) => (
+                    <div key={i} style={{ background: 'white', border: '2px solid #3b82f6', borderRadius: '10px', width: '38px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '20px', color: '#3b82f6', boxShadow: '0 2px 6px rgba(59,130,246,0.2)' }}>{letter}</div>
+                  ))}
+                </div>
+                <div style={{ color: '#1e40af', fontSize: '13px', fontWeight: '700', marginTop: '10px', letterSpacing: '2px' }}>{v.spelling}</div>
+              </div>
+            </div>
+          )}
+          {!showSentence ? (
+            <button onClick={() => setShowSentence(true)} style={{ background: showSpelling ? 'linear-gradient(135deg, #22c55e, #16a34a)' : '#e5e7eb', color: showSpelling ? 'white' : '#9ca3af', border: 'none', padding: '12px 28px', borderRadius: '12px', fontWeight: '800', fontSize: '15px', cursor: showSpelling ? 'pointer' : 'not-allowed', width: '100%', boxShadow: showSpelling ? '0 4px 14px rgba(34,197,94,0.35)' : 'none' }} disabled={!showSpelling}>💬 Show Example Sentence</button>
+          ) : (
+            <div style={{ animation: 'fadeIn 0.3s ease' }}>
+              <div style={{ background: '#f0fdf4', border: '2px solid #86efac', borderRadius: '16px', padding: '16px' }}>
+                <div style={{ color: '#15803d', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>💬 Example Sentence</div>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: '#14532d' }}>{v.sentence}</div>
+              </div>
+            </div>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '560px' }}>
+          {lessonIdx > 0 && <button onClick={prevWord} style={{ background: 'white', border: '2px solid #93c5fd', color: '#1e3a5f', padding: '14px 24px', borderRadius: '16px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>← Back</button>}
+          <button onClick={nextWord} style={{ flex: 1, background: isLast ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', border: 'none', padding: '16px', borderRadius: '16px', fontWeight: '900', fontSize: '18px', cursor: 'pointer', boxShadow: isLast ? '0 6px 20px rgba(34,197,94,0.4)' : '0 6px 20px rgba(59,130,246,0.4)' }}>
+            {isLast ? '🎮 Start the Quiz! →' : 'Next Word →'}
+          </button>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #eff6ff 0%, #f5f3ff 50%, #fef9c3 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', position: 'relative', overflow: 'hidden' }}>
       <style>{`@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}} @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}`}</style>
@@ -62,21 +141,39 @@ export default function NumbersPage() {
       <div style={{ background: 'white', borderRadius: '32px', padding: '48px 40px', maxWidth: '480px', width: '100%', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', border: '3px solid #93c5fd', position: 'relative', zIndex: 1 }}>
         <div style={{ fontSize: '88px', marginBottom: '8px', animation: 'bounce 2s ease-in-out infinite' }}>🔢</div>
         <h1 style={{ fontSize: '34px', fontWeight: '900', color: '#1e3a5f', margin: '0 0 6px' }}>Numbers!</h1>
-        <p style={{ color: '#3b82f6', fontSize: '16px', marginBottom: '32px', fontWeight: '700' }}>Count from 1 to 10! 🌟</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
-          {MODES.map(m => (
-            <button key={m.id} onClick={() => setMode(m.id)}
-              style={{ padding: '18px 24px', borderRadius: '16px', border: '3px solid', borderColor: mode === m.id ? m.color : '#e0f2fe', background: mode === m.id ? m.color : '#f0f9ff', color: mode === m.id ? 'white' : '#1e3a5f', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px', transition: 'all 0.2s', transform: mode === m.id ? 'scale(1.03)' : 'scale(1)', boxShadow: mode === m.id ? `0 6px 20px ${m.color}50` : 'none' }}>
-              <span style={{ fontSize: '32px' }}>{m.emoji}</span>
-              <div style={{ textAlign: 'left' }}><div style={{ fontWeight: '800', fontSize: '16px' }}>{m.label}</div><div style={{ fontSize: '13px', opacity: 0.85 }}>{m.desc}</div></div>
-            </button>
-          ))}
+        <p style={{ color: '#3b82f6', fontSize: '16px', marginBottom: '28px', fontWeight: '700' }}>Count from 0 to 10! 🌟</p>
+        <div style={{ background: '#eff6ff', border: '2px solid #93c5fd', borderRadius: '20px', padding: '20px', marginBottom: '16px', textAlign: 'left' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ background: '#3b82f6', color: 'white', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>1</div>
+            <div style={{ fontWeight: '800', color: '#1e3a5f', fontSize: '16px' }}>📖 Learn the Numbers First</div>
+          </div>
+          <p style={{ color: '#1e40af', fontSize: '13px', margin: '0 0 14px', lineHeight: '1.6' }}>Learn how to say, spell and write every number from zero to ten before you play.</p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+            {VOCAB.slice(0, 8).map(v => <span key={v.word} style={{ background: 'white', border: '1px solid #93c5fd', borderRadius: '8px', padding: '4px 10px', fontSize: '12px', fontWeight: '700', color: '#1e3a5f' }}>{v.emoji} {v.word}</span>)}
+            <span style={{ background: 'white', border: '1px solid #93c5fd', borderRadius: '8px', padding: '4px 10px', fontSize: '12px', fontWeight: '700', color: '#9ca3af' }}>+{VOCAB.length - 8} more</span>
+          </div>
+          <button onClick={startLesson} disabled={!mode} style={{ width: '100%', background: mode ? 'linear-gradient(135deg, #3b82f6, #8b5cf6)' : '#e5e7eb', color: mode ? 'white' : '#9ca3af', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: mode ? 'pointer' : 'not-allowed', boxShadow: mode ? '0 6px 20px rgba(59,130,246,0.35)' : 'none' }}>
+            {mode ? '📖 Start Lesson → then Quiz' : 'Pick a mode below first'}
+          </button>
         </div>
-        <button onClick={() => mode && router.push(`/esl-games/live/premium/numbers/${mode}`)} disabled={!mode}
-          style={{ width: '100%', padding: '18px', borderRadius: '16px', border: 'none', background: mode ? 'linear-gradient(135deg, #3b82f6, #8b5cf6)' : '#e0f2fe', color: mode ? 'white' : '#93c5fd', fontWeight: '900', fontSize: '20px', cursor: mode ? 'pointer' : 'not-allowed', boxShadow: mode ? '0 8px 28px rgba(59,130,246,0.4)' : 'none', transition: 'all 0.2s' }}>
-          {mode ? '🔢 Let\'s Count!' : 'Choose a mode first!'}
+        <div style={{ background: '#f9fafb', border: '2px solid #e5e7eb', borderRadius: '20px', padding: '20px', marginBottom: '16px', textAlign: 'left' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ background: '#6b7280', color: 'white', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>2</div>
+            <div style={{ fontWeight: '800', color: '#374151', fontSize: '16px' }}>🎮 Choose Your Mode</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {MODES.map(m => (
+              <button key={m.id} onClick={() => setMode(m.id)} style={{ padding: '14px 18px', borderRadius: '14px', border: '3px solid', borderColor: mode === m.id ? m.color : '#e5e7eb', background: mode === m.id ? m.color : 'white', color: mode === m.id ? 'white' : '#374151', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s', transform: mode === m.id ? 'scale(1.02)' : 'scale(1)' }}>
+                <span style={{ fontSize: '26px' }}>{m.emoji}</span>
+                <div style={{ textAlign: 'left' }}><div style={{ fontWeight: '800', fontSize: '15px' }}>{m.label}</div><div style={{ fontSize: '12px', opacity: 0.85 }}>{m.desc}</div></div>
+              </button>
+            ))}
+          </div>
+        </div>
+        <button onClick={() => mode && router.push(`/esl-games/live/premium/numbers/${mode}`)} disabled={!mode} style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '2px solid', borderColor: mode ? '#93c5fd' : '#e5e7eb', background: 'white', color: mode ? '#1e3a5f' : '#9ca3af', fontWeight: '700', fontSize: '14px', cursor: mode ? 'pointer' : 'not-allowed' }}>
+          ⏩ Skip Lesson — Go Straight to Quiz
         </button>
-        <Link href="/esl-games/live/premium" style={{ display: 'block', marginTop: '20px', color: '#93c5fd', textDecoration: 'none', fontSize: '14px', fontWeight: '700' }}>← Back to Premium Games</Link>
+        <Link href="/esl-games/live/premium" style={{ display: 'block', marginTop: '16px', color: '#93c5fd', textDecoration: 'none', fontSize: '14px', fontWeight: '700' }}>← Back to Premium Games</Link>
       </div>
     </main>
   )
