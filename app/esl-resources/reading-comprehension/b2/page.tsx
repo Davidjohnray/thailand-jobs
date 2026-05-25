@@ -13,6 +13,18 @@ const lessons = [
     preview: 'Explore how AI-powered smart glasses are changing daily life, work, travel and social interaction.',
     gradient: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)',
   },
+  {
+  slug: 'home-robots',
+  title: 'AI-Powered Home Robots',
+  subtitle: 'Living with Intelligent Machines',
+  emoji: '🤖',
+  topic: 'Technology',
+  topicColor: '#3b82f6',
+  parts: 4,
+  questions: 12,
+  preview: 'Explore how AI robots are changing life at home, raising questions about privacy, trust and the future of human connection.',
+  gradient: 'linear-gradient(135deg, #1a1a2e 0%, #1e3a5f 100%)',
+},
 ]
 
 export default function B2ReadingPage() {
