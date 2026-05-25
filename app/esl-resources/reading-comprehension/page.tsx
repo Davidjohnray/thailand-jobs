@@ -1,125 +1,160 @@
 import Link from 'next/link'
 
-const lessons = [
-  {
-    slug: 'ai-smart-glasses',
-    title: 'Next-Gen AI Smart Glasses',
-    subtitle: 'A New Way to See the World',
-    emoji: '🥽',
-    level: 'B2',
-    levelColor: '#3b82f6',
-    topic: 'Technology',
-    topicColor: '#8b5cf6',
-    parts: 4,
-    questions: 12,
-    preview: 'Explore how AI-powered smart glasses are changing daily life, work, travel and social interaction.',
-    gradient: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)',
-    border: '#3b82f6',
-  },
-  // Add more lessons here
-]
-
 const LEVELS = [
-  { code: 'A1', label: 'A1 Beginner', color: '#22c55e' },
-  { code: 'A2', label: 'A2 Elementary', color: '#84cc16' },
-  { code: 'B1', label: 'B1 Intermediate', color: '#f59e0b' },
-  { code: 'B2', label: 'B2 Upper Intermediate', color: '#3b82f6' },
-  { code: 'C1', label: 'C1 Advanced', color: '#8b5cf6' },
-  { code: 'C2', label: 'C2 Proficiency', color: '#ec4899' },
+  {
+    code: 'a1',
+    label: 'A1',
+    title: 'Beginner',
+    color: '#22c55e',
+    bg: 'linear-gradient(135deg, #16a34a, #22c55e)',
+    shadow: 'rgba(34,197,94,0.3)',
+    emoji: '🌱',
+    desc: 'Simple texts with basic vocabulary and short sentences. Ideal for students just starting their English journey.',
+    who: 'Complete beginners · Young learners · New to English',
+    count: 0,
+  },
+  {
+    code: 'a2',
+    label: 'A2',
+    title: 'Elementary',
+    color: '#84cc16',
+    bg: 'linear-gradient(135deg, #65a30d, #84cc16)',
+    shadow: 'rgba(132,204,22,0.3)',
+    emoji: '🌿',
+    desc: 'Short passages on familiar topics with straightforward questions. Students can understand simple texts about everyday life.',
+    who: 'Elementary students · Ages 10–12 · Basic English',
+    count: 0,
+  },
+  {
+    code: 'b1',
+    label: 'B1',
+    title: 'Intermediate',
+    color: '#f59e0b',
+    bg: 'linear-gradient(135deg, #d97706, #f59e0b)',
+    shadow: 'rgba(245,158,11,0.3)',
+    emoji: '📘',
+    desc: 'Clear texts on a range of topics. Students can understand the main points and express opinions on familiar subjects.',
+    who: 'Teen & adult learners · General English · IELTS 4.0–5.0',
+    count: 0,
+  },
+  {
+    code: 'b2',
+    label: 'B2',
+    title: 'Upper Intermediate',
+    color: '#3b82f6',
+    bg: 'linear-gradient(135deg, #1d4ed8, #3b82f6)',
+    shadow: 'rgba(59,130,246,0.3)',
+    emoji: '📗',
+    desc: 'Complex texts on concrete and abstract topics. Students can discuss ideas, give opinions and follow detailed arguments.',
+    who: 'Adult learners · University prep · IELTS 5.5–6.5',
+    count: 1,
+  },
+  {
+    code: 'c1',
+    label: 'C1',
+    title: 'Advanced',
+    color: '#8b5cf6',
+    bg: 'linear-gradient(135deg, #6d28d9, #8b5cf6)',
+    shadow: 'rgba(139,92,246,0.3)',
+    emoji: '📙',
+    desc: 'Demanding texts on complex topics with nuanced vocabulary. Students can understand and evaluate detailed arguments.',
+    who: 'Advanced learners · Professional English · IELTS 7.0–8.0',
+    count: 0,
+  },
+  {
+    code: 'c2',
+    label: 'C2',
+    title: 'Proficiency',
+    color: '#ec4899',
+    bg: 'linear-gradient(135deg, #be185d, #ec4899)',
+    shadow: 'rgba(236,72,153,0.3)',
+    emoji: '🏆',
+    desc: 'Sophisticated academic and professional texts. Students can understand virtually everything read with ease and precision.',
+    who: 'Near-native · Academic English · IELTS 8.5+',
+    count: 0,
+  },
 ]
 
 export default function ReadingComprehensionPage() {
   return (
-    <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
+    <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
 
       {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)', padding: '56px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <Link href="/esl-resources" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← ESL Resources</Link>
           <div style={{ fontSize: '52px', marginBottom: '16px' }}>📖</div>
-          <h1 style={{ color: 'white', fontSize: '38px', fontWeight: 'bold', margin: '0 0 12px' }}>
-            Reading Comprehension
-          </h1>
+          <h1 style={{ color: 'white', fontSize: '38px', fontWeight: 'bold', margin: '0 0 12px' }}>Reading Comprehension</h1>
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '17px', margin: '0 0 24px', lineHeight: '1.6', maxWidth: '580px', marginLeft: 'auto', marginRight: 'auto' }}>
-            Engaging reading passages with discussion questions and vocabulary — designed for one-on-one and small group classes.
+            Engaging reading passages with discussion questions and vocabulary — levelled from A1 to C2.
           </p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {['💬 Discussion Questions', '📚 Vocabulary', '🎯 Levelled B1–C1', '📱 Screen Optimised'].map(tag => (
+            {['💬 Discussion Questions', '📚 Vocabulary', '🎯 A1 – C2 Levels', '📱 Screen Optimised', '👤 1-to-1 Classes'].map(tag => (
               <span key={tag} style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)', fontSize: '13px', padding: '6px 14px', borderRadius: '20px', fontWeight: '600' }}>{tag}</span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* LEVEL KEY */}
-      <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '16px 24px' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ color: '#888', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Levels:</span>
-          {LEVELS.map(l => (
-            <span key={l.code} style={{ background: l.color + '18', color: l.color, fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${l.color}40` }}>{l.label}</span>
-          ))}
-        </div>
-      </section>
+      {/* LEVEL CARDS */}
+      <section style={{ maxWidth: '1000px', margin: '0 auto', padding: '48px 24px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px', textAlign: 'center' }}>Choose a Level</h2>
+        <p style={{ color: '#888', textAlign: 'center', marginBottom: '36px', fontSize: '15px' }}>Select the CEFR level that matches your student</p>
 
-      {/* LESSONS GRID */}
-      <section style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-          <div>
-            <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' }}>All Lessons</h2>
-            <p style={{ color: '#888', fontSize: '14px', margin: 0 }}>{lessons.length} lesson{lessons.length !== 1 ? 's' : ''} — new content added regularly</p>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '24px' }}>
-  {lessons.map(lesson => (
-    <Link key={lesson.slug} href={`/esl-resources/reading-comprehension/${lesson.slug}`} style={{ textDecoration: 'none' }}>
-      <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+          {LEVELS.map(level => (
+            <Link key={level.code} href={`/esl-resources/reading-comprehension/${level.code}`} style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee' }}>
 
                 {/* Card Header */}
-                <div style={{ background: lesson.gradient, padding: '28px 24px', position: 'relative' }}>
-                  <div style={{ fontSize: '44px', marginBottom: '10px' }}>{lesson.emoji}</div>
-                  <h3 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: '0 0 4px', lineHeight: '1.3' }}>{lesson.title}</h3>
-                  <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>{lesson.subtitle}</p>
-                  <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end' }}>
-                    <span style={{ background: lesson.levelColor, color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '20px' }}>{lesson.level}</span>
-                    <span style={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>{lesson.topic}</span>
+                <div style={{ background: level.bg, padding: '28px 24px', position: 'relative' }}>
+                  <div style={{ fontSize: '36px', marginBottom: '8px' }}>{level.emoji}</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '4px' }}>
+                    <span style={{ color: 'white', fontSize: '32px', fontWeight: '900', lineHeight: 1 }}>{level.label}</span>
+                    <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '16px', fontWeight: 'bold' }}>{level.title}</span>
+                  </div>
+                  <div style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 10px', borderRadius: '20px' }}>
+                    {level.count === 0 ? 'Coming soon' : `${level.count} lesson${level.count !== 1 ? 's' : ''}`}
                   </div>
                 </div>
 
                 {/* Card Body */}
                 <div style={{ padding: '20px 24px' }}>
-                  <p style={{ color: '#555', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>{lesson.preview}</p>
-                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#888', fontSize: '13px' }}>
-                      <span>📄</span> {lesson.parts} parts
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#888', fontSize: '13px' }}>
-                      <span>💬</span> {lesson.questions} discussion questions
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#888', fontSize: '13px' }}>
-                      <span>📚</span> Vocabulary included
-                    </div>
+                  <p style={{ color: '#555', fontSize: '14px', lineHeight: '1.6', margin: '0 0 12px' }}>{level.desc}</p>
+                  <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '8px 12px', marginBottom: '16px' }}>
+                    <div style={{ color: '#888', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Suitable for</div>
+                    <div style={{ color: '#374151', fontSize: '13px', fontWeight: '600' }}>{level.who}</div>
                   </div>
-                  <div style={{ marginTop: '16px', background: '#f9f9f9', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '14px' }}>Open Lesson →</span>
-                    <span style={{ fontSize: '18px' }}>📖</span>
+                  <div style={{ background: level.color + '15', borderRadius: '10px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: `1px solid ${level.color}30` }}>
+                    <span style={{ color: level.color, fontWeight: 'bold', fontSize: '14px' }}>
+                      {level.count === 0 ? 'Coming Soon' : `Browse ${level.label} Lessons →`}
+                    </span>
+                    <span style={{ fontSize: '16px' }}>{level.count === 0 ? '⏳' : '📖'}</span>
                   </div>
                 </div>
+
               </div>
             </Link>
           ))}
-
-          {/* Coming Soon placeholder */}
-          <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '2px dashed #ddd', padding: '40px 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', minHeight: '200px' }}>
-            <div style={{ fontSize: '40px' }}>✍️</div>
-            <div style={{ fontWeight: 'bold', color: '#888', fontSize: '16px' }}>More lessons coming soon</div>
-            <div style={{ color: '#bbb', fontSize: '13px', lineHeight: '1.5', maxWidth: '240px' }}>New topics added weekly — technology, society, environment, culture and more</div>
-          </div>
         </div>
       </section>
 
-      {/* BACK LINK */}
-      <section style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px 40px' }}>
-        <Link href="/esl-resources" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to ESL Resources</Link>
+      {/* ABOUT SECTION */}
+      <section style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 24px 48px' }}>
+        <div style={{ background: 'white', borderRadius: '16px', padding: '32px 36px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          {[
+            { icon: '💬', title: 'Discussion Focused', desc: 'Every passage ends with opinion and discussion questions to spark real conversation.' },
+            { icon: '📚', title: 'Vocabulary Included', desc: 'Key words with clear definitions built into every lesson — no dictionary needed.' },
+            { icon: '🎯', title: 'Levelled A1–C2', desc: 'Every lesson is tagged with a CEFR level so you can match it to your student.' },
+            { icon: '👤', title: '1-to-1 Optimised', desc: 'Designed for private tutoring and small group classes — screen-based, no printing.' },
+          ].map(item => (
+            <div key={item.title} style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>{item.icon}</div>
+              <h3 style={{ fontWeight: 'bold', color: '#1a1a2e', marginBottom: '6px', fontSize: '15px' }}>{item.title}</h3>
+              <p style={{ color: '#666', fontSize: '13px', lineHeight: '1.5', margin: 0 }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
     </main>

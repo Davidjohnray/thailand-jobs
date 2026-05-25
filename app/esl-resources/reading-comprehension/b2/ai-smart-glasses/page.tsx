@@ -93,7 +93,7 @@ export default function AISmartGlassesPage() {
       {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)', padding: '56px 24px' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
-          <Link href="/esl-resources/reading-comprehension" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← Reading Comprehension</Link>
+          <Link href="/esl-resources/reading-comprehension/b2" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← Reading Comprehension</Link>
           <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <div style={{ fontSize: '72px', flexShrink: 0 }}>🥽</div>
             <div style={{ flex: 1 }}>
@@ -216,7 +216,7 @@ export default function AISmartGlassesPage() {
 
         {/* BACK LINK */}
         <div style={{ textAlign: 'center', paddingBottom: '16px' }}>
-          <Link href="/esl-resources/reading-comprehension" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to Reading Comprehension</Link>
+          <Link href="/esl-resources/reading-comprehension/b2" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to Reading Comprehension</Link>
         </div>
 
       </div>
