@@ -11,7 +11,7 @@ const LEVELS = [
     emoji: '🌱',
     desc: 'Simple texts with basic vocabulary and short sentences. Ideal for students just starting their English journey.',
     who: 'Complete beginners · Young learners · New to English',
-    count: 1,
+    count: 2,
   },
   {
     code: 'a2',
