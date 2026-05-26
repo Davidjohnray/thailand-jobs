@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 
 const SPEEDS = [
@@ -12,9 +12,7 @@ const SPEEDS = [
 const PARTS = [
   {
     number: 1, title: 'From Simple Glasses to Intelligent Devices', emoji: '👓', color: '#3b82f6',
-    text: `Smart glasses have existed for several years, but early versions were often limited, expensive, or uncomfortable to use. Recent advances in artificial intelligence, miniaturized hardware, and battery technology have changed this situation. Next-generation AI smart glasses now aim to blend naturally into daily life, looking more like normal eyewear while offering powerful digital features. These devices can display information directly in the user's field of vision, reducing the need to constantly check a phone.
-
-What makes these glasses different from earlier wearable technology is their ability to understand context. Using cameras, microphones, and sensors, AI smart glasses can recognize surroundings, interpret speech, and respond intelligently. Instead of being a distraction, they are designed to quietly support users during work, travel, and social interaction. Supporters believe this shift could change how people interact with technology, making it more seamless and less intrusive.`,
+    text: `Smart glasses have existed for several years, but early versions were often limited, expensive, or uncomfortable to use. Recent advances in artificial intelligence, miniaturized hardware, and battery technology have changed this situation. Next-generation AI smart glasses now aim to blend naturally into daily life, looking more like normal eyewear while offering powerful digital features. These devices can display information directly in the user's field of vision, reducing the need to constantly check a phone.\n\nWhat makes these glasses different from earlier wearable technology is their ability to understand context. Using cameras, microphones, and sensors, AI smart glasses can recognize surroundings, interpret speech, and respond intelligently. Instead of being a distraction, they are designed to quietly support users during work, travel, and social interaction. Supporters believe this shift could change how people interact with technology, making it more seamless and less intrusive.`,
     vocab: [
       { word: 'Miniaturized', definition: 'Made very small — hardware components reduced to tiny sizes to fit inside glasses.' },
       { word: 'Wearable technology', definition: 'Electronic devices designed to be worn on the body — like smart watches or glasses.' },
@@ -29,9 +27,7 @@ What makes these glasses different from earlier wearable technology is their abi
   },
   {
     number: 2, title: 'Real-Time Translation and Navigation', emoji: '🗺️', color: '#8b5cf6',
-    text: `One of the most exciting features of next-gen AI smart glasses is real-time language translation. Users can hear or see translations instantly while speaking with people from different countries. This could greatly reduce language barriers in travel, international business, and education. Unlike smartphone apps, the hands-free design allows users to maintain eye contact and natural conversation, which may improve communication and trust.
-
-Navigation is another powerful use case. AI smart glasses can project directions, landmarks, and alerts directly into the user's view. For example, walking directions may appear on the street ahead, or reminders could appear when approaching a destination. For people unfamiliar with a city — or those with mobility or vision challenges — this could significantly improve independence and confidence. However, reliance on constant digital guidance may also reduce people's natural sense of direction.`,
+    text: `One of the most exciting features of next-gen AI smart glasses is real-time language translation. Users can hear or see translations instantly while speaking with people from different countries. This could greatly reduce language barriers in travel, international business, and education. Unlike smartphone apps, the hands-free design allows users to maintain eye contact and natural conversation, which may improve communication and trust.\n\nNavigation is another powerful use case. AI smart glasses can project directions, landmarks, and alerts directly into the user's view. For example, walking directions may appear on the street ahead, or reminders could appear when approaching a destination. For people unfamiliar with a city — or those with mobility or vision challenges — this could significantly improve independence and confidence. However, reliance on constant digital guidance may also reduce people's natural sense of direction.`,
     vocab: [
       { word: 'Real-time', definition: 'Happening instantly as events occur — no delay between input and output.' },
       { word: 'Hands-free', definition: 'Working without needing to hold or touch a device — using voice or sensors instead.' },
@@ -46,9 +42,7 @@ Navigation is another powerful use case. AI smart glasses can project directions
   },
   {
     number: 3, title: 'AI Assistance in Daily Life and Work', emoji: '💼', color: '#f59e0b',
-    text: `Beyond translation and navigation, AI smart glasses act as personal assistants. They can summarize messages, provide reminders, identify objects, or offer suggestions based on what the user sees. In professional settings, this could transform productivity. For example, technicians might receive instructions while repairing equipment, or doctors could view patient data without looking away from their work.
-
-At the same time, constant AI assistance raises concerns about attention, privacy, and decision-making. If AI systems guide users too often, people may lose confidence in their own judgment. There are also questions about data collection: cameras and microphones worn on the face may capture sensitive information about others without their consent. Balancing usefulness with ethical responsibility will be one of the biggest challenges for widespread adoption.`,
+    text: `Beyond translation and navigation, AI smart glasses act as personal assistants. They can summarize messages, provide reminders, identify objects, or offer suggestions based on what the user sees. In professional settings, this could transform productivity. For example, technicians might receive instructions while repairing equipment, or doctors could view patient data without looking away from their work.\n\nAt the same time, constant AI assistance raises concerns about attention, privacy, and decision-making. If AI systems guide users too often, people may lose confidence in their own judgment. There are also questions about data collection: cameras and microphones worn on the face may capture sensitive information about others without their consent. Balancing usefulness with ethical responsibility will be one of the biggest challenges for widespread adoption.`,
     vocab: [
       { word: 'Productivity', definition: 'The efficiency of completing tasks — how much useful work is done in a given time.' },
       { word: 'Consent', definition: 'Permission given by a person to allow something — especially collecting their data.' },
@@ -62,9 +56,7 @@ At the same time, constant AI assistance raises concerns about attention, privac
   },
   {
     number: 4, title: 'Social Impact and the Future of Smart Glasses', emoji: '🌍', color: '#22c55e',
-    text: `As AI smart glasses become more common, they may reshape social norms. Just as smartphones changed how people interact, smart glasses could affect eye contact, attention, and trust. Some people may feel uncomfortable being recorded or analyzed without knowing it. Others may see the technology as empowering, especially for people with disabilities or communication challenges.
-
-Looking ahead, the success of AI smart glasses will depend on trust, regulation, and design choices. If companies focus on transparency, privacy protection, and user control, these devices may become a normal part of daily life. If not, public resistance could slow adoption. Whether they become essential tools or niche gadgets, AI smart glasses represent an important step toward a more integrated digital future.`,
+    text: `As AI smart glasses become more common, they may reshape social norms. Just as smartphones changed how people interact, smart glasses could affect eye contact, attention, and trust. Some people may feel uncomfortable being recorded or analyzed without knowing it. Others may see the technology as empowering, especially for people with disabilities or communication challenges.\n\nLooking ahead, the success of AI smart glasses will depend on trust, regulation, and design choices. If companies focus on transparency, privacy protection, and user control, these devices may become a normal part of daily life. If not, public resistance could slow adoption. Whether they become essential tools or niche gadgets, AI smart glasses represent an important step toward a more integrated digital future.`,
     vocab: [
       { word: 'Transparency', definition: 'Being open and honest about how something works, especially with data and privacy.' },
       { word: 'Niche', definition: 'Appealing to a small, specific group of people rather than the general public.' },
@@ -78,30 +70,6 @@ Looking ahead, the success of AI smart glasses will depend on trust, regulation,
   },
 ]
 
-// ── Clickable Passage ─────────────────────────────────────────
-function ClickablePassage({ text, onWordClick }: { text: string; onWordClick: (word: string) => void }) {
-  return (
-    <>
-      {text.split('\n\n').map((para, pi) => (
-        <p key={pi} style={{ color: '#374151', fontSize: '16px', lineHeight: '1.85', margin: pi === 0 ? '0 0 18px' : '0', fontFamily: 'Georgia, serif' }}>
-          {para.split(/(\s+)/).map((token, ti) => {
-            const clean = token.replace(/[^a-zA-Z''-]/g, '')
-            if (!clean || token.trim() === '') return <span key={ti}>{token}</span>
-            return (
-              <span key={ti} onClick={() => onWordClick(clean)}
-                style={{ cursor: 'pointer', borderBottom: '1px dotted #93c5fd', transition: 'background 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#eff6ff')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                {token}
-              </span>
-            )
-          })}
-        </p>
-      ))}
-    </>
-  )
-}
-
 // ── Conversation Box ──────────────────────────────────────────
 type Message = { role: 'user' | 'assistant'; content: string }
 
@@ -113,7 +81,7 @@ function ConversationBox({ question, color }: { question: string; color: string 
   const [open, setOpen] = useState(false)
   const recognitionRef = useRef<any>(null)
 
-  const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "AI Smart Glasses". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question to keep the conversation going. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — but only correct the most important error, not every mistake. Be encouraging and warm.`
+  const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "AI Smart Glasses". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question to keep the conversation going. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — only the most important error. Be encouraging and warm.`
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return
@@ -126,14 +94,10 @@ function ConversationBox({ question, color }: { question: string; color: string 
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: SYSTEM,
-          messages: updated.map(m => ({ role: m.role, content: m.content })),
-        }),
+        body: JSON.stringify({ system: SYSTEM, messages: updated }),
       })
       const data = await res.json()
-      const reply = data.content || 'Sorry, I could not respond. Please try again.'
-      setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+      setMessages(prev => [...prev, { role: 'assistant', content: data.content || 'Sorry, try again.' }])
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }])
     }
@@ -142,21 +106,19 @@ function ConversationBox({ question, color }: { question: string; color: string 
 
   const startVoice = () => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SR) { alert('Voice recognition is not supported in this browser. Please use Chrome.'); return }
+    if (!SR) { alert('Voice input requires Chrome browser.'); return }
     const r = new SR()
-    r.lang = 'en-US'; r.interimResults = false; r.maxAlternatives = 1
+    r.lang = 'en-US'; r.interimResults = false
     r.onstart = () => setListening(true)
-    r.onresult = (e: any) => { const t = e.results[0][0].transcript; setInput(t); setListening(false); sendMessage(t) }
+    r.onresult = (e: any) => { const t = e.results[0][0].transcript; setListening(false); sendMessage(t) }
     r.onerror = () => setListening(false)
     r.onend = () => setListening(false)
     recognitionRef.current = r; r.start()
   }
 
-  const stopVoice = () => { recognitionRef.current?.stop(); setListening(false) }
-
   if (!open) return (
     <button onClick={() => setOpen(true)}
-      style={{ marginTop: '10px', width: '100%', background: color + '12', border: `2px dashed ${color}40`, borderRadius: '12px', padding: '10px', color: color, fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+      style={{ marginTop: '10px', width: '100%', background: color + '12', border: `2px dashed ${color}40`, borderRadius: '12px', padding: '10px', color, fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
       🤖 Practice answering with AI
     </button>
   )
@@ -187,7 +149,7 @@ function ConversationBox({ question, color }: { question: string; color: string 
           ))}
           {loading && (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <div style={{ fontSize: '20px' }}>🤖</div>
+              <span style={{ fontSize: '20px' }}>🤖</span>
               <div style={{ background: 'white', padding: '10px 14px', borderRadius: '4px 16px 16px 16px', fontSize: '14px', color: '#9ca3af', border: '1px solid #e5e7eb' }}>Thinking...</div>
             </div>
           )}
@@ -199,7 +161,7 @@ function ConversationBox({ question, color }: { question: string; color: string 
           placeholder="Type your answer... or use the mic 🎤" rows={2}
           style={{ flex: 1, padding: '10px 12px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5' }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <button onClick={listening ? stopVoice : startVoice}
+          <button onClick={listening ? () => { recognitionRef.current?.stop(); setListening(false) } : startVoice}
             style={{ background: listening ? '#ef4444' : '#22c55e', color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: listening ? '0 0 0 4px rgba(239,68,68,0.3)' : 'none' }}>
             {listening ? '⏹' : '🎤'}
           </button>
@@ -222,9 +184,57 @@ function ConversationBox({ question, color }: { question: string; color: string 
 // ── Main Page ─────────────────────────────────────────────────
 export default function AISmartGlassesPage() {
   const [speed, setSpeed] = useState(0.9)
-  const [selectedWord, setSelectedWord] = useState<string | null>(null)
-  const [wordDef, setWordDef] = useState('')
-  const [defLoading, setDefLoading] = useState(false)
+  const [selectedText, setSelectedText] = useState<string | null>(null)
+  const [lookupDef, setLookupDef] = useState('')
+  const [lookupLoading, setLookupLoading] = useState(false)
+
+  // Listen for text selection anywhere on the page
+  useEffect(() => {
+    const handleSelection = () => {
+      const sel = window.getSelection()
+      if (!sel) return
+      const text = sel.toString().trim().replace(/\s+/g, ' ')
+      // Only trigger for selections of 1–6 words within a passage
+      if (!text || text.split(' ').length > 6) return
+      const anchor = sel.anchorNode?.parentElement
+      if (!anchor?.closest('[data-passage]')) return
+      handleLookup(text)
+    }
+
+    document.addEventListener('mouseup', handleSelection)
+    document.addEventListener('touchend', handleSelection)
+    return () => {
+      document.removeEventListener('mouseup', handleSelection)
+      document.removeEventListener('touchend', handleSelection)
+    }
+  }, [])
+
+  const handleLookup = async (text: string) => {
+    if (!text || text.length < 2) return
+    setSelectedText(text)
+    setLookupDef('')
+    setLookupLoading(true)
+    speakWord(text)
+    try {
+      const isPhrase = text.includes(' ')
+      const system = isPhrase
+        ? `You are an English dictionary for B2 learners. The user has selected a phrase or collocation from a reading passage. Respond with ONLY one sentence (max 25 words) explaining what the phrase means in plain English. No extra text.`
+        : `You are an English dictionary for B2 learners. Respond with ONLY one sentence (max 20 words) defining this word simply. No extra text.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system,
+          messages: [{ role: 'user', content: isPhrase ? `What does "${text}" mean?` : `Define: "${text}"` }],
+        }),
+      })
+      const data = await res.json()
+      setLookupDef(data.content || 'No definition found.')
+    } catch {
+      setLookupDef('Could not load definition.')
+    }
+    setLookupLoading(false)
+  }
 
   function speakText(text: string) {
     if (typeof window === 'undefined') return
@@ -247,32 +257,9 @@ export default function AISmartGlassesPage() {
 
   function stopAudio() { if (typeof window === 'undefined') return; window.speechSynthesis.cancel() }
 
-  const handleWordClick = async (word: string) => {
-    if (word.length < 3) return // skip very short words like "a", "is", "of"
-    setSelectedWord(word)
-    setWordDef('')
-    setDefLoading(true)
-    speakWord(word)
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: 'You are a dictionary for B2 English learners. When given a word, respond with ONLY a single short definition of 1 sentence (max 20 words). No extra text, no examples, no punctuation at the end beyond a full stop.',
-          messages: [{ role: 'user', content: `Define this word: "${word}"` }],
-        }),
-      })
-      const data = await res.json()
-      setWordDef(data.content || 'No definition found.')
-    } catch {
-      setWordDef('Could not load definition.')
-    }
-    setDefLoading(false)
-  }
-
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}} @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}} @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
 
       {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)', padding: '56px 24px' }}>
@@ -291,7 +278,7 @@ export default function AISmartGlassesPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '20px', marginTop: '28px', flexWrap: 'wrap' }}>
-            {[{ icon: '📄', label: '4 reading parts' }, { icon: '💬', label: '12 discussion questions' }, { icon: '📚', label: '12 vocabulary words' }, { icon: '🖱️', label: 'Click any word' }, { icon: '🤖', label: 'AI conversation partner' }, { icon: '🔊', label: 'Audio included' }].map(s => (
+            {[{ icon: '📄', label: '4 reading parts' }, { icon: '💬', label: '12 discussion questions' }, { icon: '📚', label: '12 vocabulary words' }, { icon: '✍️', label: 'Select any word or phrase' }, { icon: '🤖', label: 'AI conversation partner' }, { icon: '🔊', label: 'Audio included' }].map(s => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.75)', fontSize: '13px' }}><span>{s.icon}</span> {s.label}</div>
             ))}
           </div>
@@ -303,7 +290,7 @@ export default function AISmartGlassesPage() {
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
             <span style={{ color: '#888', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>How to use:</span>
-            {['🔊 Play passage aloud', '🖱️ Click any word for definition', '📚 Study vocabulary', '🤖 Practice with AI'].map((step, i) => (
+            {['🔊 Play passage aloud', '✍️ Highlight any word or phrase', '📚 Study vocabulary', '🤖 Practice with AI'].map((step, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555', fontSize: '13px' }}>
                 <span style={{ background: '#E85D26', color: 'white', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', flexShrink: 0 }}>{i + 1}</span>
                 {step}
@@ -339,15 +326,16 @@ export default function AISmartGlassesPage() {
               </div>
             </div>
 
-            {/* Click hint */}
-            <div style={{ background: '#eff6ff', padding: '8px 28px', borderBottom: '1px solid #dbeafe', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '13px' }}>🖱️</span>
-              <span style={{ color: '#3b82f6', fontSize: '12px', fontWeight: '600' }}>Click any word in the passage to hear it and see its definition</span>
+            {/* Selection hint */}
+            <div style={{ background: '#eff6ff', padding: '8px 28px', borderBottom: '1px solid #dbeafe' }}>
+              <span style={{ color: '#3b82f6', fontSize: '12px', fontWeight: '600' }}>✍️ Highlight any word, phrase or collocation in the passage to hear it and see its meaning</span>
             </div>
 
-            {/* Reading Text — clickable */}
-            <div style={{ padding: '24px 28px 20px' }}>
-              <ClickablePassage text={part.text} onWordClick={handleWordClick} />
+            {/* Reading Text — selectable */}
+            <div data-passage="true" style={{ padding: '24px 28px 20px', userSelect: 'text', cursor: 'text' }}>
+              {part.text.split('\n\n').map((para, i) => (
+                <p key={i} style={{ color: '#374151', fontSize: '16px', lineHeight: '1.85', margin: i === 0 ? '0 0 18px' : '0', fontFamily: 'Georgia, serif' }}>{para}</p>
+              ))}
             </div>
 
             {/* Vocabulary */}
@@ -395,35 +383,36 @@ export default function AISmartGlassesPage() {
           </div>
         ))}
 
-        <div style={{ textAlign: 'center', paddingBottom: '16px' }}>
+        <div style={{ textAlign: 'center', paddingBottom: selectedText ? '120px' : '16px' }}>
           <Link href="/esl-resources/reading-comprehension/b2" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to B2 Reading Comprehension</Link>
         </div>
       </div>
 
-      {/* WORD DEFINITION POPUP — slides up from bottom */}
-      {selectedWord && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 200, animation: 'slideUp 0.25s ease' }}
-          onClick={e => { if (e.target === e.currentTarget) setSelectedWord(null) }}>
+      {/* DEFINITION POPUP — slides up from bottom */}
+      {selectedText && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 200, animation: 'slideUp 0.25s ease' }}>
           <div style={{ maxWidth: '860px', margin: '0 auto', background: 'white', borderRadius: '20px 20px 0 0', padding: '20px 24px 32px', boxShadow: '0 -8px 32px rgba(0,0,0,0.2)', border: '2px solid #e0e7ff', borderBottom: 'none' }}>
-            {/* Handle bar */}
+            {/* Handle */}
             <div style={{ width: '40px', height: '4px', background: '#e5e7eb', borderRadius: '4px', margin: '0 auto 16px' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '24px', fontWeight: '900', color: '#1a1a2e' }}>{selectedWord}</span>
-                <button onClick={() => speakWord(selectedWord)}
-                  style={{ background: '#eff6ff', color: '#3b82f6', border: '2px solid #bfdbfe', padding: '6px 14px', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '22px', fontWeight: '900', color: '#1a1a2e', fontFamily: 'Georgia, serif' }}>"{selectedText}"</span>
+                <button onClick={() => speakWord(selectedText)}
+                  style={{ background: '#eff6ff', color: '#3b82f6', border: '2px solid #bfdbfe', padding: '6px 14px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>
                   🔊 Hear it
                 </button>
               </div>
-              <button onClick={() => setSelectedWord(null)}
-                style={{ background: '#f3f4f6', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', flexShrink: 0 }}>
+              <button onClick={() => setSelectedText(null)}
+                style={{ background: '#f3f4f6', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', flexShrink: 0, marginLeft: '12px' }}>
                 ✕
               </button>
             </div>
-            <div style={{ background: '#f8faff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #e0e7ff', minHeight: '48px', display: 'flex', alignItems: 'center' }}>
-              {defLoading
-                ? <span style={{ color: '#9ca3af', fontSize: '15px' }}>Looking up definition...</span>
-                : <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{wordDef}</span>
+            <div style={{ background: '#f8faff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #e0e7ff', minHeight: '52px', display: 'flex', alignItems: 'center' }}>
+              {lookupLoading
+                ? <span style={{ color: '#9ca3af', fontSize: '15px' }}>
+                    {selectedText.includes(' ') ? 'Looking up phrase...' : 'Looking up definition...'}
+                  </span>
+                : <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{lookupDef}</span>
               }
             </div>
           </div>
