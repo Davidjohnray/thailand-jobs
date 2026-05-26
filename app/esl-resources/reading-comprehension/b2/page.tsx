@@ -25,6 +25,18 @@ const lessons = [
   preview: 'Explore how AI robots are changing life at home, raising questions about privacy, trust and the future of human connection.',
   gradient: 'linear-gradient(135deg, #1a1a2e 0%, #1e3a5f 100%)',
 },
+{
+  slug: 'holographic-display',
+  title: 'Holographic Display Gadgets',
+  subtitle: 'From Science Fiction to Consumer Technology',
+  emoji: '🔮',
+  topic: 'Technology',
+  topicColor: '#8b5cf6',
+  parts: 4,
+  questions: 12,
+  preview: 'Explore how holographic technology is moving from science fiction to reality, changing business, education and entertainment.',
+  gradient: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)',
+},
 ]
 
 export default function B2ReadingPage() {
