@@ -13,6 +13,18 @@ const lessons = [
     preview: 'Read about a simple daily routine — waking up, going to work, eating meals and going to bed.',
     gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
   },
+  {
+  slug: 'my-family',
+  title: 'My Family',
+  subtitle: 'Family members, ages and things we do together',
+  emoji: '👨‍👩‍👧',
+  topic: 'Family',
+  topicColor: '#22c55e',
+  parts: 1,
+  questions: 5,
+  preview: 'Read about a small family — father, mother and sister — and what they do together at the weekend.',
+  gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
+},
 ]
 
 export default function A1ReadingPage() {
