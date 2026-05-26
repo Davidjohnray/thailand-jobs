@@ -245,34 +245,50 @@ export default async function Home() {
         <div className="ad-sidebar" style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
 
-          <a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=banner&utm_campaign=lucky_cleaning"
-            target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-            <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
-              <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service Bangkok" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          </a>
+{/* DUKE LANGUAGE SCHOOL - TOP */}
+<a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+  <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
+    <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
+      <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
+    </div>
+    <div style={{ padding: '20px 16px', textAlign: 'center' }}>
+      <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '180px', height: 'auto', marginBottom: '12px' }} />
+      <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>Learn Thai, English & Chinese</div>
+      <div style={{ color: '#666', fontSize: '12px', marginBottom: '14px', lineHeight: '1.5' }}>Practical language courses in Bangkok for expats and international learners</div>
+      <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Explore Duke Courses →</div>
+    </div>
+  </div>
+</a>
 
-          {/* RENTALS SIDEBAR */}
-          <a href="/rentals" style={{ textDecoration: 'none' }}>
-            <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #E85D26' }}>
-              <div style={{ background: '#E85D26', padding: '10px', textAlign: 'center' }}>
-                <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Rentals in Thailand</div>
-              </div>
-              <div style={{ padding: '24px 16px', textAlign: 'center' }}>
-                <div style={{ fontSize: '40px', marginBottom: '10px' }}>🏠</div>
-                <div style={{ color: 'white', fontWeight: 'bold', fontSize: '17px', marginBottom: '6px' }}>Find Your Home</div>
-                <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Condos, houses & villas across Bangkok, Chiang Mai, Phuket & more</div>
-                <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>Browse Properties →</div>
-              </div>
-            </div>
-          </a>
+{/* LUCKY CLEANING */}
+<a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=banner&utm_campaign=lucky_cleaning"
+  target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+  <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
+    <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service Bangkok" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+  </div>
+</a>
 
-          <div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '10px' }}>💊</div>
-            <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
-            <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Health insurance & medical services</div>
-            <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
-          </div>
+{/* RENTALS SIDEBAR */}
+<a href="/rentals" style={{ textDecoration: 'none' }}>
+  <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #E85D26' }}>
+    <div style={{ background: '#E85D26', padding: '10px', textAlign: 'center' }}>
+      <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Rentals in Thailand</div>
+    </div>
+    <div style={{ padding: '24px 16px', textAlign: 'center' }}>
+      <div style={{ fontSize: '40px', marginBottom: '10px' }}>🏠</div>
+      <div style={{ color: 'white', fontWeight: 'bold', fontSize: '17px', marginBottom: '6px' }}>Find Your Home</div>
+      <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Condos, houses & villas across Bangkok, Chiang Mai, Phuket & more</div>
+      <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>Browse Properties →</div>
+    </div>
+  </div>
+</a>
+
+<div style={{ background: 'white', borderRadius: '12px', border: '2px dashed #ddd', padding: '32px 16px', textAlign: 'center' }}>
+  <div style={{ fontSize: '36px', marginBottom: '10px' }}>💊</div>
+  <div style={{ fontWeight: 'bold', color: '#888', fontSize: '15px', marginBottom: '6px' }}>Advertise Here</div>
+  <div style={{ color: '#bbb', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Health insurance & medical services</div>
+  <Link href="/contact" style={{ background: '#2D6BE4', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Get in Touch</Link>
+</div>
         </div>
 
       </section>
