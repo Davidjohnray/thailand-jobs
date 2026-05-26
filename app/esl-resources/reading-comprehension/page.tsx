@@ -11,7 +11,7 @@ const LEVELS = [
     emoji: '🌱',
     desc: 'Simple texts with basic vocabulary and short sentences. Ideal for students just starting their English journey.',
     who: 'Complete beginners · Young learners · New to English',
-    count: 0,
+    count: 1,
   },
   {
     code: 'a2',
@@ -47,7 +47,7 @@ const LEVELS = [
     emoji: '📗',
     desc: 'Complex texts on concrete and abstract topics. Students can discuss ideas, give opinions and follow detailed arguments.',
     who: 'Adult learners · University prep · IELTS 5.5–6.5',
-    count: 1,
+    count: 3,
   },
   {
     code: 'c1',
