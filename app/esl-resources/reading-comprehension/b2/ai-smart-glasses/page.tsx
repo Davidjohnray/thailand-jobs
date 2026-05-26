@@ -78,6 +78,30 @@ Looking ahead, the success of AI smart glasses will depend on trust, regulation,
   },
 ]
 
+// ── Clickable Passage ─────────────────────────────────────────
+function ClickablePassage({ text, onWordClick }: { text: string; onWordClick: (word: string) => void }) {
+  return (
+    <>
+      {text.split('\n\n').map((para, pi) => (
+        <p key={pi} style={{ color: '#374151', fontSize: '16px', lineHeight: '1.85', margin: pi === 0 ? '0 0 18px' : '0', fontFamily: 'Georgia, serif' }}>
+          {para.split(/(\s+)/).map((token, ti) => {
+            const clean = token.replace(/[^a-zA-Z''-]/g, '')
+            if (!clean || token.trim() === '') return <span key={ti}>{token}</span>
+            return (
+              <span key={ti} onClick={() => onWordClick(clean)}
+                style={{ cursor: 'pointer', borderBottom: '1px dotted #93c5fd', transition: 'background 0.15s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#eff6ff')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                {token}
+              </span>
+            )
+          })}
+        </p>
+      ))}
+    </>
+  )
+}
+
 // ── Conversation Box ──────────────────────────────────────────
 type Message = { role: 'user' | 'assistant'; content: string }
 
@@ -100,15 +124,15 @@ function ConversationBox({ question, color }: { question: string; color: string 
     setLoading(true)
     try {
       const res = await fetch('/api/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    system: SYSTEM,
-    messages: updated.map(m => ({ role: m.role, content: m.content })),
-  }),
-})
-const data = await res.json()
-const reply = data.content || 'Sorry, I could not respond. Please try again.'
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: SYSTEM,
+          messages: updated.map(m => ({ role: m.role, content: m.content })),
+        }),
+      })
+      const data = await res.json()
+      const reply = data.content || 'Sorry, I could not respond. Please try again.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }])
@@ -117,60 +141,40 @@ const reply = data.content || 'Sorry, I could not respond. Please try again.'
   }
 
   const startVoice = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SpeechRecognition) { alert('Voice recognition is not supported in this browser. Please use Chrome.'); return }
-    const r = new SpeechRecognition()
-    r.lang = 'en-US'
-    r.interimResults = false
-    r.maxAlternatives = 1
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SR) { alert('Voice recognition is not supported in this browser. Please use Chrome.'); return }
+    const r = new SR()
+    r.lang = 'en-US'; r.interimResults = false; r.maxAlternatives = 1
     r.onstart = () => setListening(true)
-    r.onresult = (e: any) => {
-      const transcript = e.results[0][0].transcript
-      setInput(transcript)
-      setListening(false)
-      sendMessage(transcript)
-    }
+    r.onresult = (e: any) => { const t = e.results[0][0].transcript; setInput(t); setListening(false); sendMessage(t) }
     r.onerror = () => setListening(false)
     r.onend = () => setListening(false)
-    recognitionRef.current = r
-    r.start()
+    recognitionRef.current = r; r.start()
   }
 
-  const stopVoice = () => {
-    recognitionRef.current?.stop()
-    setListening(false)
-  }
-
-  const reset = () => { setMessages([]); setInput('') }
+  const stopVoice = () => { recognitionRef.current?.stop(); setListening(false) }
 
   if (!open) return (
     <button onClick={() => setOpen(true)}
-      style={{ marginTop: '10px', width: '100%', background: color + '12', border: `2px dashed ${color}40`, borderRadius: '12px', padding: '10px', color: color, fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' }}>
+      style={{ marginTop: '10px', width: '100%', background: color + '12', border: `2px dashed ${color}40`, borderRadius: '12px', padding: '10px', color: color, fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
       🤖 Practice answering with AI
     </button>
   )
 
   return (
     <div style={{ marginTop: '10px', background: '#f8faff', borderRadius: '14px', border: `2px solid ${color}30`, overflow: 'hidden' }}>
-      {/* Header */}
       <div style={{ background: color, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ color: 'white', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          🤖 AI Conversation Partner
-        </div>
+        <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>🤖 AI Conversation Partner</span>
         <div style={{ display: 'flex', gap: '6px' }}>
-          <button onClick={reset} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>🔄 Reset</button>
+          <button onClick={() => setMessages([])} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>🔄 Reset</button>
           <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>✕ Close</button>
         </div>
       </div>
-
-      {/* Hint */}
       {messages.length === 0 && (
         <div style={{ padding: '14px 16px', color: '#6b7280', fontSize: '13px', lineHeight: '1.6', borderBottom: '1px solid #eee' }}>
-          💡 <strong>Speak or type</strong> your answer to this question. The AI will respond and ask a follow-up question to keep the conversation going!
+          💡 <strong>Speak or type</strong> your answer. The AI will respond and ask a follow-up question!
         </div>
       )}
-
-      {/* Messages */}
       {messages.length > 0 && (
         <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
           {messages.map((m, i) => (
@@ -189,31 +193,18 @@ const reply = data.content || 'Sorry, I could not respond. Please try again.'
           )}
         </div>
       )}
-
-      {/* Input */}
       <div style={{ padding: '12px 16px', borderTop: '1px solid #eee', display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-        <textarea
-          value={input}
-          onChange={e => setInput(e.target.value)}
+        <textarea value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) } }}
-          placeholder="Type your answer here... or use the mic 🎤"
-          rows={2}
-          style={{ flex: 1, padding: '10px 12px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5' }}
-        />
+          placeholder="Type your answer... or use the mic 🎤" rows={2}
+          style={{ flex: 1, padding: '10px 12px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5' }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {/* Voice button */}
-          <button
-            onClick={listening ? stopVoice : startVoice}
-            style={{ background: listening ? '#ef4444' : '#22c55e', color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: listening ? '0 0 0 4px rgba(239,68,68,0.3)' : 'none', transition: 'all 0.2s' }}
-            title={listening ? 'Stop listening' : 'Speak your answer'}>
+          <button onClick={listening ? stopVoice : startVoice}
+            style={{ background: listening ? '#ef4444' : '#22c55e', color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: listening ? '0 0 0 4px rgba(239,68,68,0.3)' : 'none' }}>
             {listening ? '⏹' : '🎤'}
           </button>
-          {/* Send button */}
-          <button
-            onClick={() => sendMessage(input)}
-            disabled={!input.trim() || loading}
-            style={{ background: input.trim() && !loading ? color : '#e5e7eb', color: input.trim() && !loading ? 'white' : '#9ca3af', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            title="Send">
+          <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading}
+            style={{ background: input.trim() && !loading ? color : '#e5e7eb', color: input.trim() && !loading ? 'white' : '#9ca3af', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             ➤
           </button>
         </div>
@@ -231,8 +222,11 @@ const reply = data.content || 'Sorry, I could not respond. Please try again.'
 // ── Main Page ─────────────────────────────────────────────────
 export default function AISmartGlassesPage() {
   const [speed, setSpeed] = useState(0.9)
+  const [selectedWord, setSelectedWord] = useState<string | null>(null)
+  const [wordDef, setWordDef] = useState('')
+  const [defLoading, setDefLoading] = useState(false)
 
-  function speak(text: string) {
+  function speakText(text: string) {
     if (typeof window === 'undefined') return
     window.speechSynthesis.cancel()
     const sentences = text.match(/[^.!?]+[.!?]+/g) || [text]
@@ -243,11 +237,42 @@ export default function AISmartGlassesPage() {
     })
   }
 
-  function stop() { if (typeof window === 'undefined') return; window.speechSynthesis.cancel() }
+  function speakWord(word: string) {
+    if (typeof window === 'undefined') return
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(word)
+    u.lang = 'en-GB'; u.rate = 0.85; u.pitch = 1
+    window.speechSynthesis.speak(u)
+  }
+
+  function stopAudio() { if (typeof window === 'undefined') return; window.speechSynthesis.cancel() }
+
+  const handleWordClick = async (word: string) => {
+    if (word.length < 3) return // skip very short words like "a", "is", "of"
+    setSelectedWord(word)
+    setWordDef('')
+    setDefLoading(true)
+    speakWord(word)
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: 'You are a dictionary for B2 English learners. When given a word, respond with ONLY a single short definition of 1 sentence (max 20 words). No extra text, no examples, no punctuation at the end beyond a full stop.',
+          messages: [{ role: 'user', content: `Define this word: "${word}"` }],
+        }),
+      })
+      const data = await res.json()
+      setWordDef(data.content || 'No definition found.')
+    } catch {
+      setWordDef('Could not load definition.')
+    }
+    setDefLoading(false)
+  }
 
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}} @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
 
       {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)', padding: '56px 24px' }}>
@@ -266,7 +291,7 @@ export default function AISmartGlassesPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '20px', marginTop: '28px', flexWrap: 'wrap' }}>
-            {[{ icon: '📄', label: '4 reading parts' }, { icon: '💬', label: '12 discussion questions' }, { icon: '📚', label: '12 vocabulary words' }, { icon: '⏱️', label: '45–60 min lesson' }, { icon: '👤', label: '1-to-1 or small group' }, { icon: '🔊', label: 'Audio included' }, { icon: '🤖', label: 'AI conversation partner' }].map(s => (
+            {[{ icon: '📄', label: '4 reading parts' }, { icon: '💬', label: '12 discussion questions' }, { icon: '📚', label: '12 vocabulary words' }, { icon: '🖱️', label: 'Click any word' }, { icon: '🤖', label: 'AI conversation partner' }, { icon: '🔊', label: 'Audio included' }].map(s => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.75)', fontSize: '13px' }}><span>{s.icon}</span> {s.label}</div>
             ))}
           </div>
@@ -278,7 +303,7 @@ export default function AISmartGlassesPage() {
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
             <span style={{ color: '#888', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>How to use:</span>
-            {['🔊 Play the passage aloud', '📚 Study vocabulary', '💬 Discuss questions', '🤖 Practice with AI'].map((step, i) => (
+            {['🔊 Play passage aloud', '🖱️ Click any word for definition', '📚 Study vocabulary', '🤖 Practice with AI'].map((step, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555', fontSize: '13px' }}>
                 <span style={{ background: '#E85D26', color: 'white', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', flexShrink: 0 }}>{i + 1}</span>
                 {step}
@@ -309,16 +334,20 @@ export default function AISmartGlassesPage() {
                 <h2 style={{ color: '#1a1a2e', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{part.emoji} {part.title}</h2>
               </div>
               <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                <button onClick={() => speak(part.text.replace(/\n\n/g, ' '))} style={{ background: part.color, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxShadow: `0 3px 10px ${part.color}40` }}>▶ Play Passage</button>
-                <button onClick={stop} style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>⏹ Stop</button>
+                <button onClick={() => speakText(part.text.replace(/\n\n/g, ' '))} style={{ background: part.color, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxShadow: `0 3px 10px ${part.color}40` }}>▶ Play Passage</button>
+                <button onClick={stopAudio} style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>⏹ Stop</button>
               </div>
             </div>
 
-            {/* Reading Text */}
+            {/* Click hint */}
+            <div style={{ background: '#eff6ff', padding: '8px 28px', borderBottom: '1px solid #dbeafe', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '13px' }}>🖱️</span>
+              <span style={{ color: '#3b82f6', fontSize: '12px', fontWeight: '600' }}>Click any word in the passage to hear it and see its definition</span>
+            </div>
+
+            {/* Reading Text — clickable */}
             <div style={{ padding: '24px 28px 20px' }}>
-              {part.text.split('\n\n').map((para, i) => (
-                <p key={i} style={{ color: '#374151', fontSize: '16px', lineHeight: '1.85', margin: i === 0 ? '0 0 18px' : '0', fontFamily: 'Georgia, serif' }}>{para}</p>
-              ))}
+              <ClickablePassage text={part.text} onWordClick={handleWordClick} />
             </div>
 
             {/* Vocabulary */}
@@ -334,7 +363,7 @@ export default function AISmartGlassesPage() {
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
                         <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{v.word}</span>
-                        <button onClick={() => speak(v.word)} style={{ background: part.color + '15', color: part.color, border: `1px solid ${part.color}30`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0 }}>🔊</button>
+                        <button onClick={() => speakWord(v.word)} style={{ background: part.color + '15', color: part.color, border: `1px solid ${part.color}30`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0 }}>🔊</button>
                       </div>
                       <span style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>{v.definition}</span>
                     </div>
@@ -343,7 +372,7 @@ export default function AISmartGlassesPage() {
               </div>
             </div>
 
-            {/* Discussion Questions + AI Conversation */}
+            {/* Discussion Questions + AI */}
             <div style={{ background: '#1a1a2e', padding: '20px 28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                 <span style={{ fontSize: '18px' }}>💬</span>
@@ -363,7 +392,6 @@ export default function AISmartGlassesPage() {
                 ))}
               </div>
             </div>
-
           </div>
         ))}
 
@@ -371,6 +399,36 @@ export default function AISmartGlassesPage() {
           <Link href="/esl-resources/reading-comprehension/b2" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to B2 Reading Comprehension</Link>
         </div>
       </div>
+
+      {/* WORD DEFINITION POPUP — slides up from bottom */}
+      {selectedWord && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 200, animation: 'slideUp 0.25s ease' }}
+          onClick={e => { if (e.target === e.currentTarget) setSelectedWord(null) }}>
+          <div style={{ maxWidth: '860px', margin: '0 auto', background: 'white', borderRadius: '20px 20px 0 0', padding: '20px 24px 32px', boxShadow: '0 -8px 32px rgba(0,0,0,0.2)', border: '2px solid #e0e7ff', borderBottom: 'none' }}>
+            {/* Handle bar */}
+            <div style={{ width: '40px', height: '4px', background: '#e5e7eb', borderRadius: '4px', margin: '0 auto 16px' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px', fontWeight: '900', color: '#1a1a2e' }}>{selectedWord}</span>
+                <button onClick={() => speakWord(selectedWord)}
+                  style={{ background: '#eff6ff', color: '#3b82f6', border: '2px solid #bfdbfe', padding: '6px 14px', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                  🔊 Hear it
+                </button>
+              </div>
+              <button onClick={() => setSelectedWord(null)}
+                style={{ background: '#f3f4f6', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', flexShrink: 0 }}>
+                ✕
+              </button>
+            </div>
+            <div style={{ background: '#f8faff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #e0e7ff', minHeight: '48px', display: 'flex', alignItems: 'center' }}>
+              {defLoading
+                ? <span style={{ color: '#9ca3af', fontSize: '15px' }}>Looking up definition...</span>
+                : <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{wordDef}</span>
+              }
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
