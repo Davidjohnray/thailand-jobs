@@ -171,7 +171,7 @@ export default async function Home() {
               </div>
             </a>
 
-            {/* DUKE LANGUAGE - MOBILE */}
+            {/* DUKE LANGUAGE - MOBILE (updated wording) */}
             <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
                 <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
@@ -179,9 +179,9 @@ export default async function Home() {
                 </div>
                 <div style={{ padding: '16px', textAlign: 'center' }}>
                   <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '160px', height: 'auto', marginBottom: '10px' }} />
-                  <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '4px' }}>Learn Thai in Thailand</div>
-                  <div style={{ color: '#666', fontSize: '12px', marginBottom: '12px', lineHeight: '1.5' }}>Professional Thai language courses for expats and teachers</div>
-                  <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Visit Duke Language →</div>
+                  <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '4px' }}>Learn Thai, English & Chinese</div>
+                  <div style={{ color: '#666', fontSize: '12px', marginBottom: '12px', lineHeight: '1.5' }}>Practical language courses in Bangkok for expats and international learners</div>
+                  <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Explore Duke Courses →</div>
                 </div>
               </div>
             </a>
@@ -224,7 +224,7 @@ export default async function Home() {
             </div>
           </Link>
 
-          {/* DUKE LANGUAGE SCHOOL BANNER - SIDEBAR */}
+          {/* DUKE LANGUAGE SCHOOL BANNER - SIDEBAR (updated wording) */}
           <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
               <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
@@ -232,9 +232,9 @@ export default async function Home() {
               </div>
               <div style={{ padding: '20px 16px', textAlign: 'center' }}>
                 <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '180px', height: 'auto', marginBottom: '12px' }} />
-                <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>Learn Thai in Thailand</div>
-                <div style={{ color: '#666', fontSize: '12px', marginBottom: '14px', lineHeight: '1.5' }}>Professional Thai language courses for expats and teachers</div>
-                <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Visit Duke Language →</div>
+                <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>Learn Thai, English & Chinese</div>
+                <div style={{ color: '#666', fontSize: '12px', marginBottom: '14px', lineHeight: '1.5' }}>Practical language courses in Bangkok for expats and international learners</div>
+                <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Explore Duke Courses →</div>
               </div>
             </div>
           </a>

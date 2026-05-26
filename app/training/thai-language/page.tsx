@@ -18,7 +18,7 @@ export default function ThaiLanguagePage() {
           <p style={{ color: '#666', fontSize: '15px' }}>Trusted by expats and teachers living in Thailand</p>
         </div>
 
-        {/* DUKE LANGUAGE SCHOOL CARD */}
+        {/* DUKE LANGUAGE SCHOOL CARD — updated wording */}
         <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block', marginBottom: '32px' }}>
           <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '2px solid #3b5bdb' }}>
             <div style={{ background: '#3b5bdb', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -29,15 +29,15 @@ export default function ThaiLanguagePage() {
               <div style={{ flex: 1, minWidth: '200px' }}>
                 <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px' }}>Duke Language School</h2>
                 <p style={{ color: '#555', fontSize: '15px', lineHeight: '1.7', marginBottom: '16px' }}>
-                  Professional Thai language courses designed specifically for expats, teachers and business professionals living in Thailand. Whether you are a complete beginner or want to improve your existing Thai — Duke Language School has a course for you.
+                  Learn practical Thai in Bangkok with experienced teachers and original Duke materials. Beginner-friendly group courses for learners who want to communicate with confidence in everyday life. Also offering English and Chinese courses.
                 </p>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                  {['All levels welcome', 'Qualified teachers', 'Flexible schedule', 'Expat friendly'].map(tag => (
+                  {['Practical Thai', 'Beginner Friendly', 'Original Duke Materials', 'English & Chinese Available'].map(tag => (
                     <span key={tag} style={{ background: '#eef2ff', color: '#3b5bdb', fontSize: '12px', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold' }}>{tag}</span>
                   ))}
                 </div>
                 <div style={{ background: '#3b5bdb', color: 'white', padding: '12px 28px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>
-                  Visit Duke Language School →
+                  Explore Duke Courses →
                 </div>
               </div>
             </div>
