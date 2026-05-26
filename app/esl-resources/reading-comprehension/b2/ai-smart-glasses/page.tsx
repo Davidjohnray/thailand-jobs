@@ -1,5 +1,13 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
+
+const SPEEDS = [
+  { label: '🐢 Very Slow', value: 0.55 },
+  { label: '🚶 Slow', value: 0.72 },
+  { label: '🏃 Normal', value: 0.9 },
+  { label: '⚡ Fast', value: 1.1 },
+]
 
 const PARTS = [
   {
@@ -82,22 +90,22 @@ Looking ahead, the success of AI smart glasses will depend on trust, regulation,
   },
 ]
 
-function speak(text: string) {
-  if (typeof window === 'undefined') return
-  window.speechSynthesis.cancel()
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = 'en-GB'
-  utterance.rate = 0.9
-  utterance.pitch = 1
-  window.speechSynthesis.speak(utterance)
-}
-
-function stop() {
-  if (typeof window === 'undefined') return
-  window.speechSynthesis.cancel()
-}
-
 export default function AISmartGlassesPage() {
+  const [speed, setSpeed] = useState(0.9)
+
+  function speak(text: string) {
+    if (typeof window === 'undefined') return
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(text)
+    u.lang = 'en-GB'; u.rate = speed; u.pitch = 1
+    window.speechSynthesis.speak(u)
+  }
+
+  function stop() {
+    if (typeof window === 'undefined') return
+    window.speechSynthesis.cancel()
+  }
+
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
 
@@ -113,79 +121,61 @@ export default function AISmartGlassesPage() {
                 <span style={{ background: 'rgba(139,92,246,0.6)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>Technology</span>
                 <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>4 Parts · 12 Questions</span>
               </div>
-              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>
-                Next-Gen AI Smart Glasses
-              </h1>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>
-                A New Way to See the World — explore how AI-powered glasses are changing daily life, work, travel and social interaction.
-              </p>
+              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>Next-Gen AI Smart Glasses</h1>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>A New Way to See the World — explore how AI-powered glasses are changing daily life, work, travel and social interaction.</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '20px', marginTop: '28px', flexWrap: 'wrap' }}>
-            {[
-              { icon: '📄', label: '4 reading parts' },
-              { icon: '💬', label: '12 discussion questions' },
-              { icon: '📚', label: '12 vocabulary words' },
-              { icon: '⏱️', label: '45–60 min lesson' },
-              { icon: '👤', label: '1-to-1 or small group' },
-              { icon: '🔊', label: 'Audio included' },
-            ].map(s => (
-              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.75)', fontSize: '13px' }}>
-                <span>{s.icon}</span> {s.label}
-              </div>
+            {[{ icon: '📄', label: '4 reading parts' }, { icon: '💬', label: '12 discussion questions' }, { icon: '📚', label: '12 vocabulary words' }, { icon: '⏱️', label: '45–60 min lesson' }, { icon: '👤', label: '1-to-1 or small group' }, { icon: '🔊', label: 'Audio included' }].map(s => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.75)', fontSize: '13px' }}><span>{s.icon}</span> {s.label}</div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* HOW TO USE */}
-      <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '16px 24px' }}>
-        <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ color: '#888', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>How to use:</span>
-          {['🔊 Play the passage aloud', '📚 Study vocabulary below each part', '💬 Answer discussion questions', '🗣️ Share your own opinion'].map((step, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555', fontSize: '13px' }}>
-              <span style={{ background: '#E85D26', color: 'white', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', flexShrink: 0 }}>{i + 1}</span>
-              {step}
-            </div>
-          ))}
+      {/* HOW TO USE + SPEED */}
+      <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '14px 24px' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
+            <span style={{ color: '#888', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>How to use:</span>
+            {['🔊 Play the passage aloud', '📚 Study vocabulary below each part', '💬 Answer discussion questions', '🗣️ Share your own opinion'].map((step, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555', fontSize: '13px' }}>
+                <span style={{ background: '#E85D26', color: 'white', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', flexShrink: 0 }}>{i + 1}</span>
+                {step}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
+            {SPEEDS.map(s => (
+              <button key={s.value} onClick={() => setSpeed(s.value)}
+                style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#3b82f6' : '#e5e7eb', background: speed === s.value ? '#3b82f6' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
       <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
-
         {PARTS.map(part => (
           <div key={part.number} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
-
-            {/* Part Header */}
             <div style={{ background: `linear-gradient(135deg, ${part.color}22, ${part.color}08)`, borderLeft: `5px solid ${part.color}`, padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ background: part.color, color: 'white', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '16px', flexShrink: 0 }}>{part.number}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ color: part.color, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>Part {part.number}</div>
                 <h2 style={{ color: '#1a1a2e', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{part.emoji} {part.title}</h2>
               </div>
-              {/* Audio buttons for passage */}
               <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                <button
-                  onClick={() => speak(part.text.replace(/\n\n/g, ' '))}
-                  style={{ background: part.color, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: `0 3px 10px ${part.color}40` }}>
-                  ▶ Play Passage
-                </button>
-                <button
-                  onClick={stop}
-                  style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
-                  ⏹ Stop
-                </button>
+                <button onClick={() => speak(part.text.replace(/\n\n/g, ' '))} style={{ background: part.color, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxShadow: `0 3px 10px ${part.color}40` }}>▶ Play Passage</button>
+                <button onClick={stop} style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>⏹ Stop</button>
               </div>
             </div>
-
-            {/* Reading Text */}
             <div style={{ padding: '24px 28px 20px' }}>
               {part.text.split('\n\n').map((para, i) => (
                 <p key={i} style={{ color: '#374151', fontSize: '16px', lineHeight: '1.85', margin: i === 0 ? '0 0 18px' : '0', fontFamily: 'Georgia, serif' }}>{para}</p>
               ))}
             </div>
-
-            {/* Vocabulary for this part */}
             <div style={{ margin: '0 28px 24px', background: part.color + '08', border: `1px solid ${part.color}25`, borderRadius: '14px', overflow: 'hidden' }}>
               <div style={{ background: part.color + '18', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: `1px solid ${part.color}20` }}>
                 <span style={{ fontSize: '16px' }}>📚</span>
@@ -198,13 +188,7 @@ export default function AISmartGlassesPage() {
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
                         <span style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{v.word}</span>
-                        {/* Audio button for vocab word */}
-                        <button
-                          onClick={() => speak(v.word)}
-                          title={`Hear "${v.word}"`}
-                          style={{ background: part.color + '15', color: part.color, border: `1px solid ${part.color}30`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0 }}>
-                          🔊
-                        </button>
+                        <button onClick={() => speak(v.word)} style={{ background: part.color + '15', color: part.color, border: `1px solid ${part.color}30`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0 }}>🔊</button>
                       </div>
                       <span style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5' }}>{v.definition}</span>
                     </div>
@@ -212,8 +196,6 @@ export default function AISmartGlassesPage() {
                 ))}
               </div>
             </div>
-
-            {/* Discussion Questions */}
             <div style={{ background: '#1a1a2e', padding: '20px 28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                 <span style={{ fontSize: '18px' }}>💬</span>
@@ -228,15 +210,11 @@ export default function AISmartGlassesPage() {
                 ))}
               </div>
             </div>
-
           </div>
         ))}
-
-        {/* BACK LINK */}
         <div style={{ textAlign: 'center', paddingBottom: '16px' }}>
           <Link href="/esl-resources/reading-comprehension/b2" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to B2 Reading Comprehension</Link>
         </div>
-
       </div>
     </main>
   )
