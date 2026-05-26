@@ -37,7 +37,14 @@ I love my family.`
 
 const LISTENING_SCRIPT = `There are four people in my family. My father works in an office. My mother works at home. I have one sister. We eat dinner together.`
 
-function speak(text: string, rate = 0.85) {
+const SPEEDS = [
+  { label: '🐢 Very Slow', value: 0.55 },
+  { label: '🚶 Slow', value: 0.72 },
+  { label: '🏃 Normal', value: 0.9 },
+  { label: '⚡ Fast', value: 1.1 },
+]
+
+function speak(text: string, rate: number) {
   if (typeof window === 'undefined') return
   window.speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(text)
@@ -56,6 +63,7 @@ export default function MyFamilyPage() {
   const [writing, setWriting] = useState({ people: '', siblings: '', together: '' })
   const [section, setSection] = useState<'warmup' | 'reading' | 'vocab' | 'questions' | 'listening' | 'speaking' | 'writing'>('warmup')
   const [listeningAnswers, setListeningAnswers] = useState({ q1: '', q2: '' })
+  const [speed, setSpeed] = useState(0.9)
 
   const handleAnswer = (qIdx: number, optIdx: number) => {
     if (submitted) return
@@ -90,40 +98,40 @@ export default function MyFamilyPage() {
                 <span style={{ background: 'rgba(255,255,255,0.25)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>Family</span>
                 <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>Lesson 2</span>
               </div>
-              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>
-                My Family
-              </h1>
+              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>My Family</h1>
               <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>
                 Learn to talk about your family — who they are, how old they are, and what you do together.
               </p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '20px', marginTop: '24px', flexWrap: 'wrap' }}>
-            {[
-              { icon: '📖', label: 'Short reading text' },
-              { icon: '📚', label: '6 vocabulary words' },
-              { icon: '❓', label: '5 comprehension questions' },
-              { icon: '🔊', label: 'Audio included' },
-              { icon: '✍️', label: 'Writing practice' },
-              { icon: '⏱️', label: '30–45 min lesson' },
-            ].map(s => (
-              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}>
-                <span>{s.icon}</span> {s.label}
-              </div>
+            {[{ icon: '📖', label: 'Short reading text' }, { icon: '📚', label: '6 vocabulary words' }, { icon: '❓', label: '5 comprehension questions' }, { icon: '🔊', label: 'Audio included' }, { icon: '✍️', label: 'Writing practice' }, { icon: '⏱️', label: '30–45 min lesson' }].map(s => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}><span>{s.icon}</span> {s.label}</div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* SECTION NAV */}
-      <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '12px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {SECTIONS.map(s => (
-            <button key={s.id} onClick={() => setSection(s.id as any)}
-              style={{ padding: '6px 14px', borderRadius: '20px', border: 'none', background: section === s.id ? s.color : '#f0f0f0', color: section === s.id ? 'white' : '#555', fontWeight: '700', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}>
-              {s.label}
-            </button>
-          ))}
+      {/* STICKY NAV + SPEED */}
+      <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '10px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+            {SECTIONS.map(s => (
+              <button key={s.id} onClick={() => setSection(s.id as any)}
+                style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', background: section === s.id ? s.color : '#f0f0f0', color: section === s.id ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
+            {SPEEDS.map(s => (
+              <button key={s.value} onClick={() => setSpeed(s.value)}
+                style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#16a34a' : '#e5e7eb', background: speed === s.value ? '#16a34a' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -139,11 +147,7 @@ export default function MyFamilyPage() {
             <div style={{ padding: '24px 28px' }}>
               <p style={{ color: '#555', fontSize: '15px', marginBottom: '20px', lineHeight: '1.6' }}>Ask your student these questions. Short answers are fine — one word or a simple sentence.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[
-                  { q: 'Do you have a family?', hint: 'e.g. Yes, I do. / Yes.' },
-                  { q: 'How many people are in your family?', hint: 'e.g. Four people. / Five.' },
-                  { q: 'Do you have brothers or sisters?', hint: 'e.g. I have one brother. / No, I don\'t.' },
-                ].map((item, i) => (
+                {[{ q: 'Do you have a family?', hint: 'e.g. Yes, I do. / Yes.' }, { q: 'How many people are in your family?', hint: 'e.g. Four people. / Five.' }, { q: 'Do you have brothers or sisters?', hint: 'e.g. I have one brother. / No, I don\'t.' }].map((item, i) => (
                   <div key={i} style={{ background: '#fffbeb', borderRadius: '14px', padding: '16px 20px', border: '2px solid #fde68a' }}>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                       <div style={{ background: '#f59e0b', color: 'white', width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>{i + 1}</div>
@@ -155,9 +159,7 @@ export default function MyFamilyPage() {
                   </div>
                 ))}
               </div>
-              <button onClick={() => setSection('reading')} style={{ width: '100%', marginTop: '20px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(245,158,11,0.4)' }}>
-                Ready! → Start Reading
-              </button>
+              <button onClick={() => setSection('reading')} style={{ width: '100%', marginTop: '20px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(245,158,11,0.4)' }}>Ready! → Start Reading</button>
             </div>
           </div>
         )}
@@ -171,7 +173,7 @@ export default function MyFamilyPage() {
                 <h2 style={{ color: '#1a1a2e', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📖 My Family</h2>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => speak(PASSAGE, 0.8)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(59,130,246,0.4)' }}>▶ Play</button>
+                <button onClick={() => speak(PASSAGE, speed)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(59,130,246,0.4)' }}>▶ Play</button>
                 <button onClick={stop} style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>⏹ Stop</button>
               </div>
             </div>
@@ -181,9 +183,7 @@ export default function MyFamilyPage() {
                   <p key={i} style={{ color: '#1e3a5f', fontSize: '18px', lineHeight: '2', margin: '0 0 4px', fontFamily: 'Georgia, serif' }}>{line}</p>
                 ))}
               </div>
-              <button onClick={() => setSection('vocab')} style={{ width: '100%', marginTop: '20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(59,130,246,0.4)' }}>
-                → Study Vocabulary
-              </button>
+              <button onClick={() => setSection('vocab')} style={{ width: '100%', marginTop: '20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(59,130,246,0.4)' }}>→ Study Vocabulary</button>
             </div>
           </div>
         )}
@@ -203,19 +203,14 @@ export default function MyFamilyPage() {
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                         <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '16px' }}>{v.word}</span>
-                        <button onClick={() => speak(v.word)}
-                          style={{ background: '#8b5cf615', color: '#8b5cf6', border: '1px solid #8b5cf630', padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700' }}>
-                          🔊
-                        </button>
+                        <button onClick={() => speak(v.word, speed)} style={{ background: '#8b5cf615', color: '#8b5cf6', border: '1px solid #8b5cf630', padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700' }}>🔊</button>
                       </div>
                       <div style={{ color: '#6b7280', fontSize: '14px' }}>{v.meaning}</div>
                     </div>
                   </div>
                 ))}
               </div>
-              <button onClick={() => setSection('questions')} style={{ width: '100%', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(139,92,246,0.4)' }}>
-                → Answer the Questions
-              </button>
+              <button onClick={() => setSection('questions')} style={{ width: '100%', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(139,92,246,0.4)' }}>→ Answer the Questions</button>
             </div>
           </div>
         )}
@@ -233,19 +228,13 @@ export default function MyFamilyPage() {
                   <div key={qi} style={{ background: '#f9fafb', borderRadius: '16px', padding: '20px', border: submitted && answers[qi] === q.answer ? '2px solid #22c55e' : submitted && answers[qi] !== q.answer ? '2px solid #ef4444' : '2px solid #e5e7eb' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '14px' }}>
                       <span style={{ fontSize: '24px' }}>{q.emoji}</span>
-                      <div style={{ fontWeight: '700', fontSize: '16px', color: '#1a1a2e', lineHeight: '1.4' }}>
-                        <span style={{ color: '#E85D26', marginRight: '6px' }}>{qi + 1}.</span>{q.q}
-                      </div>
+                      <div style={{ fontWeight: '700', fontSize: '16px', color: '#1a1a2e', lineHeight: '1.4' }}><span style={{ color: '#E85D26', marginRight: '6px' }}>{qi + 1}.</span>{q.q}</div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {q.options.map((opt, oi) => {
-                        const isSelected = answers[qi] === oi
-                        const isCorrect = oi === q.answer
+                        const isSelected = answers[qi] === oi; const isCorrect = oi === q.answer
                         let bg = 'white', border = '#e5e7eb', color = '#374151'
-                        if (submitted) {
-                          if (isCorrect) { bg = '#dcfce7'; border = '#16a34a'; color = '#14532d' }
-                          else if (isSelected && !isCorrect) { bg = '#fee2e2'; border = '#ef4444'; color = '#7f1d1d' }
-                        } else if (isSelected) { bg = '#eff6ff'; border = '#3b82f6'; color = '#1e3a5f' }
+                        if (submitted) { if (isCorrect) { bg = '#dcfce7'; border = '#16a34a'; color = '#14532d' } else if (isSelected && !isCorrect) { bg = '#fee2e2'; border = '#ef4444'; color = '#7f1d1d' } } else if (isSelected) { bg = '#eff6ff'; border = '#3b82f6'; color = '#1e3a5f' }
                         return (
                           <button key={oi} onClick={() => handleAnswer(qi, oi)} disabled={submitted}
                             style={{ background: bg, border: `2px solid ${border}`, borderRadius: '10px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: submitted ? 'default' : 'pointer', transition: 'all 0.2s', textAlign: 'left' }}>
@@ -272,9 +261,7 @@ export default function MyFamilyPage() {
                     <div style={{ fontWeight: '900', fontSize: '24px', color: '#1a1a2e', marginBottom: '4px' }}>{score} out of {QUESTIONS.length} correct!</div>
                     <div style={{ color: '#555', fontSize: '15px' }}>{score === QUESTIONS.length ? 'Perfect — well done!' : score >= 3 ? 'Good work! Review the wrong answers.' : 'Keep trying — read the passage again!'}</div>
                   </div>
-                  <button onClick={() => setSection('listening')} style={{ width: '100%', background: 'linear-gradient(135deg, #06b6d4, #0891b2)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(6,182,212,0.4)' }}>
-                    → Listening Practice
-                  </button>
+                  <button onClick={() => setSection('listening')} style={{ width: '100%', background: 'linear-gradient(135deg, #06b6d4, #0891b2)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(6,182,212,0.4)' }}>→ Listening Practice</button>
                 </div>
               )}
             </div>
@@ -297,28 +284,19 @@ export default function MyFamilyPage() {
                 ))}
               </div>
               <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                <button onClick={() => speak(LISTENING_SCRIPT, 0.8)} style={{ background: '#06b6d4', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: '700', fontSize: '15px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(6,182,212,0.4)' }}>▶ Play Listening</button>
-                <button onClick={() => speak(LISTENING_SCRIPT, 0.65)} style={{ background: '#0891b2', color: 'white', border: 'none', padding: '12px 20px', borderRadius: '10px', fontWeight: '700', fontSize: '15px', cursor: 'pointer' }}>🐢 Play Slowly</button>
+                <button onClick={() => speak(LISTENING_SCRIPT, speed)} style={{ background: '#06b6d4', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: '700', fontSize: '15px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(6,182,212,0.4)' }}>▶ Play Listening</button>
                 <button onClick={stop} style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '12px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>⏹ Stop</button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-                {[
-                  { label: 'How many people are in the family?', key: 'q1' as const, placeholder: 'e.g. Four people' },
-                  { label: 'Who works at home?', key: 'q2' as const, placeholder: 'e.g. The mother' },
-                ].map((item, i) => (
+                {[{ label: 'How many people are in the family?', key: 'q1' as const, placeholder: 'e.g. Four people' }, { label: 'Who works at home?', key: 'q2' as const, placeholder: 'e.g. The mother' }].map((item, i) => (
                   <div key={i} style={{ background: '#f0fdfa', borderRadius: '14px', padding: '16px 20px', border: '2px solid #99f6e4' }}>
-                    <div style={{ fontWeight: '700', fontSize: '16px', color: '#1a1a2e', marginBottom: '10px' }}>
-                      <span style={{ color: '#06b6d4', marginRight: '6px' }}>{i + 1}.</span>{item.label}
-                    </div>
-                    <input value={listeningAnswers[item.key]} onChange={e => setListeningAnswers(prev => ({ ...prev, [item.key]: e.target.value }))}
-                      placeholder={item.placeholder}
+                    <div style={{ fontWeight: '700', fontSize: '16px', color: '#1a1a2e', marginBottom: '10px' }}><span style={{ color: '#06b6d4', marginRight: '6px' }}>{i + 1}.</span>{item.label}</div>
+                    <input value={listeningAnswers[item.key]} onChange={e => setListeningAnswers(prev => ({ ...prev, [item.key]: e.target.value }))} placeholder={item.placeholder}
                       style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '2px solid #67e8f9', fontSize: '16px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Georgia, serif', color: '#1a1a2e' }} />
                   </div>
                 ))}
               </div>
-              <button onClick={() => setSection('speaking')} style={{ width: '100%', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(34,197,94,0.4)' }}>
-                → Speaking Practice
-              </button>
+              <button onClick={() => setSection('speaking')} style={{ width: '100%', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(34,197,94,0.4)' }}>→ Speaking Practice</button>
             </div>
           </div>
         )}
@@ -333,16 +311,10 @@ export default function MyFamilyPage() {
             <div style={{ padding: '24px 28px' }}>
               <div style={{ background: '#f0fdf4', borderRadius: '14px', padding: '16px 20px', border: '2px solid #86efac', marginBottom: '20px' }}>
                 <div style={{ color: '#15803d', fontSize: '13px', fontWeight: '700', marginBottom: '6px' }}>📝 Model sentences:</div>
-                <div style={{ color: '#14532d', fontSize: '16px', fontWeight: '700', fontFamily: 'Georgia, serif', lineHeight: '1.8' }}>
-                  I have one brother.<br />We eat together.
-                </div>
+                <div style={{ color: '#14532d', fontSize: '16px', fontWeight: '700', fontFamily: 'Georgia, serif', lineHeight: '1.8' }}>I have one brother.<br />We eat together.</div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
-                {[
-                  { q: 'How many people are in your family?', hint: 'There are _____ people in my family.', emoji: '👨‍👩‍👧‍👦' },
-                  { q: 'Do you have a brother or sister?', hint: 'I have _____ brother / sister. / I don\'t have a brother or sister.', emoji: '👧👦' },
-                  { q: 'What do you do with your family?', hint: 'We _____ together. (eat / watch TV / go to the park)', emoji: '🏡' },
-                ].map((item, i) => (
+                {[{ q: 'How many people are in your family?', hint: 'There are _____ people in my family.', emoji: '👨‍👩‍👧‍👦' }, { q: 'Do you have a brother or sister?', hint: 'I have _____ brother / sister. / I don\'t have a brother or sister.', emoji: '👧👦' }, { q: 'What do you do with your family?', hint: 'We _____ together. (eat / watch TV / go to the park)', emoji: '🏡' }].map((item, i) => (
                   <div key={i} style={{ background: '#f0fdf4', borderRadius: '14px', padding: '16px 20px', border: '2px solid #86efac' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                       <span style={{ fontSize: '28px', flexShrink: 0 }}>{item.emoji}</span>
@@ -354,9 +326,7 @@ export default function MyFamilyPage() {
                   </div>
                 ))}
               </div>
-              <button onClick={() => setSection('writing')} style={{ width: '100%', background: 'linear-gradient(135deg, #ec4899, #be185d)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(236,72,153,0.4)' }}>
-                → Writing Practice
-              </button>
+              <button onClick={() => setSection('writing')} style={{ width: '100%', background: 'linear-gradient(135deg, #ec4899, #be185d)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(236,72,153,0.4)' }}>→ Writing Practice</button>
             </div>
           </div>
         )}
@@ -371,33 +341,21 @@ export default function MyFamilyPage() {
             <div style={{ padding: '24px 28px' }}>
               <p style={{ color: '#555', fontSize: '15px', marginBottom: '20px' }}>Complete the sentences about <strong>your own</strong> family.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-                {[
-                  { label: 'There are', suffix: 'people in my family.', key: 'people' as const, placeholder: 'e.g. four', emoji: '👨‍👩‍👧‍👦' },
-                  { label: 'I have', suffix: 'brother(s) / sister(s).', key: 'siblings' as const, placeholder: 'e.g. one / two / no', emoji: '👧👦' },
-                  { label: 'We like to', suffix: 'together.', key: 'together' as const, placeholder: 'e.g. eat dinner / watch TV / play', emoji: '🏡' },
-                ].map(item => (
+                {[{ label: 'There are', suffix: 'people in my family.', key: 'people' as const, placeholder: 'e.g. four', emoji: '👨‍👩‍👧‍👦' }, { label: 'I have', suffix: 'brother(s) / sister(s).', key: 'siblings' as const, placeholder: 'e.g. one / two / no', emoji: '👧👦' }, { label: 'We like to', suffix: 'together.', key: 'together' as const, placeholder: 'e.g. eat dinner / watch TV / play', emoji: '🏡' }].map(item => (
                   <div key={item.key} style={{ background: '#fdf2f8', borderRadius: '14px', padding: '16px 20px', border: '2px solid #f9a8d4' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
                       <span style={{ fontSize: '28px' }}>{item.emoji}</span>
                       <span style={{ fontWeight: '700', fontSize: '16px', color: '#1a1a2e' }}>{item.label} <span style={{ color: '#9ca3af' }}>___________</span> {item.suffix}</span>
                     </div>
-                    <input value={writing[item.key]} onChange={e => setWriting(prev => ({ ...prev, [item.key]: e.target.value }))}
-                      placeholder={item.placeholder}
+                    <input value={writing[item.key]} onChange={e => setWriting(prev => ({ ...prev, [item.key]: e.target.value }))} placeholder={item.placeholder}
                       style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '2px solid #f9a8d4', fontSize: '16px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Georgia, serif', color: '#1a1a2e' }} />
                   </div>
                 ))}
               </div>
-
-              {/* Lesson outcome */}
               <div style={{ background: '#1a1a2e', borderRadius: '16px', padding: '24px' }}>
                 <div style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>🎓 Lesson Outcome — A1 Can-Do</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {[
-                    'Read a short text about family ✅',
-                    'Understand basic family vocabulary ✅',
-                    'Answer simple comprehension questions ✅',
-                    'Talk about your own family using simple sentences ✅',
-                  ].map((item, i) => (
+                  {['Read a short text about family ✅', 'Understand basic family vocabulary ✅', 'Answer simple comprehension questions ✅', 'Talk about your own family using simple sentences ✅'].map((item, i) => (
                     <div key={i} style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                       <span style={{ color: '#22c55e', fontWeight: '900' }}>✓</span> {item}
                     </div>
@@ -408,11 +366,9 @@ export default function MyFamilyPage() {
           </div>
         )}
 
-        {/* BACK LINK */}
         <div style={{ textAlign: 'center', paddingBottom: '16px' }}>
           <Link href="/esl-resources/reading-comprehension/a1" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to A1 Reading Comprehension</Link>
         </div>
-
       </div>
     </main>
   )
