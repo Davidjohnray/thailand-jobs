@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { electricityQuestions } from '../questions'
 
 const SESSION_KEY = 'premium_games_session'
-const TOTAL_TIME = 25
 const OPTION_COLORS = ['#f59e0b', '#1d4ed8', '#16a34a', '#dc2626']
 const OPTION_BG = ['#fffbeb', '#eff6ff', '#f0fdf4', '#fef2f2']
+const TIMER_PRESETS = [10, 15, 25, 45, 60]
 
 function ElectricitySoloInner() {
   const qs = electricityQuestions
@@ -14,11 +14,18 @@ function ElectricitySoloInner() {
   const [current, setCurrent] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const [score, setScore] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME)
+  const [timerSetting, setTimerSetting] = useState(25)
+  const [customInput, setCustomInput] = useState('')
+  const [timeLeft, setTimeLeft] = useState(25)
   const [timerRunning, setTimerRunning] = useState(false)
   const [finished, setFinished] = useState(false)
   const [showStar, setShowStar] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    setTimeLeft(timerSetting)
+  }, [timerSetting])
 
   useEffect(() => {
     if (timerRunning && timeLeft > 0 && selected === null) {
@@ -31,22 +38,31 @@ function ElectricitySoloInner() {
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [timerRunning, timeLeft, selected])
 
-  const startTimer = () => { setTimeLeft(TOTAL_TIME); setTimerRunning(true) }
+  const startTimer = () => { setTimeLeft(timerSetting); setTimerRunning(true); setGameStarted(true) }
 
   const handleAnswer = (idx: number) => {
     if (selected !== null) return
     if (timerRef.current) clearTimeout(timerRef.current)
-    setTimerRunning(false); setSelected(idx)
+    setTimerRunning(false); setSelected(idx); setGameStarted(true)
     if (idx === qs[current].answer) { setScore(s => s + 1); setShowStar(true); setTimeout(() => setShowStar(false), 900) }
     setTimeout(nextQuestion, 2500)
   }
 
   const nextQuestion = () => {
     if (current + 1 >= qs.length) { setFinished(true); return }
-    setCurrent(c => c + 1); setSelected(null); setTimeLeft(TOTAL_TIME); setTimerRunning(false)
+    setCurrent(c => c + 1); setSelected(null); setTimeLeft(timerSetting); setTimerRunning(false)
   }
 
-  const restart = () => { setCurrent(0); setSelected(null); setScore(0); setTimeLeft(TOTAL_TIME); setTimerRunning(false); setFinished(false) }
+  const restart = () => { setCurrent(0); setSelected(null); setScore(0); setTimeLeft(timerSetting); setTimerRunning(false); setFinished(false); setGameStarted(false) }
+
+  const applyCustomTime = () => {
+    const val = parseInt(customInput)
+    if (!isNaN(val) && val >= 5 && val <= 300) {
+      setTimerSetting(val)
+      setTimeLeft(val)
+      setCustomInput('')
+    }
+  }
 
   if (!authed) return <main style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #1a1a2e, #1e3a5f)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Link href="/esl-games/live/premium/electricity" style={{ color: '#f59e0b', fontWeight: 'bold' }}>← Please log in first</Link></main>
 
@@ -70,8 +86,8 @@ function ElectricitySoloInner() {
   }
 
   const q = qs[current]
-  const timerColor = timeLeft > 15 ? '#22c55e' : timeLeft > 8 ? '#f59e0b' : '#ef4444'
-  const timerPct = (timeLeft / TOTAL_TIME) * 100
+  const timerColor = timeLeft > timerSetting * 0.6 ? '#22c55e' : timeLeft > timerSetting * 0.3 ? '#f59e0b' : '#ef4444'
+  const timerPct = (timeLeft / timerSetting) * 100
 
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #1a1a2e 0%, #1e3a5f 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
@@ -83,6 +99,7 @@ function ElectricitySoloInner() {
       {showStar && <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: '80px', animation: 'starPop 0.8s ease forwards', zIndex: 999, pointerEvents: 'none' }}>⭐</div>}
 
       <div style={{ width: '100%', maxWidth: '620px' }}>
+
         {/* Top bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
           <Link href="/esl-games/live/premium/electricity" style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '20px', textDecoration: 'none', color: 'rgba(255,255,255,0.7)', fontWeight: '700', fontSize: '14px' }}>← Exit</Link>
@@ -94,14 +111,67 @@ function ElectricitySoloInner() {
           {qs.map((_, i) => <div key={i} style={{ width: '9px', height: '9px', borderRadius: '50%', background: i < current ? '#22c55e' : i === current ? '#f59e0b' : 'rgba(255,255,255,0.2)' }} />)}
         </div>
 
+        {/* TIMER SETTING — show before game starts */}
+        {!gameStarted && (
+          <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '14px 16px', marginBottom: '14px' }}>
+            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', textAlign: 'center' }}>
+              ⏱️ Set Timer Per Question
+            </div>
+            {/* Preset buttons */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '10px' }}>
+              {TIMER_PRESETS.map(t => (
+                <button key={t} onClick={() => setTimerSetting(t)}
+                  style={{ padding: '8px 16px', borderRadius: '12px', border: '2px solid', borderColor: timerSetting === t ? '#f59e0b' : 'rgba(255,255,255,0.2)', background: timerSetting === t ? '#f59e0b' : 'rgba(255,255,255,0.05)', color: timerSetting === t ? 'white' : 'rgba(255,255,255,0.7)', fontWeight: '800', fontSize: '15px', cursor: 'pointer', transition: 'all 0.2s', minWidth: '52px' }}>
+                  {t}s
+                </button>
+              ))}
+            </div>
+            {/* Custom input */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+              <input
+                type="number" min="5" max="300"
+                value={customInput}
+                onChange={e => setCustomInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && applyCustomTime()}
+                placeholder="Custom (5–300s)"
+                style={{ padding: '8px 12px', borderRadius: '10px', border: '2px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.05)', color: 'white', fontSize: '14px', width: '140px', outline: 'none', textAlign: 'center' }}
+              />
+              <button onClick={applyCustomTime}
+                style={{ padding: '8px 16px', borderRadius: '10px', border: 'none', background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
+                Set
+              </button>
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', textAlign: 'center', marginTop: '8px' }}>
+              Currently: <strong style={{ color: '#f59e0b' }}>{timerSetting} seconds</strong> per question
+            </div>
+          </div>
+        )}
+
         {/* Timer bar */}
         <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '16px', padding: '10px 16px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '22px', fontWeight: '900', color: timerRunning || timeLeft < TOTAL_TIME ? timerColor : 'rgba(255,255,255,0.4)', minWidth: '36px', textAlign: 'center' }}>{timeLeft}</span>
+          <span style={{ fontSize: '22px', fontWeight: '900', color: timerRunning || (gameStarted && timeLeft < timerSetting) ? timerColor : 'rgba(255,255,255,0.4)', minWidth: '40px', textAlign: 'center' }}>{timeLeft}</span>
           <div style={{ flex: 1, background: 'rgba(255,255,255,0.1)', borderRadius: '8px', height: '10px', overflow: 'hidden' }}>
-            <div style={{ background: timerRunning || timeLeft < TOTAL_TIME ? timerColor : 'rgba(255,255,255,0.2)', height: '10px', borderRadius: '8px', width: `${timerPct}%`, transition: 'width 1s linear, background 0.3s' }} />
+            <div style={{ background: timerRunning || (gameStarted && timeLeft < timerSetting) ? timerColor : 'rgba(255,255,255,0.2)', height: '10px', borderRadius: '8px', width: `${timerPct}%`, transition: 'width 1s linear, background 0.3s' }} />
           </div>
-          {!timerRunning && selected === null && <button onClick={startTimer} style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 3px 10px rgba(34,197,94,0.4)' }}>▶ Start</button>}
-          {timerRunning && <button onClick={() => setTimerRunning(false)} style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: 'none', padding: '8px 12px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>⏸</button>}
+          {!timerRunning && selected === null && (
+            <button onClick={startTimer}
+              style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 3px 10px rgba(34,197,94,0.4)' }}>
+              ▶ Start
+            </button>
+          )}
+          {timerRunning && (
+            <button onClick={() => setTimerRunning(false)}
+              style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: 'none', padding: '8px 12px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
+              ⏸
+            </button>
+          )}
+          {/* Change timer mid-game */}
+          {gameStarted && !timerRunning && selected === null && (
+            <button onClick={() => setGameStarted(false)}
+              style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.1)', padding: '6px 10px', borderRadius: '8px', fontWeight: '700', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              ⚙️ Timer
+            </button>
+          )}
         </div>
 
         {/* Question card */}
