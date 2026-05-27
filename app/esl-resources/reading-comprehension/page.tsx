@@ -35,7 +35,7 @@ const LEVELS = [
     emoji: '📘',
     desc: 'Clear texts on a range of topics. Students can understand the main points and express opinions on familiar subjects.',
     who: 'Teen & adult learners · General English · IELTS 4.0–5.0',
-    count: 0,
+    count: 1,
   },
   {
     code: 'b2',
