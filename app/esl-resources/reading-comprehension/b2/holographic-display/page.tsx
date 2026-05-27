@@ -10,45 +10,45 @@ const SPEEDS = [
 ]
 
 const PARTS = [
-  { number: 1, title: 'From Science Fiction to Consumer Technology', emoji: '🔮', color: '#8b5cf6',
-    text: `Holographic displays were once seen only in science fiction movies, where characters interacted with floating images in mid-air. For many years, this technology felt unrealistic and far beyond everyday use. However, recent advances in optics, projection systems, and computing power have brought holographic gadgets much closer to reality. Today, early versions already exist in exhibitions, medical training, and high-end presentations.\n\nModern holographic display gadgets aim to project three-dimensional images without requiring special glasses. These images can appear to float above a surface, rotate freely, and be viewed from multiple angles. As interest grows, companies are exploring how holograms could be used in homes, offices, and public spaces. This shift raises questions about how visual technology might change communication and information sharing.`,
+  { number: 1, title: 'From Simple Machines to Smart Companions', emoji: '🤖', color: '#3b82f6',
+    text: `Home robots were once limited to basic tasks such as vacuuming floors or mowing lawns. These early machines followed simple instructions and could not adapt well to changing environments. Today, advances in artificial intelligence, sensors, and connectivity have transformed home robots into far more capable devices. Modern AI-powered robots can learn routines, recognize voices, and respond to human behavior in more natural ways.\n\nThis shift has changed how people think about robots in the home. Instead of being seen only as tools, some robots are now viewed as assistants or even companions. They can remind users to take medication, help manage schedules, or provide simple conversation. As technology improves, the boundary between machine and helper becomes less clear, raising new expectations about what robots should do in everyday life.`,
     vocab: [
-      { word: 'Holographic', definition: 'Relating to a hologram — a three-dimensional image created by laser light that appears to float in space.' },
-      { word: 'Optics', definition: 'The branch of physics dealing with light and how it behaves — used in cameras, lenses and display technology.' },
-      { word: 'Three-dimensional', definition: 'Having height, width and depth — appearing solid and real rather than flat like a normal screen.' },
-      { word: 'Consumer technology', definition: 'Electronic products designed and sold for everyday use by the general public, not just specialists.' },
+      { word: 'Connectivity', definition: 'The ability of devices to connect and communicate with each other through networks or the internet.' },
+      { word: 'Routines', definition: 'Regular patterns of behaviour or activity that happen repeatedly — for example, morning habits.' },
+      { word: 'Companions', definition: 'People or things that provide company and support — a companion is someone or something you spend time with.' },
+      { word: 'Boundary', definition: 'A line or limit that separates two things — here, the unclear line between a machine and a human helper.' },
     ],
-    questions: [{ n: 1, q: 'Why do you think holograms capture people\'s imagination so strongly?' }, { n: 2, q: 'Do you believe futuristic technology becomes popular because it is useful or because it looks impressive?' }, { n: 3, q: 'How important is visual impact compared to practicality in new gadgets?' }]
+    questions: [{ n: 1, q: 'Should robots be designed only as tools, or also as companions?' }, { n: 2, q: 'How comfortable would you feel sharing your home with a robot?' }, { n: 3, q: 'Do you think people expect too much from home technology?' }]
   },
-  { number: 2, title: 'Uses in Business, Education, and Entertainment', emoji: '🎓', color: '#3b82f6',
-    text: `Holographic display gadgets offer new possibilities for business communication. Instead of flat screens or slides, presenters can show 3D product models, architectural designs, or data visualizations that audiences can explore visually. This can make complex ideas easier to understand and more engaging, especially in fields like engineering, medicine, and design.\n\nIn education, holograms may support interactive learning by allowing students to observe objects such as historical artifacts, scientific models, or anatomical structures in three dimensions. Entertainment is another major area of interest, with holographic concerts, games, and immersive storytelling experiences becoming more realistic. However, the cost and technical complexity of these systems still limit widespread use.`,
+  { number: 2, title: 'Helping with Daily Life and Household Tasks', emoji: '🏠', color: '#8b5cf6',
+    text: `One of the main benefits of AI-powered home robots is convenience. These robots can clean, cook simple meals, manage deliveries, and monitor home security. By learning a household's habits, they can work efficiently and reduce the time people spend on repetitive chores. For busy families or individuals with limited time, this support can improve quality of life and reduce stress.\n\nHome robots also have strong potential in supporting elderly people and those with disabilities. Robots can assist with mobility, provide reminders, and offer emergency support if something goes wrong. However, there is an ongoing debate about whether robots should replace human care or simply support it. While robots can help with physical tasks, emotional connection and human judgment remain difficult to replicate.`,
     vocab: [
-      { word: 'Visualization', definition: 'A visual representation of data or information — turning numbers and facts into images or graphics.' },
-      { word: 'Anatomical', definition: 'Relating to the structure of the human body — anatomy is the study of how the body is built.' },
-      { word: 'Immersive', definition: 'Deeply engaging and surrounding — an experience that makes you feel completely inside it.' },
-      { word: 'Artifacts', definition: 'Objects made or used by humans in the past — historical items studied to understand earlier civilizations.' },
+      { word: 'Convenience', definition: 'Something that saves time or effort and makes life easier — a useful feature or advantage.' },
+      { word: 'Repetitive', definition: 'Done many times in the same way — boring or mechanical tasks that are repeated over and over.' },
+      { word: 'Mobility', definition: 'The ability to move freely and easily — especially important for elderly or disabled people.' },
+      { word: 'Replicate', definition: 'To copy or reproduce something exactly — here, to copy human emotions or judgment artificially.' },
     ],
-    questions: [{ n: 4, q: 'In which area do you think holographic displays could be most valuable?' }, { n: 5, q: 'Should schools invest in advanced display technology, or focus on traditional teaching methods?' }, { n: 6, q: 'How might holograms change the way people experience entertainment?' }]
+    questions: [{ n: 4, q: 'Which household tasks should robots handle, and which should stay human?' }, { n: 5, q: 'Could robots reduce stress in modern life, or add new pressure?' }, { n: 6, q: 'Should robots be used more in elderly care, or should human care always come first?' }]
   },
-  { number: 3, title: 'Challenges and Social Impact', emoji: '⚠️', color: '#f59e0b',
-    text: `Despite their potential, holographic display gadgets face several challenges. Producing clear, stable images requires precise hardware and significant processing power. Power consumption, portability, and durability are also major concerns, especially if these devices are meant for everyday use. As with many new technologies, early versions may feel exciting but impractical for most consumers.\n\nThere are also social and psychological questions to consider. Highly realistic holograms could blur the line between physical and digital experiences. While this may enhance communication, it could also increase screen dependence or reduce face-to-face interaction. Society will need to decide how much immersive technology is healthy and how it should fit into daily life.`,
+  { number: 3, title: 'Privacy, Trust, and Ethical Concerns', emoji: '🔒', color: '#f59e0b',
+    text: `AI-powered home robots rely on data to function effectively. Cameras, microphones, and sensors collect information about daily routines, conversations, and living spaces. While this data helps robots learn and improve, it also raises serious privacy concerns. People may worry about who controls this data and how securely it is stored or shared.\n\nTrust is another key issue. If a robot makes decisions or suggestions, users must trust that the system is accurate and unbiased. There are also ethical questions about dependency: if people rely too heavily on robots, they may lose certain skills or become socially isolated. As robots become more common, society will need to decide how much control and responsibility these machines should have inside private homes.`,
     vocab: [
-      { word: 'Portability', definition: 'The ability to be carried and used easily in different places — a portable device is light and convenient.' },
-      { word: 'Durability', definition: 'The ability to last a long time without breaking or wearing out — how tough and reliable something is.' },
-      { word: 'Screen dependence', definition: 'Relying too heavily on digital screens — spending so much time on devices that it affects real life negatively.' },
-      { word: 'Impractical', definition: 'Not useful or realistic in real-world situations — something that sounds good in theory but is hard to use.' },
+      { word: 'Unbiased', definition: 'Fair and not influenced by personal opinions — treating all situations equally without favouring one side.' },
+      { word: 'Dependency', definition: 'Relying on something or someone too much — being unable to function well without it.' },
+      { word: 'Isolated', definition: 'Separated from other people — feeling alone or cut off from social contact.' },
+      { word: 'Ethical', definition: 'Related to what is morally right or wrong — questions about fairness, responsibility and values.' },
     ],
-    questions: [{ n: 7, q: 'Do you think immersive visual technology brings people closer together or pushes them apart?' }, { n: 8, q: 'Should there be limits on how realistic digital experiences become?' }, { n: 9, q: 'How do you usually decide whether new technology is worth adopting?' }]
+    questions: [{ n: 7, q: 'How much privacy are people willing to give up for convenience?' }, { n: 8, q: 'Who should be responsible if a home robot makes a serious mistake?' }, { n: 9, q: 'Can dependence on robots change human behaviour in negative ways?' }]
   },
-  { number: 4, title: 'The Future of Holographic Gadgets', emoji: '🚀', color: '#22c55e',
-    text: `As technology continues to improve, holographic display gadgets are expected to become thinner, more affordable, and easier to use. Future devices may integrate with smartphones, smart glasses, or home systems, allowing users to create holograms on demand. Some experts believe holograms could eventually replace traditional screens in certain situations, especially for collaboration and creative work.\n\nHowever, success will depend on whether holographic displays solve real problems rather than simply offering visual novelty. Consumers and businesses will likely adopt them only if they clearly improve productivity, learning, or communication. If these conditions are met, holographic gadgets could represent a major shift in how humans interact with digital information.`,
+  { number: 4, title: 'The Future of Home Robots', emoji: '🚀', color: '#22c55e',
+    text: `Looking ahead, AI-powered home robots are expected to become more affordable, more intelligent, and more integrated into daily life. Future robots may understand emotions better, communicate more naturally, and work seamlessly with other smart home devices. This could create homes that are highly responsive to human needs, adjusting lighting, temperature, and support automatically.\n\nHowever, the future success of home robots will depend on public acceptance. People will need to feel confident that these machines are safe, respectful, and beneficial. Governments and companies may also need to set clear rules about data use, safety standards, and ethical design. Whether home robots become a common household item or remain a luxury will depend on how well these challenges are managed.`,
     vocab: [
-      { word: 'Integrate', definition: 'To combine different things so they work together as one connected system.' },
-      { word: 'On demand', definition: 'Available whenever you want it — produced or accessed instantly at the moment you need it.' },
-      { word: 'Novelty', definition: 'Something new and unusual that attracts attention — but often loses interest quickly once the newness wears off.' },
-      { word: 'Productivity', definition: 'The efficiency of completing tasks — how much useful work is done in a given period of time.' },
+      { word: 'Integrated', definition: 'Combined into a whole — devices that work together as one connected system.' },
+      { word: 'Seamlessly', definition: 'Smoothly and without any interruption or visible join — working together perfectly.' },
+      { word: 'Acceptance', definition: 'The process of agreeing to receive or adopt something — willingness to welcome new technology.' },
+      { word: 'Beneficial', definition: 'Having a good or helpful effect — producing advantages or positive results for people.' },
     ],
-    questions: [{ n: 10, q: 'Do you see holographic displays becoming common in homes?' }, { n: 11, q: 'What would convince you to replace a normal screen with a holographic one?' }, { n: 12, q: 'How might holograms change the way people work together remotely?' }]
+    questions: [{ n: 10, q: 'Do you think AI home robots will become common in most households?' }, { n: 11, q: 'Should governments create strict rules for robots used in private homes?' }, { n: 12, q: 'Would you prefer a future with more human help or more robotic assistance?' }]
   },
 ]
 
@@ -63,7 +63,7 @@ function ConversationBox({ question, color }: { question: string; color: string 
   const [open, setOpen] = useState(false)
   const recognitionRef = useRef<any>(null)
 
-  const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "Holographic Display Gadgets". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question to keep the conversation going. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — only the most important error. Be encouraging and warm.`
+  const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "AI-Powered Home Robots". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question to keep the conversation going. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — only the most important error. Be encouraging and warm.`
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return
@@ -161,7 +161,7 @@ function ConversationBox({ question, color }: { question: string; color: string 
 }
 
 // ── Main Page ─────────────────────────────────────────────────
-export default function HolographicDisplayPage() {
+export default function HomeRobotsPage() {
   const [speed, setSpeed] = useState(0.9)
   const [selectedText, setSelectedText] = useState<string | null>(null)
   const [lookupDef, setLookupDef] = useState('')
@@ -232,19 +232,19 @@ export default function HolographicDisplayPage() {
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}} @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
 
       {/* HERO */}
-      <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', padding: '56px 24px' }}>
+      <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #1e3a5f 100%)', padding: '56px 24px' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <Link href="/esl-resources/reading-comprehension/b2" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← B2 Reading Comprehension</Link>
           <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <div style={{ fontSize: '72px', flexShrink: 0 }}>🔮</div>
+            <div style={{ fontSize: '72px', flexShrink: 0 }}>🤖</div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
                 <span style={{ background: '#3b82f6', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>B2 Upper Intermediate</span>
                 <span style={{ background: 'rgba(139,92,246,0.6)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>Technology</span>
                 <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>4 Parts · 12 Questions</span>
               </div>
-              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>Holographic Display Gadgets</h1>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>From science fiction to reality — explore how holographic technology is changing business, education, entertainment and everyday life.</p>
+              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>AI-Powered Home Robots</h1>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>Living with Intelligent Machines — explore how AI robots are changing life at home, raising questions about privacy, trust, and the future.</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '20px', marginTop: '28px', flexWrap: 'wrap' }}>
@@ -271,7 +271,7 @@ export default function HolographicDisplayPage() {
             <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
             {SPEEDS.map(s => (
               <button key={s.value} onClick={() => setSpeed(s.value)}
-                style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#8b5cf6' : '#e5e7eb', background: speed === s.value ? '#8b5cf6' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#3b82f6' : '#e5e7eb', background: speed === s.value ? '#3b82f6' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
                 {s.label}
               </button>
             ))}
@@ -297,8 +297,8 @@ export default function HolographicDisplayPage() {
             </div>
 
             {/* Selection hint */}
-            <div style={{ background: '#f5f3ff', padding: '8px 28px', borderBottom: '1px solid #ede9fe' }}>
-              <span style={{ color: '#8b5cf6', fontSize: '12px', fontWeight: '600' }}>✍️ Highlight any word, phrase or collocation in the passage to hear it and see its meaning</span>
+            <div style={{ background: '#eff6ff', padding: '8px 28px', borderBottom: '1px solid #dbeafe' }}>
+              <span style={{ color: '#3b82f6', fontSize: '12px', fontWeight: '600' }}>✍️ Highlight any word, phrase or collocation in the passage to hear it and see its meaning</span>
             </div>
 
             {/* Reading Text */}
@@ -361,13 +361,13 @@ export default function HolographicDisplayPage() {
       {/* WORD/PHRASE DEFINITION POPUP */}
       {selectedText && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 200, animation: 'slideUp 0.25s ease' }}>
-          <div style={{ maxWidth: '860px', margin: '0 auto', background: 'white', borderRadius: '20px 20px 0 0', padding: '20px 24px 32px', boxShadow: '0 -8px 32px rgba(0,0,0,0.2)', border: '2px solid #ede9fe', borderBottom: 'none' }}>
+          <div style={{ maxWidth: '860px', margin: '0 auto', background: 'white', borderRadius: '20px 20px 0 0', padding: '20px 24px 32px', boxShadow: '0 -8px 32px rgba(0,0,0,0.2)', border: '2px solid #dbeafe', borderBottom: 'none' }}>
             <div style={{ width: '40px', height: '4px', background: '#e5e7eb', borderRadius: '4px', margin: '0 auto 16px' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '22px', fontWeight: '900', color: '#1a1a2e', fontFamily: 'Georgia, serif' }}>"{selectedText}"</span>
                 <button onClick={() => speakWord(selectedText)}
-                  style={{ background: '#f5f3ff', color: '#8b5cf6', border: '2px solid #ddd6fe', padding: '6px 14px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>
+                  style={{ background: '#eff6ff', color: '#3b82f6', border: '2px solid #bfdbfe', padding: '6px 14px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>
                   🔊 Hear it
                 </button>
               </div>
@@ -376,7 +376,7 @@ export default function HolographicDisplayPage() {
                 ✕
               </button>
             </div>
-            <div style={{ background: '#f5f3ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #ede9fe', minHeight: '52px', display: 'flex', alignItems: 'center' }}>
+            <div style={{ background: '#eff6ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #dbeafe', minHeight: '52px', display: 'flex', alignItems: 'center' }}>
               {lookupLoading
                 ? <span style={{ color: '#9ca3af', fontSize: '15px' }}>{selectedText.includes(' ') ? 'Looking up phrase...' : 'Looking up definition...'}</span>
                 : <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{lookupDef}</span>
