@@ -2,6 +2,22 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+const LANGUAGES = [
+  { value: 'none', label: '🌍 English only' },
+  { value: 'Thai', label: '🇹🇭 Thai' },
+  { value: 'Japanese', label: '🇯🇵 Japanese' },
+  { value: 'Korean', label: '🇰🇷 Korean' },
+  { value: 'Chinese', label: '🇨🇳 Chinese' },
+  { value: 'Arabic', label: '🇸🇦 Arabic' },
+  { value: 'Spanish', label: '🇪🇸 Spanish' },
+  { value: 'French', label: '🇫🇷 French' },
+  { value: 'German', label: '🇩🇪 German' },
+  { value: 'Portuguese', label: '🇧🇷 Portuguese' },
+  { value: 'Russian', label: '🇷🇺 Russian' },
+  { value: 'Vietnamese', label: '🇻🇳 Vietnamese' },
+  { value: 'Indonesian', label: '🇮🇩 Indonesian' },
+]
+
 const VOCAB = [
   { word: 'Wake up', meaning: 'Stop sleeping', emoji: '🌅' },
   { word: 'Breakfast', meaning: 'First meal of the day', emoji: '🍞' },
@@ -18,8 +34,6 @@ const QUESTIONS = [
   { q: 'What time does work finish?', options: ['4 o\'clock', '5 o\'clock', '6 o\'clock'], answer: 1, emoji: '🕔' },
   { q: 'What does the person do after dinner?', options: ['Works', 'Sleeps', 'Watches TV'], answer: 2, emoji: '📺' },
 ]
-
-const LISTENING_TIMES = ['7:00', '7:30', '8:00', '5:00', '10:30']
 
 const PASSAGE = `I wake up at 7 o'clock every day.
 I get out of bed and wash my face.
@@ -42,6 +56,44 @@ const SPEEDS = [
   { label: '⚡ Fast', value: 1.1 },
 ]
 
+// ── Translation helper ────────────────────────────────────────
+async function fetchTranslation(text: string, lang: string, type: 'vocab' | 'question'): Promise<string> {
+  const systems: Record<string, string> = {
+    vocab: `You are a language learning assistant for A1 beginner English students. Translate this English word and its meaning to ${lang}. Return ONLY the translated word and its meaning in ${lang} (max 20 words). No English, no extra text.`,
+    question: `You are a translator. Translate this simple English question to ${lang}. Return ONLY the translated question. No extra text.`,
+  }
+  const res = await fetch('/api/chat', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system: systems[type], messages: [{ role: 'user', content: text }] }),
+  })
+  const data = await res.json()
+  return data.content || ''
+}
+
+// ── Translate Button ──────────────────────────────────────────
+function TranslateBtn({ text, type, lang, color, onTranslated }: {
+  text: string; type: 'vocab' | 'question'; lang: string; color: string; onTranslated: (t: string) => void
+}) {
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
+
+  const handleClick = async () => {
+    if (lang === 'none' || loading || done) return
+    setLoading(true)
+    const result = await fetchTranslation(text, lang, type)
+    onTranslated(result); setDone(true); setLoading(false)
+  }
+
+  const isDisabled = lang === 'none'
+  return (
+    <button onClick={handleClick} disabled={isDisabled || loading || done}
+      title={isDisabled ? 'Select a language above to translate' : done ? 'Translated' : `Translate to ${lang}`}
+      style={{ background: isDisabled ? '#f3f4f6' : done ? '#f0fdf4' : color + '15', color: isDisabled ? '#d1d5db' : done ? '#16a34a' : color, border: `1px solid ${isDisabled ? '#e5e7eb' : done ? '#86efac' : color + '40'}`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: isDisabled ? 'not-allowed' : done ? 'default' : 'pointer', fontWeight: '700', flexShrink: 0, transition: 'all 0.2s' }}>
+      {loading ? '...' : done ? '✓ 🌍' : '🌍'}
+    </button>
+  )
+}
+
 function speak(text: string, rate: number) {
   if (typeof window === 'undefined') return
   window.speechSynthesis.cancel()
@@ -62,6 +114,12 @@ export default function DailyRoutinePage() {
   const [writing, setWriting] = useState({ wakeUp: '', breakfast: '', bed: '' })
   const [section, setSection] = useState<'warmup' | 'reading' | 'vocab' | 'questions' | 'listening' | 'speaking' | 'writing'>('warmup')
   const [speed, setSpeed] = useState(0.9)
+  const [translationLang, setTranslationLang] = useState('none')
+  const [vocabTranslations, setVocabTranslations] = useState<Record<string, string>>({})
+  const [speakingTranslations, setSpeakingTranslations] = useState<Record<number, string>>({})
+  const [warmupTranslations, setWarmupTranslations] = useState<Record<number, string>>({})
+
+  const currentLang = LANGUAGES.find(l => l.value === translationLang)
 
   const handleAnswer = (qIdx: number, optIdx: number) => {
     if (submitted) return
@@ -107,14 +165,14 @@ export default function DailyRoutinePage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '20px', marginTop: '24px', flexWrap: 'wrap' }}>
-            {[{ icon: '📖', label: 'Short reading text' }, { icon: '📚', label: '6 vocabulary words' }, { icon: '❓', label: '5 comprehension questions' }, { icon: '🔊', label: 'Audio included' }, { icon: '✍️', label: 'Writing practice' }, { icon: '⏱️', label: '30–45 min lesson' }].map(s => (
+            {[{ icon: '📖', label: 'Short reading text' }, { icon: '📚', label: '6 vocabulary words' }, { icon: '❓', label: '5 comprehension questions' }, { icon: '🌍', label: '13-language translation' }, { icon: '✍️', label: 'Writing practice' }, { icon: '⏱️', label: '30–45 min lesson' }].map(s => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}><span>{s.icon}</span> {s.label}</div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* STICKY NAV + SPEED */}
+      {/* STICKY NAV + SPEED + LANGUAGE */}
       <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '10px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           {/* Section tabs */}
@@ -126,15 +184,24 @@ export default function DailyRoutinePage() {
               </button>
             ))}
           </div>
-          {/* Speed selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
-            {SPEEDS.map(s => (
-              <button key={s.value} onClick={() => setSpeed(s.value)}
-                style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#16a34a' : '#e5e7eb', background: speed === s.value ? '#16a34a' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
-                {s.label}
-              </button>
-            ))}
+          {/* Speed + Language row */}
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
+              {SPEEDS.map(s => (
+                <button key={s.value} onClick={() => setSpeed(s.value)}
+                  style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#16a34a' : '#e5e7eb', background: speed === s.value ? '#16a34a' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🌍 Translate to:</span>
+              <select value={translationLang} onChange={e => { setTranslationLang(e.target.value); setVocabTranslations({}); setSpeakingTranslations({}); setWarmupTranslations({}) }}
+                style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: translationLang !== 'none' ? '#16a34a' : '#e5e7eb', background: translationLang !== 'none' ? '#f0fdf4' : 'white', color: translationLang !== 'none' ? '#15803d' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', outline: 'none' }}>
+                {LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+              </select>
+            </div>
           </div>
         </div>
       </section>
@@ -151,13 +218,28 @@ export default function DailyRoutinePage() {
             <div style={{ padding: '24px 28px' }}>
               <p style={{ color: '#555', fontSize: '15px', marginBottom: '20px', lineHeight: '1.6' }}>Ask your student these questions. Short answers are fine — single words or simple sentences.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {[{ q: 'What time do you wake up?', hint: 'e.g. Seven o\'clock / 6:30' }, { q: 'Do you eat breakfast?', hint: 'e.g. Yes / No / Sometimes' }, { q: 'Do you work or study?', hint: 'e.g. I work. / I study.' }].map((item, i) => (
+                {[
+                  { q: 'What time do you wake up?', hint: 'e.g. Seven o\'clock / 6:30' },
+                  { q: 'Do you eat breakfast?', hint: 'e.g. Yes / No / Sometimes' },
+                  { q: 'Do you work or study?', hint: 'e.g. I work. / I study.' }
+                ].map((item, i) => (
                   <div key={i} style={{ background: '#fffbeb', borderRadius: '14px', padding: '16px 20px', border: '2px solid #fde68a' }}>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                       <div style={{ background: '#f59e0b', color: 'white', width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>{i + 1}</div>
-                      <div>
-                        <div style={{ fontWeight: '700', fontSize: '17px', color: '#1a1a2e', marginBottom: '4px' }}>{item.q}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                          <div style={{ fontWeight: '700', fontSize: '17px', color: '#1a1a2e' }}>{item.q}</div>
+                          <TranslateBtn text={item.q} type="question" lang={translationLang} color="#f59e0b"
+                            onTranslated={(t) => setWarmupTranslations(prev => ({ ...prev, [i]: t }))} />
+                          {translationLang === 'none' && <span style={{ color: '#d1d5db', fontSize: '11px' }}>← select a language</span>}
+                        </div>
                         <div style={{ color: '#92400e', fontSize: '13px' }}>💡 {item.hint}</div>
+                        {warmupTranslations[i] && (
+                          <div style={{ marginTop: '8px', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '8px', padding: '8px 12px' }}>
+                            <span style={{ color: '#7c3aed', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '2px' }}>{currentLang?.label}</span>
+                            <span style={{ color: '#374151', fontSize: '15px' }}>{warmupTranslations[i]}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -202,14 +284,25 @@ export default function DailyRoutinePage() {
             <div style={{ padding: '24px 28px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px', marginBottom: '20px' }}>
                 {VOCAB.map(v => (
-                  <div key={v.word} style={{ background: '#faf5ff', borderRadius: '14px', padding: '16px', border: '2px solid #e9d5ff', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <div style={{ fontSize: '36px', flexShrink: 0 }}>{v.emoji}</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '16px' }}>{v.word}</span>
-                        <button onClick={() => speak(v.word, speed)} style={{ background: '#8b5cf615', color: '#8b5cf6', border: '1px solid #8b5cf630', padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700' }}>🔊</button>
+                  <div key={v.word} style={{ background: '#faf5ff', borderRadius: '14px', padding: '16px', border: '2px solid #e9d5ff' }}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                      <div style={{ fontSize: '36px', flexShrink: 0 }}>{v.emoji}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '16px' }}>{v.word}</span>
+                          <button onClick={() => speak(v.word, speed)} style={{ background: '#8b5cf615', color: '#8b5cf6', border: '1px solid #8b5cf630', padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700' }}>🔊</button>
+                          <TranslateBtn text={`${v.word}: ${v.meaning}`} type="vocab" lang={translationLang} color="#8b5cf6"
+                            onTranslated={(t) => setVocabTranslations(prev => ({ ...prev, [v.word]: t }))} />
+                          {translationLang === 'none' && <span style={{ color: '#d1d5db', fontSize: '11px' }}>← translate</span>}
+                        </div>
+                        <div style={{ color: '#6b7280', fontSize: '14px' }}>{v.meaning}</div>
+                        {vocabTranslations[v.word] && (
+                          <div style={{ marginTop: '8px', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '8px', padding: '8px 10px' }}>
+                            <span style={{ color: '#7c3aed', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '2px' }}>{currentLang?.label}</span>
+                            <span style={{ color: '#374151', fontSize: '14px', lineHeight: '1.5' }}>{vocabTranslations[v.word]}</span>
+                          </div>
+                        )}
                       </div>
-                      <div style={{ color: '#6b7280', fontSize: '14px' }}>{v.meaning}</div>
                     </div>
                   </div>
                 ))}
@@ -323,12 +416,28 @@ export default function DailyRoutinePage() {
                 <div style={{ color: '#14532d', fontSize: '18px', fontWeight: '700', fontFamily: 'Georgia, serif' }}>I wake up at 6 o'clock.</div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
-                {[{ q: 'What time do you wake up?', hint: 'I wake up at _____ o\'clock.', emoji: '🌅' }, { q: 'What do you eat for breakfast?', hint: 'I eat _____ for breakfast.', emoji: '🍳' }, { q: 'What time do you go to bed?', hint: 'I go to bed at _____ o\'clock.', emoji: '🛏️' }, { q: 'What do you do after work or school?', hint: 'After work, I _____.', emoji: '🏠' }].map((item, i) => (
+                {[
+                  { q: 'What time do you wake up?', hint: 'I wake up at _____ o\'clock.', emoji: '🌅' },
+                  { q: 'What do you eat for breakfast?', hint: 'I eat _____ for breakfast.', emoji: '🍳' },
+                  { q: 'What time do you go to bed?', hint: 'I go to bed at _____ o\'clock.', emoji: '🛏️' },
+                  { q: 'What do you do after work or school?', hint: 'After work, I _____.', emoji: '🏠' }
+                ].map((item, i) => (
                   <div key={i} style={{ background: '#f0fdf4', borderRadius: '14px', padding: '16px 20px', border: '2px solid #86efac' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                       <span style={{ fontSize: '28px', flexShrink: 0 }}>{item.emoji}</span>
-                      <div>
-                        <div style={{ fontWeight: '700', fontSize: '17px', color: '#1a1a2e', marginBottom: '6px' }}>{item.q}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                          <div style={{ fontWeight: '700', fontSize: '17px', color: '#1a1a2e' }}>{item.q}</div>
+                          <TranslateBtn text={item.q} type="question" lang={translationLang} color="#22c55e"
+                            onTranslated={(t) => setSpeakingTranslations(prev => ({ ...prev, [i]: t }))} />
+                          {translationLang === 'none' && <span style={{ color: '#d1d5db', fontSize: '11px' }}>← select a language</span>}
+                        </div>
+                        {speakingTranslations[i] && (
+                          <div style={{ marginBottom: '6px', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '8px', padding: '8px 10px' }}>
+                            <span style={{ color: '#7c3aed', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '2px' }}>{currentLang?.label}</span>
+                            <span style={{ color: '#374151', fontSize: '15px' }}>{speakingTranslations[i]}</span>
+                          </div>
+                        )}
                         <div style={{ color: '#16a34a', fontSize: '14px', fontStyle: 'italic' }}>💡 {item.hint}</div>
                       </div>
                     </div>
@@ -350,7 +459,11 @@ export default function DailyRoutinePage() {
             <div style={{ padding: '24px 28px' }}>
               <p style={{ color: '#555', fontSize: '15px', marginBottom: '20px' }}>Complete the sentences about <strong>your own</strong> daily routine.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-                {[{ label: 'I wake up at', key: 'wakeUp' as const, placeholder: 'e.g. 7 o\'clock', emoji: '🌅' }, { label: 'I eat breakfast at', key: 'breakfast' as const, placeholder: 'e.g. 7:30 / I don\'t eat breakfast', emoji: '🍳' }, { label: 'I go to bed at', key: 'bed' as const, placeholder: 'e.g. 11 o\'clock', emoji: '🛏️' }].map(item => (
+                {[
+                  { label: 'I wake up at', key: 'wakeUp' as const, placeholder: 'e.g. 7 o\'clock', emoji: '🌅' },
+                  { label: 'I eat breakfast at', key: 'breakfast' as const, placeholder: 'e.g. 7:30 / I don\'t eat breakfast', emoji: '🍳' },
+                  { label: 'I go to bed at', key: 'bed' as const, placeholder: 'e.g. 11 o\'clock', emoji: '🛏️' }
+                ].map(item => (
                   <div key={item.key} style={{ background: '#fdf2f8', borderRadius: '14px', padding: '16px 20px', border: '2px solid #f9a8d4' }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
                       <span style={{ fontSize: '28px' }}>{item.emoji}</span>
