@@ -9,33 +9,10 @@ const CATEGORIES = [
     description: 'AI, gadgets, wearables and the digital future',
     color: '#6366f1',
     lessons: [
-      {
-        id: 'ai-smart-glasses',
-        title: 'Next-Gen AI Smart Glasses',
-        emoji: '👓',
-        description: 'A New Way to See the World',
-        detail: 'Explore how AI-powered smart glasses are changing daily life, work, travel and social interaction.',
-        badges: ['4 parts', '12 questions'],
-        color: '#3b82f6',
-      },
-      {
-        id: 'home-robots',
-        title: 'AI-Powered Home Robots',
-        emoji: '🤖',
-        description: 'Living with Intelligent Machines',
-        detail: 'Explore how AI robots are changing life at home, raising questions about privacy, trust and the future.',
-        badges: ['4 parts', '12 questions'],
-        color: '#8b5cf6',
-      },
-      {
-        id: 'holographic-display',
-        title: 'Holographic Display Gadgets',
-        emoji: '🔮',
-        description: 'From Science Fiction to Reality',
-        detail: 'Explore how holographic technology is moving from science fiction into business, education and everyday life.',
-        badges: ['4 parts', '12 questions'],
-        color: '#14b8a6',
-      },
+      { id: 'ai-smart-glasses', title: 'Next-Gen AI Smart Glasses', emoji: '👓', description: 'A New Way to See the World', detail: 'Explore how AI-powered smart glasses are changing daily life, work, travel and social interaction.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
+      { id: 'home-robots', title: 'AI-Powered Home Robots', emoji: '🤖', description: 'Living with Intelligent Machines', detail: 'Explore how AI robots are changing life at home, raising questions about privacy, trust and the future.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
+      { id: 'holographic-display', title: 'Holographic Display Gadgets', emoji: '🔮', description: 'From Science Fiction to Reality', detail: 'Explore how holographic technology is moving from science fiction into business, education and everyday life.', badges: ['4 parts', '12 questions'], color: '#14b8a6' },
+      { id: 'facial-recognition', title: 'Facial Recognition Technology', emoji: '👁️', description: 'Identity, Privacy and Bias', detail: 'Explore how AI identifies faces — and the growing debate over privacy, accuracy, and government regulation.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
     ]
   },
   {
@@ -45,65 +22,21 @@ const CATEGORIES = [
     description: 'Football, competition and sporting culture',
     color: '#22c55e',
     lessons: [
-      {
-        id: 'world-cup-2026',
-        title: 'FIFA World Cup 2026',
-        emoji: '⚽',
-        description: 'The Biggest Tournament in Football History',
-        detail: 'Explore the build-up, the favorites, the pressure of expectations, and what fans around the world are saying.',
-        badges: ['4 parts', '12 questions'],
-        color: '#22c55e',
-      },
+      { id: 'world-cup-2026', title: 'FIFA World Cup 2026', emoji: '⚽', description: 'The Biggest Tournament in Football History', detail: 'Explore the build-up, the favorites, the pressure of expectations, and what fans around the world are saying.', badges: ['4 parts', '12 questions'], color: '#22c55e' },
     ]
   },
-  {
-    id: 'society',
-    title: 'Society & Culture',
-    emoji: '🌍',
-    description: 'People, communities and social change',
-    color: '#f59e0b',
-    lessons: [],
-    comingSoon: true,
-  },
-  {
-    id: 'environment',
-    title: 'Environment',
-    emoji: '🌿',
-    description: 'Climate, sustainability and the natural world',
-    color: '#16a34a',
-    lessons: [],
-    comingSoon: true,
-  },
-  {
-    id: 'health',
-    title: 'Health & Science',
-    emoji: '🔬',
-    description: 'Medicine, wellbeing and scientific discovery',
-    color: '#ef4444',
-    lessons: [],
-    comingSoon: true,
-  },
-  {
-    id: 'work',
-    title: 'Work & Business',
-    emoji: '💼',
-    description: 'Careers, economics and the modern workplace',
-    color: '#0ea5e9',
-    lessons: [],
-    comingSoon: true,
-  },
+  { id: 'society', title: 'Society & Culture', emoji: '🌍', description: 'People, communities and social change', color: '#f59e0b', lessons: [], comingSoon: true },
+  { id: 'environment', title: 'Environment', emoji: '🌿', description: 'Climate, sustainability and the natural world', color: '#16a34a', lessons: [], comingSoon: true },
+  { id: 'health', title: 'Health & Science', emoji: '🔬', description: 'Medicine, wellbeing and scientific discovery', color: '#ef4444', lessons: [], comingSoon: true },
+  { id: 'work', title: 'Work & Business', emoji: '💼', description: 'Careers, economics and the modern workplace', color: '#0ea5e9', lessons: [], comingSoon: true },
 ]
 
 export default function B2ReadingHub() {
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
-
-      {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%)', padding: '56px 24px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <Link href="/esl-resources/reading-comprehension" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>
-            ← Reading Comprehension
-          </Link>
+          <Link href="/esl-resources/reading-comprehension" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← Reading Comprehension</Link>
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '16px', padding: '16px 24px', textAlign: 'center', minWidth: '80px' }}>
               <div style={{ color: 'white', fontSize: '36px', fontWeight: '900', lineHeight: 1 }}>B2</div>
@@ -111,9 +44,7 @@ export default function B2ReadingHub() {
             </div>
             <div>
               <h1 style={{ color: 'white', fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px' }}>B2 — Upper Intermediate</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', margin: '0 0 12px', lineHeight: '1.5', maxWidth: '520px' }}>
-                Complex texts on current topics. Students can understand detailed arguments and express opinions with confidence.
-              </p>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', margin: '0 0 12px', lineHeight: '1.5', maxWidth: '520px' }}>Complex texts on current topics. Students can understand detailed arguments and express opinions with confidence.</p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {['Complex arguments', 'Critical thinking', 'Opinion & debate', 'IELTS 5.5–7.0'].map(tag => (
                   <span key={tag} style={{ background: 'rgba(255,255,255,0.25)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>{tag}</span>
@@ -129,12 +60,9 @@ export default function B2ReadingHub() {
         </div>
       </section>
 
-      {/* CATEGORIES */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
         {CATEGORIES.map(cat => (
           <div key={cat.id}>
-
-            {/* Category Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', paddingBottom: '14px', borderBottom: `3px solid ${cat.color}` }}>
               <div style={{ background: cat.color, width: '44px', height: '44px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>{cat.emoji}</div>
               <div>
@@ -148,7 +76,6 @@ export default function B2ReadingHub() {
               )}
             </div>
 
-            {/* Lesson Cards */}
             {cat.lessons.length > 0 ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '20px' }}>
                 {cat.lessons.map(lesson => (
@@ -163,7 +90,7 @@ export default function B2ReadingHub() {
                       </div>
                       <div style={{ padding: '16px 20px', flex: 1 }}>
                         <p style={{ color: '#444', fontSize: '15px', lineHeight: '1.65', margin: '0 0 14px' }}>{lesson.detail}</p>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                           {lesson.badges.map(b => (
                             <span key={b} style={{ background: '#f3f4f6', color: '#555', fontSize: '12px', fontWeight: '600', padding: '4px 10px', borderRadius: '20px' }}>{b}</span>
                           ))}
@@ -171,9 +98,7 @@ export default function B2ReadingHub() {
                         </div>
                       </div>
                       <div style={{ padding: '0 20px 20px' }}>
-                        <div style={{ background: lesson.color, color: 'white', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>
-                          Open Lesson →
-                        </div>
+                        <div style={{ background: lesson.color, color: 'white', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>Open Lesson →</div>
                       </div>
                     </div>
                   </Link>
