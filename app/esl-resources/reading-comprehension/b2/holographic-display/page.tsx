@@ -76,8 +76,10 @@ function ConversationBox({ question, color }: { question: string; color: string 
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [listening, setListening] = useState(false)
+  const [interimText, setInterimText] = useState('')
   const [open, setOpen] = useState(false)
   const recognitionRef = useRef<any>(null)
+  const transcriptRef = useRef('')
 
   const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "Holographic Display Gadgets". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — only the most important error. Be encouraging and warm.`
 
@@ -97,12 +99,33 @@ function ConversationBox({ question, color }: { question: string; color: string 
   const startVoice = () => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SR) { alert('Voice input requires Chrome browser.'); return }
-    const r = new SR(); r.lang = 'en-US'; r.interimResults = false
-    r.onstart = () => setListening(true)
-    r.onresult = (e: any) => { const t = e.results[0][0].transcript; setListening(false); sendMessage(t) }
-    r.onerror = () => setListening(false); r.onend = () => setListening(false)
-    recognitionRef.current = r; r.start()
+    transcriptRef.current = ''
+    const r = new SR()
+    r.lang = 'en-US'
+    r.continuous = true
+    r.interimResults = true
+    r.onstart = () => { setListening(true); setInterimText('') }
+    r.onresult = (e: any) => {
+      let final = ''; let interim = ''
+      for (let i = 0; i < e.results.length; i++) {
+        if (e.results[i].isFinal) { final += e.results[i][0].transcript + ' ' }
+        else { interim += e.results[i][0].transcript }
+      }
+      transcriptRef.current = final
+      setInterimText(final + interim)
+    }
+    r.onerror = () => { setListening(false); setInterimText('') }
+    r.onend = () => {
+      setListening(false)
+      const text = transcriptRef.current.trim() || interimText.trim()
+      if (text) { setInterimText(''); transcriptRef.current = ''; sendMessage(text) }
+      else { setInterimText(''); transcriptRef.current = '' }
+    }
+    recognitionRef.current = r
+    r.start()
   }
+
+  const stopVoice = () => { recognitionRef.current?.stop() }
 
   if (!open) return (
     <button onClick={() => setOpen(true)} style={{ marginTop: '10px', width: '100%', background: color + '12', border: `2px dashed ${color}40`, borderRadius: '12px', padding: '10px', color, fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -112,6 +135,7 @@ function ConversationBox({ question, color }: { question: string; color: string 
 
   return (
     <div style={{ marginTop: '10px', background: '#f8faff', borderRadius: '14px', border: `2px solid ${color}30`, overflow: 'hidden' }}>
+      {/* Header */}
       <div style={{ background: color, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>🤖 AI Conversation Partner</span>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -119,31 +143,90 @@ function ConversationBox({ question, color }: { question: string; color: string 
           <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>✕ Close</button>
         </div>
       </div>
-      {messages.length === 0 && <div style={{ padding: '14px 16px', color: '#6b7280', fontSize: '13px', lineHeight: '1.6', borderBottom: '1px solid #eee' }}>💡 <strong>Speak or type</strong> your answer. The AI will respond and ask a follow-up question!</div>}
+
+      {/* Hint */}
+      {messages.length === 0 && (
+        <div style={{ padding: '14px 16px', color: '#6b7280', fontSize: '13px', lineHeight: '1.6', borderBottom: '1px solid #eee' }}>
+          💡 Type your answer or tap <strong>🎤 Start Recording</strong> — speak your full answer, then tap <strong>⏹ Stop & Send</strong>.
+        </div>
+      )}
+
+      {/* Messages */}
       {messages.length > 0 && (
         <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
           {messages.map((m, i) => (
             <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', flexDirection: m.role === 'user' ? 'row-reverse' : 'row' }}>
               <div style={{ fontSize: '20px', flexShrink: 0 }}>{m.role === 'user' ? '🧑‍🎓' : '🤖'}</div>
-              <div style={{ background: m.role === 'user' ? color : 'white', color: m.role === 'user' ? 'white' : '#374151', padding: '10px 14px', borderRadius: m.role === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px', fontSize: '14px', lineHeight: '1.6', maxWidth: '80%', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: m.role === 'assistant' ? '1px solid #e5e7eb' : 'none' }}>{m.content}</div>
+              <div style={{ background: m.role === 'user' ? color : 'white', color: m.role === 'user' ? 'white' : '#374151', padding: '10px 14px', borderRadius: m.role === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px', fontSize: '14px', lineHeight: '1.6', maxWidth: '80%', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: m.role === 'assistant' ? '1px solid #e5e7eb' : 'none' }}>
+                {m.content}
+              </div>
             </div>
           ))}
-          {loading && <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ fontSize: '20px' }}>🤖</span><div style={{ background: 'white', padding: '10px 14px', borderRadius: '4px 16px 16px 16px', fontSize: '14px', color: '#9ca3af', border: '1px solid #e5e7eb' }}>Thinking...</div></div>}
+          {loading && (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '20px' }}>🤖</span>
+              <div style={{ background: 'white', padding: '10px 14px', borderRadius: '4px 16px 16px 16px', fontSize: '14px', color: '#9ca3af', border: '1px solid #e5e7eb' }}>Thinking...</div>
+            </div>
+          )}
         </div>
       )}
+
+      {/* Input area */}
       <div style={{ padding: '12px 16px', borderTop: '1px solid #eee', display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-        <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) } }} placeholder="Type your answer... or use the mic 🎤" rows={2}
+        <textarea value={input} onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) } }}
+          placeholder="Type your answer here..." rows={2}
           style={{ flex: 1, padding: '10px 12px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5' }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <button onClick={listening ? () => { recognitionRef.current?.stop(); setListening(false) } : startVoice}
-            style={{ background: listening ? '#ef4444' : '#22c55e', color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: listening ? '0 0 0 4px rgba(239,68,68,0.3)' : 'none' }}>
+          {/* Mic button — start/stop */}
+          <button onClick={listening ? stopVoice : startVoice}
+            style={{ background: listening ? '#ef4444' : '#22c55e', color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: listening ? '0 0 0 4px rgba(239,68,68,0.3)' : 'none', transition: 'all 0.2s' }}
+            title={listening ? 'Stop & Send' : 'Start Recording'}>
             {listening ? '⏹' : '🎤'}
           </button>
+          {/* Send typed message */}
           <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading}
-            style={{ background: input.trim() && !loading ? color : '#e5e7eb', color: input.trim() && !loading ? 'white' : '#9ca3af', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>➤</button>
+            style={{ background: input.trim() && !loading ? color : '#e5e7eb', color: input.trim() && !loading ? 'white' : '#9ca3af', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            ➤
+          </button>
         </div>
       </div>
-      {listening && <div style={{ padding: '6px 16px 10px', color: '#ef4444', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}><span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444', animation: 'pulse 1s infinite' }} />Listening... speak now</div>}
+
+      {/* Voice labels below input */}
+      {!listening && (
+        <div style={{ padding: '4px 16px 10px', display: 'flex', gap: '16px' }}>
+          <span style={{ color: '#9ca3af', fontSize: '11px' }}>🎤 = Start recording</span>
+          <span style={{ color: '#9ca3af', fontSize: '11px' }}>⏹ = Stop & send</span>
+          <span style={{ color: '#9ca3af', fontSize: '11px' }}>➤ = Send typed</span>
+        </div>
+      )}
+
+      {/* Live recording indicator + transcript preview */}
+      {listening && (
+        <div style={{ padding: '10px 16px 14px', borderTop: '1px solid #fee2e2', background: '#fef2f2' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444', animation: 'pulse 1s infinite', flexShrink: 0 }} />
+              <span style={{ color: '#ef4444', fontSize: '12px', fontWeight: '700' }}>Recording... speak your full answer</span>
+            </div>
+            <button onClick={stopVoice}
+              style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(239,68,68,0.4)' }}>
+              ⏹ Stop & Send
+            </button>
+          </div>
+          {interimText && (
+            <div style={{ background: 'white', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#374151', lineHeight: '1.6', border: '1px solid #fca5a5', fontStyle: 'italic', minHeight: '40px' }}>
+              {interimText}
+              <span style={{ display: 'inline-block', width: '2px', height: '16px', background: '#ef4444', marginLeft: '2px', verticalAlign: 'middle', animation: 'pulse 1s infinite' }} />
+            </div>
+          )}
+          {!interimText && (
+            <div style={{ background: 'white', borderRadius: '10px', padding: '10px 14px', fontSize: '13px', color: '#9ca3af', border: '1px solid #fca5a5', fontStyle: 'italic' }}>
+              Waiting for speech...
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -177,15 +260,13 @@ export default function HolographicDisplayPage() {
     setSelectedText(text); setLookupDef(''); setLookupTranslation(''); setLookupLoading(true)
     speakWord(text)
     const isPhrase = text.includes(' ')
-
     try {
       if (translationLang === 'none') {
-        // Definition only
         const res = await fetch('/api/chat', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             system: isPhrase
-              ? `You are an English dictionary for B2 learners. Respond with ONLY one sentence (max 25 words) explaining what the phrase means in plain English. No extra text.`
+              ? `You are an English dictionary for B2 learners. Respond with ONLY one sentence (max 25 words) explaining what the phrase means. No extra text.`
               : `You are an English dictionary for B2 learners. Respond with ONLY one sentence (max 20 words) defining this word simply. No extra text.`,
             messages: [{ role: 'user', content: isPhrase ? `What does "${text}" mean?` : `Define: "${text}"` }],
           }),
@@ -193,11 +274,10 @@ export default function HolographicDisplayPage() {
         const data = await res.json()
         setLookupDef(data.content || 'No definition found.')
       } else {
-        // Definition + translation in one call using JSON response
         const res = await fetch('/api/chat', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            system: `You are a language learning assistant for B2 English students. For the given word or phrase, respond ONLY with a valid JSON object — no markdown, no backticks, no extra text. The JSON must have exactly two fields: "definition" (one simple English sentence, max 20 words) and "translation" (the word or phrase translated to ${translationLang}, followed by a brief explanation in ${translationLang}, max 30 words total).`,
+            system: `You are a language learning assistant for B2 English students. Respond ONLY with valid JSON (no markdown, no backticks): {"definition": "one simple English sentence max 20 words", "translation": "the word/phrase in ${translationLang} with a brief explanation in ${translationLang}, max 30 words"}`,
             messages: [{ role: 'user', content: `Word or phrase: "${text}"` }],
           }),
         })
@@ -207,7 +287,6 @@ export default function HolographicDisplayPage() {
           setLookupDef(parsed.definition || 'No definition found.')
           setLookupTranslation(parsed.translation || '')
         } catch {
-          // Fallback if JSON parse fails
           setLookupDef(data.content || 'No definition found.')
           setLookupTranslation('')
         }
@@ -265,7 +344,6 @@ export default function HolographicDisplayPage() {
       {/* HOW TO USE + SPEED + LANGUAGE */}
       <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '14px 24px' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
-          {/* How to use */}
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
             <span style={{ color: '#888', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>How to use:</span>
             {['🔊 Play passage aloud', '✍️ Highlight any word or phrase', '📚 Study vocabulary', '🤖 Practice with AI'].map((step, i) => (
@@ -275,9 +353,7 @@ export default function HolographicDisplayPage() {
               </div>
             ))}
           </div>
-          {/* Speed + Language row */}
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* Speed */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
               {SPEEDS.map(s => (
@@ -287,7 +363,6 @@ export default function HolographicDisplayPage() {
                 </button>
               ))}
             </div>
-            {/* Language */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🌍 Translate to:</span>
               <select value={translationLang} onChange={e => setTranslationLang(e.target.value)}
@@ -316,8 +391,7 @@ export default function HolographicDisplayPage() {
 
             <div style={{ background: '#f5f3ff', padding: '8px 28px', borderBottom: '1px solid #ede9fe' }}>
               <span style={{ color: '#8b5cf6', fontSize: '12px', fontWeight: '600' }}>
-                ✍️ Highlight any word or phrase to see its meaning
-                {translationLang !== 'none' && <span style={{ color: '#6d28d9' }}> + {currentLang?.label} translation</span>}
+                ✍️ Highlight any word or phrase to see its meaning{translationLang !== 'none' && <span style={{ color: '#6d28d9' }}> + {currentLang?.label} translation</span>}
               </span>
             </div>
 
@@ -385,19 +459,16 @@ export default function HolographicDisplayPage() {
               </div>
               <button onClick={() => setSelectedText(null)} style={{ background: '#f3f4f6', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', flexShrink: 0, marginLeft: '12px' }}>✕</button>
             </div>
-
             {lookupLoading ? (
               <div style={{ background: '#f5f3ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #ede9fe', color: '#9ca3af', fontSize: '15px' }}>
-                {translationLang !== 'none' ? `Looking up definition and ${currentLang?.label} translation...` : (selectedText.includes(' ') ? 'Looking up phrase...' : 'Looking up definition...')}
+                {translationLang !== 'none' ? `Looking up definition and ${currentLang?.label} translation...` : 'Looking up...'}
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {/* Definition */}
                 <div style={{ background: '#f5f3ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #ede9fe' }}>
                   <div style={{ color: '#8b5cf6', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>📖 English Definition</div>
                   <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{lookupDef}</span>
                 </div>
-                {/* Translation */}
                 {translationLang !== 'none' && lookupTranslation && (
                   <div style={{ background: '#fdf4ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #e9d5ff' }}>
                     <div style={{ color: '#7c3aed', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>{currentLang?.label} Translation</div>
