@@ -19,7 +19,7 @@ const CATEGORIES = [
         color: '#3b82f6',
       },
       {
-        id: 'ai-home-robots',
+        id: 'home-robots',
         title: 'AI-Powered Home Robots',
         emoji: '🤖',
         description: 'Living with Intelligent Machines',
@@ -28,7 +28,7 @@ const CATEGORIES = [
         color: '#8b5cf6',
       },
       {
-        id: 'holographic-displays',
+        id: 'holographic-display',
         title: 'Holographic Display Gadgets',
         emoji: '🔮',
         description: 'From Science Fiction to Reality',
