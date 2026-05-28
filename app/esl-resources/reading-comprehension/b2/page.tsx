@@ -29,15 +29,7 @@ const LESSONS = [
     badges: ['B2 Upper‑Intermediate', 'Emerging Tech', '4 parts · 12 questions'],
     color: '#14b8a6',
   },
-  {
-    id: 'ai-everyday-life',
-    title: 'Artificial Intelligence in Everyday Life',
-    emoji: '🧠',
-    description: 'How AI Shapes Our Daily World',
-    heroDescription: 'From voice assistants and smart homes to work, education, and ethics — understand how AI is transforming everyday life.',
-    badges: ['B2 Upper‑Intermediate', 'AI & Society', '4 parts · 12 questions'],
-    color: '#3b82f6',
-  },
+  
 ]
 
 export default function B2ReadingHub() {
