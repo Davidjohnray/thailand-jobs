@@ -103,7 +103,6 @@ export default function B2ReadingHub() {
               </div>
             </div>
           </div>
-          {/* Feature pills */}
           <div style={{ display: 'flex', gap: '12px', marginTop: '28px', flexWrap: 'wrap' }}>
             {['✍️ Highlight any text', '🌍 13-language translation', '🤖 AI conversation partner', '🎤 Push-to-talk voice', '🔊 4-speed audio'].map(f => (
               <span key={f} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: '600' }}>{f}</span>
@@ -120,46 +119,46 @@ export default function B2ReadingHub() {
 
             {/* Category Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', paddingBottom: '14px', borderBottom: `3px solid ${cat.color}` }}>
-              <div style={{ background: cat.color, width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>{cat.emoji}</div>
+              <div style={{ background: cat.color, width: '44px', height: '44px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>{cat.emoji}</div>
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>{cat.title}</h2>
-                <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>{cat.description}</p>
+                <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>{cat.title}</h2>
+                <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>{cat.description}</p>
               </div>
               {cat.comingSoon && (
-                <span style={{ marginLeft: 'auto', background: '#f3f4f6', color: '#9ca3af', fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '20px', flexShrink: 0 }}>Coming soon</span>
+                <span style={{ marginLeft: 'auto', background: '#f3f4f6', color: '#9ca3af', fontSize: '13px', fontWeight: '700', padding: '4px 14px', borderRadius: '20px', flexShrink: 0 }}>Coming soon</span>
               )}
               {!cat.comingSoon && (
-                <span style={{ marginLeft: 'auto', background: cat.color + '15', color: cat.color, fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '20px', flexShrink: 0 }}>{cat.lessons.length} lesson{cat.lessons.length !== 1 ? 's' : ''}</span>
+                <span style={{ marginLeft: 'auto', background: cat.color + '15', color: cat.color, fontSize: '13px', fontWeight: '700', padding: '4px 14px', borderRadius: '20px', flexShrink: 0 }}>{cat.lessons.length} lesson{cat.lessons.length !== 1 ? 's' : ''}</span>
               )}
             </div>
 
             {/* Lesson Cards */}
             {cat.lessons.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '20px' }}>
                 {cat.lessons.map(lesson => (
                   <Link key={lesson.id} href={`/esl-resources/reading-comprehension/b2/${lesson.id}`} style={{ textDecoration: 'none' }}>
                     <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: '1px solid #eee', height: '100%', display: 'flex', flexDirection: 'column', transition: 'transform 0.15s, box-shadow 0.15s' }}
                       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 28px rgba(0,0,0,0.12)' }}
                       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)' }}>
                       {/* Card top */}
-                      <div style={{ background: `linear-gradient(135deg, ${lesson.color}22, ${lesson.color}08)`, borderBottom: `3px solid ${lesson.color}`, padding: '20px 18px 14px' }}>
-                        <div style={{ fontSize: '40px', marginBottom: '8px' }}>{lesson.emoji}</div>
-                        <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px', lineHeight: '1.3' }}>{lesson.title}</h3>
-                        <p style={{ color: lesson.color, fontSize: '12px', fontWeight: '700', margin: 0 }}>{lesson.description}</p>
+                      <div style={{ background: `linear-gradient(135deg, ${lesson.color}22, ${lesson.color}08)`, borderBottom: `3px solid ${lesson.color}`, padding: '22px 20px 16px' }}>
+                        <div style={{ fontSize: '44px', marginBottom: '10px' }}>{lesson.emoji}</div>
+                        <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 5px', lineHeight: '1.3' }}>{lesson.title}</h3>
+                        <p style={{ color: lesson.color, fontSize: '13px', fontWeight: '700', margin: 0 }}>{lesson.description}</p>
                       </div>
                       {/* Card body */}
-                      <div style={{ padding: '14px 18px', flex: 1 }}>
-                        <p style={{ color: '#555', fontSize: '13px', lineHeight: '1.6', margin: '0 0 12px' }}>{lesson.detail}</p>
+                      <div style={{ padding: '16px 20px', flex: 1 }}>
+                        <p style={{ color: '#444', fontSize: '15px', lineHeight: '1.65', margin: '0 0 14px' }}>{lesson.detail}</p>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
                           {lesson.badges.map(b => (
-                            <span key={b} style={{ background: '#f3f4f6', color: '#555', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>{b}</span>
+                            <span key={b} style={{ background: '#f3f4f6', color: '#555', fontSize: '12px', fontWeight: '600', padding: '4px 10px', borderRadius: '20px' }}>{b}</span>
                           ))}
-                          <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>🤖 AI + 🌍 Translation</span>
+                          <span style={{ background: '#f0fdf4', color: '#16a34a', fontSize: '12px', fontWeight: '600', padding: '4px 10px', borderRadius: '20px' }}>🤖 AI + 🌍 Translation</span>
                         </div>
                       </div>
                       {/* Card footer */}
-                      <div style={{ padding: '0 18px 18px' }}>
-                        <div style={{ background: lesson.color, color: 'white', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', textAlign: 'center' }}>
+                      <div style={{ padding: '0 20px 20px' }}>
+                        <div style={{ background: lesson.color, color: 'white', padding: '12px 16px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', textAlign: 'center' }}>
                           Open Lesson →
                         </div>
                       </div>
@@ -167,19 +166,18 @@ export default function B2ReadingHub() {
                   </Link>
                 ))}
 
-                {/* Add more card placeholder */}
-                <div style={{ background: 'white', borderRadius: '16px', border: '2px dashed #e5e7eb', padding: '32px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '200px' }}>
-                  <div style={{ fontSize: '32px' }}>✍️</div>
-                  <div style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}>More {cat.title} lessons coming soon</div>
+                {/* More coming placeholder */}
+                <div style={{ background: 'white', borderRadius: '16px', border: '2px dashed #e5e7eb', padding: '32px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', minHeight: '200px' }}>
+                  <div style={{ fontSize: '36px' }}>✍️</div>
+                  <div style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '600', textAlign: 'center' }}>More {cat.title} lessons coming soon</div>
                 </div>
               </div>
             ) : (
-              /* Coming soon placeholder row */
               <div style={{ background: 'white', borderRadius: '16px', border: '2px dashed #e5e7eb', padding: '32px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ fontSize: '40px', opacity: 0.4 }}>{cat.emoji}</div>
                 <div>
-                  <div style={{ color: '#9ca3af', fontWeight: '700', fontSize: '15px', marginBottom: '4px' }}>{cat.title} lessons in development</div>
-                  <div style={{ color: '#d1d5db', fontSize: '13px' }}>Check back soon — new lessons are added regularly</div>
+                  <div style={{ color: '#9ca3af', fontWeight: '700', fontSize: '16px', marginBottom: '4px' }}>{cat.title} lessons in development</div>
+                  <div style={{ color: '#d1d5db', fontSize: '14px' }}>Check back soon — new lessons are added regularly</div>
                 </div>
               </div>
             )}
