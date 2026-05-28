@@ -25,7 +25,24 @@ const CATEGORIES = [
       { id: 'world-cup-2026', title: 'FIFA World Cup 2026', emoji: '⚽', description: 'The Biggest Tournament in Football History', detail: 'Explore the build-up, the favorites, the pressure of expectations, and what fans around the world are saying.', badges: ['4 parts', '12 questions'], color: '#22c55e' },
     ]
   },
-  { id: 'society', title: 'Society & Culture', emoji: '🌍', description: 'People, communities and social change', color: '#f59e0b', lessons: [], comingSoon: true },
+  {
+  id: 'society',
+  title: 'Society & Culture',
+  emoji: '🌍',
+  description: 'People, communities and social change',
+  color: '#f59e0b',
+  lessons: [
+    {
+      id: 'online-learning',
+      title: 'Online Learning Platforms',
+      emoji: '💻',
+      description: 'The Future of Education',
+      detail: 'Explore how online platforms are changing education — flexibility, access, challenges and what comes next.',
+      badges: ['4 parts', '12 questions'],
+      color: '#f59e0b',
+    },
+  ]
+},
   { id: 'environment', title: 'Environment', emoji: '🌿', description: 'Climate, sustainability and the natural world', color: '#16a34a', lessons: [], comingSoon: true },
   { id: 'health', title: 'Health & Science', emoji: '🔬', description: 'Medicine, wellbeing and scientific discovery', color: '#ef4444', lessons: [], comingSoon: true },
   { id: 'work', title: 'Work & Business', emoji: '💼', description: 'Careers, economics and the modern workplace', color: '#0ea5e9', lessons: [], comingSoon: true },
