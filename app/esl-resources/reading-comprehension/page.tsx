@@ -47,7 +47,7 @@ const LEVELS = [
     emoji: '📗',
     desc: 'Complex texts on concrete and abstract topics. Students can discuss ideas, give opinions and follow detailed arguments.',
     who: 'Adult learners · University prep · IELTS 5.5–6.5',
-    count: 4,
+    count: 5,
   },
   {
     code: 'c1',
