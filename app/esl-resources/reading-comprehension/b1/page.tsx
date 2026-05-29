@@ -57,14 +57,23 @@ const CATEGORIES = [
   ]
 },
   {
-    id: 'environment',
-    title: 'Environment',
-    emoji: '🌿',
-    description: 'Climate, nature and sustainability',
-    color: '#22c55e',
-    lessons: [],
-    comingSoon: true,
-  },
+  id: 'environment',
+  title: 'Environment',
+  emoji: '🌿',
+  description: 'Climate, nature and sustainability',
+  color: '#16a34a',
+  lessons: [
+    {
+      id: 'climate-change-everyday-life',
+      title: 'Climate Change and Everyday Life',
+      emoji: '🌍',
+      description: 'Causes, Effects and Solutions',
+      detail: 'Explore what climate change is, how it affects daily life around the world, and what we can all do.',
+      badges: ['4 parts', '12 questions'],
+      color: '#16a34a',
+    },
+  ]
+},
   {
     id: 'work',
     title: 'Work & Careers',
