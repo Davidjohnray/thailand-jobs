@@ -149,10 +149,10 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Live Games */}
+          {/* 🎮 Learn & Play */}
           <Link href="/esl-games/live"
             style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            🎮 Live Games
+            🎮 🎮 Learn & Play
           </Link>
 
           {/* Blog */}
