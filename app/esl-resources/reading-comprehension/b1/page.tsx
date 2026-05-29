@@ -39,14 +39,23 @@ const CATEGORIES = [
     ]
   },
   {
-    id: 'technology',
-    title: 'Technology',
-    emoji: '💻',
-    description: 'Digital life, gadgets and the modern world',
-    color: '#8b5cf6',
-    lessons: [],
-    comingSoon: true,
-  },
+  id: 'technology',
+  title: 'Technology',
+  emoji: '💻',
+  description: 'Digital life, gadgets and the modern world',
+  color: '#8b5cf6',
+  lessons: [
+    {
+      id: 'social-media-mental-health',
+      title: 'Social Media and Mental Health',
+      emoji: '📱',
+      description: 'Benefits, Risks and Balance',
+      detail: 'Explore how social media affects daily life and mental health — and how to find a healthy balance.',
+      badges: ['4 parts', '12 questions'],
+      color: '#8b5cf6',
+    },
+  ]
+},
   {
     id: 'environment',
     title: 'Environment',
