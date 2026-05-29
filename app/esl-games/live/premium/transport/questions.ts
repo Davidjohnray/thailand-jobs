@@ -7,30 +7,30 @@ export type TransportQuestion = {
 
 export const transportQuestions: TransportQuestion[] = [
   // Round 1 — basic transport
-  { question: 'Find the Car! 🚗', emoji: '🚗', options: [{ emoji: '🚌', name: 'Bus' }, { emoji: '🚗', name: 'Car' }, { emoji: '🚲', name: 'Bike' }, { emoji: '🚢', name: 'Ship' }], answer: 1 },
-  { question: 'Find the Bus! 🚌', emoji: '🚌', options: [{ emoji: '🚗', name: 'Car' }, { emoji: '🚌', name: 'Bus' }, { emoji: '🚂', name: 'Train' }, { emoji: '✈️', name: 'Plane' }], answer: 1 },
-  { question: 'Find the Plane! ✈️', emoji: '✈️', options: [{ emoji: '🚀', name: 'Rocket' }, { emoji: '🚁', name: 'Helicopter' }, { emoji: '✈️', name: 'Plane' }, { emoji: '🪂', name: 'Parachute' }], answer: 2 },
-  { question: 'Find the Bike! 🚲', emoji: '🚲', options: [{ emoji: '🛵', name: 'Scooter' }, { emoji: '🏍️', name: 'Motorbike' }, { emoji: '🚗', name: 'Car' }, { emoji: '🚲', name: 'Bike' }], answer: 3 },
-  { question: 'Find the Train! 🚂', emoji: '🚂', options: [{ emoji: '🚂', name: 'Train' }, { emoji: '🚌', name: 'Bus' }, { emoji: '🚗', name: 'Car' }, { emoji: '🚢', name: 'Ship' }], answer: 0 },
+  { question: 'Find the car!', emoji: '🚗', options: [{ emoji: '🚌', name: 'bus' }, { emoji: '🚗', name: 'car' }, { emoji: '🚲', name: 'bike' }, { emoji: '🚢', name: 'ship' }], answer: 1 },
+  { question: 'Find the bus!', emoji: '🚌', options: [{ emoji: '🚗', name: 'car' }, { emoji: '🚌', name: 'bus' }, { emoji: '🚂', name: 'train' }, { emoji: '✈️', name: 'plane' }], answer: 1 },
+  { question: 'Find the plane!', emoji: '✈️', options: [{ emoji: '🚀', name: 'rocket' }, { emoji: '🚁', name: 'helicopter' }, { emoji: '✈️', name: 'plane' }, { emoji: '🪂', name: 'parachute' }], answer: 2 },
+  { question: 'Find the bike!', emoji: '🚲', options: [{ emoji: '🛵', name: 'scooter' }, { emoji: '🏍️', name: 'motorbike' }, { emoji: '🚗', name: 'car' }, { emoji: '🚲', name: 'bike' }], answer: 3 },
+  { question: 'Find the train!', emoji: '🚂', options: [{ emoji: '🚂', name: 'train' }, { emoji: '🚌', name: 'bus' }, { emoji: '🚗', name: 'car' }, { emoji: '🚢', name: 'ship' }], answer: 0 },
 
   // Round 2 — water and air
-  { question: 'Find the Boat! ⛵', emoji: '⛵', options: [{ emoji: '🚢', name: 'Ship' }, { emoji: '⛵', name: 'Boat' }, { emoji: '🛥️', name: 'Speedboat' }, { emoji: '🚤', name: 'Motorboat' }], answer: 1 },
-  { question: 'Find the Ship! 🚢', emoji: '🚢', options: [{ emoji: '⛵', name: 'Boat' }, { emoji: '🚤', name: 'Motorboat' }, { emoji: '🚢', name: 'Ship' }, { emoji: '🛥️', name: 'Speedboat' }], answer: 2 },
-  { question: 'Find the Helicopter! 🚁', emoji: '🚁', options: [{ emoji: '✈️', name: 'Plane' }, { emoji: '🚀', name: 'Rocket' }, { emoji: '🛸', name: 'UFO' }, { emoji: '🚁', name: 'Helicopter' }], answer: 3 },
-  { question: 'Find the Rocket! 🚀', emoji: '🚀', options: [{ emoji: '🚀', name: 'Rocket' }, { emoji: '✈️', name: 'Plane' }, { emoji: '🚁', name: 'Helicopter' }, { emoji: '🛸', name: 'UFO' }], answer: 0 },
-  { question: 'Find the Scooter! 🛵', emoji: '🛵', options: [{ emoji: '🚲', name: 'Bike' }, { emoji: '🏍️', name: 'Motorbike' }, { emoji: '🛵', name: 'Scooter' }, { emoji: '🚗', name: 'Car' }], answer: 2 },
+  { question: 'Find the boat!', emoji: '⛵', options: [{ emoji: '🚢', name: 'ship' }, { emoji: '⛵', name: 'boat' }, { emoji: '🛥️', name: 'speedboat' }, { emoji: '🚤', name: 'motorboat' }], answer: 1 },
+  { question: 'Find the ship!', emoji: '🚢', options: [{ emoji: '⛵', name: 'boat' }, { emoji: '🚤', name: 'motorboat' }, { emoji: '🚢', name: 'ship' }, { emoji: '🛥️', name: 'speedboat' }], answer: 2 },
+  { question: 'Find the helicopter!', emoji: '🚁', options: [{ emoji: '✈️', name: 'plane' }, { emoji: '🚀', name: 'rocket' }, { emoji: '🛸', name: 'ufo' }, { emoji: '🚁', name: 'helicopter' }], answer: 3 },
+  { question: 'Find the rocket!', emoji: '🚀', options: [{ emoji: '🚀', name: 'rocket' }, { emoji: '✈️', name: 'plane' }, { emoji: '🚁', name: 'helicopter' }, { emoji: '🛸', name: 'ufo' }], answer: 0 },
+  { question: 'Find the scooter!', emoji: '🛵', options: [{ emoji: '🚲', name: 'bike' }, { emoji: '🏍️', name: 'motorbike' }, { emoji: '🛵', name: 'scooter' }, { emoji: '🚗', name: 'car' }], answer: 2 },
 
   // Round 3 — emergency and special
-  { question: 'Find the Ambulance! 🚑', emoji: '🚑', options: [{ emoji: '🚒', name: 'Fire Truck' }, { emoji: '🚓', name: 'Police Car' }, { emoji: '🚑', name: 'Ambulance' }, { emoji: '🚗', name: 'Car' }], answer: 2 },
-  { question: 'Find the Fire Truck! 🚒', emoji: '🚒', options: [{ emoji: '🚒', name: 'Fire Truck' }, { emoji: '🚑', name: 'Ambulance' }, { emoji: '🚌', name: 'Bus' }, { emoji: '🚓', name: 'Police Car' }], answer: 0 },
-  { question: 'Find the Police Car! 🚓', emoji: '🚓', options: [{ emoji: '🚑', name: 'Ambulance' }, { emoji: '🚓', name: 'Police Car' }, { emoji: '🚒', name: 'Fire Truck' }, { emoji: '🚗', name: 'Car' }], answer: 1 },
-  { question: 'Find the Tractor! 🚜', emoji: '🚜', options: [{ emoji: '🚗', name: 'Car' }, { emoji: '🚌', name: 'Bus' }, { emoji: '🏎️', name: 'Race Car' }, { emoji: '🚜', name: 'Tractor' }], answer: 3 },
-  { question: 'Find the Taxi! 🚕', emoji: '🚕', options: [{ emoji: '🚕', name: 'Taxi' }, { emoji: '🚗', name: 'Car' }, { emoji: '🚙', name: 'SUV' }, { emoji: '🏎️', name: 'Race Car' }], answer: 0 },
+  { question: 'Find the ambulance!', emoji: '🚑', options: [{ emoji: '🚒', name: 'fire truck' }, { emoji: '🚓', name: 'police car' }, { emoji: '🚑', name: 'ambulance' }, { emoji: '🚗', name: 'car' }], answer: 2 },
+  { question: 'Find the fire truck!', emoji: '🚒', options: [{ emoji: '🚒', name: 'fire truck' }, { emoji: '🚑', name: 'ambulance' }, { emoji: '🚌', name: 'bus' }, { emoji: '🚓', name: 'police car' }], answer: 0 },
+  { question: 'Find the police car!', emoji: '🚓', options: [{ emoji: '🚑', name: 'ambulance' }, { emoji: '🚓', name: 'police car' }, { emoji: '🚒', name: 'fire truck' }, { emoji: '🚗', name: 'car' }], answer: 1 },
+  { question: 'Find the tractor!', emoji: '🚜', options: [{ emoji: '🚗', name: 'car' }, { emoji: '🚌', name: 'bus' }, { emoji: '🏎️', name: 'race car' }, { emoji: '🚜', name: 'tractor' }], answer: 3 },
+  { question: 'Find the taxi!', emoji: '🚕', options: [{ emoji: '🚕', name: 'taxi' }, { emoji: '🚗', name: 'car' }, { emoji: '🚙', name: 'suv' }, { emoji: '🏎️', name: 'race car' }], answer: 0 },
 
   // Round 4 — where does it go?
-  { question: 'Which goes on water? 🌊', emoji: '🌊', options: [{ emoji: '🚗', name: 'Car' }, { emoji: '✈️', name: 'Plane' }, { emoji: '⛵', name: 'Boat' }, { emoji: '🚂', name: 'Train' }], answer: 2 },
-  { question: 'Which flies in the sky? ☁️', emoji: '☁️', options: [{ emoji: '🚌', name: 'Bus' }, { emoji: '✈️', name: 'Plane' }, { emoji: '🚗', name: 'Car' }, { emoji: '🚲', name: 'Bike' }], answer: 1 },
-  { question: 'Which goes on a road? 🛣️', emoji: '🛣️', options: [{ emoji: '⛵', name: 'Boat' }, { emoji: '✈️', name: 'Plane' }, { emoji: '🚗', name: 'Car' }, { emoji: '🚀', name: 'Rocket' }], answer: 2 },
-  { question: 'Which goes on train tracks? 🛤️', emoji: '🛤️', options: [{ emoji: '🚗', name: 'Car' }, { emoji: '🚂', name: 'Train' }, { emoji: '🚌', name: 'Bus' }, { emoji: '🚲', name: 'Bike' }], answer: 1 },
-  { question: 'Which is the fastest? 🏁', emoji: '🏎️', options: [{ emoji: '🚲', name: 'Bike' }, { emoji: '🐢', name: 'Turtle' }, { emoji: '🚶', name: 'Walking' }, { emoji: '🏎️', name: 'Race Car' }], answer: 3 },
+  { question: 'Which goes on water?', emoji: '🌊', options: [{ emoji: '🚗', name: 'car' }, { emoji: '✈️', name: 'plane' }, { emoji: '⛵', name: 'boat' }, { emoji: '🚂', name: 'train' }], answer: 2 },
+  { question: 'Which flies in the sky?', emoji: '☁️', options: [{ emoji: '🚌', name: 'bus' }, { emoji: '✈️', name: 'plane' }, { emoji: '🚗', name: 'car' }, { emoji: '🚲', name: 'bike' }], answer: 1 },
+  { question: 'Which goes on a road?', emoji: '🛣️', options: [{ emoji: '⛵', name: 'boat' }, { emoji: '✈️', name: 'plane' }, { emoji: '🚗', name: 'car' }, { emoji: '🚀', name: 'rocket' }], answer: 2 },
+  { question: 'Which goes on train tracks?', emoji: '🛤️', options: [{ emoji: '🚗', name: 'car' }, { emoji: '🚂', name: 'train' }, { emoji: '🚌', name: 'bus' }, { emoji: '🚲', name: 'bike' }], answer: 1 },
+  { question: 'Which is the fastest?', emoji: '🏎️', options: [{ emoji: '🚲', name: 'bike' }, { emoji: '🐢', name: 'turtle' }, { emoji: '🚶', name: 'walking' }, { emoji: '🏎️', name: 'race car' }], answer: 3 },
 ]
