@@ -232,19 +232,20 @@ export default async function Home() {
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
 
 {/* DUKE LANGUAGE SCHOOL - TOP */}
-<a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-  <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
-    <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
-      <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
+<Link href="/esl-resources" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
+  <div style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #E85D26 100%)', border: '2px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+      <div style={{ fontSize: '36px', flexShrink: 0 }}>📖</div>
+      <div style={{ textAlign: 'left' }}>
+        <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>🎮 Free for Teachers</div>
+        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '15px' }}>ESL Resources — Lesson Plans, Reading & Classroom Games</div>
+      </div>
     </div>
-    <div style={{ padding: '20px 16px', textAlign: 'center' }}>
-      <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '180px', height: 'auto', marginBottom: '12px' }} />
-      <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>Learn Thai, English & Chinese</div>
-      <div style={{ color: '#666', fontSize: '12px', marginBottom: '14px', lineHeight: '1.5' }}>Practical language courses in Bangkok for expats and international learners</div>
-      <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Explore Duke Courses →</div>
+    <div style={{ background: 'white', color: '#7C3AED', padding: '10px 22px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', whiteSpace: 'nowrap' as any }}>
+      Explore Resources →
     </div>
   </div>
-</a>
+</Link>
 
 {/* LUCKY CLEANING */}
 <a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=banner&utm_campaign=lucky_cleaning"
