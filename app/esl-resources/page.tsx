@@ -39,7 +39,7 @@ export default function ESLResourcesPage() {
             </Link>
 
             {/* LEARN & PLAY */}
-            <Link href="/esl-games/live/premium" style={{ textDecoration: 'none' }}>
+            <Link href="/esl-games/live" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #f59e0b, #22c55e)', borderRadius: '20px', padding: '32px 28px', textAlign: 'center', color: 'white', cursor: 'pointer', boxShadow: '0 8px 28px rgba(245,158,11,0.3)', border: '2px solid rgba(255,255,255,0.1)', height: '100%', boxSizing: 'border-box' }}>
                 <div style={{ fontSize: '44px', marginBottom: '12px' }}>🎮</div>
                 <h2 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 8px' }}>Learn & Play</h2>
