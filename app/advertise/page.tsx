@@ -19,16 +19,12 @@ function ExpatServicesForm() {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!form.name.trim() || !form.email.trim() || !form.business_name.trim()) {
       setError('Please fill in your name, email and business name.')
       return
     }
-    setSending(true)
-    setError('')
-    try {
-      const body = `
-EXPAT SERVICES ADVERTISING ENQUIRY
+    const message = `EXPAT SERVICES ADVERTISING ENQUIRY
 ===================================
 Package: ${pkg === 'featured' ? '⭐ Featured — ฿1,000 for 6 months' : 'Standard — ฿500 for 6 months'}
 Banner: ${banner === 'provide' ? 'Will provide 250×250 image' : 'Please design a simple card'}
@@ -41,34 +37,12 @@ Location: ${form.location || '—'}
 Website: ${form.website || '—'}
 Contact (LINE/WhatsApp/Phone): ${form.contact || '—'}
 
-ENQUIRY FROM
+FROM
 Name: ${form.name}
 Email: ${form.email}
+${form.message ? `\nExtra notes: ${form.message}` : ''}`
 
-Additional message:
-${form.message || '—'}
-      `.trim()
-
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          subject: `Expat Services Ad Enquiry — ${form.business_name} (${pkg === 'featured' ? 'Featured' : 'Standard'})`,
-          message: body
-        })
-      })
-
-      if (res.ok) {
-        setSent(true)
-      } else {
-        setError('Something went wrong. Please try again or contact us directly.')
-      }
-    } catch {
-      setError('Something went wrong. Please try again or contact us directly.')
-    }
-    setSending(false)
+    window.location.href = `/contact?message=${encodeURIComponent(message)}`
   }
 
   if (sent) return (
