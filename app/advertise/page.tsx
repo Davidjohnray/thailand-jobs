@@ -11,7 +11,6 @@ function ExpatServicesForm() {
     name: '', email: '', business_name: '', category: 'Cleaning',
     tagline: '', location: '', website: '', contact: '', message: ''
   })
-  const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
 
@@ -24,12 +23,17 @@ function ExpatServicesForm() {
       setError('Please fill in your name, email and business name.')
       return
     }
-    const message = `EXPAT SERVICES ADVERTISING ENQUIRY
-===================================
-Package: ${pkg === 'featured' ? '⭐ Featured — ฿1,000 for 6 months' : 'Standard — ฿500 for 6 months'}
-Banner: ${banner === 'provide' ? 'Will provide 250×250 image' : 'Please design a simple card'}
+    setError('')
+    setSent(true)
+  }
 
-BUSINESS DETAILS
+  const waMessage = encodeURIComponent(`Hi David,
+
+I would like to advertise on the Expat Services Directory.
+
+Package: ${pkg === 'featured' ? '⭐ Featured — ฿1,000 for 6 months' : 'Standard — ฿500 for 6 months'}
+Banner: ${banner === 'provide' ? 'I will provide a 250×250 image' : 'Please design a simple card for me'}
+
 Business Name: ${form.business_name}
 Category: ${form.category}
 Tagline: ${form.tagline || '—'}
@@ -37,27 +41,14 @@ Location: ${form.location || '—'}
 Website: ${form.website || '—'}
 Contact (LINE/WhatsApp/Phone): ${form.contact || '—'}
 
-FROM
-Name: ${form.name}
-Email: ${form.email}
-${form.message ? `\nExtra notes: ${form.message}` : ''}`
-
-    window.location.href = `/contact?message=${encodeURIComponent(message)}`
-  }
-
-  if (sent) return (
-    <div style={{ background: '#f0fdf4', border: '2px solid #86efac', borderRadius: '16px', padding: '40px', textAlign: 'center' }}>
-      <div style={{ fontSize: '56px', marginBottom: '16px' }}>✅</div>
-      <h3 style={{ fontSize: '22px', fontWeight: '900', color: '#14532d', marginBottom: '8px' }}>Enquiry Sent!</h3>
-      <p style={{ color: '#15803d', fontSize: '15px', marginBottom: '4px' }}>We will be in touch within 24 hours to confirm your listing and payment details.</p>
-      <p style={{ color: '#16a34a', fontSize: '14px' }}>Payment via PromptPay or bank transfer — your ad goes live once payment is confirmed.</p>
-    </div>
-  )
+My name: ${form.name}
+My email: ${form.email}
+${form.message ? `\nExtra notes: ${form.message}` : ''}`)
 
   return (
     <div style={{ background: 'white', borderRadius: '20px', padding: '36px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '2px solid #5eead4' }}>
 
-      {/* Package selection */}
+      {/* Step 1 — Package */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e', marginBottom: '12px' }}>1. Choose your package</div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -77,7 +68,7 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`
         </div>
       </div>
 
-      {/* Banner choice */}
+      {/* Step 2 — Banner */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e', marginBottom: '12px' }}>2. Your banner</div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -94,17 +85,15 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`
         </div>
       </div>
 
-      {/* Business details */}
+      {/* Step 3 — Business details */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e', marginBottom: '16px' }}>3. Your business details</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
-
           <div>
             <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Business Name *</label>
             <input name="business_name" value={form.business_name} onChange={handleChange} placeholder="e.g. Lucky Cleaning Service"
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div>
             <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Category</label>
             <select name="category" value={form.category} onChange={handleChange}
@@ -112,35 +101,30 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-
           <div>
             <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Tagline <span style={{ color: '#9ca3af', fontWeight: '400' }}>(1 short line)</span></label>
             <input name="tagline" value={form.tagline} onChange={handleChange} placeholder="e.g. Professional cleaning across Bangkok"
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div>
             <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Location <span style={{ color: '#9ca3af', fontWeight: '400' }}>(city or nationwide)</span></label>
             <input name="location" value={form.location} onChange={handleChange} placeholder="e.g. Bangkok, Phuket, Nationwide"
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div>
             <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Website URL <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span></label>
             <input name="website" value={form.website} onChange={handleChange} placeholder="https://yourwebsite.com"
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
           <div>
             <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Phone / LINE / WhatsApp <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span></label>
             <input name="contact" value={form.contact} onChange={handleChange} placeholder="e.g. +66 81 234 5678"
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
           </div>
-
         </div>
       </div>
 
-      {/* Contact details */}
+      {/* Step 4 — Contact details */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e', marginBottom: '16px' }}>4. Your contact details</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
@@ -164,11 +148,30 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`
 
       {error && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '10px', padding: '12px 16px', color: '#dc2626', fontSize: '14px', marginBottom: '16px' }}>{error}</div>}
 
-      <button onClick={handleSubmit} disabled={sending}
-        style={{ width: '100%', background: sending ? '#e5e7eb' : 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: sending ? '#9ca3af' : 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '18px', cursor: sending ? 'not-allowed' : 'pointer', boxShadow: sending ? 'none' : '0 6px 20px rgba(14,165,233,0.3)' }}>
-        {sending ? 'Sending...' : `Send Enquiry — ${pkg === 'featured' ? '⭐ Featured ฿1,000' : 'Standard ฿500'} →`}
-      </button>
-      <p style={{ color: '#9ca3af', fontSize: '12px', textAlign: 'center', marginTop: '10px' }}>We will reply within 24 hours with payment details. Your ad goes live once payment is confirmed.</p>
+      {!sent ? (
+        <button onClick={handleSubmit}
+          style={{ width: '100%', background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '18px', cursor: 'pointer', boxShadow: '0 6px 20px rgba(14,165,233,0.3)' }}>
+          Prepare My Enquiry →
+        </button>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ background: '#f0fdf4', border: '2px solid #86efac', borderRadius: '12px', padding: '16px' }}>
+            <div style={{ fontWeight: '800', color: '#14532d', fontSize: '15px', marginBottom: '4px' }}>✅ Your details are ready!</div>
+            <div style={{ color: '#15803d', fontSize: '13px' }}>Tap a button below to send your enquiry directly. Your message will be pre-filled with all your details.</div>
+          </div>
+          <a href={`https://wa.me/66871033821?text=${waMessage}`}
+            target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#25D366', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '17px', boxShadow: '0 4px 16px rgba(37,211,102,0.4)' }}>
+            <span style={{ fontSize: '24px' }}>💬</span> Send via WhatsApp
+          </a>
+          <a href="https://line.me/ti/p/+66871033821"
+            target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#06C755', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '17px', boxShadow: '0 4px 16px rgba(6,199,85,0.4)' }}>
+            <span style={{ fontSize: '24px' }}>💬</span> Send via LINE
+          </a>
+          <p style={{ color: '#9ca3af', fontSize: '12px', textAlign: 'center', margin: 0 }}>WhatsApp message is pre-filled with all your details. LINE will open your chat — copy your details across if needed.</p>
+        </div>
+      )}
     </div>
   )
 }
@@ -258,7 +261,7 @@ export default function AdvertisePage() {
                     <p style={{ color: '#666', fontSize: '14px', margin: '4px 0 0' }}>250 x 250px — displayed next to the main homepage title</p>
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {['Prime homepage position', 'First thing visitors see', 'Maximum exposure', 'Link to your website', 'Your logo & branding'].map(f => (
                     <span key={f} style={{ background: '#fff3ed', color: '#E85D26', fontSize: '13px', padding: '4px 12px', borderRadius: '20px' }}>✓ {f}</span>
                   ))}
@@ -279,7 +282,7 @@ export default function AdvertisePage() {
             </div>
           </div>
 
-          {/* EXPAT SERVICES — NEW */}
+          {/* EXPAT SERVICES */}
           <div id="expat-services" style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px solid #0ea5e9', position: 'relative', scrollMarginTop: '80px' }}>
             <div style={{ position: 'absolute', top: '-14px', left: '32px', background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: 'white', padding: '4px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>🏙️ NEW</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
@@ -317,10 +320,9 @@ export default function AdvertisePage() {
               </div>
             </div>
 
-            {/* ENQUIRY FORM */}
             <div style={{ borderTop: '2px solid #e0f2fe', paddingTop: '28px' }}>
               <h4 style={{ fontSize: '18px', fontWeight: '800', color: '#1a1a2e', marginBottom: '6px' }}>📋 Submit Your Listing Enquiry</h4>
-              <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Fill in your details below and we will be in touch within 24 hours with payment information.</p>
+              <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Fill in your details and send us a message via WhatsApp or LINE — we will reply within 24 hours with payment details.</p>
               <ExpatServicesForm />
             </div>
           </div>
@@ -448,11 +450,17 @@ export default function AdvertisePage() {
           Get in touch and we will set up your ad within 24 hours. We accept bank transfer and PromptPay.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/contact" style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-            Contact Us Directly →
-          </Link>
-          <Link href="#expat-services" style={{ background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+          <a href="https://wa.me/66871033821" target="_blank" rel="noopener noreferrer"
+            style={{ background: '#25D366', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+            💬 WhatsApp Us →
+          </a>
+          <Link href="#expat-services"
+            style={{ background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
             🏙️ Expat Services Enquiry →
+          </Link>
+          <Link href="/contact"
+            style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid #ddd' }}>
+            Contact Us →
           </Link>
         </div>
       </section>
