@@ -176,7 +176,7 @@ export default function ArcadeActivatePage() {
                 onChange={e => { setCode(e.target.value.toUpperCase()); setCodeError('') }}
                 onKeyDown={e => e.key === 'Enter' && checkCode()}
                 placeholder="TCH-XXXX-XXXX"
-                maxLength={12}
+                maxLength={13}
                 style={{ width: '100%', padding: '16px 20px', borderRadius: '12px', border: `2px solid ${codeError ? '#ef4444' : '#e5e7eb'}`, fontSize: '20px', fontFamily: 'monospace', fontWeight: '800', outline: 'none', boxSizing: 'border-box', letterSpacing: '2px', textAlign: 'center', color: '#1a1a2e', background: '#f9fafb' }}
               />
               {codeError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '8px 0 0', textAlign: 'center' }}>{codeError}</p>}
