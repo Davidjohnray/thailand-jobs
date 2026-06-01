@@ -22,11 +22,20 @@ const CATEGORIES = [
   },
   {
     id: 'society',
-    title: 'Society & Economy',
+    title: 'Society & Culture',
     emoji: '🌍',
-    description: 'Global events, money and how the world works',
-    color: '#f59e0b',
+    description: 'People, communities, culture and how the world works',
+    color: '#f97316',
     lessons: [
+      {
+        id: 'indigenous-peoples',
+        title: 'Indigenous Peoples of the World',
+        emoji: '🌍',
+        description: 'Culture, Land and Identity',
+        detail: 'Learn about the world\'s first peoples, the challenges they face, and why their cultures matter to all of us.',
+        badges: ['4 parts', '12 questions'],
+        color: '#f97316',
+      },
       {
         id: 'global-events-oil-prices',
         title: 'Global Events and Oil Prices',
@@ -39,41 +48,41 @@ const CATEGORIES = [
     ]
   },
   {
-  id: 'technology',
-  title: 'Technology',
-  emoji: '💻',
-  description: 'Digital life, gadgets and the modern world',
-  color: '#8b5cf6',
-  lessons: [
-    {
-      id: 'social-media-mental-health',
-      title: 'Social Media and Mental Health',
-      emoji: '📱',
-      description: 'Benefits, Risks and Balance',
-      detail: 'Explore how social media affects daily life and mental health — and how to find a healthy balance.',
-      badges: ['4 parts', '12 questions'],
-      color: '#8b5cf6',
-    },
-  ]
-},
+    id: 'technology',
+    title: 'Technology',
+    emoji: '💻',
+    description: 'Digital life, gadgets and the modern world',
+    color: '#8b5cf6',
+    lessons: [
+      {
+        id: 'social-media-mental-health',
+        title: 'Social Media and Mental Health',
+        emoji: '📱',
+        description: 'Benefits, Risks and Balance',
+        detail: 'Explore how social media affects daily life and mental health — and how to find a healthy balance.',
+        badges: ['4 parts', '12 questions'],
+        color: '#8b5cf6',
+      },
+    ]
+  },
   {
-  id: 'environment',
-  title: 'Environment',
-  emoji: '🌿',
-  description: 'Climate, nature and sustainability',
-  color: '#16a34a',
-  lessons: [
-    {
-      id: 'climate-change-everyday-life',
-      title: 'Climate Change and Everyday Life',
-      emoji: '🌍',
-      description: 'Causes, Effects and Solutions',
-      detail: 'Explore what climate change is, how it affects daily life around the world, and what we can all do.',
-      badges: ['4 parts', '12 questions'],
-      color: '#16a34a',
-    },
-  ]
-},
+    id: 'environment',
+    title: 'Environment',
+    emoji: '🌿',
+    description: 'Climate, nature and sustainability',
+    color: '#16a34a',
+    lessons: [
+      {
+        id: 'climate-change-everyday-life',
+        title: 'Climate Change and Everyday Life',
+        emoji: '🌍',
+        description: 'Causes, Effects and Solutions',
+        detail: 'Explore what climate change is, how it affects daily life around the world, and what we can all do.',
+        badges: ['4 parts', '12 questions'],
+        color: '#16a34a',
+      },
+    ]
+  },
   {
     id: 'work',
     title: 'Work & Careers',
