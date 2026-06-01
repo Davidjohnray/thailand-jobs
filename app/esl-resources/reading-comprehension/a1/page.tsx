@@ -31,11 +31,11 @@ const lessons = [
   subtitle: 'Rooms, furniture and favourite places',
   emoji: '🏠',
   topic: 'Daily Life',
-  topicColor: '#f59e0b',
-  parts: 2,
-  questions: 6,
-  preview: 'Read about Sara\'s apartment — her bedroom, living room and favourite things at home.',
-  gradient: 'linear-gradient(135deg, #92400e 0%, #f59e0b 100%)',
+  topicColor: '#22c55e',
+  parts: 1,
+  questions: 5,
+  preview: 'Read about Sara\'s apartment — her bedroom, living room and the park she can see from her window.',
+  gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
 },
 ]
 
