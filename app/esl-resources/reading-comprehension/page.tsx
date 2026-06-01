@@ -25,7 +25,7 @@ const LEVELS = [
     desc: 'Short passages on familiar topics with straightforward questions. Students can understand simple texts about everyday life.',
     who: 'Elementary students · Ages 10–12 · Basic English',
     features: [],
-    count: 0,
+    count: 2,
   },
   {
     code: 'b1',
