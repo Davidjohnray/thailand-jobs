@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { supabase } from '../../src/lib/supabase'
+import { supabase } from '../../../src/lib/supabase'
 
 const SUBJECTS = ['English', 'Maths', 'Science', 'Social Studies', 'Thai', 'Art', 'Music', 'PE', 'Other']
 const LEVELS = ['Kindergarten', 'Primary (P1–P3)', 'Primary (P4–P6)', 'Secondary', 'Adult / University', 'All levels']
