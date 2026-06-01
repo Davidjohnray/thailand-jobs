@@ -127,7 +127,7 @@ export default function LiveGamesHub() {
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flexShrink: 0 }}>
-            <Link href="/arcade/register"
+            <Link href="/arcade/activate"
               style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '15px', whiteSpace: 'nowrap', display: 'block', textAlign: 'center' }}>
               🕹️ Get Teacher Arcade →
             </Link>
@@ -187,7 +187,7 @@ export default function LiveGamesHub() {
               </div>
             </div>
           </div>
-          <Link href="/subscribe"
+          <Link href="/arcade/register"
             style={{ background: '#34d399', color: '#064e3b', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '14px', whiteSpace: 'nowrap', flexShrink: 0 }}>
             Get Bundle →
           </Link>
