@@ -25,6 +25,18 @@ const lessons = [
   preview: 'Read about a small family — father, mother and sister — and what they do together at the weekend.',
   gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
 },
+{
+  slug: 'my-home',
+  title: 'My Home',
+  subtitle: 'Rooms, furniture and favourite places',
+  emoji: '🏠',
+  topic: 'Daily Life',
+  topicColor: '#f59e0b',
+  parts: 2,
+  questions: 6,
+  preview: 'Read about Sara\'s apartment — her bedroom, living room and favourite things at home.',
+  gradient: 'linear-gradient(135deg, #92400e 0%, #f59e0b 100%)',
+},
 ]
 
 export default function A1ReadingPage() {
