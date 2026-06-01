@@ -13,6 +13,7 @@ const CATEGORIES = [
       { id: 'home-robots', title: 'AI-Powered Home Robots', emoji: '🤖', description: 'Living with Intelligent Machines', detail: 'Explore how AI robots are changing life at home, raising questions about privacy, trust and the future.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
       { id: 'holographic-display', title: 'Holographic Display Gadgets', emoji: '🔮', description: 'From Science Fiction to Reality', detail: 'Explore how holographic technology is moving from science fiction into business, education and everyday life.', badges: ['4 parts', '12 questions'], color: '#14b8a6' },
       { id: 'facial-recognition', title: 'Facial Recognition Technology', emoji: '👁️', description: 'Identity, Privacy and Bias', detail: 'Explore how AI identifies faces — and the growing debate over privacy, accuracy, and government regulation.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
+      { id: 'ai-in-healthcare', title: 'Artificial Intelligence in Healthcare', emoji: '🏥', description: 'Can Machines Help Heal Us?', detail: 'Explore how AI is transforming diagnosis, treatment and medicine — and the ethical questions that come with it.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
     ]
   },
   {
