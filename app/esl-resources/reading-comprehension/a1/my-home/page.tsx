@@ -1,13 +1,6 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-
-const SPEEDS = [
-  { label: '🐢 Very Slow', value: 0.45 },
-  { label: '🚶 Slow', value: 0.65 },
-  { label: '🏃 Normal', value: 0.85 },
-  { label: '⚡ Fast', value: 1.0 },
-]
 
 const LANGUAGES = [
   { value: 'none', label: '🌍 English only' },
@@ -25,44 +18,52 @@ const LANGUAGES = [
   { value: 'Indonesian', label: '🇮🇩 Indonesian' },
 ]
 
-const PARTS = [
-  {
-    number: 1, title: 'My Home', emoji: '🏠', color: '#f59e0b',
-    text: `My name is Sara. I live in an apartment. My apartment is on the third floor. It is not very big, but I love it.\n\nMy apartment has three rooms. There is a bedroom, a living room, and a kitchen. There is also a small bathroom. My bedroom is my favourite room. It is quiet and comfortable.\n\nI have a bed, a desk, and a wardrobe in my bedroom. I have a small window too. I can see a park from my window. In the morning, I open the window and I can hear the birds.`,
-    vocab: [
-      { word: 'apartment', definition: 'A set of rooms to live in, inside a bigger building.' },
-      { word: 'floor', definition: 'A level in a building — the first floor, second floor, third floor.' },
-      { word: 'comfortable', definition: 'Nice and relaxing — you feel good and happy there.' },
-      { word: 'wardrobe', definition: 'A large piece of furniture where you keep your clothes.' },
-    ],
-    questions: [
-      { n: 1, q: 'Do you live in an apartment or a house?' },
-      { n: 2, q: 'How many rooms does your home have?' },
-      { n: 3, q: 'What can you see from your window?' },
-    ]
-  },
-  {
-    number: 2, title: 'My Living Room', emoji: '🛋️', color: '#8b5cf6',
-    text: `The living room is the biggest room in my apartment. My family spends a lot of time there. We watch TV together in the evening. We also eat snacks and talk.\n\nIn my living room, there is a sofa, a television, and a coffee table. There are also some plants near the window. I love the plants. They make the room feel happy and bright.\n\nOn weekends, I sometimes read a book on the sofa. My cat sits next to me. It is very relaxing. The living room is a special place for my family.`,
-    vocab: [
-      { word: 'sofa', definition: 'A long, soft seat for two or more people — also called a couch.' },
-      { word: 'together', definition: 'With other people — not alone.' },
-      { word: 'plant', definition: 'A living thing with leaves and roots — you keep it in a pot inside your home.' },
-      { word: 'relaxing', definition: 'Calm and peaceful — it makes you feel less tired and less stressed.' },
-    ],
-    questions: [
-      { n: 4, q: 'What do you do in your living room?' },
-      { n: 5, q: 'Do you have any plants or pets in your home?' },
-      { n: 6, q: 'What is your favourite room at home? Why?' },
-    ]
-  },
+const VOCAB = [
+  { word: 'Apartment', meaning: 'A home inside a big building', emoji: '🏢' },
+  { word: 'Bedroom', meaning: 'The room where you sleep', emoji: '🛏️' },
+  { word: 'Living room', meaning: 'The room where you relax and watch TV', emoji: '🛋️' },
+  { word: 'Kitchen', meaning: 'The room where you cook food', emoji: '🍳' },
+  { word: 'Wardrobe', meaning: 'A big cupboard for your clothes', emoji: '👔' },
+  { word: 'Comfortable', meaning: 'Nice and relaxing — you feel good', emoji: '😌' },
 ]
 
-async function fetchTranslation(text: string, lang: string, type: 'word' | 'question' | 'message'): Promise<string> {
+const QUESTIONS = [
+  { q: 'Where does Sara live?', options: ['In a house', 'In an apartment', 'In a school'], answer: 1, emoji: '🏠' },
+  { q: 'What floor is Sara\'s apartment on?', options: ['The first floor', 'The second floor', 'The third floor'], answer: 2, emoji: '🏢' },
+  { q: 'How many rooms does Sara\'s apartment have?', options: ['Two rooms', 'Three rooms', 'Five rooms'], answer: 1, emoji: '🚪' },
+  { q: 'What is in Sara\'s bedroom?', options: ['A sofa and TV', 'A bed, desk and wardrobe', 'A table and chairs'], answer: 1, emoji: '🛏️' },
+  { q: 'What can Sara see from her window?', options: ['A school', 'A park', 'The sea'], answer: 1, emoji: '🪟' },
+]
+
+const PASSAGE = `My name is Sara.
+I live in an apartment.
+My apartment is on the third floor.
+It is not very big, but I love it.
+My apartment has three rooms.
+There is a bedroom, a living room, and a kitchen.
+There is also a small bathroom.
+My bedroom is my favourite room.
+It is quiet and comfortable.
+I have a bed, a desk, and a wardrobe in my bedroom.
+I have a small window too.
+I can see a park from my window.
+In the morning, I open the window.
+I can hear the birds.
+I love my home.`
+
+const LISTENING_SCRIPT = `Sara lives in an apartment. Her apartment is on the third floor. Her apartment has three rooms. Her favourite room is the bedroom. She has a bed and a desk. She can see a park from her window.`
+
+const SPEEDS = [
+  { label: '🐢 Very Slow', value: 0.45 },
+  { label: '🚶 Slow', value: 0.65 },
+  { label: '🏃 Normal', value: 0.85 },
+  { label: '⚡ Fast', value: 1.0 },
+]
+
+async function fetchTranslation(text: string, lang: string, type: 'vocab' | 'question'): Promise<string> {
   const systems: Record<string, string> = {
-    word: `You are a language learning assistant. Translate this English vocabulary entry to ${lang}. Return ONLY the translated word and a very short explanation in ${lang} (max 15 words). No extra text, no English.`,
-    question: `You are a translator. Translate this English question to ${lang}. Return ONLY the translated question. No extra text.`,
-    message: `You are a translator. Translate this English text to ${lang}. Return ONLY the translation. No extra text.`,
+    vocab: `You are a language learning assistant for A1 beginner English students. Translate this English word and its meaning to ${lang}. Return ONLY the translated word and its meaning in ${lang} (max 20 words). No English, no extra text.`,
+    question: `You are a translator. Translate this simple English question to ${lang}. Return ONLY the translated question. No extra text.`,
   }
   const res = await fetch('/api/chat', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -73,7 +74,7 @@ async function fetchTranslation(text: string, lang: string, type: 'word' | 'ques
 }
 
 function TranslateBtn({ text, type, lang, color, onTranslated }: {
-  text: string; type: 'word' | 'question' | 'message'; lang: string; color: string; onTranslated: (t: string) => void
+  text: string; type: 'vocab' | 'question'; lang: string; color: string; onTranslated: (t: string) => void
 }) {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
@@ -92,446 +93,400 @@ function TranslateBtn({ text, type, lang, color, onTranslated }: {
   )
 }
 
-type Message = { role: 'user' | 'assistant'; content: string; translation?: string }
+function speak(text: string, rate: number) {
+  if (typeof window === 'undefined') return
+  window.speechSynthesis.cancel()
+  const u = new SpeechSynthesisUtterance(text)
+  u.lang = 'en-GB'; u.rate = rate; u.pitch = 1
+  window.speechSynthesis.speak(u)
+}
 
-function ConversationBox({ question, color, translationLang }: { question: string; color: string; translationLang: string }) {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [listening, setListening] = useState(false)
-  const [interimText, setInterimText] = useState('')
-  const [open, setOpen] = useState(false)
-  const recognitionRef = useRef<any>(null)
-  const transcriptRef = useRef('')
-
-  const SYSTEM = `You are a very friendly and encouraging English teacher helping an A1 beginner student practise speaking. The topic is "My Home". The question is: "${question}". Use VERY simple English — short sentences, basic words only. Maximum 2 sentences in your reply. Always ask one simple follow-up question. If the student makes a grammar mistake, gently say "Good try! We say: ..." and give the correct sentence. Be very warm, patient and positive. Use simple emoji occasionally to feel friendly.`
-
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || loading) return
-    const userMsg: Message = { role: 'user', content: text.trim() }
-    const updated = [...messages, userMsg]
-    setMessages(updated); setInput(''); setLoading(true)
-    try {
-      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: SYSTEM, messages: updated.map(m => ({ role: m.role, content: m.content })) }) })
-      const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.content || 'Sorry, try again.' }])
-    } catch { setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }]) }
-    setLoading(false)
-  }
-
-  const setMessageTranslation = (idx: number, translation: string) => {
-    setMessages(prev => prev.map((m, i) => i === idx ? { ...m, translation } : m))
-  }
-
-  const startVoice = () => {
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SR) { alert('Voice input requires Chrome browser.'); return }
-    transcriptRef.current = ''
-    const r = new SR(); r.lang = 'en-US'; r.continuous = true; r.interimResults = true
-    r.onstart = () => { setListening(true); setInterimText('') }
-    r.onresult = (e: any) => {
-      let final = ''; let interim = ''
-      for (let i = 0; i < e.results.length; i++) {
-        if (e.results[i].isFinal) { final += e.results[i][0].transcript + ' ' }
-        else { interim += e.results[i][0].transcript }
-      }
-      transcriptRef.current = final; setInterimText(final + interim)
-    }
-    r.onerror = () => { setListening(false); setInterimText('') }
-    r.onend = () => {
-      setListening(false)
-      const text = transcriptRef.current.trim() || interimText.trim()
-      if (text) { setInterimText(''); transcriptRef.current = ''; sendMessage(text) }
-      else { setInterimText(''); transcriptRef.current = '' }
-    }
-    recognitionRef.current = r; r.start()
-  }
-
-  const stopVoice = () => { recognitionRef.current?.stop() }
-
-  if (!open) return (
-    <button onClick={() => setOpen(true)} style={{ marginTop: '10px', width: '100%', background: color + '12', border: `2px dashed ${color}40`, borderRadius: '12px', padding: '10px', color, fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-      🤖 Practice answering with AI
-    </button>
-  )
-
-  return (
-    <div style={{ marginTop: '10px', background: '#fffbeb', borderRadius: '14px', border: `2px solid ${color}30`, overflow: 'hidden' }}>
-      <div style={{ background: color, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>🤖 AI English Teacher</span>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <button onClick={() => setMessages([])} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>🔄 Reset</button>
-          <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>✕ Close</button>
-        </div>
-      </div>
-      {messages.length === 0 && (
-        <div style={{ padding: '14px 16px', color: '#6b7280', fontSize: '13px', lineHeight: '1.6', borderBottom: '1px solid #fde68a' }}>
-          💡 Try to answer in English! Type or use the 🎤 microphone button. Don&apos;t worry about mistakes — just try!
-        </div>
-      )}
-      {messages.length > 0 && (
-        <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '280px', overflowY: 'auto' }}>
-          {messages.map((m, i) => (
-            <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', flexDirection: m.role === 'user' ? 'row-reverse' : 'row' }}>
-              <div style={{ fontSize: '20px', flexShrink: 0 }}>{m.role === 'user' ? '🧑‍🎓' : '👩‍🏫'}</div>
-              <div style={{ maxWidth: '80%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                <div style={{ background: m.role === 'user' ? color : 'white', color: m.role === 'user' ? 'white' : '#374151', padding: '10px 14px', borderRadius: m.role === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px', fontSize: '14px', lineHeight: '1.6', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: m.role === 'assistant' ? '1px solid #fde68a' : 'none' }}>
-                  {m.content}
-                </div>
-                {m.role === 'assistant' && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {!m.translation && <TranslateBtn text={m.content} type="message" lang={translationLang} color={color} onTranslated={(t) => setMessageTranslation(i, t)} />}
-                  </div>
-                )}
-                {m.translation && (
-                  <div style={{ background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '10px', padding: '8px 12px', fontSize: '13px', color: '#374151', lineHeight: '1.5' }}>
-                    <span style={{ color: '#7c3aed', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '3px' }}>🌍 Translation</span>
-                    {m.translation}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-          {loading && (
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span style={{ fontSize: '20px' }}>👩‍🏫</span>
-              <div style={{ background: 'white', padding: '10px 14px', borderRadius: '4px 16px 16px 16px', fontSize: '14px', color: '#9ca3af', border: '1px solid #fde68a' }}>Thinking...</div>
-            </div>
-          )}
-        </div>
-      )}
-      <div style={{ padding: '12px 16px', borderTop: '1px solid #fde68a', display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-        <textarea value={input} onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) } }}
-          placeholder="Type your answer in English..." rows={2}
-          style={{ flex: 1, padding: '10px 12px', borderRadius: '10px', border: '2px solid #fde68a', fontSize: '14px', outline: 'none', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5', background: 'white' }} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <button onClick={listening ? stopVoice : startVoice}
-            style={{ background: listening ? '#ef4444' : '#22c55e', color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: listening ? '0 0 0 4px rgba(239,68,68,0.3)' : 'none', transition: 'all 0.2s' }}>
-            {listening ? '⏹' : '🎤'}
-          </button>
-          <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading}
-            style={{ background: input.trim() && !loading ? color : '#e5e7eb', color: input.trim() && !loading ? 'white' : '#9ca3af', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>➤</button>
-        </div>
-      </div>
-      {listening && (
-        <div style={{ padding: '10px 16px 14px', borderTop: '1px solid #fee2e2', background: '#fef2f2' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444', animation: 'pulse 1s infinite', flexShrink: 0 }} />
-              <span style={{ color: '#ef4444', fontSize: '12px', fontWeight: '700' }}>Recording... speak slowly and clearly!</span>
-            </div>
-            <button onClick={stopVoice} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>⏹ Stop & Send</button>
-          </div>
-          <div style={{ background: 'white', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: interimText ? '#374151' : '#9ca3af', lineHeight: '1.6', border: '1px solid #fca5a5', fontStyle: 'italic', minHeight: '40px' }}>
-            {interimText || 'Waiting for speech...'}
-          </div>
-        </div>
-      )}
-    </div>
-  )
+function stop() {
+  if (typeof window === 'undefined') return
+  window.speechSynthesis.cancel()
 }
 
 export default function MyHomePage() {
+  const [answers, setAnswers] = useState<(number | null)[]>(new Array(QUESTIONS.length).fill(null))
+  const [submitted, setSubmitted] = useState(false)
+  const [writing, setWriting] = useState({ type: '', rooms: '', favourite: '' })
+  const [section, setSection] = useState<'warmup' | 'reading' | 'vocab' | 'questions' | 'listening' | 'speaking' | 'writing'>('warmup')
+  const [listeningAnswers, setListeningAnswers] = useState({ q1: '', q2: '' })
   const [speed, setSpeed] = useState(0.65)
   const [translationLang, setTranslationLang] = useState('none')
-  const [selectedText, setSelectedText] = useState<string | null>(null)
-  const [lookupDef, setLookupDef] = useState('')
-  const [lookupTranslation, setLookupTranslation] = useState('')
-  const [lookupLoading, setLookupLoading] = useState(false)
   const [vocabTranslations, setVocabTranslations] = useState<Record<string, string>>({})
-  const [questionTranslations, setQuestionTranslations] = useState<Record<number, string>>({})
-
-  useEffect(() => {
-    const handleSelection = () => {
-      const sel = window.getSelection()
-      if (!sel) return
-      const text = sel.toString().trim().replace(/\s+/g, ' ')
-      if (!text || text.split(' ').length > 5) return
-      const anchor = sel.anchorNode?.parentElement
-      if (!anchor?.closest('[data-passage]')) return
-      handleLookup(text)
-    }
-    document.addEventListener('mouseup', handleSelection)
-    document.addEventListener('touchend', handleSelection)
-    return () => { document.removeEventListener('mouseup', handleSelection); document.removeEventListener('touchend', handleSelection) }
-  }, [translationLang])
-
-  const handleLookup = async (text: string) => {
-    if (!text || text.length < 2) return
-    setSelectedText(text); setLookupDef(''); setLookupTranslation(''); setLookupLoading(true)
-    speakWord(text)
-    const isPhrase = text.includes(' ')
-    try {
-      if (translationLang === 'none') {
-        const res = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system: `You are an English dictionary for A1 beginners. Use VERY simple English. Respond with ONLY one sentence (max 12 words). No extra text.`,
-            messages: [{ role: 'user', content: isPhrase ? `What does "${text}" mean? Very simple.` : `What is "${text}"? Very simple.` }],
-          }),
-        })
-        const data = await res.json()
-        setLookupDef(data.content || 'No definition found.')
-      } else {
-        const res = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system: `You are a language learning assistant for A1 English beginners. Respond ONLY with valid JSON (no markdown, no backticks): {"definition": "very simple English sentence max 12 words", "translation": "the word in ${translationLang} with a very short explanation in ${translationLang}, max 15 words"}`,
-            messages: [{ role: 'user', content: `Word: "${text}"` }],
-          }),
-        })
-        const data = await res.json()
-        try {
-          const parsed = JSON.parse(data.content)
-          setLookupDef(parsed.definition || 'No definition found.')
-          setLookupTranslation(parsed.translation || '')
-        } catch { setLookupDef(data.content || 'No definition found.'); setLookupTranslation('') }
-      }
-    } catch { setLookupDef('Could not load definition.') }
-    setLookupLoading(false)
-  }
-
-  function speakText(text: string) {
-    if (typeof window === 'undefined') return
-    window.speechSynthesis.cancel()
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text]
-    sentences.forEach(s => { const u = new SpeechSynthesisUtterance(s.trim()); u.lang = 'en-GB'; u.rate = speed; u.pitch = 1; window.speechSynthesis.speak(u) })
-  }
-
-  function speakWord(word: string) {
-    if (typeof window === 'undefined') return
-    window.speechSynthesis.cancel()
-    const u = new SpeechSynthesisUtterance(word); u.lang = 'en-GB'; u.rate = 0.75; u.pitch = 1
-    window.speechSynthesis.speak(u)
-  }
-
-  function stopAudio() { if (typeof window === 'undefined') return; window.speechSynthesis.cancel() }
+  const [speakingTranslations, setSpeakingTranslations] = useState<Record<number, string>>({})
+  const [warmupTranslations, setWarmupTranslations] = useState<Record<number, string>>({})
 
   const currentLang = LANGUAGES.find(l => l.value === translationLang)
 
+  const handleAnswer = (qIdx: number, optIdx: number) => {
+    if (submitted) return
+    setAnswers(prev => { const n = [...prev]; n[qIdx] = optIdx; return n })
+  }
+
+  const score = answers.filter((a, i) => a === QUESTIONS[i].answer).length
+  const allAnswered = answers.every(a => a !== null)
+
+  const SECTIONS = [
+    { id: 'warmup', label: '💬 Warm-up', color: '#f59e0b' },
+    { id: 'reading', label: '📖 Reading', color: '#3b82f6' },
+    { id: 'vocab', label: '📚 Vocab', color: '#8b5cf6' },
+    { id: 'questions', label: '❓ Questions', color: '#E85D26' },
+    { id: 'listening', label: '🔊 Listening', color: '#06b6d4' },
+    { id: 'speaking', label: '🗣️ Speaking', color: '#22c55e' },
+    { id: 'writing', label: '✍️ Writing', color: '#ec4899' },
+  ]
+
   return (
-    <main style={{ background: '#fffbeb', minHeight: '100vh' }}>
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}} @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
+    <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
 
       {/* HERO */}
-      <section style={{ background: 'linear-gradient(135deg, #92400e 0%, #d97706 50%, #fbbf24 100%)', padding: '48px 24px' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
-          <Link href="/esl-resources/reading-comprehension/a1" style={{ color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← A1 Reading Comprehension</Link>
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <div style={{ fontSize: '64px', flexShrink: 0 }}>🏠</div>
+      <section style={{ background: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)', padding: '48px 24px' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <Link href="/esl-resources/reading-comprehension/a1" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← A1 Reading Comprehension</Link>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <div style={{ fontSize: '72px', flexShrink: 0 }}>🏠</div>
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                <span style={{ background: 'rgba(255,255,255,0.3)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>A1 Beginner</span>
-                <span style={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>Daily Life</span>
-                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>2 Parts · 6 Questions</span>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                <span style={{ background: '#16a34a', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>A1 Beginner</span>
+                <span style={{ background: 'rgba(255,255,255,0.25)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>Daily Life</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>Lesson 3</span>
               </div>
-              <h1 style={{ color: 'white', fontSize: '30px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>My Home</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', margin: 0, lineHeight: '1.6' }}>Rooms, furniture and favourite places — read about Sara&apos;s apartment and practise talking about your own home.</p>
+              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>My Home</h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>
+                Learn to talk about your home — the rooms, furniture and your favourite place to relax.
+              </p>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '16px', marginTop: '24px', flexWrap: 'wrap' }}>
-            {[{ icon: '📖', label: '2 short passages' }, { icon: '💬', label: '6 questions' }, { icon: '📚', label: '8 new words' }, { icon: '🔊', label: 'Listen & read' }, { icon: '🌍', label: 'Translation' }, { icon: '🤖', label: 'AI teacher' }].map(s => (
-              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'rgba(255,255,255,0.8)', fontSize: '13px' }}><span>{s.icon}</span> {s.label}</div>
+          <div style={{ display: 'flex', gap: '20px', marginTop: '24px', flexWrap: 'wrap' }}>
+            {[{ icon: '📖', label: 'Short reading text' }, { icon: '📚', label: '6 vocabulary words' }, { icon: '❓', label: '5 comprehension questions' }, { icon: '🌍', label: '13-language translation' }, { icon: '✍️', label: 'Writing practice' }, { icon: '⏱️', label: '30–45 min lesson' }].map(s => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}><span>{s.icon}</span> {s.label}</div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CONTROLS */}
-      <section style={{ background: 'white', borderBottom: '2px solid #fde68a', padding: '12px 24px' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
-            {SPEEDS.map(s => (
-              <button key={s.value} onClick={() => setSpeed(s.value)}
-                style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#f59e0b' : '#e5e7eb', background: speed === s.value ? '#f59e0b' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+      {/* STICKY NAV */}
+      <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '10px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+            {SECTIONS.map(s => (
+              <button key={s.id} onClick={() => setSection(s.id as any)}
+                style={{ padding: '5px 12px', borderRadius: '20px', border: 'none', background: section === s.id ? s.color : '#f0f0f0', color: section === s.id ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
                 {s.label}
               </button>
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🌍 Translate:</span>
-            <select value={translationLang} onChange={e => { setTranslationLang(e.target.value); setVocabTranslations({}); setQuestionTranslations({}) }}
-              style={{ padding: '5px 12px', borderRadius: '20px', border: '2px solid', borderColor: translationLang !== 'none' ? '#f59e0b' : '#e5e7eb', background: translationLang !== 'none' ? '#fffbeb' : 'white', color: translationLang !== 'none' ? '#92400e' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', outline: 'none' }}>
-              {LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-            </select>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
+              {SPEEDS.map(s => (
+                <button key={s.value} onClick={() => setSpeed(s.value)}
+                  style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#16a34a' : '#e5e7eb', background: speed === s.value ? '#16a34a' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🌍 Translate to:</span>
+              <select value={translationLang} onChange={e => { setTranslationLang(e.target.value); setVocabTranslations({}); setSpeakingTranslations({}); setWarmupTranslations({}) }}
+                style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: translationLang !== 'none' ? '#16a34a' : '#e5e7eb', background: translationLang !== 'none' ? '#f0fdf4' : 'white', color: translationLang !== 'none' ? '#15803d' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', outline: 'none' }}>
+                {LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+              </select>
+            </div>
           </div>
-          <div style={{ color: '#f59e0b', fontSize: '12px', fontWeight: '600' }}>✍️ Tap any word to look it up</div>
         </div>
       </section>
 
-      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {PARTS.map(part => (
-          <div key={part.number} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.08)' }}>
+      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-            {/* Part header */}
-            <div style={{ background: `linear-gradient(135deg, ${part.color}20, ${part.color}08)`, borderLeft: `5px solid ${part.color}`, padding: '18px 24px', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ background: part.color, color: 'white', width: '34px', height: '34px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '16px', flexShrink: 0 }}>{part.number}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: part.color, fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>Part {part.number}</div>
-                <h2 style={{ color: '#1a1a2e', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{part.emoji} {part.title}</h2>
-              </div>
-              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                <button onClick={() => speakText(part.text.replace(/\n\n/g, ' '))}
-                  style={{ background: part.color, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxShadow: `0 3px 10px ${part.color}40` }}>
-                  ▶ Listen
-                </button>
-                <button onClick={stopAudio}
-                  style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 10px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
-                  ⏹
-                </button>
-              </div>
+        {/* WARM-UP */}
+        {section === 'warmup' && (
+          <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #f59e0b22, #f59e0b08)', borderLeft: '5px solid #f59e0b', padding: '20px 24px' }}>
+              <div style={{ color: '#f59e0b', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Step 1 — 3 to 5 minutes</div>
+              <h2 style={{ color: '#1a1a2e', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>💬 Warm-up Questions</h2>
             </div>
-
-            {/* Hint bar */}
-            <div style={{ background: `${part.color}10`, padding: '7px 24px', borderBottom: `1px solid ${part.color}20` }}>
-              <span style={{ color: part.color, fontSize: '12px', fontWeight: '600' }}>
-                ✍️ Tap any word to hear it and see what it means
-                {translationLang !== 'none' && currentLang && <span> + {currentLang.label}</span>}
-              </span>
-            </div>
-
-            {/* Passage */}
-            <div data-passage="true" style={{ padding: '22px 24px 18px', userSelect: 'text', cursor: 'text' }}>
-              {part.text.split('\n\n').map((para, i) => (
-                <p key={i} style={{ color: '#374151', fontSize: '17px', lineHeight: '2', margin: i === 0 ? '0 0 16px' : '0', fontFamily: 'Georgia, serif', fontWeight: '400' }}>{para}</p>
-              ))}
-            </div>
-
-            {/* Vocabulary */}
-            <div style={{ margin: '0 24px 24px', background: part.color + '08', border: `1px solid ${part.color}25`, borderRadius: '14px', overflow: 'hidden' }}>
-              <div style={{ background: part.color + '20', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: `1px solid ${part.color}20` }}>
-                <span style={{ fontSize: '15px' }}>📚</span>
-                <span style={{ color: part.color, fontWeight: 'bold', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>New Words</span>
-              </div>
-              <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {part.vocab.map((v, i) => {
-                  const vKey = `${part.number}-${v.word}`
-                  return (
-                    <div key={v.word} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', paddingBottom: i < part.vocab.length - 1 ? '10px' : '0', borderBottom: i < part.vocab.length - 1 ? `1px solid ${part.color}15` : 'none' }}>
-                      <div style={{ background: part.color, color: 'white', width: '22px', height: '22px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '11px', flexShrink: 0, marginTop: '2px' }}>{i + 1}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
-                          <span data-passage="true" style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px', userSelect: 'text', cursor: 'text' }}>{v.word}</span>
-                          <button onClick={() => speakWord(v.word)} style={{ background: part.color + '15', color: part.color, border: `1px solid ${part.color}30`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0 }}>🔊</button>
-                          <TranslateBtn text={`Word: "${v.word}". Meaning: "${v.definition}"`} type="word" lang={translationLang} color={part.color}
-                            onTranslated={(t) => setVocabTranslations(prev => ({ ...prev, [vKey]: t }))} />
-                        </div>
-                        <span data-passage="true" style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5', userSelect: 'text' }}>{v.definition}</span>
-                        {vocabTranslations[vKey] && (
-                          <div style={{ marginTop: '6px', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '8px', padding: '7px 12px' }}>
-                            <span style={{ color: '#7c3aed', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '2px' }}>{currentLang?.label}</span>
-                            <span style={{ color: '#374151', fontSize: '14px', lineHeight: '1.5' }}>{vocabTranslations[vKey]}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Questions */}
-            <div style={{ background: '#1a1a2e', padding: '18px 24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <span style={{ fontSize: '16px' }}>💬</span>
-                <span style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>Questions</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {part.questions.map(q => (
-                  <div key={q.n}>
+            <div style={{ padding: '24px 28px' }}>
+              <p style={{ color: '#555', fontSize: '15px', marginBottom: '20px', lineHeight: '1.6' }}>Ask your student these questions. Short answers are fine — one word or a simple sentence.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[
+                  { q: 'Do you live in a house or an apartment?', hint: 'e.g. I live in an apartment. / A house.' },
+                  { q: 'How many rooms does your home have?', hint: 'e.g. Three rooms. / Five.' },
+                  { q: 'What is your favourite room at home?', hint: 'e.g. My bedroom. / The living room.' }
+                ].map((item, i) => (
+                  <div key={i} style={{ background: '#fffbeb', borderRadius: '14px', padding: '16px 20px', border: '2px solid #fde68a' }}>
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                      <div style={{ background: part.color, color: 'white', width: '26px', height: '26px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '13px', flexShrink: 0, marginTop: '1px' }}>{q.n}</div>
+                      <div style={{ background: '#f59e0b', color: 'white', width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>{i + 1}</div>
                       <div style={{ flex: 1 }}>
-                        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '15px', lineHeight: '1.6', margin: '0 0 6px', fontWeight: '500' }}>{q.q}</p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <TranslateBtn text={q.q} type="question" lang={translationLang} color={part.color}
-                            onTranslated={(t) => setQuestionTranslations(prev => ({ ...prev, [q.n]: t }))} />
-                          {translationLang === 'none' && <span style={{ color: '#4b5563', fontSize: '11px' }}>← select a language above to translate</span>}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                          <div style={{ fontWeight: '700', fontSize: '17px', color: '#1a1a2e' }}>{item.q}</div>
+                          <TranslateBtn text={item.q} type="question" lang={translationLang} color="#f59e0b"
+                            onTranslated={(t) => setWarmupTranslations(prev => ({ ...prev, [i]: t }))} />
+                          {translationLang === 'none' && <span style={{ color: '#d1d5db', fontSize: '11px' }}>← select a language</span>}
                         </div>
-                        {questionTranslations[q.n] && (
-                          <div style={{ marginTop: '8px', background: `${part.color}20`, border: `1px solid ${part.color}40`, borderRadius: '10px', padding: '9px 14px' }}>
-                            <span style={{ color: part.color, fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '3px' }}>{currentLang?.label}</span>
-                            <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px', lineHeight: '1.6' }}>{questionTranslations[q.n]}</span>
+                        <div style={{ color: '#92400e', fontSize: '13px' }}>💡 {item.hint}</div>
+                        {warmupTranslations[i] && (
+                          <div style={{ marginTop: '8px', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '8px', padding: '8px 12px' }}>
+                            <span style={{ color: '#7c3aed', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '2px' }}>{currentLang?.label}</span>
+                            <span style={{ color: '#374151', fontSize: '15px' }}>{warmupTranslations[i]}</span>
                           </div>
                         )}
                       </div>
-                    </div>
-                    <div style={{ marginLeft: '38px' }}>
-                      <ConversationBox question={q.q} color={part.color} translationLang={translationLang} />
                     </div>
                   </div>
                 ))}
               </div>
+              <button onClick={() => setSection('reading')} style={{ width: '100%', marginTop: '20px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(245,158,11,0.4)' }}>Ready! → Start Reading</button>
             </div>
-
           </div>
-        ))}
+        )}
 
-        {/* Writing practice */}
-        <div style={{ background: 'white', borderRadius: '20px', padding: '28px 24px', boxShadow: '0 2px 16px rgba(0,0,0,0.08)', border: '2px solid #fde68a' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-            <span style={{ fontSize: '24px' }}>✍️</span>
-            <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Writing Practice</h3>
-          </div>
-          <p style={{ color: '#555', fontSize: '15px', lineHeight: '1.7', margin: '0 0 16px' }}>
-            Write 3–5 sentences about your home. Try to use words from this lesson!
-          </p>
-          <div style={{ background: '#fffbeb', borderRadius: '12px', padding: '16px', border: '2px dashed #fde68a' }}>
-            <p style={{ color: '#92400e', fontSize: '14px', fontWeight: '700', margin: '0 0 8px' }}>Try to write:</p>
-            {[
-              'I live in a _____ (house / apartment).',
-              'My home has _____ rooms.',
-              'My favourite room is the _____.',
-              'In my _____, there is a _____.',
-              'I like my home because _____.',
-            ].map((prompt, i) => (
-              <div key={i} style={{ color: '#78350f', fontSize: '14px', lineHeight: '1.8', display: 'flex', gap: '8px' }}>
-                <span style={{ color: '#f59e0b', fontWeight: 'bold', flexShrink: 0 }}>{i + 1}.</span> {prompt}
+        {/* READING */}
+        {section === 'reading' && (
+          <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #3b82f622, #3b82f608)', borderLeft: '5px solid #3b82f6', padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: '#3b82f6', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Step 2 — Read Together</div>
+                <h2 style={{ color: '#1a1a2e', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📖 My Home</h2>
               </div>
-            ))}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => speak(PASSAGE, speed)} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(59,130,246,0.4)' }}>▶ Play</button>
+                <button onClick={stop} style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>⏹ Stop</button>
+              </div>
+            </div>
+            <div style={{ padding: '28px' }}>
+              <div style={{ background: '#f8faff', borderRadius: '16px', padding: '24px', border: '1px solid #e0e7ff' }}>
+                {PASSAGE.split('\n').map((line, i) => (
+                  <p key={i} style={{ color: '#1e3a5f', fontSize: '18px', lineHeight: '2.1', margin: '0 0 2px', fontFamily: 'Georgia, serif' }}>{line}</p>
+                ))}
+              </div>
+              <button onClick={() => setSection('vocab')} style={{ width: '100%', marginTop: '20px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(59,130,246,0.4)' }}>→ Study Vocabulary</button>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div style={{ textAlign: 'center', paddingBottom: selectedText ? '140px' : '16px' }}>
-          <Link href="/esl-resources/reading-comprehension/a1" style={{ color: '#f59e0b', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to A1 Lessons</Link>
+        {/* VOCAB */}
+        {section === 'vocab' && (
+          <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #8b5cf622, #8b5cf608)', borderLeft: '5px solid #8b5cf6', padding: '20px 24px' }}>
+              <div style={{ color: '#8b5cf6', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Step 3 — Key Words</div>
+              <h2 style={{ color: '#1a1a2e', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>📚 Vocabulary</h2>
+            </div>
+            <div style={{ padding: '24px 28px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+                {VOCAB.map(v => (
+                  <div key={v.word} style={{ background: '#faf5ff', borderRadius: '14px', padding: '16px', border: '2px solid #e9d5ff' }}>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                      <div style={{ fontSize: '36px', flexShrink: 0 }}>{v.emoji}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '16px' }}>{v.word}</span>
+                          <button onClick={() => speak(v.word, speed)} style={{ background: '#8b5cf615', color: '#8b5cf6', border: '1px solid #8b5cf630', padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700' }}>🔊</button>
+                          <TranslateBtn text={`${v.word}: ${v.meaning}`} type="vocab" lang={translationLang} color="#8b5cf6"
+                            onTranslated={(t) => setVocabTranslations(prev => ({ ...prev, [v.word]: t }))} />
+                          {translationLang === 'none' && <span style={{ color: '#d1d5db', fontSize: '11px' }}>← translate</span>}
+                        </div>
+                        <div style={{ color: '#6b7280', fontSize: '14px' }}>{v.meaning}</div>
+                        {vocabTranslations[v.word] && (
+                          <div style={{ marginTop: '8px', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '8px', padding: '8px 10px' }}>
+                            <span style={{ color: '#7c3aed', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '2px' }}>{currentLang?.label}</span>
+                            <span style={{ color: '#374151', fontSize: '14px', lineHeight: '1.5' }}>{vocabTranslations[v.word]}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setSection('questions')} style={{ width: '100%', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(139,92,246,0.4)' }}>→ Answer the Questions</button>
+            </div>
+          </div>
+        )}
+
+        {/* QUESTIONS */}
+        {section === 'questions' && (
+          <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #E85D2622, #E85D2608)', borderLeft: '5px solid #E85D26', padding: '20px 24px' }}>
+              <div style={{ color: '#E85D26', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Step 4 — Choose the Correct Answer</div>
+              <h2 style={{ color: '#1a1a2e', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>❓ Reading Comprehension</h2>
+            </div>
+            <div style={{ padding: '24px 28px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '24px' }}>
+                {QUESTIONS.map((q, qi) => (
+                  <div key={qi} style={{ background: '#f9fafb', borderRadius: '16px', padding: '20px', border: submitted && answers[qi] === q.answer ? '2px solid #22c55e' : submitted && answers[qi] !== q.answer ? '2px solid #ef4444' : '2px solid #e5e7eb' }}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '14px' }}>
+                      <span style={{ fontSize: '24px' }}>{q.emoji}</span>
+                      <div style={{ fontWeight: '700', fontSize: '16px', color: '#1a1a2e', lineHeight: '1.4' }}><span style={{ color: '#E85D26', marginRight: '6px' }}>{qi + 1}.</span>{q.q}</div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {q.options.map((opt, oi) => {
+                        const isSelected = answers[qi] === oi; const isCorrect = oi === q.answer
+                        let bg = 'white', border = '#e5e7eb', color = '#374151'
+                        if (submitted) { if (isCorrect) { bg = '#dcfce7'; border = '#16a34a'; color = '#14532d' } else if (isSelected && !isCorrect) { bg = '#fee2e2'; border = '#ef4444'; color = '#7f1d1d' } } else if (isSelected) { bg = '#eff6ff'; border = '#3b82f6'; color = '#1e3a5f' }
+                        return (
+                          <button key={oi} onClick={() => handleAnswer(qi, oi)} disabled={submitted}
+                            style={{ background: bg, border: `2px solid ${border}`, borderRadius: '10px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: submitted ? 'default' : 'pointer', transition: 'all 0.2s', textAlign: 'left' }}>
+                            <span style={{ background: border, color: isSelected || (submitted && isCorrect) ? 'white' : '#9ca3af', width: '26px', height: '26px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '13px', flexShrink: 0 }}>
+                              {submitted && isCorrect ? '✓' : submitted && isSelected && !isCorrect ? '✗' : String.fromCharCode(97 + oi)}
+                            </span>
+                            <span style={{ fontWeight: '600', fontSize: '15px', color }}>{opt}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {!submitted ? (
+                <button onClick={() => setSubmitted(true)} disabled={!allAnswered}
+                  style={{ width: '100%', background: allAnswered ? 'linear-gradient(135deg, #E85D26, #f97316)' : '#e5e7eb', color: allAnswered ? 'white' : '#9ca3af', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: allAnswered ? 'pointer' : 'not-allowed', boxShadow: allAnswered ? '0 4px 14px rgba(232,93,38,0.4)' : 'none' }}>
+                  {allAnswered ? '✅ Check My Answers' : 'Answer all questions first'}
+                </button>
+              ) : (
+                <div>
+                  <div style={{ background: score === QUESTIONS.length ? '#dcfce7' : score >= 3 ? '#fffbeb' : '#fee2e2', borderRadius: '16px', padding: '20px', textAlign: 'center', marginBottom: '16px', border: `2px solid ${score === QUESTIONS.length ? '#16a34a' : score >= 3 ? '#f59e0b' : '#ef4444'}` }}>
+                    <div style={{ fontSize: '48px', marginBottom: '8px' }}>{score === QUESTIONS.length ? '🏆' : score >= 3 ? '⭐' : '💪'}</div>
+                    <div style={{ fontWeight: '900', fontSize: '24px', color: '#1a1a2e', marginBottom: '4px' }}>{score} out of {QUESTIONS.length} correct!</div>
+                    <div style={{ color: '#555', fontSize: '15px' }}>{score === QUESTIONS.length ? 'Perfect — well done!' : score >= 3 ? 'Good work! Review the wrong answers.' : 'Keep trying — read the passage again!'}</div>
+                  </div>
+                  <button onClick={() => setSection('listening')} style={{ width: '100%', background: 'linear-gradient(135deg, #06b6d4, #0891b2)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(6,182,212,0.4)' }}>→ Listening Practice</button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* LISTENING */}
+        {section === 'listening' && (
+          <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #06b6d422, #06b6d408)', borderLeft: '5px solid #06b6d4', padding: '20px 24px' }}>
+              <div style={{ color: '#06b6d4', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Step 5 — Listen Carefully</div>
+              <h2 style={{ color: '#1a1a2e', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🔊 Listening Practice</h2>
+            </div>
+            <div style={{ padding: '24px 28px' }}>
+              <p style={{ color: '#555', fontSize: '15px', marginBottom: '20px', lineHeight: '1.6' }}>Listen to the passage and answer the two questions below.</p>
+              <div style={{ background: '#ecfeff', borderRadius: '16px', padding: '20px', marginBottom: '20px', border: '2px solid #67e8f9' }}>
+                <div style={{ color: '#0e7490', fontSize: '13px', fontWeight: '700', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>🎧 Listening Script</div>
+                {LISTENING_SCRIPT.split('. ').filter(Boolean).map((s, i, arr) => (
+                  <p key={i} style={{ color: '#164e63', fontSize: '17px', lineHeight: '1.9', margin: '0 0 4px', fontFamily: 'Georgia, serif' }}>{s}{i < arr.length - 1 ? '.' : ''}</p>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                <button onClick={() => speak(LISTENING_SCRIPT, speed)} style={{ background: '#06b6d4', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: '700', fontSize: '15px', cursor: 'pointer', boxShadow: '0 3px 10px rgba(6,182,212,0.4)' }}>▶ Play Listening</button>
+                <button onClick={stop} style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '12px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>⏹ Stop</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
+                {[
+                  { label: 'What floor is Sara\'s apartment on?', key: 'q1' as const, placeholder: 'e.g. The third floor' },
+                  { label: 'What is Sara\'s favourite room?', key: 'q2' as const, placeholder: 'e.g. The bedroom' }
+                ].map((item, i) => (
+                  <div key={i} style={{ background: '#f0fdfa', borderRadius: '14px', padding: '16px 20px', border: '2px solid #99f6e4' }}>
+                    <div style={{ fontWeight: '700', fontSize: '16px', color: '#1a1a2e', marginBottom: '10px' }}><span style={{ color: '#06b6d4', marginRight: '6px' }}>{i + 1}.</span>{item.label}</div>
+                    <input value={listeningAnswers[item.key]} onChange={e => setListeningAnswers(prev => ({ ...prev, [item.key]: e.target.value }))} placeholder={item.placeholder}
+                      style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '2px solid #67e8f9', fontSize: '16px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Georgia, serif', color: '#1a1a2e' }} />
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setSection('speaking')} style={{ width: '100%', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(34,197,94,0.4)' }}>→ Speaking Practice</button>
+            </div>
+          </div>
+        )}
+
+        {/* SPEAKING */}
+        {section === 'speaking' && (
+          <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #22c55e22, #22c55e08)', borderLeft: '5px solid #22c55e', padding: '20px 24px' }}>
+              <div style={{ color: '#22c55e', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Step 6 — Speak in Full Sentences</div>
+              <h2 style={{ color: '#1a1a2e', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🗣️ Speaking Practice</h2>
+            </div>
+            <div style={{ padding: '24px 28px' }}>
+              <div style={{ background: '#f0fdf4', borderRadius: '14px', padding: '16px 20px', border: '2px solid #86efac', marginBottom: '20px' }}>
+                <div style={{ color: '#15803d', fontSize: '13px', fontWeight: '700', marginBottom: '6px' }}>📝 Model sentences:</div>
+                <div style={{ color: '#14532d', fontSize: '16px', fontWeight: '700', fontFamily: 'Georgia, serif', lineHeight: '1.8' }}>I live in an apartment.<br />My favourite room is the bedroom.</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
+                {[
+                  { q: 'Do you live in a house or an apartment?', hint: 'I live in a _____ .', emoji: '🏠' },
+                  { q: 'How many rooms does your home have?', hint: 'My home has _____ rooms.', emoji: '🚪' },
+                  { q: 'What is your favourite room? What is in it?', hint: 'My favourite room is the _____. It has a _____ .', emoji: '🛋️' }
+                ].map((item, i) => (
+                  <div key={i} style={{ background: '#f0fdf4', borderRadius: '14px', padding: '16px 20px', border: '2px solid #86efac' }}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: '28px', flexShrink: 0 }}>{item.emoji}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                          <div style={{ fontWeight: '700', fontSize: '17px', color: '#1a1a2e' }}>{item.q}</div>
+                          <TranslateBtn text={item.q} type="question" lang={translationLang} color="#22c55e"
+                            onTranslated={(t) => setSpeakingTranslations(prev => ({ ...prev, [i]: t }))} />
+                          {translationLang === 'none' && <span style={{ color: '#d1d5db', fontSize: '11px' }}>← select a language</span>}
+                        </div>
+                        {speakingTranslations[i] && (
+                          <div style={{ marginBottom: '6px', background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '8px', padding: '8px 10px' }}>
+                            <span style={{ color: '#7c3aed', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '2px' }}>{currentLang?.label}</span>
+                            <span style={{ color: '#374151', fontSize: '15px' }}>{speakingTranslations[i]}</span>
+                          </div>
+                        )}
+                        <div style={{ color: '#16a34a', fontSize: '14px', fontStyle: 'italic' }}>💡 {item.hint}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setSection('writing')} style={{ width: '100%', background: 'linear-gradient(135deg, #ec4899, #be185d)', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(236,72,153,0.4)' }}>→ Writing Practice</button>
+            </div>
+          </div>
+        )}
+
+        {/* WRITING */}
+        {section === 'writing' && (
+          <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #ec489922, #ec489908)', borderLeft: '5px solid #ec4899', padding: '20px 24px' }}>
+              <div style={{ color: '#ec4899', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Step 7 — Complete the Sentences</div>
+              <h2 style={{ color: '#1a1a2e', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>✍️ Writing Practice</h2>
+            </div>
+            <div style={{ padding: '24px 28px' }}>
+              <p style={{ color: '#555', fontSize: '15px', marginBottom: '20px' }}>Complete the sentences about <strong>your own</strong> home.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                {[
+                  { label: 'I live in a', suffix: '.', key: 'type' as const, placeholder: 'house / apartment', emoji: '🏠' },
+                  { label: 'My home has', suffix: 'rooms.', key: 'rooms' as const, placeholder: 'e.g. three / four', emoji: '🚪' },
+                  { label: 'My favourite room is the', suffix: '.', key: 'favourite' as const, placeholder: 'e.g. bedroom / living room', emoji: '⭐' }
+                ].map(item => (
+                  <div key={item.key} style={{ background: '#fdf2f8', borderRadius: '14px', padding: '16px 20px', border: '2px solid #f9a8d4' }}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '28px' }}>{item.emoji}</span>
+                      <span style={{ fontWeight: '700', fontSize: '16px', color: '#1a1a2e' }}>{item.label} <span style={{ color: '#9ca3af' }}>___________</span> {item.suffix}</span>
+                    </div>
+                    <input value={writing[item.key]} onChange={e => setWriting(prev => ({ ...prev, [item.key]: e.target.value }))} placeholder={item.placeholder}
+                      style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '2px solid #f9a8d4', fontSize: '16px', outline: 'none', boxSizing: 'border-box', fontFamily: 'Georgia, serif', color: '#1a1a2e' }} />
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: '#1a1a2e', borderRadius: '16px', padding: '24px' }}>
+                <div style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>🎓 Lesson Outcome — A1 Can-Do</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {[
+                    'Read a short text about a home ✅',
+                    'Understand basic home vocabulary ✅',
+                    'Answer simple comprehension questions ✅',
+                    'Talk about your own home using simple sentences ✅'
+                  ].map((item, i) => (
+                    <div key={i} style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <span style={{ color: '#22c55e', fontWeight: '900' }}>✓</span> {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div style={{ textAlign: 'center', paddingBottom: '16px' }}>
+          <Link href="/esl-resources/reading-comprehension/a1" style={{ color: '#E85D26', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to A1 Reading Comprehension</Link>
         </div>
       </div>
-
-      {/* WORD LOOKUP POPUP */}
-      {selectedText && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 200, animation: 'slideUp 0.25s ease' }}>
-          <div style={{ maxWidth: '760px', margin: '0 auto', background: 'white', borderRadius: '20px 20px 0 0', padding: '18px 24px 28px', boxShadow: '0 -8px 32px rgba(0,0,0,0.2)', border: '2px solid #fde68a', borderBottom: 'none' }}>
-            <div style={{ width: '36px', height: '4px', background: '#fde68a', borderRadius: '4px', margin: '0 auto 14px' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '22px', fontWeight: '900', color: '#92400e', fontFamily: 'Georgia, serif' }}>"{selectedText}"</span>
-                <button onClick={() => speakWord(selectedText)} style={{ background: '#fffbeb', color: '#92400e', border: '2px solid #fde68a', padding: '5px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>🔊 Hear it</button>
-              </div>
-              <button onClick={() => setSelectedText(null)} style={{ background: '#f3f4f6', border: 'none', width: '30px', height: '30px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', flexShrink: 0 }}>✕</button>
-            </div>
-            {lookupLoading ? (
-              <div style={{ background: '#fffbeb', borderRadius: '12px', padding: '14px 18px', border: '1px solid #fde68a', color: '#9ca3af', fontSize: '15px' }}>Looking up...</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {lookupDef && (
-                  <div style={{ background: '#fffbeb', borderRadius: '12px', padding: '14px 18px', border: '1px solid #fde68a' }}>
-                    <div style={{ color: '#92400e', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>📖 Meaning</div>
-                    <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{lookupDef}</span>
-                  </div>
-                )}
-                {translationLang !== 'none' && lookupTranslation && (
-                  <div style={{ background: '#fdf4ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #e9d5ff' }}>
-                    <div style={{ color: '#7c3aed', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>{currentLang?.label}</div>
-                    <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{lookupTranslation}</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </main>
   )
 }
