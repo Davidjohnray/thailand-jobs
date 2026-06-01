@@ -76,9 +76,9 @@ function FeaturedAdCard({ ad }: { ad: Ad }) {
         <span style={{ color: 'white', fontSize: '11px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Featured</span>
       </div>
       {ad.banner_url ? (
-        <div style={{ width: '100%', aspectRatio: '1 / 1', overflow: 'hidden' }}>
-          <img src={ad.banner_url} alt={ad.business_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
+        <div style={{ width: '250px', height: '250px', overflow: 'hidden', margin: '0 auto' }}>
+  <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service" style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
+</div>
       ) : (
         <div style={{ padding: '24px 20px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '8px', minHeight: '200px', justifyContent: 'center', background: 'linear-gradient(135deg, #fffbeb, #fff)' }}>
           <span style={{ background: cat.bg, color: cat.color, fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '20px' }}>{ad.category}</span>
