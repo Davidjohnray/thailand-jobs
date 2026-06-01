@@ -11,7 +11,8 @@ const LEVELS = [
     emoji: '🌱',
     desc: 'Simple texts with basic vocabulary and short sentences. Ideal for students just starting their English journey.',
     who: 'Complete beginners · Young learners · New to English',
-    count: 2,
+    features: ['Warm-up questions', 'Audio playback', 'Vocabulary + translation', 'Writing practice'],
+    count: 5,
   },
   {
     code: 'a2',
@@ -23,6 +24,7 @@ const LEVELS = [
     emoji: '🌿',
     desc: 'Short passages on familiar topics with straightforward questions. Students can understand simple texts about everyday life.',
     who: 'Elementary students · Ages 10–12 · Basic English',
+    features: [],
     count: 0,
   },
   {
@@ -34,8 +36,9 @@ const LEVELS = [
     shadow: 'rgba(245,158,11,0.3)',
     emoji: '📘',
     desc: 'Clear texts on a range of topics. Students can understand the main points and express opinions on familiar subjects.',
-    who: 'Teen & adult learners · General English · IELTS 4.0–5.0',
-    count: 4,
+    who: 'Teen & adult learners · General English · IELTS 4.0–5.5',
+    features: ['4-part extended passages', 'Audio + 4 speeds', '13-language translation', 'AI conversation partner'],
+    count: 5,
   },
   {
     code: 'b2',
@@ -46,8 +49,9 @@ const LEVELS = [
     shadow: 'rgba(59,130,246,0.3)',
     emoji: '📗',
     desc: 'Complex texts on concrete and abstract topics. Students can discuss ideas, give opinions and follow detailed arguments.',
-    who: 'Adult learners · University prep · IELTS 5.5–6.5',
-    count: 6,
+    who: 'Adult learners · University prep · IELTS 5.5–7.0',
+    features: ['4-part extended passages', 'Word highlight & lookup', '13-language translation', 'AI conversation partner'],
+    count: 7,
   },
   {
     code: 'c1',
@@ -59,6 +63,7 @@ const LEVELS = [
     emoji: '📙',
     desc: 'Demanding texts on complex topics with nuanced vocabulary. Students can understand and evaluate detailed arguments.',
     who: 'Advanced learners · Professional English · IELTS 7.0–8.0',
+    features: [],
     count: 0,
   },
   {
@@ -71,6 +76,7 @@ const LEVELS = [
     emoji: '🏆',
     desc: 'Sophisticated academic and professional texts. Students can understand virtually everything read with ease and precision.',
     who: 'Near-native · Academic English · IELTS 8.5+',
+    features: [],
     count: 0,
   },
 ]
@@ -86,10 +92,10 @@ export default function ReadingComprehensionPage() {
           <div style={{ fontSize: '52px', marginBottom: '16px' }}>📖</div>
           <h1 style={{ color: 'white', fontSize: '38px', fontWeight: 'bold', margin: '0 0 12px' }}>Reading Comprehension</h1>
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '17px', margin: '0 0 24px', lineHeight: '1.6', maxWidth: '580px', marginLeft: 'auto', marginRight: 'auto' }}>
-            Engaging reading passages with discussion questions and vocabulary — levelled from A1 to C2.
+            Engaging reading passages with audio, vocabulary, translation and AI conversation — levelled from A1 to C2.
           </p>
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {['💬 Discussion Questions', '📚 Vocabulary', '🎯 A1 – C2 Levels', '📱 Screen Optimised', '👤 1-to-1 Classes'].map(tag => (
+            {['🔊 Audio Playback', '🌍 13-Language Translation', '🤖 AI Conversation', '📚 Vocabulary Included', '🎯 A1 – C2 Levels', '👤 1-to-1 Classes'].map(tag => (
               <span key={tag} style={{ background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)', fontSize: '13px', padding: '6px 14px', borderRadius: '20px', fontWeight: '600' }}>{tag}</span>
             ))}
           </div>
@@ -104,7 +110,7 @@ export default function ReadingComprehensionPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
           {LEVELS.map(level => (
             <Link key={level.code} href={`/esl-resources/reading-comprehension/${level.code}`} style={{ textDecoration: 'none' }}>
-              <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee' }}>
+              <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee', height: '100%', display: 'flex', flexDirection: 'column' }}>
 
                 {/* Card Header */}
                 <div style={{ background: level.bg, padding: '28px 24px', position: 'relative' }}>
@@ -119,14 +125,21 @@ export default function ReadingComprehensionPage() {
                 </div>
 
                 {/* Card Body */}
-                <div style={{ padding: '20px 24px' }}>
+                <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <p style={{ color: '#555', fontSize: '14px', lineHeight: '1.6', margin: '0 0 12px' }}>{level.desc}</p>
-                  <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '8px 12px', marginBottom: '16px' }}>
+                  <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '8px 12px', marginBottom: '12px' }}>
                     <div style={{ color: '#888', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Suitable for</div>
                     <div style={{ color: '#374151', fontSize: '13px', fontWeight: '600' }}>{level.who}</div>
                   </div>
-                  <div style={{ background: level.color + '15', borderRadius: '10px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: `1px solid ${level.color}30` }}>
-                    <span style={{ color: level.color, fontWeight: 'bold', fontSize: '14px' }}>
+                  {level.features.length > 0 && (
+                    <div style={{ marginBottom: '14px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {level.features.map(f => (
+                        <span key={f} style={{ background: level.color + '12', color: level.color, fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', border: `1px solid ${level.color}25` }}>✓ {f}</span>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ marginTop: 'auto', background: level.count === 0 ? '#f3f4f6' : level.color + '15', borderRadius: '10px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: `1px solid ${level.count === 0 ? '#e5e7eb' : level.color + '30'}` }}>
+                    <span style={{ color: level.count === 0 ? '#9ca3af' : level.color, fontWeight: 'bold', fontSize: '14px' }}>
                       {level.count === 0 ? 'Coming Soon' : `Browse ${level.label} Lessons →`}
                     </span>
                     <span style={{ fontSize: '16px' }}>{level.count === 0 ? '⏳' : '📖'}</span>
@@ -143,10 +156,10 @@ export default function ReadingComprehensionPage() {
       <section style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 24px 48px' }}>
         <div style={{ background: 'white', borderRadius: '16px', padding: '32px 36px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           {[
-            { icon: '💬', title: 'Discussion Focused', desc: 'Every passage ends with opinion and discussion questions to spark real conversation.' },
-            { icon: '📚', title: 'Vocabulary Included', desc: 'Key words with clear definitions built into every lesson — no dictionary needed.' },
-            { icon: '🎯', title: 'Levelled A1–C2', desc: 'Every lesson is tagged with a CEFR level so you can match it to your student.' },
-            { icon: '👤', title: '1-to-1 Optimised', desc: 'Designed for private tutoring and small group classes — screen-based, no printing.' },
+            { icon: '🔊', title: 'Audio at 4 Speeds', desc: 'Every lesson has audio playback at Very Slow, Slow, Normal and Fast — perfect for all levels.' },
+            { icon: '🌍', title: '13-Language Translation', desc: 'Translate vocabulary and questions into Thai, Japanese, Chinese, Korean and 9 more languages instantly.' },
+            { icon: '🤖', title: 'AI Conversation Partner', desc: 'Students can practise speaking with an AI teacher on every discussion question — with gentle corrections.' },
+            { icon: '👤', title: '1-to-1 Optimised', desc: 'Designed for private tutoring and small group classes — fully screen-based, no printing needed.' },
           ].map(item => (
             <div key={item.title} style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '32px', marginBottom: '8px' }}>{item.icon}</div>

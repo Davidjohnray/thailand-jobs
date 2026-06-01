@@ -37,6 +37,30 @@ const lessons = [
   preview: 'Read about Sara\'s apartment — her bedroom, living room and the park she can see from her window.',
   gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
 },
+{
+  slug: 'my-food',
+  title: 'My Food',
+  subtitle: 'Meals, food and what you like to eat',
+  emoji: '🍜',
+  topic: 'Food',
+  topicColor: '#22c55e',
+  parts: 1,
+  questions: 5,
+  preview: 'Read about Tom\'s meals and favourite food — breakfast, lunch, dinner and delicious noodles.',
+  gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
+},
+{
+  slug: 'my-school',
+  title: 'My School',
+  subtitle: 'Your teacher, class and favourite subjects',
+  emoji: '🏫',
+  topic: 'School',
+  topicColor: '#22c55e',
+  parts: 1,
+  questions: 5,
+  preview: 'Read about Sara\'s school, her teacher Mr Lee, and her favourite subject English.',
+  gradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
+},
 ]
 
 export default function A1ReadingPage() {
