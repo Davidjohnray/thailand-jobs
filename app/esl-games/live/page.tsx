@@ -187,7 +187,7 @@ export default function LiveGamesHub() {
               </div>
             </div>
           </div>
-          <Link href="/arcade/register"
+          <Link href="/arcade/activate"
             style={{ background: '#34d399', color: '#064e3b', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '14px', whiteSpace: 'nowrap', flexShrink: 0 }}>
             Get Bundle →
           </Link>

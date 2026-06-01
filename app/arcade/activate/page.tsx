@@ -25,20 +25,20 @@ export default function ArcadeActivatePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setForm(prev => ({ ...prev, [name]: value }))
     if (name === 'display_name') {
       const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 20)
       setForm(prev => ({ ...prev, display_name: value, arcade_slug: slug }))
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }))
     }
-    if (name === 'arcade_slug') {
-      setSlugError('')
-    }
+    if (name === 'arcade_slug') setSlugError('')
   }
 
   const checkCode = async () => {
     const trimmed = code.trim().toUpperCase()
     if (!trimmed) { setCodeError('Please enter your activation code.'); return }
     setCheckingCode(true); setCodeError('')
+
     const { data, error } = await supabase
       .from('teacher_activation_codes')
       .select('*')
@@ -50,22 +50,23 @@ export default function ArcadeActivatePage() {
     if (data.used) { setCodeError('This code has already been used. Each code is for one teacher only.'); setCheckingCode(false); return }
     if (new Date(data.expires_at) < new Date()) { setCodeError('This code has expired. Please contact us to renew.'); setCheckingCode(false); return }
 
-    // Check if already registered
-    const { data: existing } = await supabase
-      .from('teacher_profiles')
-      .select('*')
-      .eq('user_email', data.buyer_email || '')
-      .single()
+    // Only check for existing profile if the code has an email
+    if (data.buyer_email) {
+      const { data: existing } = await supabase
+        .from('teacher_profiles')
+        .select('id')
+        .eq('user_email', data.buyer_email)
+        .maybeSingle()
 
-    if (existing) {
-      setCodeError('An arcade account already exists for this email. Please log in at /arcade/dashboard.')
-      setCheckingCode(false); return
+      if (existing) {
+        setCodeError('An arcade account already exists for this email. Please log in at /arcade/dashboard.')
+        setCheckingCode(false); return
+      }
     }
 
     setValidCode(data)
-    setForm(prev => ({ ...prev, display_name: data.buyer_name || '' }))
-    const slug = (data.buyer_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 20)
-    setForm(prev => ({ ...prev, arcade_slug: slug }))
+    const nameSlug = (data.buyer_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 20)
+    setForm(prev => ({ ...prev, display_name: data.buyer_name || '', arcade_slug: nameSlug }))
     setCheckingCode(false)
     setStep('profile')
   }
@@ -82,7 +83,7 @@ export default function ArcadeActivatePage() {
       .from('teacher_profiles')
       .select('id')
       .eq('arcade_slug', slug)
-      .single()
+      .maybeSingle()
 
     if (slugCheck) { setSlugError('This arcade name is already taken. Please choose another.'); setSaving(false); return }
 
@@ -90,11 +91,13 @@ export default function ArcadeActivatePage() {
     const expires = new Date()
     expires.setDate(expires.getDate() + 30)
 
-    // Create teacher profile
+    // Use email if provided, otherwise use slug as identifier
+    const userEmail = validCode.buyer_email || `${slug}@arcade.local`
+
     const { data: profile, error } = await supabase
       .from('teacher_profiles')
       .insert([{
-        user_email: validCode.buyer_email || `${slug}@arcade.local`,
+        user_email: userEmail,
         display_name: form.display_name.trim(),
         subject: form.subject,
         class_level: form.class_level,
@@ -110,7 +113,11 @@ export default function ArcadeActivatePage() {
     // Mark code as used
     await supabase
       .from('teacher_activation_codes')
-      .update({ used: true, used_by_email: validCode.buyer_email || slug, used_at: new Date().toISOString() })
+      .update({
+        used: true,
+        used_by_email: userEmail,
+        used_at: new Date().toISOString(),
+      })
       .eq('id', validCode.id)
 
     setSavedProfile(profile)
@@ -160,7 +167,8 @@ export default function ArcadeActivatePage() {
           <div style={{ background: 'white', borderRadius: '20px', padding: '36px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#1a1a2e', marginBottom: '8px' }}>Enter Your Activation Code</h2>
             <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px', lineHeight: '1.6' }}>
-              You received this code after payment. It looks like <span style={{ fontFamily: 'monospace', fontWeight: '800', color: '#f59e0b', background: '#fffbeb', padding: '2px 8px', borderRadius: '6px' }}>TCH-XXXX-XXXX</span>
+              You received this code after payment. It looks like{' '}
+              <span style={{ fontFamily: 'monospace', fontWeight: '800', color: '#f59e0b', background: '#fffbeb', padding: '2px 8px', borderRadius: '6px' }}>TCH-XXXX-XXXX</span>
             </p>
             <div style={{ marginBottom: '16px' }}>
               <input
@@ -174,11 +182,12 @@ export default function ArcadeActivatePage() {
               {codeError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '8px 0 0', textAlign: 'center' }}>{codeError}</p>}
             </div>
             <button onClick={checkCode} disabled={checkingCode || !code.trim()}
-              style={{ width: '100%', background: checkingCode || !code.trim() ? '#e5e7eb' : 'linear-gradient(135deg, #f59e0b, #d97706)', color: checkingCode || !code.trim() ? '#9ca3af' : '#1a1a2e', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: checkingCode || !code.trim() ? 'not-allowed' : 'pointer', boxShadow: checkingCode || !code.trim() ? 'none' : '0 6px 20px rgba(245,158,11,0.4)', transition: 'all 0.2s' }}>
+              style={{ width: '100%', background: checkingCode || !code.trim() ? '#e5e7eb' : 'linear-gradient(135deg, #f59e0b, #d97706)', color: checkingCode || !code.trim() ? '#9ca3af' : '#1a1a2e', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: checkingCode || !code.trim() ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
               {checkingCode ? 'Checking...' : 'Activate Code →'}
             </button>
             <p style={{ color: '#9ca3af', fontSize: '12px', textAlign: 'center', marginTop: '16px' }}>
-              Don&apos;t have a code? <a href="https://wa.me/66871033821" target="_blank" rel="noopener noreferrer" style={{ color: '#f59e0b', fontWeight: '700', textDecoration: 'none' }}>Get Teacher Arcade →</a>
+              Don&apos;t have a code?{' '}
+              <a href="https://wa.me/66871033821" target="_blank" rel="noopener noreferrer" style={{ color: '#f59e0b', fontWeight: '700', textDecoration: 'none' }}>Get Teacher Arcade →</a>
             </p>
           </div>
         )}
@@ -208,9 +217,13 @@ export default function ArcadeActivatePage() {
                 <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Your Arcade Name (URL) *</label>
                 <div style={{ display: 'flex', alignItems: 'center', border: `2px solid ${slugError ? '#ef4444' : '#e5e7eb'}`, borderRadius: '10px', overflow: 'hidden', background: 'white' }}>
                   <span style={{ background: '#f3f4f6', padding: '12px 14px', color: '#9ca3af', fontSize: '13px', fontWeight: '600', borderRight: '1px solid #e5e7eb', whiteSpace: 'nowrap', flexShrink: 0 }}>arcade/</span>
-                  <input name="arcade_slug" value={form.arcade_slug} onChange={e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20); setForm(prev => ({ ...prev, arcade_slug: v })); setSlugError('') }}
+                  <input
+                    name="arcade_slug"
+                    value={form.arcade_slug}
+                    onChange={e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20); setForm(prev => ({ ...prev, arcade_slug: v })); setSlugError('') }}
                     placeholder="mrjohn"
-                    style={{ flex: 1, padding: '12px 14px', border: 'none', fontSize: '15px', outline: 'none', fontWeight: '700', color: '#1a1a2e', fontFamily: 'monospace' }} />
+                    style={{ flex: 1, padding: '12px 14px', border: 'none', fontSize: '15px', outline: 'none', fontWeight: '700', color: '#1a1a2e', fontFamily: 'monospace' }}
+                  />
                 </div>
                 {slugError && <p style={{ color: '#ef4444', fontSize: '12px', margin: '4px 0 0' }}>{slugError}</p>}
                 {!slugError && form.arcade_slug && <p style={{ color: '#22c55e', fontSize: '12px', margin: '4px 0 0', fontWeight: '600' }}>Your arcade: jobsinthailand.net/arcade/{form.arcade_slug}</p>}
@@ -234,7 +247,7 @@ export default function ArcadeActivatePage() {
             </div>
 
             <button onClick={saveProfile} disabled={saving || !form.display_name.trim() || !form.arcade_slug.trim()}
-              style={{ width: '100%', marginTop: '24px', background: saving || !form.display_name.trim() ? '#e5e7eb' : 'linear-gradient(135deg, #0f172a, #1e3a5f)', color: saving || !form.display_name.trim() ? '#9ca3af' : 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: saving || !form.display_name.trim() ? 'not-allowed' : 'pointer', boxShadow: saving ? 'none' : '0 6px 20px rgba(0,0,0,0.3)', transition: 'all 0.2s' }}>
+              style={{ width: '100%', marginTop: '24px', background: saving || !form.display_name.trim() ? '#e5e7eb' : 'linear-gradient(135deg, #0f172a, #1e3a5f)', color: saving || !form.display_name.trim() ? '#9ca3af' : 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: saving || !form.display_name.trim() ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
               {saving ? 'Creating Your Arcade...' : 'Create My Arcade 🕹️'}
             </button>
           </div>
@@ -246,7 +259,7 @@ export default function ArcadeActivatePage() {
             <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
             <h2 style={{ fontSize: '24px', fontWeight: '900', color: '#1a1a2e', marginBottom: '8px' }}>Your Arcade is Ready!</h2>
             <p style={{ color: '#666', fontSize: '15px', marginBottom: '24px', lineHeight: '1.6' }}>
-              Welcome to Teacher Arcade, <strong>{savedProfile.display_name}</strong>! Your subscription is active for 30 days.
+              Welcome, <strong>{savedProfile.display_name}</strong>! Your 30-day subscription is now active.
             </p>
 
             <div style={{ background: '#fffbeb', border: '2px solid #fde68a', borderRadius: '14px', padding: '20px', marginBottom: '24px' }}>
@@ -254,7 +267,7 @@ export default function ArcadeActivatePage() {
               <div style={{ fontFamily: 'monospace', fontSize: '17px', fontWeight: '900', color: '#1a1a2e', marginBottom: '4px' }}>
                 jobsinthailand.net/arcade/{savedProfile.arcade_slug}
               </div>
-              <div style={{ color: '#92400e', fontSize: '12px' }}>Share this with your students so they can find your games</div>
+              <div style={{ color: '#92400e', fontSize: '12px' }}>Share this with your students</div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -268,11 +281,11 @@ export default function ArcadeActivatePage() {
               </a>
             </div>
 
-            <div style={{ marginTop: '20px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px', padding: '14px' }}>
+            <div style={{ marginTop: '20px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px', padding: '14px', textAlign: 'left' }}>
               <div style={{ color: '#14532d', fontSize: '13px', fontWeight: '700', marginBottom: '6px' }}>⚠️ Important — Save this information</div>
               <div style={{ color: '#15803d', fontSize: '12px', lineHeight: '1.6' }}>
-                Bookmark <strong>/arcade/dashboard</strong> — this is how you access your games.<br />
-                Your subscription expires: <strong>{new Date(savedProfile.subscription_expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+                Bookmark <strong>/arcade/dashboard</strong> to access your games anytime.<br />
+                Subscription expires: <strong>{new Date(savedProfile.subscription_expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
               </div>
             </div>
           </div>
