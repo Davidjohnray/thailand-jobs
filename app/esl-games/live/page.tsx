@@ -11,7 +11,6 @@ const games = [
     age: 'Ages 5+',
     time: '10-15 min',
   },
-  
   {
     slug: 'word-scramble',
     title: 'Word Scramble Race',
@@ -58,25 +57,23 @@ const games = [
     time: '5-10 min',
   },
   {
-  slug: 'animals',
-  emoji: '🐾',
-  title: 'Animal Match',
-  desc: 'Find the right animal! Perfect for young learners. Big pictures, simple choices.',
-  topics: ['Animals', 'Vocabulary', 'Listening'],
-  ages: 'KG – P2',
-  questions: '20 questions',
-  color: '#f59e0b',
-},
-{
-  slug: 'colours-shapes',
-  emoji: '🌈',
-  title: 'Colours & Shapes',
-  desc: 'Learn colours and shapes! Big visuals, perfect for young learners.',
-  topics: ['Colours', 'Shapes', 'Vocabulary'],
-  ages: 'KG – P2',
-  questions: '20 questions',
-  color: '#8b5cf6',
-},
+    slug: 'animals',
+    emoji: '🐾',
+    title: 'Animal Match',
+    desc: 'Find the right animal! Perfect for young learners. Big pictures, simple choices.',
+    topics: ['Animals', 'Vocabulary', 'Listening'],
+    age: 'KG – P2',
+    time: '10-15 min',
+  },
+  {
+    slug: 'colours-shapes',
+    emoji: '🌈',
+    title: 'Colours & Shapes',
+    desc: 'Learn colours and shapes! Big visuals, perfect for young learners.',
+    topics: ['Colours', 'Shapes', 'Vocabulary'],
+    age: 'KG – P2',
+    time: '10-15 min',
+  },
 ]
 
 const modes = [
@@ -106,21 +103,93 @@ export default function LiveGamesHub() {
         </div>
       </div>
 
+      {/* TEACHER ARCADE BANNER */}
+      <div style={{ background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', padding: '28px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
+            <div style={{ fontSize: '48px' }}>🕹️</div>
+            <div>
+              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', marginBottom: '4px' }}>
+                Teacher Arcade — Build Your Own Games!
+                <span style={{ marginLeft: '10px', background: '#f59e0b', color: '#1a1a2e', fontSize: '11px', fontWeight: '800', padding: '3px 10px', borderRadius: '20px', verticalAlign: 'middle' }}>NEW</span>
+              </div>
+              <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '14px', lineHeight: '1.6' }}>
+                Create custom vocab games, quizzes and picture rounds for your class. Your own arcade page at{' '}
+                <span style={{ color: '#38bdf8', fontWeight: '600' }}>arcade/yourname</span>.{' '}
+                Solo, TV mode or live multiplayer for up to 40 students.
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+                <span style={{ background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>🎮 Vocab Blast</span>
+                <span style={{ background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>📝 Quiz Master</span>
+                <span style={{ background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>🖼️ Picture Quiz</span>
+                <span style={{ background: 'rgba(255,255,255,0.1)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>✅ True or False</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flexShrink: 0 }}>
+            <Link href="/arcade/register"
+              style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '15px', whiteSpace: 'nowrap', display: 'block', textAlign: 'center' }}>
+              🕹️ Get Teacher Arcade →
+            </Link>
+            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textAlign: 'right' }}>
+              <span style={{ color: '#fbbf24', fontWeight: '800' }}>฿99/month</span>
+              {' · '}
+              <span style={{ color: '#34d399', fontWeight: '700' }}>Bundle with Premium ฿159</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* PREMIUM BANNER */}
-      <div style={{ background: 'linear-gradient(135deg, #7C3AED, #5b21b6)', padding: '32px 24px' }}>
+      <div style={{ background: 'linear-gradient(135deg, #7C3AED, #5b21b6)', padding: '28px 24px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
             <div style={{ fontSize: '48px' }}>⭐</div>
             <div>
-              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', marginBottom: '4px' }}>Premium Games — Coming Soon!</div>
-              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', lineHeight: '1.5' }}>
-                Exclusive premium games for ESL teachers. One-time payment of <strong style={{ color: '#fbbf24' }}>฿199</strong> — lifetime access with new games added regularly.
+              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', marginBottom: '4px' }}>Premium ESL Games</div>
+              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', lineHeight: '1.6' }}>
+                Exclusive premium games for ESL teachers. New games added every month.
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '8px', flexWrap: 'wrap' }}>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>🐾 Animal Kingdom</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>⚡ Electricity</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>🏋️ Sports & Games</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '3px 10px', borderRadius: '20px' }}>+ More monthly</span>
               </div>
             </div>
           </div>
-          <Link href="/esl-games/live/premium"
-            style={{ background: '#fbbf24', color: '#1a1a2e', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px', whiteSpace: 'nowrap', flexShrink: 0 }}>
-            🔓 Unlock Premium →
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flexShrink: 0 }}>
+            <Link href="/esl-games/live/premium"
+              style={{ background: '#fbbf24', color: '#1a1a2e', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px', whiteSpace: 'nowrap', display: 'block', textAlign: 'center' }}>
+              🔓 Unlock Premium →
+            </Link>
+            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textAlign: 'right' }}>
+              <span style={{ color: '#fbbf24', fontWeight: '800' }}>฿99/month</span>
+              {' · '}
+              <span style={{ color: '#34d399', fontWeight: '700' }}>Bundle with Arcade ฿159</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* BUNDLE OFFER */}
+      <div style={{ background: 'linear-gradient(135deg, #064e3b, #065f46)', padding: '20px 24px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ fontSize: '36px' }}>🎁</div>
+            <div>
+              <div style={{ color: 'white', fontWeight: '800', fontSize: '17px', marginBottom: '2px' }}>
+                Bundle Deal — Premium + Teacher Arcade
+                <span style={{ marginLeft: '8px', background: '#34d399', color: '#064e3b', fontSize: '11px', fontWeight: '800', padding: '2px 8px', borderRadius: '20px', verticalAlign: 'middle' }}>SAVE ฿39</span>
+              </div>
+              <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '13px' }}>
+                Get both subscriptions together for just <span style={{ color: '#34d399', fontWeight: '800' }}>฿159/month</span> — instead of ฿198 separately
+              </div>
+            </div>
+          </div>
+          <Link href="/subscribe"
+            style={{ background: '#34d399', color: '#064e3b', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '14px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Get Bundle →
           </Link>
         </div>
       </div>
