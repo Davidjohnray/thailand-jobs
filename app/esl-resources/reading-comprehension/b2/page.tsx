@@ -14,6 +14,7 @@ const CATEGORIES = [
       { id: 'holographic-display', title: 'Holographic Display Gadgets', emoji: '🔮', description: 'From Science Fiction to Reality', detail: 'Explore how holographic technology is moving from science fiction into business, education and everyday life.', badges: ['4 parts', '12 questions'], color: '#14b8a6' },
       { id: 'facial-recognition', title: 'Facial Recognition Technology', emoji: '👁️', description: 'Identity, Privacy and Bias', detail: 'Explore how AI identifies faces — and the growing debate over privacy, accuracy, and government regulation.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
       { id: 'ai-in-healthcare', title: 'Artificial Intelligence in Healthcare', emoji: '🏥', description: 'Can Machines Help Heal Us?', detail: 'Explore how AI is transforming diagnosis, treatment and medicine — and the ethical questions that come with it.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
+      { id: 'electric-vehicles', title: 'Electric Vehicles and the Future of Transport', emoji: '⚡', description: 'The Road Ahead', detail: 'Explore the rise of EVs, their environmental impact, infrastructure challenges, and what the future of transport might look like.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
     ]
   },
   {
