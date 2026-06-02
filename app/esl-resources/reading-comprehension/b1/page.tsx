@@ -45,6 +45,24 @@ const CATEGORIES = [
         badges: ['4 parts', '12 questions'],
         color: '#f59e0b',
       },
+      {
+  id: 'working-from-home',
+  title: 'Working from Home',
+  emoji: '🏡',
+  description: 'Advantages and Disadvantages',
+  detail: 'Explore how remote work has changed our lives — and whether working from home is really better than going to the office.',
+  badges: ['4 parts', '12 questions'],
+  color: '#0ea5e9',
+},
+{
+  id: 'tourism',
+  title: 'Tourism',
+  emoji: '✈️',
+  description: 'Good or Bad for Local Communities?',
+  detail: 'Explore the benefits and problems that tourism brings to local communities, and how we can travel in a better way.',
+  badges: ['4 parts', '12 questions'],
+  color: '#f59e0b',
+},
     ]
   },
   {
