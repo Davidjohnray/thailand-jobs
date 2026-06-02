@@ -1,4 +1,5 @@
 'use client'
+import { use } from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../../../src/lib/supabase'
@@ -32,8 +33,9 @@ function genRoomCode() {
   return Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
 }
 
-export default function HostPage({ params }: { params: { slug: string; gameId: string } }) {
-  const { slug, gameId } = params
+export default function HostPage({ params }: { params: any }) {
+  const { slug, gameId } = use(params) as { slug: string; gameId: string }
+
   const [game, setGame] = useState<any>(null)
   const [questions, setQuestions] = useState<any[]>([])
   const [room, setRoom] = useState<any>(null)

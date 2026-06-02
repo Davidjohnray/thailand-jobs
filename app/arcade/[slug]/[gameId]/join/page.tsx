@@ -1,4 +1,5 @@
 'use client'
+import { use } from 'react'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../../../src/lib/supabase'
@@ -27,8 +28,9 @@ function normalizeQuestions(raw: any[], gameType: string) {
   })
 }
 
-export default function JoinPage({ params }: { params: { slug: string; gameId: string } }) {
-  const { slug, gameId } = params
+export default function JoinPage({ params }: { params: any }) {
+  const { slug, gameId } = use(params) as { slug: string; gameId: string }
+
   const [phase, setPhase] = useState<'enter_code' | 'enter_name' | 'waiting' | 'playing' | 'answered' | 'revealed' | 'finished'>('enter_code')
   const [roomCode, setRoomCode] = useState('')
   const [nickname, setNickname] = useState('')
