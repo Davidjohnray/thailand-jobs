@@ -126,12 +126,10 @@ export default function Navbar() {
             {servicesOpen && (
               <div style={dropdownStyle}>
                 {[
-                  { href: '/rentals', label: '🏠 Rentals' },
                   { href: '/teachers', label: '🎓 Teachers Directory' },
                   { href: '/training', label: '📚 Training' },
                   { href: '/cv-builder', label: '📄 CV Builder' },
                   { href: '/esl-resources', label: '📖 ESL Resources' },
-                  { href: '/esl-games', label: '🎮 ESL Games' },
                   { href: '/expat-services', label: '🏙️ Expat Services' },
                 ].map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setServicesOpen(false)}
@@ -173,6 +171,12 @@ export default function Navbar() {
                   📖 ESL Resources
                 </Link>
                 <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
+                <Link href="/arcade/landing" onClick={() => setLearnOpen(false)}
+                  style={{ ...dropdownLinkStyle, color: '#E85D26', fontWeight: '800' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#fff3ed')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  🎪 Teacher Arcade
+                </Link>
                 <Link href="/arcade/dashboard" onClick={() => setLearnOpen(false)}
                   style={{ ...dropdownLinkStyle, color: '#d97706', fontWeight: '700' }}
                   onMouseEnter={e => (e.currentTarget.style.background = '#fffbeb')}
@@ -275,12 +279,10 @@ export default function Navbar() {
           {mobileServicesOpen && (
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {[
-                { href: '/rentals', label: '🏠 Rentals' },
                 { href: '/teachers', label: '🎓 Teachers Directory' },
                 { href: '/training', label: '📚 Training' },
                 { href: '/cv-builder', label: '📄 CV Builder' },
                 { href: '/esl-resources', label: '📖 ESL Resources' },
-                { href: '/esl-games', label: '🎮 ESL Games' },
                 { href: '/expat-services', label: '🏙️ Expat Services' },
                 { href: '/advertise', label: '📢 Advertise With Us' },
               ].map(item => (
@@ -306,6 +308,10 @@ export default function Navbar() {
               <Link href="/esl-resources" onClick={closeMobile}
                 style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
                 📖 ESL Resources
+              </Link>
+              <Link href="/arcade/landing" onClick={closeMobile}
+                style={{ display: 'block', color: '#fed7aa', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', fontWeight: '800' }}>
+                🎪 Teacher Arcade
               </Link>
               <Link href="/arcade/dashboard" onClick={closeMobile}
                 style={{ display: 'block', color: '#fbbf24', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', fontWeight: '700' }}>
@@ -348,12 +354,10 @@ export default function Navbar() {
                 👤 Login / Register
               </Link>
             )}
-
             <Link href="/employers" onClick={closeMobile}
               style={{ display: 'block', color: '#E85D26', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'white', fontWeight: 'bold', textAlign: 'center' }}>
               + Post a Job
             </Link>
-
             <Link href="/admin" onClick={closeMobile}
               style={{ display: 'block', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '13px', padding: '8px 14px', textAlign: 'center' }}>
               🔐 Admin
