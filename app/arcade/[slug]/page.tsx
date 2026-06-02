@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 
@@ -10,14 +10,15 @@ const gameTypeLabel: Record<string, string> = {
   picture_quiz: '🖼️ Picture Quiz',
 }
 
-export default function ArcadePublicPage({ params }: { params: { slug: string } }) {
-  const { slug } = params
+export default function ArcadePublicPage({ params }: { params: any }) {
+  const { slug } = use(params) as { slug: string }
   const [teacher, setTeacher] = useState<any>(null)
   const [games, setGames] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
+    if (!slug) return
     const load = async () => {
       const { data: profile } = await supabase
         .from('teacher_profiles')
@@ -63,27 +64,18 @@ export default function ArcadePublicPage({ params }: { params: { slug: string } 
 
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)' }}>
-
-      {/* HERO */}
       <section style={{ padding: '48px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: '64px', marginBottom: '16px' }}>🕹️</div>
         <h1 style={{ color: 'white', fontSize: '32px', fontWeight: '900', margin: '0 0 8px' }}>
           {teacher.display_name}&apos;s Arcade
         </h1>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '12px' }}>
-          <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>
-            📚 {teacher.subject}
-          </span>
-          <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>
-            👥 {teacher.class_level}
-          </span>
-          <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>
-            🎮 {games.length} game{games.length !== 1 ? 's' : ''} available
-          </span>
+          <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>📚 {teacher.subject}</span>
+          <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>👥 {teacher.class_level}</span>
+          <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>🎮 {games.length} game{games.length !== 1 ? 's' : ''} available</span>
         </div>
       </section>
 
-      {/* GAMES GRID */}
       <section style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px 60px' }}>
         {games.length === 0 ? (
           <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '60px 24px', textAlign: 'center' }}>
@@ -95,7 +87,7 @@ export default function ArcadePublicPage({ params }: { params: { slug: string } 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
             {games.map(game => (
               <Link key={game.id} href={`/arcade/${slug}/${game.id}`} style={{ textDecoration: 'none' }}>
-                <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '18px', padding: '28px 24px', border: '2px solid rgba(255,255,255,0.12)', cursor: 'pointer', transition: 'all 0.2s', backdropFilter: 'blur(10px)' }}
+                <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '18px', padding: '28px 24px', border: '2px solid rgba(255,255,255,0.12)', cursor: 'pointer', transition: 'all 0.2s' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}>
                   <div style={{ fontSize: '40px', marginBottom: '14px' }}>

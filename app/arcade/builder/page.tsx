@@ -13,6 +13,12 @@ const GAME_TYPES = [
 
 const TIMERS = [10, 15, 20, 30, 45, 60]
 
+const MODES = [
+  { id: 'solo_enabled', label: '👤 Solo Play', desc: 'Students play individually on their own device at their own pace.' },
+  { id: 'tv_enabled', label: '📺 TV Classroom Mode', desc: 'Teacher shows on the big screen. Students answer by hand — no phones needed.' },
+  { id: 'multiplayer_enabled', label: '📱 Multiplayer', desc: 'Students join with a room code on their phones. Live leaderboard for up to 40 students.' },
+]
+
 function emptyQuestion(type: string) {
   if (type === 'vocab_blast') return { word: '', definition: '', distractor1: '', distractor2: '', distractor3: '' }
   if (type === 'quiz_master') return { question: '', option_a: '', option_b: '', option_c: '', option_d: '', correct: 'a' }
@@ -29,12 +35,13 @@ function BuilderContent() {
 
   const [teacher, setTeacher] = useState<any>(null)
   const [authError, setAuthError] = useState('')
-
-  // Game settings
   const [title, setTitle] = useState('')
   const [gameType, setGameType] = useState('vocab_blast')
   const [timerSeconds, setTimerSeconds] = useState(20)
   const [showVocabLesson, setShowVocabLesson] = useState(false)
+  const [soloEnabled, setSoloEnabled] = useState(true)
+  const [tvEnabled, setTvEnabled] = useState(true)
+  const [multiplayerEnabled, setMultiplayerEnabled] = useState(false)
   const [questions, setQuestions] = useState<any[]>([])
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [currentQ, setCurrentQ] = useState<any>(emptyQuestion('vocab_blast'))
@@ -44,18 +51,16 @@ function BuilderContent() {
   const [activeSection, setActiveSection] = useState<'setup' | 'questions'>('setup')
   const imageInputRef = useRef<HTMLInputElement>(null)
 
-  // Auth check
   useEffect(() => {
-    const saved = sessionStorage.getItem('arcadeTeacher')
-    if (!saved) { setAuthError('not_logged_in'); return }
+    const s = sessionStorage.getItem('arcadeTeacher')
+    if (!s) { setAuthError('not_logged_in'); return }
     try {
-      const t = JSON.parse(saved)
+      const t = JSON.parse(s)
       if (t.arcade_slug !== slug) { setAuthError('wrong_account'); return }
       setTeacher(t)
     } catch { setAuthError('not_logged_in') }
   }, [slug])
 
-  // Load existing game if editing
   useEffect(() => {
     if (!gameId || !teacher) return
     supabase.from('custom_games').select('*').eq('id', gameId).single().then(({ data }) => {
@@ -64,27 +69,22 @@ function BuilderContent() {
       setGameType(data.game_type)
       setTimerSeconds(data.timer_seconds)
       setShowVocabLesson(data.show_vocab_lesson)
+      setSoloEnabled(data.solo_enabled !== false)
+      setTvEnabled(data.tv_enabled !== false)
+      setMultiplayerEnabled(!!data.multiplayer_enabled)
       setQuestions(Array.isArray(data.questions) ? data.questions : [])
     })
   }, [gameId, teacher])
 
-  // Reset current question when type changes
-  useEffect(() => {
-    setCurrentQ(emptyQuestion(gameType))
-    setEditingIndex(null)
-  }, [gameType])
+  useEffect(() => { setCurrentQ(emptyQuestion(gameType)); setEditingIndex(null) }, [gameType])
 
-  const updateCurrentQ = (field: string, value: string) => {
-    setCurrentQ((prev: any) => ({ ...prev, [field]: value }))
-  }
+  const updateCurrentQ = (field: string, value: string) => setCurrentQ((prev: any) => ({ ...prev, [field]: value }))
 
   const addOrUpdateQuestion = () => {
-    // Validate
     if (gameType === 'vocab_blast' && (!currentQ.word?.trim() || !currentQ.definition?.trim())) return alert('Please fill in the word and definition.')
     if (gameType === 'quiz_master' && (!currentQ.question?.trim() || !currentQ.option_a?.trim() || !currentQ.option_b?.trim())) return alert('Please fill in the question and at least 2 options.')
     if (gameType === 'true_or_false' && !currentQ.statement?.trim()) return alert('Please enter a statement.')
     if (gameType === 'picture_quiz' && (!currentQ.question?.trim() || !currentQ.option_a?.trim())) return alert('Please fill in the question and at least 2 options.')
-
     if (editingIndex !== null) {
       setQuestions(prev => prev.map((q, i) => i === editingIndex ? currentQ : q))
       setEditingIndex(null)
@@ -94,74 +94,54 @@ function BuilderContent() {
     setCurrentQ(emptyQuestion(gameType))
   }
 
-  const editQuestion = (index: number) => {
-    setCurrentQ(questions[index])
-    setEditingIndex(index)
-    setActiveSection('questions')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const deleteQuestion = (index: number) => {
-    if (!confirm('Delete this question?')) return
-    setQuestions(prev => prev.filter((_, i) => i !== index))
-    if (editingIndex === index) { setEditingIndex(null); setCurrentQ(emptyQuestion(gameType)) }
-  }
-
+  const editQuestion = (index: number) => { setCurrentQ(questions[index]); setEditingIndex(index); setActiveSection('questions'); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+  const deleteQuestion = (index: number) => { if (!confirm('Delete this question?')) return; setQuestions(prev => prev.filter((_, i) => i !== index)); if (editingIndex === index) { setEditingIndex(null); setCurrentQ(emptyQuestion(gameType)) } }
   const moveQuestion = (index: number, direction: 'up' | 'down') => {
-    const newQ = [...questions]
-    const target = direction === 'up' ? index - 1 : index + 1
+    const newQ = [...questions]; const target = direction === 'up' ? index - 1 : index + 1
     if (target < 0 || target >= newQ.length) return;
-    [newQ[index], newQ[target]] = [newQ[target], newQ[index]]
-    setQuestions(newQ)
+    [newQ[index], newQ[target]] = [newQ[target], newQ[index]]; setQuestions(newQ)
   }
 
   const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0]; if (!file) return
     setUploadingImage(true)
     const ext = file.name.split('.').pop()
     const filename = `game-${Date.now()}.${ext}`
     const { error } = await supabase.storage.from('teacher-game-images').upload(filename, file, { upsert: true })
     if (error) { alert('Upload failed: ' + error.message); setUploadingImage(false); return }
     const { data } = supabase.storage.from('teacher-game-images').getPublicUrl(filename)
-    updateCurrentQ('image_url', data.publicUrl)
-    setUploadingImage(false)
+    updateCurrentQ('image_url', data.publicUrl); setUploadingImage(false)
+  }
+
+  const deleteGame = async () => {
+    if (!gameId) return
+    if (!confirm('Delete this game permanently? This cannot be undone.')) return
+    await supabase.from('custom_games').delete().eq('id', gameId)
+    router.push('/arcade/dashboard')
   }
 
   const saveGame = async (status: 'draft' | 'active') => {
     if (!title.trim()) return alert('Please enter a game title.')
     if (questions.length === 0) return alert('Please add at least one question.')
+    if (!soloEnabled && !tvEnabled && !multiplayerEnabled) return alert('Please enable at least one game mode.')
     setSaving(true)
-
     const gameData = {
-      teacher_email: teacher.user_email,
-      teacher_slug: slug,
-      title: title.trim(),
-      game_type: gameType,
-      timer_seconds: timerSeconds,
-      show_vocab_lesson: showVocabLesson,
-      questions,
-      question_count: questions.length,
-      status,
-      updated_at: new Date().toISOString(),
+      teacher_email: teacher.user_email, teacher_slug: slug, title: title.trim(),
+      game_type: gameType, timer_seconds: timerSeconds, show_vocab_lesson: showVocabLesson,
+      solo_enabled: soloEnabled, tv_enabled: tvEnabled, multiplayer_enabled: multiplayerEnabled,
+      questions, question_count: questions.length, status, updated_at: new Date().toISOString(),
     }
-
-    if (gameId) {
-      await supabase.from('custom_games').update(gameData).eq('id', gameId)
-    } else {
-      await supabase.from('custom_games').insert([{ ...gameData, play_count: 0 }])
-    }
-
+    if (gameId) { await supabase.from('custom_games').update(gameData).eq('id', gameId) }
+    else { await supabase.from('custom_games').insert([{ ...gameData, play_count: 0 }]) }
     setSaving(false); setSaved(true)
-    setTimeout(() => router.push(`/arcade/dashboard`), 1200)
+    setTimeout(() => router.push('/arcade/dashboard'), 1200)
   }
 
   if (authError === 'not_logged_in') return (
     <main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ background: 'white', borderRadius: '20px', padding: '40px', maxWidth: '400px', textAlign: 'center' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
-        <h2 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '8px' }}>Sign in to build games</h2>
-        <p style={{ color: '#666', marginBottom: '24px' }}>Please sign in to your arcade dashboard first.</p>
+        <h2 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '12px' }}>Sign in to build games</h2>
         <Link href="/arcade/dashboard" style={{ display: 'block', background: '#f59e0b', color: '#1a1a2e', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800' }}>Go to Dashboard →</Link>
       </div>
     </main>
@@ -172,23 +152,26 @@ function BuilderContent() {
       <div style={{ textAlign: 'center', color: 'white' }}>
         <div style={{ fontSize: '64px', marginBottom: '16px' }}>✅</div>
         <h2 style={{ fontSize: '24px', fontWeight: '900' }}>Game Saved!</h2>
-        <p style={{ color: 'rgba(255,255,255,0.6)' }}>Redirecting to your dashboard...</p>
+        <p style={{ color: 'rgba(255,255,255,0.6)' }}>Redirecting to dashboard...</p>
       </div>
     </main>
   )
 
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
-
       {/* HEADER */}
       <div style={{ background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <Link href="/arcade/dashboard" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px' }}>← Dashboard</Link>
-          <div style={{ color: 'white', fontWeight: '900', fontSize: '18px' }}>
-            {gameId ? '✏️ Edit Game' : '➕ New Game'}
-          </div>
+          <div style={{ color: 'white', fontWeight: '900', fontSize: '18px' }}>{gameId ? '✏️ Edit Game' : '➕ New Game'}</div>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {gameId && (
+            <button onClick={deleteGame}
+              style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
+              🗑 Delete Game
+            </button>
+          )}
           <button onClick={() => saveGame('draft')} disabled={saving}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
             💾 Save Draft
@@ -200,15 +183,12 @@ function BuilderContent() {
         </div>
       </div>
 
-      {/* SECTION TABS */}
+      {/* TABS */}
       <div style={{ background: 'white', borderBottom: '2px solid #e5e7eb', padding: '0 24px' }}>
-        <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', gap: '0' }}>
-          {[
-            { id: 'setup', label: '⚙️ Game Setup' },
-            { id: 'questions', label: `❓ Questions (${questions.length})` },
-          ].map(tab => (
+        <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex' }}>
+          {[{ id: 'setup', label: '⚙️ Game Setup' }, { id: 'questions', label: `❓ Questions (${questions.length})` }].map(tab => (
             <button key={tab.id} onClick={() => setActiveSection(tab.id as any)}
-              style={{ padding: '14px 24px', border: 'none', background: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', color: activeSection === tab.id ? '#f59e0b' : '#555', borderBottom: activeSection === tab.id ? '3px solid #f59e0b' : '3px solid transparent', transition: 'all 0.2s' }}>
+              style={{ padding: '14px 24px', border: 'none', background: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', color: activeSection === tab.id ? '#f59e0b' : '#555', borderBottom: activeSection === tab.id ? '3px solid #f59e0b' : '3px solid transparent' }}>
               {tab.label}
             </button>
           ))}
@@ -217,14 +197,14 @@ function BuilderContent() {
 
       <div style={{ maxWidth: '860px', margin: '0 auto', padding: '28px 24px' }}>
 
-        {/* ── SETUP SECTION ── */}
+        {/* ── SETUP ── */}
         {activeSection === 'setup' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
             {/* Title */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
               <label style={{ display: 'block', fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '8px' }}>Game Title *</label>
-              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Animals Vocabulary, Unit 3 Quiz, Body Parts..."
+              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Animals Vocabulary, Unit 3 Quiz..."
                 style={{ width: '100%', padding: '14px 16px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '16px', outline: 'none', boxSizing: 'border-box', fontWeight: '600' }} />
             </div>
 
@@ -234,7 +214,7 @@ function BuilderContent() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
                 {GAME_TYPES.map(t => (
                   <button key={t.id} onClick={() => setGameType(t.id)}
-                    style={{ padding: '16px', borderRadius: '12px', border: `3px solid ${gameType === t.id ? '#f59e0b' : '#e5e7eb'}`, background: gameType === t.id ? '#fffbeb' : 'white', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}>
+                    style={{ padding: '16px', borderRadius: '12px', border: `3px solid ${gameType === t.id ? '#f59e0b' : '#e5e7eb'}`, background: gameType === t.id ? '#fffbeb' : 'white', cursor: 'pointer', textAlign: 'left' }}>
                     <div style={{ fontWeight: '800', fontSize: '15px', color: gameType === t.id ? '#92400e' : '#1a1a2e', marginBottom: '4px' }}>{t.label}</div>
                     <div style={{ color: '#888', fontSize: '12px', lineHeight: '1.4' }}>{t.desc}</div>
                   </button>
@@ -255,12 +235,12 @@ function BuilderContent() {
               </div>
             </div>
 
-            {/* Vocab lesson toggle */}
+            {/* Vocab Lesson */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <div style={{ fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '4px' }}>📚 Show Vocabulary Lesson First</div>
-                  <div style={{ color: '#888', fontSize: '13px' }}>Students see all words and definitions before the game starts. Great for new vocabulary.</div>
+                  <div style={{ color: '#888', fontSize: '13px' }}>Students see all words and definitions before the game starts.</div>
                 </div>
                 <button onClick={() => setShowVocabLesson(!showVocabLesson)}
                   style={{ background: showVocabLesson ? '#f59e0b' : '#e5e7eb', border: 'none', borderRadius: '30px', width: '56px', height: '30px', cursor: 'pointer', position: 'relative', transition: 'all 0.2s', flexShrink: 0 }}>
@@ -269,24 +249,46 @@ function BuilderContent() {
               </div>
             </div>
 
+            {/* GAME MODES */}
+            <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '2px solid #fde68a' }}>
+              <label style={{ display: 'block', fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '4px' }}>🎮 Game Modes</label>
+              <p style={{ color: '#888', fontSize: '13px', marginBottom: '16px' }}>Choose which modes students can use to play this game.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {MODES.map(mode => {
+                  const enabled = mode.id === 'solo_enabled' ? soloEnabled : mode.id === 'tv_enabled' ? tvEnabled : multiplayerEnabled
+                  const toggle = mode.id === 'solo_enabled' ? () => setSoloEnabled(!soloEnabled) : mode.id === 'tv_enabled' ? () => setTvEnabled(!tvEnabled) : () => setMultiplayerEnabled(!multiplayerEnabled)
+                  return (
+                    <div key={mode.id} onClick={toggle}
+                      style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '12px', border: `2px solid ${enabled ? '#f59e0b' : '#e5e7eb'}`, background: enabled ? '#fffbeb' : '#fafafa', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '6px', border: `2px solid ${enabled ? '#f59e0b' : '#d1d5db'}`, background: enabled ? '#f59e0b' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s' }}>
+                        {enabled && <span style={{ color: 'white', fontSize: '14px', fontWeight: '900' }}>✓</span>}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '800', fontSize: '15px', color: enabled ? '#92400e' : '#374151' }}>{mode.label}</div>
+                        <div style={{ color: '#888', fontSize: '13px' }}>{mode.desc}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
             <button onClick={() => setActiveSection('questions')}
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(245,158,11,0.4)' }}>
+              style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: 'pointer' }}>
               Next: Add Questions →
             </button>
           </div>
         )}
 
-        {/* ── QUESTIONS SECTION ── */}
+        {/* ── QUESTIONS ── */}
         {activeSection === 'questions' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-            {/* Add/Edit Question Form */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '2px solid #fde68a' }}>
               <h3 style={{ fontSize: '17px', fontWeight: '800', color: '#1a1a2e', marginBottom: '20px' }}>
                 {editingIndex !== null ? `✏️ Editing Question ${editingIndex + 1}` : `➕ Add Question ${questions.length + 1}`}
               </h3>
 
-              {/* VOCAB BLAST FORM */}
+              {/* VOCAB BLAST */}
               {gameType === 'vocab_blast' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div>
@@ -296,26 +298,26 @@ function BuilderContent() {
                   </div>
                   <div>
                     <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>✅ Correct Definition *</label>
-                    <input value={currentQ.definition || ''} onChange={e => updateCurrentQ('definition', e.target.value)} placeholder="The correct definition students must pick"
+                    <input value={currentQ.definition || ''} onChange={e => updateCurrentQ('definition', e.target.value)} placeholder="The correct definition"
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #22c55e', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
                   <div style={{ color: '#888', fontSize: '13px', fontWeight: '600' }}>❌ Wrong Options (distractors)</div>
                   {['distractor1', 'distractor2', 'distractor3'].map((key, i) => (
-                    <input key={key} value={currentQ[key] || ''} onChange={e => updateCurrentQ(key, e.target.value)} placeholder={`Wrong option ${i + 1} (leave blank to skip)`}
+                    <input key={key} value={currentQ[key] || ''} onChange={e => updateCurrentQ(key, e.target.value)} placeholder={`Wrong option ${i + 1} (optional)`}
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #fca5a5', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                   ))}
                 </div>
               )}
 
-              {/* QUIZ MASTER FORM */}
+              {/* QUIZ MASTER */}
               {gameType === 'quiz_master' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div>
                     <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Question *</label>
-                    <input value={currentQ.question || ''} onChange={e => updateCurrentQ('question', e.target.value)} placeholder="e.g. What is the capital city of Thailand?"
+                    <input value={currentQ.question || ''} onChange={e => updateCurrentQ('question', e.target.value)} placeholder="e.g. What is the capital of Thailand?"
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '15px', outline: 'none', boxSizing: 'border-box', fontWeight: '700' }} />
                   </div>
-                  <div style={{ color: '#555', fontSize: '13px', fontWeight: '700' }}>Answer Options — select the correct one:</div>
+                  <div style={{ color: '#555', fontSize: '13px', fontWeight: '700' }}>Answer Options — tap the letter to mark as correct:</div>
                   {['a', 'b', 'c', 'd'].map(opt => (
                     <div key={opt} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <button onClick={() => updateCurrentQ('correct', opt)}
@@ -329,7 +331,7 @@ function BuilderContent() {
                 </div>
               )}
 
-              {/* TRUE OR FALSE FORM */}
+              {/* TRUE OR FALSE */}
               {gameType === 'true_or_false' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div>
@@ -349,31 +351,22 @@ function BuilderContent() {
                 </div>
               )}
 
-              {/* PICTURE QUIZ FORM */}
+              {/* PICTURE QUIZ */}
               {gameType === 'picture_quiz' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div>
                     <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>Question *</label>
-                    <input value={currentQ.question || ''} onChange={e => updateCurrentQ('question', e.target.value)} placeholder="e.g. What animal is this? / What colour is this?"
+                    <input value={currentQ.question || ''} onChange={e => updateCurrentQ('question', e.target.value)} placeholder="e.g. What animal is this?"
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '15px', outline: 'none', boxSizing: 'border-box', fontWeight: '700' }} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '8px' }}>Image</label>
                     <input ref={imageInputRef} type="file" accept="image/*" onChange={uploadImage} style={{ display: 'none' }} />
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <button type="button" onClick={() => imageInputRef.current?.click()} disabled={uploadingImage}
-                        style={{ background: uploadingImage ? '#e5e7eb' : '#1e3a5f', color: uploadingImage ? '#9ca3af' : 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: uploadingImage ? 'not-allowed' : 'pointer', fontWeight: '700', fontSize: '14px' }}>
-                        {uploadingImage ? '⏳ Uploading...' : '📷 Upload Image'}
-                      </button>
-                      {currentQ.image_url && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <img src={currentQ.image_url} alt="Preview" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #e5e7eb' }} />
-                          <button onClick={() => updateCurrentQ('image_url', '')} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
-                        </div>
-                      )}
-                    </div>
+                    <button type="button" onClick={() => imageInputRef.current?.click()} disabled={uploadingImage}
+                      style={{ background: uploadingImage ? '#e5e7eb' : '#1e3a5f', color: uploadingImage ? '#9ca3af' : 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: uploadingImage ? 'not-allowed' : 'pointer', fontWeight: '700', fontSize: '14px' }}>
+                      {uploadingImage ? '⏳ Uploading...' : '📷 Upload Image'}
+                    </button>
+                    {currentQ.image_url && <img src={currentQ.image_url} alt="" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '8px', marginLeft: '12px', verticalAlign: 'middle' }} />}
                   </div>
-                  <div style={{ fontWeight: '700', fontSize: '13px', color: '#374151' }}>Answer Options — select the correct one:</div>
                   {['a', 'b', 'c', 'd'].map(opt => (
                     <div key={opt} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <button onClick={() => updateCurrentQ('correct', opt)}
@@ -394,40 +387,29 @@ function BuilderContent() {
                 </button>
                 {editingIndex !== null && (
                   <button onClick={() => { setEditingIndex(null); setCurrentQ(emptyQuestion(gameType)) }}
-                    style={{ background: '#f3f4f6', color: '#555', border: 'none', padding: '14px 20px', borderRadius: '12px', fontWeight: '700', fontSize: '15px', cursor: 'pointer' }}>
+                    style={{ background: '#f3f4f6', color: '#555', border: 'none', padding: '14px 20px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer' }}>
                     Cancel
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Question List */}
             {questions.length > 0 && (
               <div>
-                <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#1a1a2e', marginBottom: '12px' }}>
-                  Questions Added ({questions.length})
-                </h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#1a1a2e', marginBottom: '12px' }}>Questions Added ({questions.length})</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {questions.map((q, i) => (
                     <div key={i} style={{ background: 'white', borderRadius: '12px', padding: '16px 20px', boxShadow: '0 2px 6px rgba(0,0,0,0.06)', border: editingIndex === i ? '2px solid #f59e0b' : '1px solid #eee', display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ background: '#f59e0b', color: '#1a1a2e', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>{i + 1}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {q.word || q.question || q.statement || 'Question'}
-                        </div>
-                        <div style={{ color: '#888', fontSize: '12px' }}>
-                          {q.definition || (q.correct === 'true' ? '✅ True' : q.correct === 'false' ? '❌ False' : `Correct: ${(q.correct || 'a').toUpperCase()}`)}
-                        </div>
+                        <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{q.word || q.question || q.statement || 'Question'}</div>
+                        <div style={{ color: '#888', fontSize: '12px' }}>{q.definition || (q.correct === 'true' ? '✅ True' : q.correct === 'false' ? '❌ False' : `Correct: ${(q.correct || 'a').toUpperCase()}`)}</div>
                       </div>
                       <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                        <button onClick={() => moveQuestion(i, 'up')} disabled={i === 0}
-                          style={{ background: '#f3f4f6', border: 'none', width: '30px', height: '30px', borderRadius: '6px', cursor: i === 0 ? 'not-allowed' : 'pointer', opacity: i === 0 ? 0.4 : 1, fontSize: '14px' }}>↑</button>
-                        <button onClick={() => moveQuestion(i, 'down')} disabled={i === questions.length - 1}
-                          style={{ background: '#f3f4f6', border: 'none', width: '30px', height: '30px', borderRadius: '6px', cursor: i === questions.length - 1 ? 'not-allowed' : 'pointer', opacity: i === questions.length - 1 ? 0.4 : 1, fontSize: '14px' }}>↓</button>
-                        <button onClick={() => editQuestion(i)}
-                          style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '12px' }}>✏️</button>
-                        <button onClick={() => deleteQuestion(i)}
-                          style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>🗑</button>
+                        <button onClick={() => moveQuestion(i, 'up')} disabled={i === 0} style={{ background: '#f3f4f6', border: 'none', width: '30px', height: '30px', borderRadius: '6px', cursor: i === 0 ? 'not-allowed' : 'pointer', opacity: i === 0 ? 0.4 : 1 }}>↑</button>
+                        <button onClick={() => moveQuestion(i, 'down')} disabled={i === questions.length - 1} style={{ background: '#f3f4f6', border: 'none', width: '30px', height: '30px', borderRadius: '6px', cursor: i === questions.length - 1 ? 'not-allowed' : 'pointer', opacity: i === questions.length - 1 ? 0.4 : 1 }}>↓</button>
+                        <button onClick={() => editQuestion(i)} style={{ background: '#e0f2fe', color: '#0369a1', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '12px' }}>✏️</button>
+                        <button onClick={() => deleteQuestion(i)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}>🗑</button>
                       </div>
                     </div>
                   ))}
@@ -435,20 +417,14 @@ function BuilderContent() {
               </div>
             )}
 
-            {/* Save buttons */}
             {questions.length > 0 && (
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <button onClick={() => saveGame('draft')} disabled={saving}
-                  style={{ flex: 1, background: '#f3f4f6', color: '#374151', border: '2px solid #e5e7eb', padding: '16px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer' }}>
-                  💾 Save as Draft
-                </button>
-                <button onClick={() => saveGame('active')} disabled={saving}
-                  style={{ flex: 2, background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(34,197,94,0.4)' }}>
+                <button onClick={() => saveGame('draft')} disabled={saving} style={{ flex: 1, background: '#f3f4f6', color: '#374151', border: '2px solid #e5e7eb', padding: '16px', borderRadius: '12px', fontWeight: '800', fontSize: '16px', cursor: 'pointer' }}>💾 Save as Draft</button>
+                <button onClick={() => saveGame('active')} disabled={saving} style={{ flex: 2, background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' }}>
                   {saving ? 'Saving...' : `🟢 Save & Go Live (${questions.length} questions)`}
                 </button>
               </div>
             )}
-
           </div>
         )}
       </div>
