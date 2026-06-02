@@ -36,6 +36,34 @@ function genRoomCode() {
 export default function HostPage({ params }: { params: any }) {
   const { slug, gameId } = use(params) as { slug: string; gameId: string }
 
+  // PIN gate
+  const [pinAuthed, setPinAuthed] = useState(false)
+  const [pin, setPin] = useState('')
+  const [pinError, setPinError] = useState('')
+  const [checkingPin, setCheckingPin] = useState(false)
+
+  const checkPin = async () => {
+    const trimmed = pin.trim().toUpperCase()
+    if (!trimmed) { setPinError('Please enter your activation code.'); return }
+    setCheckingPin(true); setPinError('')
+    const { data } = await supabase
+      .from('teacher_activation_codes')
+      .select('used_by_email')
+      .eq('code', trimmed)
+      .eq('active', true)
+      .eq('used', true)
+      .single()
+    if (!data) { setPinError('Code not recognised. Only the teacher can host a game.'); setCheckingPin(false); return }
+    // Verify this code belongs to this arcade slug
+    const { data: profile } = await supabase
+      .from('teacher_profiles')
+      .select('arcade_slug')
+      .eq('user_email', data.used_by_email)
+      .single()
+    if (!profile || profile.arcade_slug !== slug) { setPinError('This code is not for this arcade.'); setCheckingPin(false); return }
+    setPinAuthed(true); setCheckingPin(false)
+  }
+
   const [game, setGame] = useState<any>(null)
   const [questions, setQuestions] = useState<any[]>([])
   const [room, setRoom] = useState<any>(null)
@@ -132,6 +160,28 @@ export default function HostPage({ params }: { params: any }) {
   const optionColors = ['#7C3AED', '#E85D26', '#0891b2', '#16a34a']
   const optionLetters = ['A', 'B', 'C', 'D']
   const totalAnswered = answerCounts.reduce((a, b) => a + b, 0)
+
+  if (!pinAuthed) return (
+    <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ width: '100%', maxWidth: '420px', background: 'white', borderRadius: '24px', padding: '40px', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', textAlign: 'center' }}>
+        <div style={{ fontSize: '56px', marginBottom: '16px' }}>🔐</div>
+        <h2 style={{ fontSize: '22px', fontWeight: '900', color: '#1a1a2e', marginBottom: '8px' }}>Teacher Access Only</h2>
+        <p style={{ color: '#888', fontSize: '14px', marginBottom: '24px', lineHeight: '1.6' }}>
+          Only the teacher can host a multiplayer game.<br />Enter your <span style={{ fontFamily: 'monospace', fontWeight: '800', color: '#f59e0b' }}>TCH-XXXX-XXXX</span> code to continue.
+        </p>
+        <input value={pin} onChange={e => { setPin(e.target.value.toUpperCase()); setPinError('') }}
+          onKeyDown={e => e.key === 'Enter' && checkPin()}
+          placeholder="TCH-XXXX-XXXX" maxLength={13}
+          style={{ width: '100%', padding: '16px', borderRadius: '12px', border: `2px solid ${pinError ? '#ef4444' : '#e5e7eb'}`, fontSize: '20px', fontFamily: 'monospace', fontWeight: '800', outline: 'none', boxSizing: 'border-box', letterSpacing: '2px', textAlign: 'center', color: '#1a1a2e', background: '#f9fafb', marginBottom: '8px' }} />
+        {pinError && <p style={{ color: '#ef4444', fontSize: '13px', margin: '0 0 12px' }}>{pinError}</p>}
+        <button onClick={checkPin} disabled={checkingPin || pin.length < 12}
+          style={{ width: '100%', background: checkingPin || pin.length < 12 ? '#e5e7eb' : 'linear-gradient(135deg, #f59e0b, #d97706)', color: checkingPin || pin.length < 12 ? '#9ca3af' : '#1a1a2e', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: checkingPin || pin.length < 12 ? 'not-allowed' : 'pointer', marginTop: '4px' }}>
+          {checkingPin ? 'Checking...' : '🎮 Host Game →'}
+        </button>
+        <Link href={`/arcade/${slug}/${gameId}`} style={{ display: 'block', marginTop: '16px', color: '#9ca3af', fontSize: '13px', textDecoration: 'none' }}>← Back</Link>
+      </div>
+    </main>
+  )
 
   if (loading) return <main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ color: 'white', fontSize: '20px' }}>Setting up room...</div></main>
   if (!game) return <main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ color: 'white' }}>Game not found</div></main>
