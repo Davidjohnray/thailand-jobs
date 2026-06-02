@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../../src/lib/supabase'
 
@@ -8,12 +8,13 @@ const gameTypeLabel: Record<string, string> = {
   true_or_false: '✅ True or False', picture_quiz: '🖼️ Picture Quiz',
 }
 
-export default function GameModePage({ params }: { params: { slug: string; gameId: string } }) {
-  const { slug, gameId } = params
+export default function GameModePage({ params }: { params: any }) {
+  const { slug, gameId } = use(params) as { slug: string; gameId: string }
   const [game, setGame] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!gameId) return
     supabase.from('custom_games').select('*').eq('id', gameId).single().then(({ data }) => { setGame(data); setLoading(false) })
   }, [gameId])
 
@@ -55,7 +56,9 @@ export default function GameModePage({ params }: { params: { slug: string; gameI
               <div key={mode.id} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '16px', padding: '22px 24px', border: '2px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '20px', opacity: 0.5 }}>
                 <div style={{ fontSize: '40px', flexShrink: 0 }}>{mode.icon}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: 'white', fontWeight: '900', fontSize: '18px', marginBottom: '4px' }}>{mode.label} <span style={{ background: '#374151', color: '#9ca3af', fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px' }}>Not enabled</span></div>
+                  <div style={{ color: 'white', fontWeight: '900', fontSize: '18px', marginBottom: '4px' }}>
+                    {mode.label} <span style={{ background: '#374151', color: '#9ca3af', fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px' }}>Not enabled</span>
+                  </div>
                   <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>{mode.desc}</div>
                 </div>
               </div>
