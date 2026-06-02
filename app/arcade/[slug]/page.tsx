@@ -8,6 +8,7 @@ const gameTypeLabel: Record<string, string> = {
   quiz_master: '📝 Quiz Master',
   true_or_false: '✅ True or False',
   picture_quiz: '🖼️ Picture Quiz',
+  word_hunter: '🔍 Word Hunter',
 }
 
 export default function ArcadePublicPage({ params }: { params: any }) {
@@ -91,7 +92,7 @@ export default function ArcadePublicPage({ params }: { params: any }) {
                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}>
                   <div style={{ fontSize: '40px', marginBottom: '14px' }}>
-                    {game.game_type === 'vocab_blast' ? '🎯' : game.game_type === 'quiz_master' ? '📝' : game.game_type === 'true_or_false' ? '✅' : '🖼️'}
+                    {game.game_type === 'vocab_blast' ? '🎯' : game.game_type === 'word_hunter' ? '🔍' : game.game_type === 'quiz_master' ? '📝' : game.game_type === 'true_or_false' ? '✅' : '🖼️'}
                   </div>
                   <h3 style={{ color: 'white', fontSize: '19px', fontWeight: '800', margin: '0 0 8px', lineHeight: '1.3' }}>{game.title}</h3>
                   <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', marginBottom: '16px' }}>{gameTypeLabel[game.game_type]}</div>

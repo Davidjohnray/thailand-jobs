@@ -6,6 +6,7 @@ import { supabase } from '../../../../src/lib/supabase'
 const gameTypeLabel: Record<string, string> = {
   vocab_blast: '🎯 Vocab Blast', quiz_master: '📝 Quiz Master',
   true_or_false: '✅ True or False', picture_quiz: '🖼️ Picture Quiz',
+  word_hunter: '🔍 Word Hunter',
 }
 
 export default function GameModePage({ params }: { params: any }) {
@@ -68,7 +69,7 @@ export default function GameModePage({ params }: { params: any }) {
       <div style={{ width: '100%', maxWidth: '600px' }}>
         <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '20px', padding: '28px 24px', marginBottom: '24px', border: '2px solid rgba(255,255,255,0.12)', textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '12px' }}>
-            {game.game_type === 'vocab_blast' ? '🎯' : game.game_type === 'quiz_master' ? '📝' : game.game_type === 'true_or_false' ? '✅' : '🖼️'}
+            {game.game_type === 'vocab_blast' ? '🎯' : game.game_type === 'word_hunter' ? '🔍' : game.game_type === 'quiz_master' ? '📝' : game.game_type === 'true_or_false' ? '✅' : '🖼️'}
           </div>
           <h1 style={{ color: 'white', fontSize: '26px', fontWeight: '900', margin: '0 0 8px' }}>{game.title}</h1>
           <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '16px' }}>{gameTypeLabel[game.game_type]}</div>

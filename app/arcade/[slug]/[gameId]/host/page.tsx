@@ -12,7 +12,12 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 function normalizeQuestions(raw: any[], gameType: string) {
   return raw.map(q => {
-    if (gameType === 'vocab_blast') {
+    if (gameType === 'word_hunter') {
+    const distractors = [q.distractor1, q.distractor2, q.distractor3].filter(Boolean)
+    const allOptions = shuffleArray([q.correct_word, ...distractors])
+    return { questionText: q.definition, imageUrl: undefined, options: allOptions, correctIndex: allOptions.indexOf(q.correct_word) }
+  }
+  if (gameType === 'vocab_blast') {
       const distractors = [q.distractor1, q.distractor2, q.distractor3].filter(Boolean)
       const allOptions = shuffleArray([q.definition, ...distractors])
       return { questionText: q.word, options: allOptions, correctIndex: allOptions.indexOf(q.definition) }
