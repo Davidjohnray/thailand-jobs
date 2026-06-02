@@ -128,14 +128,18 @@ export default function LiveGamesHub() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end', flexShrink: 0 }}>
             <Link href="/arcade/activate"
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '15px', whiteSpace: 'nowrap', display: 'block', textAlign: 'center' }}>
-              🕹️ Get Teacher Arcade →
-            </Link>
-            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textAlign: 'right' }}>
-              <span style={{ color: '#fbbf24', fontWeight: '800' }}>฿99/month</span>
-              {' · '}
-              <span style={{ color: '#34d399', fontWeight: '700' }}>Bundle with Premium ฿159</span>
-            </div>
+  style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '15px', whiteSpace: 'nowrap', display: 'block', textAlign: 'center' }}>
+  🕹️ Get Teacher Arcade →
+</Link>
+<div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', textAlign: 'right' }}>
+  <span style={{ color: '#fbbf24', fontWeight: '800' }}>฿99/month</span>
+  {' · '}
+  <span style={{ color: '#34d399', fontWeight: '700' }}>Bundle with Premium ฿159</span>
+</div>
+<Link href="/arcade/dashboard"
+  style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', textAlign: 'right', textDecoration: 'none', display: 'block' }}>
+  Already have an account? Sign in →
+</Link>
           </div>
         </div>
       </div>

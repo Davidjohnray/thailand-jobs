@@ -6,12 +6,15 @@ import { supabase } from '../src/lib/supabase'
 export default function Navbar() {
   const [jobsOpen, setJobsOpen] = useState(false)
   const [servicesOpen, setServicesOpen] = useState(false)
+  const [learnOpen, setLearnOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mobileJobsOpen, setMobileJobsOpen] = useState(false)
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
+  const [mobileLearnOpen, setMobileLearnOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const jobsRef = useRef<HTMLDivElement>(null)
   const servicesRef = useRef<HTMLDivElement>(null)
+  const learnRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }: any) => setIsLoggedIn(!!session))
@@ -25,6 +28,7 @@ export default function Navbar() {
     function handleClick(e: MouseEvent) {
       if (jobsRef.current && !jobsRef.current.contains(e.target as Node)) setJobsOpen(false)
       if (servicesRef.current && !servicesRef.current.contains(e.target as Node)) setServicesOpen(false)
+      if (learnRef.current && !learnRef.current.contains(e.target as Node)) setLearnOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
@@ -88,19 +92,18 @@ export default function Navbar() {
 
           {/* Jobs dropdown */}
           <div ref={jobsRef} style={{ position: 'relative' }}>
-            <button
-              onClick={() => { setJobsOpen(!jobsOpen); setServicesOpen(false) }}
+            <button onClick={() => { setJobsOpen(!jobsOpen); setServicesOpen(false); setLearnOpen(false) }}
               style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
               💼 Jobs <span style={{ fontSize: '10px' }}>{jobsOpen ? '▲' : '▼'}</span>
             </button>
             {jobsOpen && (
               <div style={dropdownStyle}>
                 {[
-                  { href: '/jobs',          label: '📋 All Jobs' },
+                  { href: '/jobs', label: '📋 All Jobs' },
                   { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
-                  { href: '/jobs/other',    label: '💼 Other Jobs' },
+                  { href: '/jobs/other', label: '💼 Other Jobs' },
                   { href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
-                  { href: '/jobs/nnes',     label: '🌏 NNES Teacher Jobs' },
+                  { href: '/jobs/nnes', label: '🌏 NNES Teacher Jobs' },
                   { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
                 ].map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setJobsOpen(false)}
@@ -116,20 +119,20 @@ export default function Navbar() {
 
           {/* Services dropdown */}
           <div ref={servicesRef} style={{ position: 'relative' }}>
-            <button
-              onClick={() => { setServicesOpen(!servicesOpen); setJobsOpen(false) }}
+            <button onClick={() => { setServicesOpen(!servicesOpen); setJobsOpen(false); setLearnOpen(false) }}
               style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
               🏠 Services <span style={{ fontSize: '10px' }}>{servicesOpen ? '▲' : '▼'}</span>
             </button>
             {servicesOpen && (
               <div style={dropdownStyle}>
                 {[
-                  { href: '/rentals',       label: '🏠 Rentals' },
-                  { href: '/teachers',      label: '🎓 Teachers Directory' },
-                  { href: '/training',      label: '📚 Training' },
-                  { href: '/cv-builder',    label: '📄 CV Builder' },
+                  { href: '/rentals', label: '🏠 Rentals' },
+                  { href: '/teachers', label: '🎓 Teachers Directory' },
+                  { href: '/training', label: '📚 Training' },
+                  { href: '/cv-builder', label: '📄 CV Builder' },
                   { href: '/esl-resources', label: '📖 ESL Resources' },
-                  { href: '/esl-games',     label: '🎮 ESL Games' },
+                  { href: '/esl-games', label: '🎮 ESL Games' },
+                  { href: '/expat-services', label: '🏙️ Expat Services' },
                 ].map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setServicesOpen(false)}
                     style={dropdownLinkStyle}
@@ -149,11 +152,42 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* 🎮 Learn & Play */}
-          <Link href="/esl-games/live"
-            style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,255,255,0.15)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            🎮 🎮 Learn & Play
-          </Link>
+          {/* Learn & Play dropdown */}
+          <div ref={learnRef} style={{ position: 'relative' }}>
+            <button onClick={() => { setLearnOpen(!learnOpen); setJobsOpen(false); setServicesOpen(false) }}
+              style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              🎮 Learn & Play <span style={{ fontSize: '10px' }}>{learnOpen ? '▲' : '▼'}</span>
+            </button>
+            {learnOpen && (
+              <div style={dropdownStyle}>
+                <Link href="/esl-games/live" onClick={() => setLearnOpen(false)}
+                  style={dropdownLinkStyle}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  🎮 Live ESL Games
+                </Link>
+                <Link href="/esl-resources" onClick={() => setLearnOpen(false)}
+                  style={dropdownLinkStyle}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  📖 ESL Resources
+                </Link>
+                <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
+                <Link href="/arcade/dashboard" onClick={() => setLearnOpen(false)}
+                  style={{ ...dropdownLinkStyle, color: '#d97706', fontWeight: '700' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#fffbeb')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  🕹️ Teacher Arcade Login
+                </Link>
+                <Link href="/arcade/activate" onClick={() => setLearnOpen(false)}
+                  style={{ ...dropdownLinkStyle, color: '#9ca3af', fontSize: '13px' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                  🔑 Activate New Code
+                </Link>
+              </div>
+            )}
+          </div>
 
           {/* Blog */}
           <Link href="/blog"
@@ -161,7 +195,7 @@ export default function Navbar() {
             ✍️ Blog
           </Link>
 
-          {/* YouTube Videos — NEW */}
+          {/* Videos */}
           <Link href="/videos"
             style={{ color: 'white', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: 'rgba(255,0,0,0.35)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
             ▶ Videos
@@ -200,9 +234,7 @@ export default function Navbar() {
         </div>
 
         {/* MOBILE HAMBURGER */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="mobile-menu-btn"
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="mobile-menu-btn"
           style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', fontSize: '20px', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer' }}>
           {mobileOpen ? '✕' : '☰'}
         </button>
@@ -220,11 +252,11 @@ export default function Navbar() {
           {mobileJobsOpen && (
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {[
-                { href: '/jobs',          label: '📋 All Jobs' },
+                { href: '/jobs', label: '📋 All Jobs' },
                 { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
-                { href: '/jobs/other',    label: '💼 Other Jobs' },
+                { href: '/jobs/other', label: '💼 Other Jobs' },
                 { href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
-                { href: '/jobs/nnes',     label: '🌏 NNES Teacher Jobs' },
+                { href: '/jobs/nnes', label: '🌏 NNES Teacher Jobs' },
                 { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
               ].map(item => (
                 <Link key={item.href} href={item.href} onClick={closeMobile}
@@ -243,13 +275,14 @@ export default function Navbar() {
           {mobileServicesOpen && (
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {[
-                { href: '/rentals',       label: '🏠 Rentals' },
-                { href: '/teachers',      label: '🎓 Teachers Directory' },
-                { href: '/training',      label: '📚 Training' },
-                { href: '/cv-builder',    label: '📄 CV Builder' },
+                { href: '/rentals', label: '🏠 Rentals' },
+                { href: '/teachers', label: '🎓 Teachers Directory' },
+                { href: '/training', label: '📚 Training' },
+                { href: '/cv-builder', label: '📄 CV Builder' },
                 { href: '/esl-resources', label: '📖 ESL Resources' },
-                { href: '/esl-games',     label: '🎮 ESL Games' },
-                { href: '/advertise',     label: '📢 Advertise With Us' },
+                { href: '/esl-games', label: '🎮 ESL Games' },
+                { href: '/expat-services', label: '🏙️ Expat Services' },
+                { href: '/advertise', label: '📢 Advertise With Us' },
               ].map(item => (
                 <Link key={item.href} href={item.href} onClick={closeMobile}
                   style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
@@ -259,11 +292,31 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Live Games */}
-          <Link href="/esl-games/live" onClick={closeMobile}
-            style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
-            🎮 Live Games
-          </Link>
+          {/* Learn & Play */}
+          <button onClick={() => setMobileLearnOpen(!mobileLearnOpen)}
+            style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '12px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '15px', fontWeight: 'bold', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}>
+            🎮 Learn & Play <span>{mobileLearnOpen ? '▲' : '▼'}</span>
+          </button>
+          {mobileLearnOpen && (
+            <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <Link href="/esl-games/live" onClick={closeMobile}
+                style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                🎮 Live ESL Games
+              </Link>
+              <Link href="/esl-resources" onClick={closeMobile}
+                style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                📖 ESL Resources
+              </Link>
+              <Link href="/arcade/dashboard" onClick={closeMobile}
+                style={{ display: 'block', color: '#fbbf24', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', fontWeight: '700' }}>
+                🕹️ Teacher Arcade Login
+              </Link>
+              <Link href="/arcade/activate" onClick={closeMobile}
+                style={{ display: 'block', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '13px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
+                🔑 Activate New Code
+              </Link>
+            </div>
+          )}
 
           {/* Blog */}
           <Link href="/blog" onClick={closeMobile}
@@ -271,7 +324,7 @@ export default function Navbar() {
             ✍️ Blog
           </Link>
 
-          {/* YouTube Videos — NEW */}
+          {/* Videos */}
           <Link href="/videos" onClick={closeMobile}
             style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,0,0,0.35)', fontWeight: 'bold' }}>
             ▶ Videos
