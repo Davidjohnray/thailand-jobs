@@ -14,9 +14,9 @@ const GAME_TYPES = [
 const TIMERS = [10, 15, 20, 30, 45, 60]
 
 const MODES = [
-  { id: 'solo_enabled', label: '👤 Solo Play', desc: 'Students play individually on their own device at their own pace.' },
-  { id: 'tv_enabled', label: '📺 TV Classroom Mode', desc: 'Teacher shows on the big screen. Students answer by hand — no phones needed.' },
-  { id: 'multiplayer_enabled', label: '📱 Multiplayer', desc: 'Students join with a room code on their phones. Live leaderboard for up to 40 students.' },
+  { id: 'solo_enabled', label: '📚 Self Study', desc: 'Students review vocabulary cards and test themselves individually on their own device.' },
+  { id: 'tv_enabled', label: '📺 TV Classroom Mode', desc: 'Teacher presents vocabulary on the big screen, then runs a team quiz — no student devices needed.' },
+  { id: 'multiplayer_enabled', label: '📱 Online Multiplayer', desc: 'Students join on their own devices with a room code and answer questions live.' },
 ]
 
 function emptyQuestion(type: string) {
