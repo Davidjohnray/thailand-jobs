@@ -39,26 +39,26 @@ export default function GameModePage({ params }: { params: any }) {
     {
       id: 'solo', enabled: true,
       icon: '📚', label: 'Self Study',
-      desc: 'Study the vocabulary first, then test yourself with a solo quiz on your own device.',
+      desc: 'Review the vocabulary cards and test your knowledge with a quiz — study at your own pace.',
       color: '#f59e0b',
       href: `/arcade/${slug}/${gameId}/solo`,
-      tag: 'Solo · No teacher needed',
+      tag: 'Individual · Work at your own pace',
     },
     {
       id: 'tv', enabled: tvEnabled,
       icon: '📺', label: 'TV Classroom Mode',
-      desc: 'Teacher leads the class — teach vocab on screen, then play a team game or launch multiplayer.',
+      desc: 'Teacher presents vocabulary on the big screen, then runs a team quiz — no student devices needed.',
       color: '#E85D26',
       href: `/arcade/${slug}/${gameId}/tv`,
-      tag: 'Big screen · Team scoring · Teacher controlled',
+      tag: 'Big screen · 1–6 teams · Teacher controlled',
     },
     {
       id: 'multi', enabled: multiEnabled,
       icon: '📱', label: 'Online Multiplayer',
-      desc: 'Students join on their phones with a room code. Live leaderboard for up to 40 students.',
+      desc: 'Students join on their own devices with a room code and answer questions live.',
       color: '#7C3AED',
       href: `/arcade/${slug}/${gameId}/host`,
-      tag: 'Students on phones · Live leaderboard',
+      tag: 'Student devices · Live leaderboard · Up to 40',
     },
   ]
 
