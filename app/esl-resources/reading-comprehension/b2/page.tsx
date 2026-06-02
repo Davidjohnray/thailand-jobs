@@ -25,6 +25,7 @@ const CATEGORIES = [
     color: '#22c55e',
     lessons: [
       { id: 'world-cup-2026', title: 'FIFA World Cup 2026', emoji: '⚽', description: 'The Biggest Tournament in Football History', detail: 'Explore the build-up, the favorites, the pressure of expectations, and what fans around the world are saying.', badges: ['4 parts', '12 questions'], color: '#22c55e' },
+      { id: 'olympics', title: 'The Olympic Games — History, Politics and the Modern Era', emoji: '🏅', description: 'Faster, Higher, Stronger', detail: 'Explore the ancient origins of the Olympics, how the Games were reborn in 1896, and the complex role they play in politics, identity, and society today.', badges: ['4 parts', '12 questions'], color: '#7C3AED' },
     ]
   },
   {
