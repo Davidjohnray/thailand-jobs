@@ -1,32 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 export async function POST(req: NextRequest) {
   try {
     const { name, email, school } = await req.json()
     if (!name || !email) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
-    const { data: existing } = await supabase
-      .from('trial_signups')
-      .select('id')
-      .eq('email', email.toLowerCase())
-      .maybeSingle()
+    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-    if (existing) return NextResponse.json({ error: 'Already signed up' }, { status: 409 })
+    // Check for duplicate
+    const checkRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/trial_signups?email=eq.${encodeURIComponent(email.toLowerCase())}&select=id`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    )
+    const existing = await checkRes.json()
+    if (existing.length > 0) return NextResponse.json({ error: 'Already signed up' }, { status: 409 })
 
-    const { error } = await supabase.from('trial_signups').insert([{
-      name, email: email.toLowerCase(), school: school || null,
-      created_at: new Date().toISOString(), code_sent: false,
-    }])
+    // Insert
+    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/trial_signups`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        name, email: email.toLowerCase(), school: school || null, code_sent: false,
+      }),
+    })
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (!insertRes.ok) {
+      const err = await insertRes.text()
+      return NextResponse.json({ error: err }, { status: 500 })
+    }
+
     return NextResponse.json({ success: true })
-  } catch {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message || 'Server error' }, { status: 500 })
   }
 }
