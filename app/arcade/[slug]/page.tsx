@@ -13,6 +13,8 @@ const gameTypeLabel: Record<string, string> = {
 
 export default function ArcadePublicPage({ params }: { params: any }) {
   const { slug } = use(params) as { slug: string }
+  const RESERVED = ['trial', 'landing', 'activate', 'dashboard', 'builder']
+  if (RESERVED.includes(slug)) return null
   const [teacher, setTeacher] = useState<any>(null)
   const [games, setGames] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
