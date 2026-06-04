@@ -48,7 +48,17 @@ const CATEGORIES = [
 },
   { id: 'environment', title: 'Environment', emoji: '🌿', description: 'Climate, sustainability and the natural world', color: '#16a34a', lessons: [], comingSoon: true },
   { id: 'health', title: 'Health & Science', emoji: '🔬', description: 'Medicine, wellbeing and scientific discovery', color: '#ef4444', lessons: [], comingSoon: true },
-  { id: 'work', title: 'Work & Business', emoji: '💼', description: 'Careers, economics and the modern workplace', color: '#0ea5e9', lessons: [], comingSoon: true },
+  {
+  id: 'work',
+  title: 'Work & Business',
+  emoji: '💼',
+  description: 'Careers, economics and the modern workplace',
+  color: '#6366f1',
+  lessons: [
+    { id: 'income-inequality', title: 'Income Inequality', emoji: '💸', description: 'Is the Gap Between Rich and Poor Too Wide?', detail: 'Explore the causes and consequences of growing income inequality and the debate over what should be done about it.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
+    { id: 'university-degree', title: 'Is a University Degree Still Worth It?', emoji: '🎓', description: 'Degree or No Degree?', detail: 'Explore the rising cost of university, the arguments for and against a degree, and what the future of qualifications might look like.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
+  ]
+},
 ]
 
 export default function B2ReadingHub() {
