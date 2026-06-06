@@ -75,7 +75,7 @@ const QUIZ_Q = [
   { q: 'A female teacher ends a statement. Which particle?', correct: 'ค่ะ', options: ['คะ', 'ครับ', 'ค่ะ', 'นะ'] },
   { q: 'A female teacher asks a yes/no question. Which particle?', correct: 'คะ', options: ['ค่ะ', 'ครับ', 'นะ', 'คะ'] },
   { q: 'Which particle adds warmth and is used by both male and female?', correct: 'นะ', options: ['ครับ', 'ค่ะ', 'นะ', 'คะ'] },
-  { q: 'สวัสดีครับ is said by...?', correct: 'A male speaker', options: ['A female speaker', 'A male speaker', 'Either gender', 'Only elders'] },
+  { q: 'The polite greeting "Hello" said by a male speaker — which particle does it end with?', correct: 'A male speaker', options: ['A female speaker', 'A male speaker', 'Either gender', 'Only elders'] },
   { q: 'What tone does ค่ะ have?', correct: 'Falling tone', options: ['Mid tone', 'Rising tone', 'Falling tone', 'High tone'] },
   { q: 'What tone does คะ (question particle) have?', correct: 'Rising tone', options: ['Mid tone', 'Rising tone', 'Falling tone', 'Low tone'] },
   { q: 'ขอบคุณนะ sounds...?', correct: 'Warm and casual', options: ['Very formal', 'Rude', 'Warm and casual', 'Confused'] },
