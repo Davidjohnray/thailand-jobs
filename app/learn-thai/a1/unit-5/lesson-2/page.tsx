@@ -16,12 +16,12 @@ const TENS = [
 ]
 
 const PATTERNS = [
-  { label: 'Teens (13–19)', pattern: 'สิบ + number', example: 'สิบสาม = 13, สิบสี่ = 14, สิบหก = 16' },
-  { label: 'Exception: 11', pattern: 'สิบ + เอ็ด', example: 'สิบเอ็ด = 11 (never สิบหนึ่ง)' },
-  { label: 'Tens (30–90)', pattern: 'number + สิบ', example: 'สามสิบ = 30, สี่สิบ = 40, ห้าสิบ = 50' },
-  { label: 'Exception: 20', pattern: 'ยี่สิบ (not สองสิบ)', example: 'ยี่สิบ = 20, ยี่สิบหนึ่ง = 21' },
-  { label: 'Compound (21–99)', pattern: 'tens + units', example: 'สามสิบห้า = 35, หกสิบเจ็ด = 67' },
-  { label: 'Exception: units 1', pattern: 'เอ็ด at end', example: 'ยี่สิบเอ็ด = 21, สามสิบเอ็ด = 31' },
+  { label: 'Teens (13–19)', pattern: 'sip + number', example: 'sip saam = 13, sip sii = 14, sip hok = 16' },
+  { label: 'Exception: 11', pattern: 'sip + et', example: 'sip et = 11 (never sip nueng)' },
+  { label: 'Tens (30–90)', pattern: 'number + sip', example: 'saam sip = 30, sii sip = 40, haa sip = 50' },
+  { label: 'Exception: 20', pattern: 'yii sip (not soong sip)', example: 'yii sip = 20, yii sip nueng = 21' },
+  { label: 'Compound (21–99)', pattern: 'tens + units', example: 'saam sip haa = 35, hok sip jet = 67' },
+  { label: 'Exception: units 1', pattern: 'et at end', example: 'yii sip et = 21, saam sip et = 31' },
 ]
 
 const QUIZ_Q = [
