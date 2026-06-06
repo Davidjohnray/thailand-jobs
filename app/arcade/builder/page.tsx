@@ -14,18 +14,25 @@ const GAME_TYPES = [
 
 const TIMERS = [10, 15, 20, 30, 45, 60]
 
+const AGE_GROUPS = [
+  { id: 'under_5', label: '🐣 Under 5', desc: 'Picture + word + phonetic sound' },
+  { id: '5_11', label: '🌟 Ages 5–11', desc: 'Word + definition + optional picture' },
+  { id: '12_18', label: '📗 Ages 12–18', desc: 'Word + definition + example sentence' },
+  { id: 'adult', label: '👤 Adult', desc: 'Word + definition + example + notes' },
+]
+
 const MODES = [
-  { id: 'solo_enabled', label: '📚 Self Study', desc: 'Students review vocabulary cards and test themselves individually on their own device.' },
-  { id: 'tv_enabled', label: '📺 TV Classroom Mode', desc: 'Teacher presents vocabulary on the big screen, then runs a team quiz — no student devices needed.' },
+  { id: 'solo_enabled', label: '🃏 Learn Mode', desc: 'Students study vocabulary flip cards — word on front, definition on back. Works solo or teacher-led on screen.' },
+  { id: 'tv_enabled', label: '📺 TV Classroom Mode', desc: 'Teacher presents on the big screen, then runs a team quiz — no student devices needed.' },
   { id: 'multiplayer_enabled', label: '📱 Online Multiplayer', desc: 'Students join on their own devices with a room code and answer questions live.' },
 ]
 
 function emptyQuestion(type: string) {
-  if (type === 'vocab_blast') return { word: '', definition: '', distractor1: '', distractor2: '', distractor3: '' }
-  if (type === 'word_hunter') return { definition: '', correct_word: '', distractor1: '', distractor2: '', distractor3: '' }
-  if (type === 'quiz_master') return { question: '', option_a: '', option_b: '', option_c: '', option_d: '', correct: 'a' }
-  if (type === 'true_or_false') return { statement: '', correct: 'true' }
-  if (type === 'picture_quiz') return { question: '', image_url: '', option_a: '', option_b: '', option_c: '', option_d: '', correct: 'a' }
+  if (type === 'vocab_blast') return { word: '', definition: '', distractor1: '', distractor2: '', distractor3: '', phonetic: '', example_sentence: '', notes: '', image_data: '' }
+  if (type === 'word_hunter') return { definition: '', correct_word: '', distractor1: '', distractor2: '', distractor3: '', phonetic: '', example_sentence: '', notes: '', image_data: '' }
+  if (type === 'quiz_master') return { question: '', option_a: '', option_b: '', option_c: '', option_d: '', correct: 'a', example_sentence: '', notes: '', image_data: '' }
+  if (type === 'true_or_false') return { statement: '', correct: 'true', notes: '', image_data: '' }
+  if (type === 'picture_quiz') return { question: '', image_data: '', option_a: '', option_b: '', option_c: '', option_d: '', correct: 'a', notes: '' }
   return {}
 }
 
@@ -39,6 +46,7 @@ function BuilderContent() {
   const [authError, setAuthError] = useState('')
   const [title, setTitle] = useState('')
   const [gameType, setGameType] = useState('vocab_blast')
+  const [ageGroup, setAgeGroup] = useState('5_11')
   const [timerSeconds, setTimerSeconds] = useState(20)
   const [showVocabLesson, setShowVocabLesson] = useState(true)
   const [soloEnabled, setSoloEnabled] = useState(true)
@@ -47,11 +55,11 @@ function BuilderContent() {
   const [questions, setQuestions] = useState<any[]>([])
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [currentQ, setCurrentQ] = useState<any>(emptyQuestion('vocab_blast'))
-  const [uploadingImage, setUploadingImage] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [activeSection, setActiveSection] = useState<'setup' | 'questions'>('setup')
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const cardImageInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const s = sessionStorage.getItem('arcadeTeacher')
@@ -69,6 +77,7 @@ function BuilderContent() {
       if (!data) return
       setTitle(data.title)
       setGameType(data.game_type)
+      setAgeGroup(data.age_group || '5_11')
       setTimerSeconds(data.timer_seconds)
       setShowVocabLesson(data.show_vocab_lesson !== false)
       setSoloEnabled(data.solo_enabled !== false)
@@ -81,6 +90,26 @@ function BuilderContent() {
   useEffect(() => { setCurrentQ(emptyQuestion(gameType)); setEditingIndex(null) }, [gameType])
 
   const updateCurrentQ = (field: string, value: string) => setCurrentQ((prev: any) => ({ ...prev, [field]: value }))
+
+  // Convert image to base64 for session-only storage (not saved to Supabase)
+  const handleCardImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      updateCurrentQ('image_data', ev.target?.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // For picture_quiz game type — also session only
+  const handlePictureQuizImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      updateCurrentQ('image_data', ev.target?.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
 
   const addOrUpdateQuestion = () => {
     if (gameType === 'vocab_blast' && (!currentQ.word?.trim() || !currentQ.definition?.trim())) return alert('Please fill in the word and definition.')
@@ -105,17 +134,6 @@ function BuilderContent() {
     [newQ[index], newQ[target]] = [newQ[target], newQ[index]]; setQuestions(newQ)
   }
 
-  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return
-    setUploadingImage(true)
-    const ext = file.name.split('.').pop()
-    const filename = `game-${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('teacher-game-images').upload(filename, file, { upsert: true })
-    if (error) { alert('Upload failed: ' + error.message); setUploadingImage(false); return }
-    const { data } = supabase.storage.from('teacher-game-images').getPublicUrl(filename)
-    updateCurrentQ('image_url', data.publicUrl); setUploadingImage(false)
-  }
-
   const deleteGame = async () => {
     if (!gameId) return
     if (!confirm('Delete this game permanently? This cannot be undone.')) return
@@ -128,17 +146,30 @@ function BuilderContent() {
     if (questions.length === 0) return alert('Please add at least one question.')
     if (!soloEnabled && !tvEnabled && !multiplayerEnabled) return alert('Please enable at least one game mode.')
     setSaving(true)
+    // Strip image_data from saved questions — images are session only
+    const questionsToSave = questions.map(q => {
+      const { image_data, ...rest } = q
+      return rest
+    })
     const gameData = {
       teacher_email: teacher.user_email, teacher_slug: slug, title: title.trim(),
-      game_type: gameType, timer_seconds: timerSeconds, show_vocab_lesson: showVocabLesson,
-      solo_enabled: soloEnabled, tv_enabled: tvEnabled, multiplayer_enabled: multiplayerEnabled,
-      questions, question_count: questions.length, status, updated_at: new Date().toISOString(),
+      game_type: gameType, age_group: ageGroup, timer_seconds: timerSeconds,
+      show_vocab_lesson: showVocabLesson, solo_enabled: soloEnabled,
+      tv_enabled: tvEnabled, multiplayer_enabled: multiplayerEnabled,
+      questions: questionsToSave, question_count: questionsToSave.length,
+      status, updated_at: new Date().toISOString(),
     }
     if (gameId) { await supabase.from('custom_games').update(gameData).eq('id', gameId) }
     else { await supabase.from('custom_games').insert([{ ...gameData, play_count: 0 }]) }
     setSaving(false); setSaved(true)
     setTimeout(() => router.push('/arcade/dashboard'), 1200)
   }
+
+  // Show age-dependent optional fields
+  const showPhonetic = ageGroup === 'under_5' || ageGroup === '5_11'
+  const showExampleSentence = ageGroup === '12_18' || ageGroup === 'adult'
+  const showNotes = ageGroup === 'adult'
+  const showCardImage = true // always available
 
   if (authError === 'not_logged_in') return (
     <main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -190,12 +221,29 @@ function BuilderContent() {
         {activeSection === 'setup' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
+            {/* Title */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
               <label style={{ display: 'block', fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '8px' }}>Game Title *</label>
               <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Animals Vocabulary, Unit 3 Quiz..."
                 style={{ width: '100%', padding: '14px 16px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '16px', outline: 'none', boxSizing: 'border-box', fontWeight: '600' }} />
             </div>
 
+            {/* Age Group */}
+            <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '2px solid #e0f2fe' }}>
+              <label style={{ display: 'block', fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '4px' }}>👶 Age Group</label>
+              <p style={{ color: '#888', fontSize: '13px', marginBottom: '14px' }}>This changes which optional fields appear when adding questions.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px' }}>
+                {AGE_GROUPS.map(ag => (
+                  <button key={ag.id} onClick={() => setAgeGroup(ag.id)}
+                    style={{ padding: '14px', borderRadius: '12px', border: `3px solid ${ageGroup === ag.id ? '#0ea5e9' : '#e5e7eb'}`, background: ageGroup === ag.id ? '#f0f9ff' : 'white', cursor: 'pointer', textAlign: 'left' }}>
+                    <div style={{ fontWeight: '800', fontSize: '14px', color: ageGroup === ag.id ? '#0369a1' : '#1a1a2e', marginBottom: '4px' }}>{ag.label}</div>
+                    <div style={{ color: '#888', fontSize: '11px', lineHeight: '1.4' }}>{ag.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Game Type */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
               <label style={{ display: 'block', fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '12px' }}>Game Type *</label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
@@ -209,6 +257,7 @@ function BuilderContent() {
               </div>
             </div>
 
+            {/* Timer */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
               <label style={{ display: 'block', fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '12px' }}>Time Per Question</label>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -221,22 +270,10 @@ function BuilderContent() {
               </div>
             </div>
 
-            <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-                <div>
-                  <div style={{ fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '4px' }}>📚 Show Vocabulary Lesson First</div>
-                  <div style={{ color: '#888', fontSize: '13px' }}>Students see all words and definitions before the game starts.</div>
-                </div>
-                <button onClick={() => setShowVocabLesson(!showVocabLesson)}
-                  style={{ background: showVocabLesson ? '#f59e0b' : '#e5e7eb', border: 'none', borderRadius: '30px', width: '56px', height: '30px', cursor: 'pointer', position: 'relative', transition: 'all 0.2s', flexShrink: 0 }}>
-                  <div style={{ position: 'absolute', top: '3px', left: showVocabLesson ? '28px' : '3px', width: '24px', height: '24px', borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} />
-                </button>
-              </div>
-            </div>
-
+            {/* Game Modes */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '2px solid #fde68a' }}>
               <label style={{ display: 'block', fontWeight: '800', fontSize: '15px', color: '#1a1a2e', marginBottom: '4px' }}>🎮 Game Modes</label>
-              <p style={{ color: '#888', fontSize: '13px', marginBottom: '16px' }}>Choose which modes students can use to play this game.</p>
+              <p style={{ color: '#888', fontSize: '13px', marginBottom: '16px' }}>Choose which modes are available for this game.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {MODES.map(mode => {
                   const enabled = mode.id === 'solo_enabled' ? soloEnabled : mode.id === 'tv_enabled' ? tvEnabled : multiplayerEnabled
@@ -266,6 +303,15 @@ function BuilderContent() {
 
         {activeSection === 'questions' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+            {/* Image session-only notice */}
+            <div style={{ background: '#fff7ed', borderRadius: '12px', padding: '12px 16px', border: '1px solid #fed7aa', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '16px', flexShrink: 0 }}>📸</span>
+              <div style={{ fontSize: '13px', color: '#9a3412', lineHeight: '1.5' }}>
+                <strong>Images are session only</strong> — they display during your lesson but are not saved. You will need to re-add them next time you use this game.
+              </div>
+            </div>
+
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: '2px solid #fde68a' }}>
               <h3 style={{ fontSize: '17px', fontWeight: '800', color: '#1a1a2e', marginBottom: '20px' }}>
                 {editingIndex !== null ? `✏️ Editing Question ${editingIndex + 1}` : `➕ Add Question ${questions.length + 1}`}
@@ -279,16 +325,52 @@ function BuilderContent() {
                     <input value={currentQ.word || ''} onChange={e => updateCurrentQ('word', e.target.value)} placeholder="e.g. Photosynthesis"
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '15px', outline: 'none', boxSizing: 'border-box', fontWeight: '700' }} />
                   </div>
+                  {showPhonetic && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>🔉 Phonetic Sound <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional) e.g. /fəʊtəʊˈsɪnθəsɪs/</span></label>
+                      <input value={currentQ.phonetic || ''} onChange={e => updateCurrentQ('phonetic', e.target.value)} placeholder="e.g. /kæt/ or cat"
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e0f2fe', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
                   <div>
                     <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>✅ Correct Definition *</label>
                     <input value={currentQ.definition || ''} onChange={e => updateCurrentQ('definition', e.target.value)} placeholder="The correct definition"
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #22c55e', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                   </div>
+                  {showExampleSentence && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>💬 Example Sentence <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span></label>
+                      <input value={currentQ.example_sentence || ''} onChange={e => updateCurrentQ('example_sentence', e.target.value)} placeholder="e.g. Plants use photosynthesis to make their own food."
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
+                  {showNotes && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>📝 Notes <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional — shown on flip card back)</span></label>
+                      <input value={currentQ.notes || ''} onChange={e => updateCurrentQ('notes', e.target.value)} placeholder="e.g. Origin: Greek. Common in formal writing."
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
                   <div style={{ color: '#888', fontSize: '13px', fontWeight: '600' }}>❌ Wrong Options (distractors)</div>
                   {['distractor1', 'distractor2', 'distractor3'].map((key, i) => (
                     <input key={key} value={currentQ[key] || ''} onChange={e => updateCurrentQ(key, e.target.value)} placeholder={`Wrong option ${i + 1} (optional)`}
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #fca5a5', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                   ))}
+                  {/* Card image — session only */}
+                  <div>
+                    <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>🖼️ Card Image <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional — session only, not saved)</span></label>
+                    <input ref={cardImageInputRef} type="file" accept="image/*" onChange={handleCardImageUpload} style={{ display: 'none' }} />
+                    <button type="button" onClick={() => cardImageInputRef.current?.click()}
+                      style={{ background: '#1e3a5f', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
+                      📷 Upload Image
+                    </button>
+                    {currentQ.image_data && (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginLeft: '12px' }}>
+                        <img src={currentQ.image_data} alt="" style={{ width: '60px', height: '48px', objectFit: 'cover', borderRadius: '8px', verticalAlign: 'middle' }} />
+                        <button onClick={() => updateCurrentQ('image_data', '')} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>✕ Remove</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -308,11 +390,46 @@ function BuilderContent() {
                     <input value={currentQ.correct_word || ''} onChange={e => updateCurrentQ('correct_word', e.target.value)} placeholder="e.g. Photosynthesis"
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #22c55e', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontWeight: '700' }} />
                   </div>
+                  {showPhonetic && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>🔉 Phonetic Sound <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span></label>
+                      <input value={currentQ.phonetic || ''} onChange={e => updateCurrentQ('phonetic', e.target.value)} placeholder="e.g. /kæt/"
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e0f2fe', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
+                  {showExampleSentence && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>💬 Example Sentence <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span></label>
+                      <input value={currentQ.example_sentence || ''} onChange={e => updateCurrentQ('example_sentence', e.target.value)} placeholder="e.g. Plants use photosynthesis to make their own food."
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
+                  {showNotes && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>📝 Notes <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span></label>
+                      <input value={currentQ.notes || ''} onChange={e => updateCurrentQ('notes', e.target.value)} placeholder="Additional notes for the flip card"
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
                   <div style={{ color: '#888', fontSize: '13px', fontWeight: '600' }}>❌ Wrong Words (distractors)</div>
                   {['distractor1', 'distractor2', 'distractor3'].map((key, i) => (
                     <input key={key} value={currentQ[key] || ''} onChange={e => updateCurrentQ(key, e.target.value)} placeholder={`Wrong word ${i + 1} (optional)`}
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #fca5a5', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                   ))}
+                  <div>
+                    <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>🖼️ Card Image <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional — session only, not saved)</span></label>
+                    <input ref={cardImageInputRef} type="file" accept="image/*" onChange={handleCardImageUpload} style={{ display: 'none' }} />
+                    <button type="button" onClick={() => cardImageInputRef.current?.click()}
+                      style={{ background: '#1e3a5f', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
+                      📷 Upload Image
+                    </button>
+                    {currentQ.image_data && (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginLeft: '12px' }}>
+                        <img src={currentQ.image_data} alt="" style={{ width: '60px', height: '48px', objectFit: 'cover', borderRadius: '8px', verticalAlign: 'middle' }} />
+                        <button onClick={() => updateCurrentQ('image_data', '')} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>✕ Remove</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -324,6 +441,13 @@ function BuilderContent() {
                     <input value={currentQ.question || ''} onChange={e => updateCurrentQ('question', e.target.value)} placeholder="e.g. What is the capital of Thailand?"
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '15px', outline: 'none', boxSizing: 'border-box', fontWeight: '700' }} />
                   </div>
+                  {showNotes && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>📝 Notes <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span></label>
+                      <input value={currentQ.notes || ''} onChange={e => updateCurrentQ('notes', e.target.value)} placeholder="Additional context shown after reveal"
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
                   <div style={{ color: '#555', fontSize: '13px', fontWeight: '700' }}>Answer Options — tap the letter to mark as correct:</div>
                   {['a', 'b', 'c', 'd'].map(opt => (
                     <div key={opt} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -335,6 +459,20 @@ function BuilderContent() {
                         style={{ flex: 1, padding: '12px 14px', borderRadius: '10px', border: `2px solid ${currentQ.correct === opt ? '#22c55e' : '#e5e7eb'}`, fontSize: '14px', outline: 'none' }} />
                     </div>
                   ))}
+                  <div>
+                    <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>🖼️ Card Image <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional — session only, not saved)</span></label>
+                    <input ref={cardImageInputRef} type="file" accept="image/*" onChange={handleCardImageUpload} style={{ display: 'none' }} />
+                    <button type="button" onClick={() => cardImageInputRef.current?.click()}
+                      style={{ background: '#1e3a5f', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
+                      📷 Upload Image
+                    </button>
+                    {currentQ.image_data && (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginLeft: '12px' }}>
+                        <img src={currentQ.image_data} alt="" style={{ width: '60px', height: '48px', objectFit: 'cover', borderRadius: '8px', verticalAlign: 'middle' }} />
+                        <button onClick={() => updateCurrentQ('image_data', '')} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>✕ Remove</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -346,6 +484,13 @@ function BuilderContent() {
                     <input value={currentQ.statement || ''} onChange={e => updateCurrentQ('statement', e.target.value)} placeholder="e.g. Elephants are the largest land animals."
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '15px', outline: 'none', boxSizing: 'border-box', fontWeight: '700' }} />
                   </div>
+                  {showNotes && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>📝 Notes <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span></label>
+                      <input value={currentQ.notes || ''} onChange={e => updateCurrentQ('notes', e.target.value)} placeholder="Extra context shown after reveal"
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
                   <div style={{ fontWeight: '700', fontSize: '13px', color: '#374151' }}>Correct Answer:</div>
                   <div style={{ display: 'flex', gap: '12px' }}>
                     {['true', 'false'].map(val => (
@@ -367,12 +512,18 @@ function BuilderContent() {
                       style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '15px', outline: 'none', boxSizing: 'border-box', fontWeight: '700' }} />
                   </div>
                   <div>
-                    <input ref={imageInputRef} type="file" accept="image/*" onChange={uploadImage} style={{ display: 'none' }} />
-                    <button type="button" onClick={() => imageInputRef.current?.click()} disabled={uploadingImage}
-                      style={{ background: uploadingImage ? '#e5e7eb' : '#1e3a5f', color: uploadingImage ? '#9ca3af' : 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: uploadingImage ? 'not-allowed' : 'pointer', fontWeight: '700', fontSize: '14px' }}>
-                      {uploadingImage ? '⏳ Uploading...' : '📷 Upload Image'}
+                    <label style={{ display: 'block', fontWeight: '700', fontSize: '13px', color: '#374151', marginBottom: '6px' }}>🖼️ Image <span style={{ color: '#9ca3af', fontWeight: '400' }}>(session only — re-upload each session)</span></label>
+                    <input ref={imageInputRef} type="file" accept="image/*" onChange={handlePictureQuizImageUpload} style={{ display: 'none' }} />
+                    <button type="button" onClick={() => imageInputRef.current?.click()}
+                      style={{ background: '#1e3a5f', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
+                      📷 Upload Image
                     </button>
-                    {currentQ.image_url && <img src={currentQ.image_url} alt="" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '8px', marginLeft: '12px', verticalAlign: 'middle' }} />}
+                    {currentQ.image_data && (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginLeft: '12px' }}>
+                        <img src={currentQ.image_data} alt="" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '8px', verticalAlign: 'middle' }} />
+                        <button onClick={() => updateCurrentQ('image_data', '')} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>✕ Remove</button>
+                      </div>
+                    )}
                   </div>
                   {['a', 'b', 'c', 'd'].map(opt => (
                     <div key={opt} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -408,7 +559,7 @@ function BuilderContent() {
                       <div style={{ background: '#f59e0b', color: '#1a1a2e', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>{i + 1}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{q.word || q.correct_word || q.question || q.statement || 'Question'}</div>
-                        <div style={{ color: '#888', fontSize: '12px' }}>{q.definition || q.correct_word || (q.correct === 'true' ? '✅ True' : q.correct === 'false' ? '❌ False' : `Correct: ${(q.correct || 'a').toUpperCase()}`)}</div>
+                        <div style={{ color: '#888', fontSize: '12px' }}>{q.definition || q.correct_word || (q.correct === 'true' ? '✅ True' : q.correct === 'false' ? '❌ False' : `Correct: ${(q.correct || 'a').toUpperCase()}`)}{q.phonetic ? ` · ${q.phonetic}` : ''}</div>
                       </div>
                       <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                         <button onClick={() => moveQuestion(i, 'up')} disabled={i === 0} style={{ background: '#f3f4f6', border: 'none', width: '30px', height: '30px', borderRadius: '6px', cursor: i === 0 ? 'not-allowed' : 'pointer', opacity: i === 0 ? 0.4 : 1 }}>↑</button>

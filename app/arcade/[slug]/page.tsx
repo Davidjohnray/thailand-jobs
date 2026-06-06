@@ -91,8 +91,8 @@ export default function ArcadePublicPage({ params }: { params: any }) {
             {games.map(game => (
               <Link key={game.id} href={`/arcade/${slug}/${game.id}`} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '18px', padding: '28px 24px', border: '2px solid rgba(255,255,255,0.12)', cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}>
+                  onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'rgba(255,255,255,0.15)'; el.style.transform = 'translateY(-4px)' }}
+                  onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'rgba(255,255,255,0.08)'; el.style.transform = 'translateY(0)' }}>
                   <div style={{ fontSize: '40px', marginBottom: '14px' }}>
                     {game.game_type === 'vocab_blast' ? '🎯' : game.game_type === 'word_hunter' ? '🔍' : game.game_type === 'quiz_master' ? '📝' : game.game_type === 'true_or_false' ? '✅' : '🖼️'}
                   </div>

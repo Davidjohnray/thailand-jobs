@@ -35,20 +35,21 @@ export default function GameModePage({ params }: { params: any }) {
   const questionCount = Array.isArray(game.questions) ? game.questions.length : 0
   const tvEnabled = game.tv_enabled !== false
   const multiEnabled = !!game.multiplayer_enabled
+  const learnEnabled = game.solo_enabled !== false
 
   const modes = [
     {
-      id: 'solo', enabled: true,
-      icon: '📚', label: 'Self Study',
-      desc: 'Review the vocabulary cards and test your knowledge with a quiz — study at your own pace.',
-      color: '#f59e0b',
+      id: 'learn', enabled: learnEnabled,
+      icon: '🃏', label: 'Learn Mode',
+      desc: 'Study vocabulary with flip cards — word on front, definition on back. Use alone or with the teacher presenting on screen.',
+      color: '#0ea5e9',
       href: `/arcade/${slug}/${gameId}/solo`,
-      tag: 'Individual · Work at your own pace',
+      tag: 'Flip cards · No pressure · Any age',
     },
     {
       id: 'tv', enabled: tvEnabled,
       icon: '📺', label: 'TV Classroom Mode',
-      desc: 'Teacher presents vocabulary on the big screen, then runs a team quiz — no student devices needed.',
+      desc: 'Teacher presents on the big screen and runs a team quiz — no student devices needed.',
       color: '#E85D26',
       href: `/arcade/${slug}/${gameId}/tv`,
       tag: 'Big screen · 1–6 teams · Teacher controlled',
@@ -76,11 +77,15 @@ export default function GameModePage({ params }: { params: any }) {
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>❓ {questionCount} questions</span>
             <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>⏱ {game.timer_seconds}s timer</span>
-            {game.show_vocab_lesson && <span style={{ background: 'rgba(245,158,11,0.3)', color: '#fbbf24', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>📚 Vocab included</span>}
+            {game.age_group && (
+              <span style={{ background: 'rgba(14,165,233,0.25)', color: '#7dd3fc', padding: '4px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '600' }}>
+                {game.age_group === 'under_5' ? '🐣 Under 5' : game.age_group === '5_11' ? '🌟 Ages 5–11' : game.age_group === '12_18' ? '📗 Ages 12–18' : '👤 Adult'}
+              </span>
+            )}
           </div>
         </div>
 
-        <h2 style={{ color: 'white', fontSize: '18px', fontWeight: '800', textAlign: 'center', marginBottom: '16px' }}>Choose How to Play</h2>
+        <h2 style={{ color: 'white', fontSize: '18px', fontWeight: '800', textAlign: 'center', marginBottom: '16px' }}>Choose a Mode</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {modes.map(mode => {
             if (!mode.enabled) return (
@@ -97,8 +102,8 @@ export default function GameModePage({ params }: { params: any }) {
             return (
               <Link key={mode.id} href={mode.href} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px 24px', border: '2px solid rgba(255,255,255,0.12)', cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.14)'; (e.currentTarget as HTMLDivElement).style.borderColor = mode.color }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.12)' }}>
+                  onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'rgba(255,255,255,0.14)'; el.style.borderColor = mode.color }}
+                  onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.background = 'rgba(255,255,255,0.08)'; el.style.borderColor = 'rgba(255,255,255,0.12)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{ fontSize: '36px', flexShrink: 0 }}>{mode.icon}</div>
                     <div style={{ flex: 1 }}>
