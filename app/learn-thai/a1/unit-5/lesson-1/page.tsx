@@ -70,10 +70,10 @@ const QUIZ_Q = [
   { q: 'What does "ห้า" (haa) mean?', correct: 'Five', options: ['Four', 'Six', 'Five', 'Seven'] },
   { q: 'Thai people write "555" online to mean what?', correct: 'Hahaha (laughing)', options: ['Very good', 'Hahaha (laughing)', 'I am fine', 'Thank you'] },
   { q: 'What is "sip" in Thai?', correct: 'Ten', options: ['Eight', 'Nine', 'Seven', 'Ten'] },
-  { q: 'What does สอง mean?', correct: 'Two', options: ['Three', 'Two', 'Four', 'One'] },
+  { q: 'What does the Thai word for 2 sound like in English?', correct: 'Two', options: ['Three', 'Two', 'Four', 'One'] },
   { q: 'Which number is considered lucky in Thailand?', correct: 'Nine', options: ['Seven', 'Eight', 'Nine', 'Six'] },
   { q: 'What is the Thai word for eight?', correct: 'Bpaet', options: ['Jet', 'Gao', 'Hok', 'Bpaet'] },
-  { q: 'สาม วัน means...?', correct: 'Three days', options: ['Three people', 'Three hours', 'Three days', 'Three baht'] },
+  { q: '"Saam wan" means...?', correct: 'Three days', options: ['Three people', 'Three hours', 'Three days', 'Three baht'] },
 ]
 
 function speak(text: string, rate = 0.7) {
@@ -85,12 +85,16 @@ function speak(text: string, rate = 0.7) {
 }
 
 export default function Unit5Lesson1() {
-  const [phase, setPhase] = useState<'learn' | 'quiz' | 'complete'>('learn')
+  const [phase, setPhase] = useState<'learn' | 'quiz' | 'script' | 'complete'>('learn')
   const [cardIndex, setCardIndex] = useState(0)
   const [quizIndex, setQuizIndex] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
   const [correct, setCorrect] = useState(0)
   const [answers, setAnswers] = useState<boolean[]>([])
+  const [scriptIndex, setScriptIndex] = useState(0)
+  const [scriptSelected, setScriptSelected] = useState<string | null>(null)
+  const [scriptScore, setScriptScore] = useState(0)
+  const [scriptAnswers, setScriptAnswers] = useState<boolean[]>([])
 
   const card = NUMBERS[cardIndex]
   const pct = Math.round((correct / QUIZ_Q.length) * 100)
@@ -104,7 +108,7 @@ export default function Unit5Lesson1() {
   }
 
   const nextQ = () => {
-    if (quizIndex + 1 >= QUIZ_Q.length) { setPhase('complete'); return }
+    if (quizIndex + 1 >= QUIZ_Q.length) { setPhase('script'); setScriptIndex(0); setScriptSelected(null); setScriptScore(0); setScriptAnswers([]); return }
     setQuizIndex(prev => prev + 1); setSelected(null)
   }
 
@@ -117,6 +121,7 @@ export default function Unit5Lesson1() {
         <div style={{ display: 'flex', gap: '8px' }}>
           <button onClick={() => { setPhase('learn'); setCardIndex(0) }} style={{ background: phase === 'learn' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>📖 Learn</button>
           <button onClick={() => { setPhase('quiz'); setQuizIndex(0); setSelected(null); setCorrect(0); setAnswers([]) }} style={{ background: phase === 'quiz' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>🧠 Quiz</button>
+          <button onClick={() => { setPhase('script'); setScriptIndex(0); setScriptSelected(null); setScriptScore(0); setScriptAnswers([]) }} style={{ background: phase === 'script' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>✍️ Script</button>
         </div>
       </div>
 
@@ -263,6 +268,82 @@ export default function Unit5Lesson1() {
         </div>
       )}
 
+      {phase === 'script' && (
+        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '32px 24px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', borderLeft: '5px solid #7c3aed' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '900', color: '#1a1a2e', marginBottom: '8px' }}>✍️ Script Recognition</h2>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Look at the Thai number script and choose the correct number. This trains your eye to recognise Thai numerals.</p>
+          </div>
+
+          <div style={{ background: 'white', borderRadius: '16px', padding: '14px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+            <span style={{ color: '#7c3aed', fontWeight: '700', fontSize: '14px' }}>{scriptIndex + 1} / {NUMBERS.length}</span>
+            <div style={{ flex: 1, background: '#e5e7eb', borderRadius: '10px', height: '8px', overflow: 'hidden' }}>
+              <div style={{ height: '8px', background: '#7c3aed', borderRadius: '10px', width: `${((scriptIndex + 1) / NUMBERS.length) * 100}%`, transition: 'width 0.3s' }} />
+            </div>
+            <span style={{ color: '#f59e0b', fontWeight: '700', fontSize: '14px' }}>⭐ {scriptScore}</span>
+          </div>
+
+          <div style={{ background: 'white', borderRadius: '20px', padding: '36px 28px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '16px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <div style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Which number is this?</div>
+              <div style={{ fontSize: '96px', fontWeight: '900', color: '#7c3aed', lineHeight: 1, marginBottom: '16px' }}>{NUMBERS[scriptIndex].thai}</div>
+              <button onClick={() => speak(NUMBERS[scriptIndex].thai)}
+                style={{ background: '#f5f3ff', color: '#7c3aed', border: '2px solid #ede9fe', padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
+                🔊 Hear it
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              {(() => {
+                const correct_num = NUMBERS[scriptIndex].num
+                const others = NUMBERS.filter(n => n.num !== correct_num).sort(() => Math.random() - 0.5).slice(0, 3).map(n => n.num)
+                const options = [correct_num, ...others].sort(() => Math.random() - 0.5)
+                return options.map(num => {
+                  const isCorrect = num === correct_num
+                  const isSelected = scriptSelected === String(num)
+                  let bg = '#f9fafb', border = '#e5e7eb', textColor = '#1a1a2e'
+                  if (scriptSelected) {
+                    if (isCorrect) { bg = '#f5f3ff'; border = '#7c3aed'; textColor = '#5b21b6' }
+                    else if (isSelected) { bg = '#fef2f2'; border = '#ef4444'; textColor = '#dc2626' }
+                  }
+                  return (
+                    <button key={num} onClick={() => {
+                      if (scriptSelected) return
+                      setScriptSelected(String(num))
+                      if (isCorrect) setScriptScore(prev => prev + 1)
+                      setScriptAnswers(prev => [...prev, isCorrect])
+                    }} disabled={!!scriptSelected}
+                      style={{ background: bg, border: `2px solid ${border}`, borderRadius: '14px', padding: '20px', cursor: scriptSelected ? 'default' : 'pointer', transition: 'all 0.2s', textAlign: 'center' }}>
+                      <div style={{ fontSize: '32px', fontWeight: '900', color: textColor }}>{num}</div>
+                      {scriptSelected && <div style={{ color: textColor, fontSize: '14px', fontWeight: '700', marginTop: '4px' }}>{NUMBERS.find(n => n.num === num)?.roman}</div>}
+                      {scriptSelected && isCorrect && <div style={{ color: '#7c3aed', fontSize: '18px', marginTop: '4px' }}>✓</div>}
+                      {scriptSelected && isSelected && !isCorrect && <div style={{ color: '#ef4444', fontSize: '18px', marginTop: '4px' }}>✗</div>}
+                    </button>
+                  )
+                })
+              })()}
+            </div>
+          </div>
+
+          {scriptSelected && (
+            <div style={{ background: NUMBERS[scriptIndex].num === Number(scriptSelected) ? '#f5f3ff' : '#fef2f2', borderRadius: '14px', padding: '14px 20px', marginBottom: '16px', border: `2px solid ${NUMBERS[scriptIndex].num === Number(scriptSelected) ? '#ede9fe' : '#fca5a5'}` }}>
+              {NUMBERS[scriptIndex].num === Number(scriptSelected)
+                ? <span style={{ color: '#5b21b6', fontWeight: '700' }}>✅ Correct! {NUMBERS[scriptIndex].thai} = {NUMBERS[scriptIndex].english} ({NUMBERS[scriptIndex].roman})</span>
+                : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ That is {NUMBERS[scriptIndex].thai} — {NUMBERS[scriptIndex].english} ({NUMBERS[scriptIndex].roman})</span>
+              }
+            </div>
+          )}
+
+          {scriptSelected && (
+            <button onClick={() => {
+              if (scriptIndex + 1 >= NUMBERS.length) { setPhase('complete'); return }
+              setScriptIndex(prev => prev + 1); setScriptSelected(null)
+            }} style={{ width: '100%', background: 'linear-gradient(135deg, #4c1d95, #7c3aed)', color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: 'pointer' }}>
+              {scriptIndex + 1 >= NUMBERS.length ? '🏆 Finish →' : 'Next →'}
+            </button>
+          )}
+        </div>
+      )}
+
       {phase === 'complete' && (
         <div style={{ maxWidth: '520px', margin: '0 auto', padding: '40px 24px', textAlign: 'center' }}>
           <div style={{ background: 'white', borderRadius: '24px', padding: '48px 36px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
@@ -275,7 +356,7 @@ export default function Unit5Lesson1() {
             </div>
             <div style={{ background: '#f5f3ff', borderRadius: '14px', padding: '16px 20px', marginBottom: '24px', border: '2px solid #ede9fe', textAlign: 'left' }}>
               <div style={{ color: '#5b21b6', fontWeight: '800', fontSize: '14px', marginBottom: '8px' }}>✅ Lesson Complete!</div>
-              <div style={{ color: '#374151', fontSize: '14px', lineHeight: '1.6' }}>You know numbers 1–10 in Thai. Next: numbers 11–100 — the pattern makes it easy once you know these first ten.</div>
+              <div style={{ color: '#374151', fontSize: '14px', lineHeight: '1.6' }}>You know numbers 1–10 in Thai — vocabulary, pronunciation AND script recognition. Next: numbers 11–100.</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <Link href="/learn-thai/a1/unit-5/lesson-2" style={{ display: 'block', background: 'linear-gradient(135deg, #4c1d95, #7c3aed)', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '16px' }}>
