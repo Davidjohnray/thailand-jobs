@@ -16,35 +16,34 @@ function shuffleArray<T>(arr: T[]): T[] {
 function normalizeQuestions(raw: any[], gameType: string) {
   return raw.map(q => {
     if (gameType === 'word_hunter') {
-    const distractors = [q.distractor1, q.distractor2, q.distractor3].filter(Boolean)
-    const allOptions = shuffleArray([q.correct_word, ...distractors])
-    return { questionText: q.definition, imageUrl: undefined, options: allOptions, correctIndex: allOptions.indexOf(q.correct_word) }
-  }
-  if (gameType === 'vocab_blast') {
+      const distractors = [q.distractor1, q.distractor2, q.distractor3].filter(Boolean)
+      const allOptions = shuffleArray([q.correct_word, ...distractors])
+      return { questionText: q.definition, imageUrl: q.image_data || undefined, options: allOptions, correctIndex: allOptions.indexOf(q.correct_word) }
+    }
+    if (gameType === 'vocab_blast') {
       const distractors = [q.distractor1, q.distractor2, q.distractor3].filter(Boolean)
       const allOptions = shuffleArray([q.definition, ...distractors])
-      return { questionText: q.word, imageUrl: undefined, options: allOptions, correctIndex: allOptions.indexOf(q.definition) }
+      return { questionText: q.word, imageUrl: q.image_data || undefined, options: allOptions, correctIndex: allOptions.indexOf(q.definition) }
     }
     if (gameType === 'quiz_master' || gameType === 'picture_quiz') {
       const opts = [q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean)
       const correctOpt = opts[['a','b','c','d'].indexOf(q.correct)]
       const shuffled = shuffleArray(opts)
-      return { questionText: q.question, imageUrl: q.image_url || undefined, options: shuffled, correctIndex: shuffled.indexOf(correctOpt) }
+      return { questionText: q.question, imageUrl: q.image_data || q.image_url || undefined, options: shuffled, correctIndex: shuffled.indexOf(correctOpt) }
     }
-    if (gameType === 'true_or_false') return { questionText: q.statement, imageUrl: undefined, options: ['True', 'False'], correctIndex: q.correct === 'true' ? 0 : 1 }
+    if (gameType === 'true_or_false') return { questionText: q.statement, imageUrl: q.image_data || undefined, options: ['True', 'False'], correctIndex: q.correct === 'true' ? 0 : 1 }
     return { questionText: '', imageUrl: undefined, options: [], correctIndex: 0 }
   })
 }
 
-type Phase = 'vocab' | 'setup' | 'waiting' | 'playing' | 'revealed' | 'leaderboard' | 'finished'
+type Phase = 'setup' | 'waiting' | 'playing' | 'revealed' | 'leaderboard' | 'finished'
 
 export default function TVModePage({ params }: { params: any }) {
   const { slug, gameId } = use(params) as { slug: string; gameId: string }
   const [game, setGame] = useState<any>(null)
   const [questions, setQuestions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [phase, setPhase] = useState<Phase>('vocab')
-  const [vocabIndex, setVocabIndex] = useState(0)
+  const [phase, setPhase] = useState<Phase>('setup')
 
   // Setup
   const [teamCount, setTeamCount] = useState(4)
@@ -64,7 +63,16 @@ export default function TVModePage({ params }: { params: any }) {
     supabase.from('custom_games').select('*').eq('id', gameId).single().then(({ data }) => {
       if (!data) { setLoading(false); return }
       setGame(data)
-      setQuestions(normalizeQuestions(Array.isArray(data.questions) ? data.questions : [], data.game_type))
+      // Merge sessionStorage images back into questions
+      let rawQuestions = Array.isArray(data.questions) ? data.questions : []
+      try {
+        const stored = sessionStorage.getItem(`game_images_${gameId}`)
+        if (stored) {
+          const images = JSON.parse(stored)
+          rawQuestions = rawQuestions.map((q: any, i: number) => images[i] ? { ...q, image_data: images[i] } : q)
+        }
+      } catch {}
+      setQuestions(normalizeQuestions(rawQuestions, data.game_type))
       setTimerSeconds(data.timer_seconds || 30)
       setTimeLeft(data.timer_seconds || 30)
       setLoading(false)
@@ -106,59 +114,28 @@ export default function TVModePage({ params }: { params: any }) {
   }
 
   const restartGame = () => {
-    setQuestions(normalizeQuestions(Array.isArray(game.questions) ? game.questions : [], game.game_type))
-    setQuestionIndex(0); setScores(Array(6).fill(0)); setPhase('vocab'); setVocabIndex(0); setTimeLeft(timerSeconds)
+    let rawQuestions = Array.isArray(game.questions) ? game.questions : []
+    try {
+      const stored = sessionStorage.getItem(`game_images_${gameId}`)
+      if (stored) {
+        const images = JSON.parse(stored)
+        rawQuestions = rawQuestions.map((q: any, i: number) => images[i] ? { ...q, image_data: images[i] } : q)
+      }
+    } catch {}
+    setQuestions(normalizeQuestions(rawQuestions, game.game_type))
+    setQuestionIndex(0); setScores(Array(6).fill(0)); setPhase('setup'); setTimeLeft(timerSeconds)
   }
 
   if (loading) return <main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ color: 'white', fontSize: '24px' }}>Loading...</div></main>
   if (!game) return <main style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ color: 'white' }}>Game not found. <Link href={`/arcade/${slug}`} style={{ color: '#f59e0b' }}>Go back</Link></div></main>
 
-  const rawVocab = Array.isArray(game.questions) ? game.questions : []
   const teams = teamNames.slice(0, teamCount)
   const q = questions[questionIndex]
   const timerPct = useTimer ? (timeLeft / timerSeconds) * 100 : 100
   const timerColor = timerPct > 50 ? '#22c55e' : timerPct > 25 ? '#f59e0b' : '#ef4444'
   const sortedTeams = teams.map((name, i) => ({ name, score: scores[i], color: TEAM_COLORS[i], emoji: TEAM_EMOJIS[i], idx: i })).sort((a, b) => b.score - a.score)
 
-  // VOCAB PHASE
-  if (phase === 'vocab') {
-    const word = rawVocab[vocabIndex]
-    return (
-      <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', display: 'flex', flexDirection: 'column', padding: '40px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-          <Link href={`/arcade/${slug}/${gameId}`} style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none', fontSize: '16px' }}>← Back</Link>
-          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '20px', fontWeight: '700' }}>📚 Vocabulary — {vocabIndex + 1} / {rawVocab.length}</div>
-          <div style={{ width: '60px' }} />
-        </div>
-        <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '12px', height: '8px', marginBottom: '40px' }}>
-          <div style={{ height: '8px', borderRadius: '12px', background: '#f59e0b', width: `${((vocabIndex + 1) / rawVocab.length) * 100}%`, transition: 'width 0.3s' }} />
-        </div>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '1000px', textAlign: 'center' }}>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '18px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '24px' }}>
-              {game.game_type === 'vocab_blast' ? 'Word' : game.game_type === 'true_or_false' ? 'Statement' : 'Question'}
-            </div>
-            {word?.image_url && <img src={word.image_url} alt="" style={{ maxHeight: '260px', objectFit: 'contain', borderRadius: '16px', marginBottom: '28px' }} />}
-            <div style={{ color: 'white', fontSize: '64px', fontWeight: '900', marginBottom: '36px', lineHeight: 1.2 }}>
-              {word?.word || word?.question || word?.statement}
-            </div>
-            <div style={{ background: 'rgba(34,197,94,0.15)', border: '3px solid #22c55e', borderRadius: '20px', padding: '28px 40px', fontSize: '30px', color: '#86efac', fontWeight: '700', lineHeight: '1.6', maxWidth: '800px', margin: '0 auto' }}>
-              {word?.definition || (word?.correct === 'true' ? '✅ TRUE' : word?.correct === 'false' ? '❌ FALSE' : word?.['option_' + word?.correct])}
-            </div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '40px', flexWrap: 'wrap' }}>
-          {vocabIndex > 0 && <button onClick={() => setVocabIndex(prev => prev - 1)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '2px solid rgba(255,255,255,0.2)', padding: '16px 40px', borderRadius: '14px', fontWeight: '800', fontSize: '18px', cursor: 'pointer' }}>← Previous</button>}
-          {vocabIndex + 1 < rawVocab.length
-            ? <button onClick={() => setVocabIndex(prev => prev + 1)} style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', border: 'none', padding: '16px 48px', borderRadius: '14px', fontWeight: '900', fontSize: '20px', cursor: 'pointer' }}>Next →</button>
-            : <button onClick={() => setPhase('setup')} style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '16px 48px', borderRadius: '14px', fontWeight: '900', fontSize: '20px', cursor: 'pointer' }}>✅ Vocab Done — Set Up Game →</button>
-          }
-        </div>
-      </main>
-    )
-  }
-
-  // SETUP PHASE
+  // SETUP PHASE — goes straight here, no vocab
   if (phase === 'setup') {
     return (
       <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
@@ -166,7 +143,6 @@ export default function TVModePage({ params }: { params: any }) {
           <h1 style={{ color: 'white', fontSize: '36px', fontWeight: '900', textAlign: 'center', marginBottom: '8px' }}>🎮 Game Setup</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', fontSize: '16px', marginBottom: '36px' }}>{game.title} · {questions.length} questions</p>
 
-          {/* Team count */}
           <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px', marginBottom: '20px', border: '2px solid rgba(255,255,255,0.1)' }}>
             <div style={{ color: 'white', fontWeight: '800', fontSize: '18px', marginBottom: '16px' }}>👥 Number of Teams</div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -179,7 +155,6 @@ export default function TVModePage({ params }: { params: any }) {
             </div>
           </div>
 
-          {/* Team names */}
           <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px', marginBottom: '20px', border: '2px solid rgba(255,255,255,0.1)' }}>
             <div style={{ color: 'white', fontWeight: '800', fontSize: '18px', marginBottom: '16px' }}>✏️ Team Names</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
@@ -193,7 +168,6 @@ export default function TVModePage({ params }: { params: any }) {
             </div>
           </div>
 
-          {/* Timer settings */}
           <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px', marginBottom: '28px', border: '2px solid rgba(255,255,255,0.1)' }}>
             <div style={{ color: 'white', fontWeight: '800', fontSize: '18px', marginBottom: '16px' }}>⏱ Timer</div>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -207,12 +181,12 @@ export default function TVModePage({ params }: { params: any }) {
               </button>
             </div>
             {useTimer && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
                 <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '15px', flexShrink: 0 }}>Seconds per question:</span>
                 <input type="number" value={timerSeconds} min={5} max={120}
                   onChange={e => { const v = parseInt(e.target.value) || 30; setTimerSeconds(v); setTimeLeft(v) }}
                   style={{ width: '80px', padding: '10px 14px', borderRadius: '10px', border: '2px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: '900', fontSize: '18px', outline: 'none', textAlign: 'center' }} />
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {[15,20,30,45,60].map(s => (
                     <button key={s} onClick={() => { setTimerSeconds(s); setTimeLeft(s) }}
                       style={{ padding: '8px 14px', borderRadius: '8px', border: '2px solid', borderColor: timerSeconds === s ? '#f59e0b' : 'rgba(255,255,255,0.2)', background: timerSeconds === s ? 'rgba(245,158,11,0.2)' : 'transparent', color: timerSeconds === s ? '#f59e0b' : 'rgba(255,255,255,0.5)', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
@@ -225,7 +199,9 @@ export default function TVModePage({ params }: { params: any }) {
           </div>
 
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button onClick={() => setPhase('vocab')} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '2px solid rgba(255,255,255,0.2)', padding: '16px 28px', borderRadius: '14px', fontWeight: '800', fontSize: '16px', cursor: 'pointer' }}>← Back to Vocab</button>
+            <Link href={`/arcade/${slug}/${gameId}`} style={{ textDecoration: 'none' }}>
+              <button style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '2px solid rgba(255,255,255,0.2)', padding: '16px 28px', borderRadius: '14px', fontWeight: '800', fontSize: '16px', cursor: 'pointer' }}>← Back</button>
+            </Link>
             <button onClick={() => setPhase('waiting')} style={{ flex: 1, background: 'linear-gradient(135deg, #E85D26, #dc4d1e)', color: 'white', border: 'none', padding: '16px 28px', borderRadius: '14px', fontWeight: '900', fontSize: '20px', cursor: 'pointer' }}>
               🎮 Start Game!
             </button>
@@ -248,9 +224,7 @@ export default function TVModePage({ params }: { params: any }) {
               <div key={team.idx} style={{ background: rank === 0 ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px 28px', display: 'flex', alignItems: 'center', gap: '20px', border: `3px solid ${rank === 0 ? '#f59e0b' : team.color + '40'}` }}>
                 <div style={{ fontSize: '36px', flexShrink: 0 }}>{rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `${rank + 1}.`}</div>
                 <div style={{ fontSize: '28px', flexShrink: 0 }}>{team.emoji}</div>
-                <div style={{ flex: 1, textAlign: 'left' }}>
-                  <div style={{ color: 'white', fontWeight: '900', fontSize: '22px' }}>{team.name}</div>
-                </div>
+                <div style={{ flex: 1, textAlign: 'left' }}><div style={{ color: 'white', fontWeight: '900', fontSize: '22px' }}>{team.name}</div></div>
                 <div style={{ fontSize: '32px', fontWeight: '900', color: rank === 0 ? '#f59e0b' : team.color }}>{team.score} pts</div>
               </div>
             ))}
@@ -276,7 +250,7 @@ export default function TVModePage({ params }: { params: any }) {
           {sortedTeams.map((team, rank) => {
             const barWidth = sortedTeams[0].score > 0 ? (team.score / sortedTeams[0].score) * 100 : 0
             return (
-              <div key={team.idx} style={{ background: rank === 0 ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: '16px', padding: '18px 24px', border: `3px solid ${rank === 0 ? '#f59e0b50' : team.color + '30'}`, transition: 'all 0.3s' }}>
+              <div key={team.idx} style={{ background: rank === 0 ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: '16px', padding: '18px 24px', border: `3px solid ${rank === 0 ? '#f59e0b50' : team.color + '30'}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '10px' }}>
                   <div style={{ fontSize: '28px', flexShrink: 0 }}>{rank === 0 ? '👑' : `${rank + 1}.`}</div>
                   <div style={{ fontSize: '24px', flexShrink: 0 }}>{team.emoji}</div>
@@ -306,13 +280,11 @@ export default function TVModePage({ params }: { params: any }) {
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', display: 'flex', flexDirection: 'column', padding: '24px 40px' }}>
       <style>{`@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}`}</style>
 
-      {/* Top bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <div style={{ color: 'white', fontWeight: '800', fontSize: '18px' }}>{game.title}</div>
         <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '18px', fontWeight: '700' }}>Q {questionIndex + 1} / {questions.length}</div>
       </div>
 
-      {/* Team scores bar */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
         {teams.map((name, i) => (
           <div key={i} style={{ flex: 1, minWidth: '80px', background: TEAM_COLORS[i] + '25', borderRadius: '12px', padding: '10px 14px', border: `2px solid ${TEAM_COLORS[i]}50`, textAlign: 'center' }}>
@@ -323,12 +295,10 @@ export default function TVModePage({ params }: { params: any }) {
         ))}
       </div>
 
-      {/* Progress bar */}
       <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', height: '6px', marginBottom: '16px' }}>
         <div style={{ height: '6px', borderRadius: '10px', background: '#f59e0b', width: `${((questionIndex + 1) / questions.length) * 100}%`, transition: 'width 0.5s' }} />
       </div>
 
-      {/* Timer */}
       {useTimer && (phase === 'playing' || phase === 'revealed') && (
         <div style={{ textAlign: 'center', marginBottom: '12px' }}>
           <div style={{ fontSize: '64px', fontWeight: '900', color: timerColor, animation: timeLeft <= 5 && phase === 'playing' ? 'pulse 0.5s infinite' : 'none', lineHeight: 1 }}>{timeLeft}</div>
@@ -338,7 +308,6 @@ export default function TVModePage({ params }: { params: any }) {
         </div>
       )}
 
-      {/* Question */}
       <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: '20px', padding: '28px 40px', marginBottom: '20px', textAlign: 'center', border: '2px solid rgba(255,255,255,0.1)', flex: phase === 'waiting' ? 1 : 'none' }}>
         {q?.imageUrl && phase !== 'waiting' && <img src={q.imageUrl} alt="" style={{ maxHeight: '260px', objectFit: 'contain', borderRadius: '16px', marginBottom: '20px' }} />}
         <div style={{ color: phase === 'waiting' ? 'rgba(255,255,255,0.3)' : 'white', fontSize: phase === 'waiting' ? '28px' : '44px', fontWeight: '900', lineHeight: 1.2, transition: 'all 0.3s' }}>
@@ -346,7 +315,6 @@ export default function TVModePage({ params }: { params: any }) {
         </div>
       </div>
 
-      {/* Answer options */}
       {phase !== 'waiting' && q && (
         <div style={{ display: 'grid', gridTemplateColumns: q.options.length === 2 ? '1fr 1fr' : 'repeat(2, 1fr)', gap: '14px', marginBottom: '20px' }}>
           {q.options.map((opt: string, i: number) => {
@@ -365,7 +333,6 @@ export default function TVModePage({ params }: { params: any }) {
         </div>
       )}
 
-      {/* Points allocation when revealed */}
       {phase === 'revealed' && (
         <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '16px', padding: '18px 24px', marginBottom: '16px', border: '2px solid rgba(255,255,255,0.1)' }}>
           <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>✅ Award points — tap the teams that got it right</div>
@@ -380,7 +347,6 @@ export default function TVModePage({ params }: { params: any }) {
         </div>
       )}
 
-      {/* Control buttons */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', paddingTop: '8px', flexWrap: 'wrap' }}>
         {phase === 'waiting' && (
           <button onClick={startTimer} style={{ background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none', padding: '18px 56px', borderRadius: '14px', fontWeight: '900', fontSize: '22px', cursor: 'pointer' }}>

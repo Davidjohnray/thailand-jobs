@@ -6,6 +6,7 @@ import { supabase } from '../../../../../src/lib/supabase'
 export default function LearnModePage({ params }: { params: any }) {
   const { slug, gameId } = use(params) as { slug: string; gameId: string }
   const [game, setGame] = useState<any>(null)
+  const [rawCards, setRawCards] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [cardIndex, setCardIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
@@ -13,7 +14,19 @@ export default function LearnModePage({ params }: { params: any }) {
   useEffect(() => {
     if (!gameId) return
     supabase.from('custom_games').select('*').eq('id', gameId).single().then(({ data }) => {
-      setGame(data); setLoading(false)
+      if (!data) { setLoading(false); return }
+      setGame(data)
+      // Merge sessionStorage images back into questions
+      let cards = Array.isArray(data.questions) ? data.questions : []
+      try {
+        const stored = sessionStorage.getItem(`game_images_${gameId}`)
+        if (stored) {
+          const images = JSON.parse(stored)
+          cards = cards.map((q: any, i: number) => images[i] ? { ...q, image_data: images[i] } : q)
+        }
+      } catch {}
+      setRawCards(cards)
+      setLoading(false)
     })
   }, [gameId])
 
@@ -28,7 +41,6 @@ export default function LearnModePage({ params }: { params: any }) {
     </main>
   )
 
-  const rawCards: any[] = Array.isArray(game.questions) ? game.questions : []
   const total = rawCards.length
   if (total === 0) return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -39,10 +51,7 @@ export default function LearnModePage({ params }: { params: any }) {
   const card = rawCards[cardIndex]
   const ageGroup = game.age_group || '5_11'
 
-  // Front: word / question / statement
   const frontText = card.word || card.correct_word || card.question || card.statement || ''
-
-  // Back: definition + optional extras
   const backMain = card.definition || (card.correct === 'true' ? 'TRUE ✅' : card.correct === 'false' ? 'FALSE ❌' : card['option_' + card.correct] || '')
   const backPhonetic = card.phonetic || ''
   const backExample = card.example_sentence || ''
@@ -62,13 +71,12 @@ export default function LearnModePage({ params }: { params: any }) {
         .flip-card { perspective: 1200px; width: 100%; max-width: 560px; height: 340px; cursor: pointer; }
         .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.55s cubic-bezier(0.4,0,0.2,1); transform-style: preserve-3d; }
         .flip-card-inner.flipped { transform: rotateY(180deg); }
-        .flip-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; box-sizing: border-box; }
+        .flip-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; box-sizing: border-box; overflow: hidden; }
         .flip-front { background: white; }
         .flip-back { background: linear-gradient(135deg, #1e3a5f, #0f172a); border: 2px solid rgba(14,165,233,0.4); transform: rotateY(180deg); }
         @media (max-width: 600px) { .flip-card { height: 300px; } }
       `}</style>
 
-      {/* Header */}
       <div style={{ width: '100%', maxWidth: '560px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <Link href={`/arcade/${slug}/${gameId}`} style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '14px' }}>← Back</Link>
         <div style={{ textAlign: 'center' }}>
@@ -78,18 +86,15 @@ export default function LearnModePage({ params }: { params: any }) {
         <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', fontWeight: '700' }}>{cardIndex + 1} / {total}</div>
       </div>
 
-      {/* Progress bar */}
       <div style={{ width: '100%', maxWidth: '560px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px', height: '5px', marginBottom: '28px' }}>
         <div style={{ height: '5px', borderRadius: '10px', background: '#0ea5e9', width: `${((cardIndex + 1) / total) * 100}%`, transition: 'width 0.3s' }} />
       </div>
 
-      {/* Flip Card */}
       <div className="flip-card" onClick={handleFlip}>
         <div className={`flip-card-inner${flipped ? ' flipped' : ''}`}>
 
           {/* FRONT */}
           <div className="flip-face flip-front">
-            {/* Under 5: show image prominently on front if available */}
             {ageGroup === 'under_5' && backImage && (
               <img src={backImage} alt="" style={{ width: '120px', height: '100px', objectFit: 'contain', borderRadius: '12px', marginBottom: '16px' }} />
             )}
@@ -99,9 +104,7 @@ export default function LearnModePage({ params }: { params: any }) {
             <div style={{ fontSize: frontText.length > 30 ? '22px' : frontText.length > 15 ? '28px' : '36px', fontWeight: '900', color: '#1a1a2e', textAlign: 'center', lineHeight: '1.3', wordBreak: 'break-word' }}>
               {frontText}
             </div>
-            <div style={{ marginTop: '20px', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>
-              Tap to reveal →
-            </div>
+            <div style={{ marginTop: '20px', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>Tap to reveal →</div>
           </div>
 
           {/* BACK */}
@@ -109,49 +112,42 @@ export default function LearnModePage({ params }: { params: any }) {
             <div style={{ color: '#7dd3fc', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '12px' }}>
               {game.game_type === 'true_or_false' ? 'Answer' : 'Definition'}
             </div>
-
-            {/* Image on back for non-under-5 */}
             {ageGroup !== 'under_5' && backImage && (
               <img src={backImage} alt="" style={{ width: '80px', height: '64px', objectFit: 'contain', borderRadius: '10px', marginBottom: '12px' }} />
             )}
-
             <div style={{ fontSize: backMain.length > 60 ? '15px' : backMain.length > 30 ? '18px' : '22px', fontWeight: '800', color: 'white', textAlign: 'center', lineHeight: '1.5', wordBreak: 'break-word', marginBottom: backPhonetic || backExample || backNotes ? '14px' : '0' }}>
               {backMain}
             </div>
-
             {backPhonetic && (
-              <div style={{ color: '#fbbf24', fontSize: '15px', fontWeight: '700', marginBottom: '8px', fontStyle: 'italic' }}>
-                {backPhonetic}
-              </div>
+              <div style={{ color: '#fbbf24', fontSize: '15px', fontWeight: '700', marginBottom: '8px', fontStyle: 'italic' }}>{backPhonetic}</div>
             )}
-
             {backExample && (
               <div style={{ color: '#94a3b8', fontSize: '13px', fontStyle: 'italic', textAlign: 'center', lineHeight: '1.5', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px', width: '100%' }}>
                 "{backExample}"
               </div>
             )}
-
             {backNotes && (
-              <div style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', marginTop: '8px', lineHeight: '1.4' }}>
-                {backNotes}
-              </div>
+              <div style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', marginTop: '8px', lineHeight: '1.4' }}>{backNotes}</div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Hint text */}
       <div style={{ marginTop: '14px', color: 'rgba(255,255,255,0.35)', fontSize: '12px' }}>
         {flipped ? 'Tap card to flip back' : 'Tap card to see the answer'}
       </div>
 
-      {/* Navigation */}
+      {backImage && (
+        <div style={{ marginTop: '8px', color: 'rgba(255,255,255,0.25)', fontSize: '11px' }}>
+          📸 Image shown this session only
+        </div>
+      )}
+
       <div style={{ display: 'flex', gap: '12px', marginTop: '28px', width: '100%', maxWidth: '560px' }}>
         <button onClick={goPrev} disabled={isFirst}
           style={{ flex: 1, background: isFirst ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)', color: isFirst ? 'rgba(255,255,255,0.2)' : 'white', border: '2px solid rgba(255,255,255,0.15)', padding: '14px', borderRadius: '14px', fontWeight: '700', fontSize: '16px', cursor: isFirst ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
           ← Previous
         </button>
-
         {!isLast ? (
           <button onClick={goNext}
             style={{ flex: 2, background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: 'white', border: 'none', padding: '14px', borderRadius: '14px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' }}>
@@ -166,7 +162,6 @@ export default function LearnModePage({ params }: { params: any }) {
         )}
       </div>
 
-      {/* Restart from beginning */}
       {cardIndex > 0 && (
         <button onClick={() => { setCardIndex(0); setFlipped(false) }}
           style={{ marginTop: '14px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}>

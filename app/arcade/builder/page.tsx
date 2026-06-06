@@ -146,6 +146,12 @@ function BuilderContent() {
     if (questions.length === 0) return alert('Please add at least one question.')
     if (!soloEnabled && !tvEnabled && !multiplayerEnabled) return alert('Please enable at least one game mode.')
     setSaving(true)
+    // Save images to sessionStorage keyed by gameId so play modes can access them
+    const imageMap: Record<number, string> = {}
+    questions.forEach((q, i) => { if (q.image_data) imageMap[i] = q.image_data })
+    const savedId = gameId || 'pending'
+    try { sessionStorage.setItem(`game_images_${savedId}`, JSON.stringify(imageMap)) } catch {}
+
     // Strip image_data from saved questions — images are session only
     const questionsToSave = questions.map(q => {
       const { image_data, ...rest } = q
@@ -160,7 +166,13 @@ function BuilderContent() {
       status, updated_at: new Date().toISOString(),
     }
     if (gameId) { await supabase.from('custom_games').update(gameData).eq('id', gameId) }
-    else { await supabase.from('custom_games').insert([{ ...gameData, play_count: 0 }]) }
+    else {
+      const { data: inserted } = await supabase.from('custom_games').insert([{ ...gameData, play_count: 0 }]).select('id').single()
+      // Re-save images under the real gameId
+      if (inserted?.id && Object.keys(imageMap).length > 0) {
+        try { sessionStorage.setItem(`game_images_${inserted.id}`, JSON.stringify(imageMap)) } catch {}
+      }
+    }
     setSaving(false); setSaved(true)
     setTimeout(() => router.push('/arcade/dashboard'), 1200)
   }
