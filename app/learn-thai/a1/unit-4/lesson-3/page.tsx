@@ -44,14 +44,14 @@ function speak(text: string, rate = 0.7) {
 const ALL_ITEMS = PHRASES.flatMap(cat => cat.items)
 
 const QUIZ_Q = [
-  { q: 'How do you say "Thank you"?', correct: 'ขอบคุณ', options: ['สวัสดี', 'ขอโทษ', 'ขอบคุณ', 'ไม่เป็นไร'] },
-  { q: 'ไม่เป็นไร means...?', correct: 'No problem / Never mind', options: ['I understand', 'No problem / Never mind', 'Sorry', 'Too expensive'] },
-  { q: 'How do you ask "How much?"', correct: 'เท่าไร', options: ['อร่อย', 'เท่าไร', 'ได้', 'เข้าใจ'] },
-  { q: 'You don\'t understand. What do you say?', correct: 'ไม่เข้าใจ', options: ['ได้ครับ', 'ขอบคุณ', 'ไม่เป็นไร', 'ไม่เข้าใจ'] },
-  { q: 'อร่อย means...?', correct: 'Delicious', options: ['Expensive', 'Delicious', 'Good morning', 'Understand'] },
-  { q: 'How do you ask someone to speak slowly?', correct: 'พูดช้าๆ ได้ไหม', options: ['ขอโทษ', 'ดีมาก', 'พูดช้าๆ ได้ไหม', 'เงียบๆ'] },
-  { q: 'ขอโทษ is used for...?', correct: 'Sorry and Excuse me', options: ['Thank you only', 'Sorry and Excuse me', 'Goodbye only', 'I understand'] },
-  { q: 'How do you ask "What does it mean?"', correct: 'แปลว่าอะไร', options: ['นี่คืออะไร', 'ห้องน้ำอยู่ที่ไหน', 'แปลว่าอะไร', 'เท่าไร'] },
+  { q: 'How do you say "Thank you" in Thai?', correct: 'Khob khun', options: ['Sawasdee', 'Kho thot', 'Khob khun', 'Mai pen rai'] },
+  { q: 'What does "mai pen rai" mean?', correct: 'No problem / Never mind', options: ['I understand', 'No problem / Never mind', 'Sorry', 'Too expensive'] },
+  { q: 'How do you ask "How much?" in Thai?', correct: 'Thao rai', options: ['Aroy', 'Thao rai', 'Dai', 'Khao jai'] },
+  { q: 'You don\'t understand something. What do you say?', correct: 'Mai khao jai', options: ['Dai khrap', 'Khob khun', 'Mai pen rai', 'Mai khao jai'] },
+  { q: 'What does "aroy" mean?', correct: 'Delicious', options: ['Expensive', 'Delicious', 'Good morning', 'Understand'] },
+  { q: 'How do you ask someone to speak slowly?', correct: 'Phut cha cha dai mai', options: ['Kho thot', 'Dii maak', 'Phut cha cha dai mai', 'Ngiap ngiap'] },
+  { q: '"Kho thot" is used for which two purposes?', correct: 'Sorry and Excuse me', options: ['Thank you only', 'Sorry and Excuse me', 'Goodbye only', 'I understand'] },
+  { q: 'How do you ask "What does it mean?" in Thai?', correct: 'Plae wa arai', options: ['Nii khue arai', 'Hong naam yuu thii nai', 'Plae wa arai', 'Thao rai'] },
 ]
 
 export default function Unit4Lesson3() {
