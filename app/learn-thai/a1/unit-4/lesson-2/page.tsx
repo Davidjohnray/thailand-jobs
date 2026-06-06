@@ -71,14 +71,14 @@ const PARTICLES = [
 ]
 
 const QUIZ_Q = [
-  { q: 'A male teacher says goodbye. Which particle does he use?', correct: 'ครับ', options: ['ค่ะ', 'ครับ', 'คะ', 'นะ'] },
-  { q: 'A female teacher ends a statement. Which particle?', correct: 'ค่ะ', options: ['คะ', 'ครับ', 'ค่ะ', 'นะ'] },
-  { q: 'A female teacher asks a yes/no question. Which particle?', correct: 'คะ', options: ['ค่ะ', 'ครับ', 'นะ', 'คะ'] },
-  { q: 'Which particle adds warmth and is used by both male and female?', correct: 'นะ', options: ['ครับ', 'ค่ะ', 'นะ', 'คะ'] },
-  { q: 'The polite greeting "Hello" said by a male speaker — which particle does it end with?', correct: 'A male speaker', options: ['A female speaker', 'A male speaker', 'Either gender', 'Only elders'] },
-  { q: 'What tone does ค่ะ have?', correct: 'Falling tone', options: ['Mid tone', 'Rising tone', 'Falling tone', 'High tone'] },
-  { q: 'What tone does คะ (question particle) have?', correct: 'Rising tone', options: ['Mid tone', 'Rising tone', 'Falling tone', 'Low tone'] },
-  { q: 'ขอบคุณนะ sounds...?', correct: 'Warm and casual', options: ['Very formal', 'Rude', 'Warm and casual', 'Confused'] },
+  { q: 'A male teacher says goodbye. Which particle does he use?', correct: 'Khrap (male)', options: ['Kha (female statement)', 'Khrap (male)', 'Kha (female question)', 'Na (softener)'] },
+  { q: 'A female teacher ends a statement. Which particle does she use?', correct: 'Kha — falling tone (female statement)', options: ['Kha — rising tone (female question)', 'Khrap (male)', 'Kha — falling tone (female statement)', 'Na (softener)'] },
+  { q: 'A female teacher asks a yes/no question. Which particle?', correct: 'Kha — rising tone (female question)', options: ['Kha — falling tone (female statement)', 'Khrap (male)', 'Na (softener)', 'Kha — rising tone (female question)'] },
+  { q: 'Which particle adds warmth and friendliness — used by both male and female?', correct: 'Na', options: ['Khrap', 'Kha (statement)', 'Na', 'Kha (question)'] },
+  { q: 'The polite greeting "Hello" said by a male speaker ends with which particle?', correct: 'Khrap', options: ['Kha (statement)', 'Khrap', 'Na', 'Kha (question)'] },
+  { q: 'The female statement particle has which tone?', correct: 'Falling tone', options: ['Mid tone', 'Rising tone', 'Falling tone', 'High tone'] },
+  { q: 'The female question particle has which tone?', correct: 'Rising tone', options: ['Mid tone', 'Rising tone', 'Falling tone', 'Low tone'] },
+  { q: '"Thank you" said casually with a warmth particle added — how does it sound?', correct: 'Warm and casual', options: ['Very formal', 'Rude', 'Warm and casual', 'Confused'] },
 ]
 
 function speak(text: string, rate = 0.7) {
