@@ -306,9 +306,15 @@ export default function Unit4Lesson1() {
                 return (
                   <button key={opt} onClick={() => handleAnswer(opt)} disabled={!!selected}
                     style={{ background: bg, border: `2px solid ${border}`, borderRadius: '12px', padding: '14px 20px', cursor: selected ? 'default' : 'pointer', transition: 'all 0.2s', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: textColor, fontWeight: '700', fontSize: '16px' }}>{opt}</span>
-                    {selected && isCorrect && <span style={{ color: '#22c55e', fontSize: '20px' }}>✓</span>}
-                    {selected && isSelected && !isCorrect && <span style={{ color: '#ef4444', fontSize: '20px' }}>✗</span>}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                      <span style={{ color: textColor, fontWeight: '700', fontSize: '16px' }}>{opt}</span>
+                      {/[฀-๿]/.test(opt) && (
+                        <button onClick={(e) => { e.stopPropagation(); speak(opt) }}
+                          style={{ background: 'rgba(0,0,0,0.06)', border: 'none', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', fontSize: '13px', flexShrink: 0 }}>🔊</button>
+                      )}
+                    </div>
+                    {selected && isCorrect && <span style={{ color: '#22c55e', fontSize: '20px', flexShrink: 0 }}>✓</span>}
+                    {selected && isSelected && !isCorrect && <span style={{ color: '#ef4444', fontSize: '20px', flexShrink: 0 }}>✗</span>}
                   </button>
                 )
               })}
