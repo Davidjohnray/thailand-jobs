@@ -16,10 +16,10 @@ export default function LearnModePage({ params }: { params: any }) {
     supabase.from('custom_games').select('*').eq('id', gameId).single().then(({ data }) => {
       if (!data) { setLoading(false); return }
       setGame(data)
-      // Merge sessionStorage images back into questions
+      // Merge sessionStorage images — check game key first, then builder fallback
       let cards = Array.isArray(data.questions) ? data.questions : []
       try {
-        const stored = sessionStorage.getItem(`game_images_${gameId}`)
+        const stored = sessionStorage.getItem(`game_images_${gameId}`) || sessionStorage.getItem(`game_images_builder_${data.teacher_slug}`)
         if (stored) {
           const images = JSON.parse(stored)
           cards = cards.map((q: any, i: number) => images[i] ? { ...q, image_data: images[i] } : q)

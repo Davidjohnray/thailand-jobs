@@ -126,6 +126,14 @@ function BuilderContent() {
     setCurrentQ(emptyQuestion(gameType))
   }
 
+  // Keep images in sessionStorage live as questions are added/edited
+  useEffect(() => {
+    const imageMap: Record<number, string> = {}
+    questions.forEach((q, i) => { if (q.image_data) imageMap[i] = q.image_data })
+    const key = gameId ? `game_images_${gameId}` : `game_images_builder_${slug}`
+    try { sessionStorage.setItem(key, JSON.stringify(imageMap)) } catch {}
+  }, [questions, gameId, slug])
+
   const editQuestion = (index: number) => { setCurrentQ(questions[index]); setEditingIndex(index); setActiveSection('questions'); window.scrollTo({ top: 0, behavior: 'smooth' }) }
   const deleteQuestion = (index: number) => { if (!confirm('Delete this question?')) return; setQuestions(prev => prev.filter((_, i) => i !== index)); if (editingIndex === index) { setEditingIndex(null); setCurrentQ(emptyQuestion(gameType)) } }
   const moveQuestion = (index: number, direction: 'up' | 'down') => {
@@ -165,12 +173,15 @@ function BuilderContent() {
       questions: questionsToSave, question_count: questionsToSave.length,
       status, updated_at: new Date().toISOString(),
     }
-    if (gameId) { await supabase.from('custom_games').update(gameData).eq('id', gameId) }
-    else {
+    if (gameId) {
+      await supabase.from('custom_games').update(gameData).eq('id', gameId)
+    } else {
       const { data: inserted } = await supabase.from('custom_games').insert([{ ...gameData, play_count: 0 }]).select('id').single()
-      // Re-save images under the real gameId
       if (inserted?.id && Object.keys(imageMap).length > 0) {
-        try { sessionStorage.setItem(`game_images_${inserted.id}`, JSON.stringify(imageMap)) } catch {}
+        try {
+          sessionStorage.setItem(`game_images_${inserted.id}`, JSON.stringify(imageMap))
+          sessionStorage.removeItem(`game_images_builder_${slug}`)
+        } catch {}
       }
     }
     setSaving(false); setSaved(true)
