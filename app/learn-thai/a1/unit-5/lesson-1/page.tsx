@@ -84,6 +84,16 @@ function speak(text: string, rate = 0.7) {
   window.speechSynthesis.speak(u)
 }
 
+function shuffleOptions(correct: number, all: number[]): number[] {
+  const others = all.filter(n => n !== correct).sort(() => Math.random() - 0.5).slice(0, 3)
+  return [correct, ...others].sort(() => Math.random() - 0.5)
+}
+
+const SCRIPT_Q = NUMBERS.map(n => ({
+  thai: n.thai, roman: n.roman, english: n.english, num: n.num,
+  options: shuffleOptions(n.num, NUMBERS.map(x => x.num)),
+}))
+
 export default function Unit5Lesson1() {
   const [phase, setPhase] = useState<'learn' | 'quiz' | 'script' | 'complete'>('learn')
   const [cardIndex, setCardIndex] = useState(0)
@@ -286,19 +296,15 @@ export default function Unit5Lesson1() {
           <div style={{ background: 'white', borderRadius: '20px', padding: '36px 28px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '16px' }}>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
               <div style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Which number is this?</div>
-              <div style={{ fontSize: '96px', fontWeight: '900', color: '#7c3aed', lineHeight: 1, marginBottom: '16px' }}>{NUMBERS[scriptIndex].thai}</div>
-              <button onClick={() => speak(NUMBERS[scriptIndex].thai)}
+              <div style={{ fontSize: '96px', fontWeight: '900', color: '#7c3aed', lineHeight: 1, marginBottom: '16px' }}>{SCRIPT_Q[scriptIndex].thai}</div>
+              <button onClick={() => speak(SCRIPT_Q[scriptIndex].thai)}
                 style={{ background: '#f5f3ff', color: '#7c3aed', border: '2px solid #ede9fe', padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>
                 🔊 Hear it
               </button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              {(() => {
-                const correct_num = NUMBERS[scriptIndex].num
-                const others = NUMBERS.filter(n => n.num !== correct_num).sort(() => Math.random() - 0.5).slice(0, 3).map(n => n.num)
-                const options = [correct_num, ...others].sort(() => Math.random() - 0.5)
-                return options.map(num => {
-                  const isCorrect = num === correct_num
+              {SCRIPT_Q[scriptIndex].options.map(num => {
+                  const isCorrect = num === SCRIPT_Q[scriptIndex].num
                   const isSelected = scriptSelected === String(num)
                   let bg = '#f9fafb', border = '#e5e7eb', textColor = '#1a1a2e'
                   if (scriptSelected) {
@@ -319,16 +325,15 @@ export default function Unit5Lesson1() {
                       {scriptSelected && isSelected && !isCorrect && <div style={{ color: '#ef4444', fontSize: '18px', marginTop: '4px' }}>✗</div>}
                     </button>
                   )
-                })
-              })()}
+                })}
             </div>
           </div>
 
           {scriptSelected && (
-            <div style={{ background: NUMBERS[scriptIndex].num === Number(scriptSelected) ? '#f5f3ff' : '#fef2f2', borderRadius: '14px', padding: '14px 20px', marginBottom: '16px', border: `2px solid ${NUMBERS[scriptIndex].num === Number(scriptSelected) ? '#ede9fe' : '#fca5a5'}` }}>
-              {NUMBERS[scriptIndex].num === Number(scriptSelected)
-                ? <span style={{ color: '#5b21b6', fontWeight: '700' }}>✅ Correct! {NUMBERS[scriptIndex].thai} = {NUMBERS[scriptIndex].english} ({NUMBERS[scriptIndex].roman})</span>
-                : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ That is {NUMBERS[scriptIndex].thai} — {NUMBERS[scriptIndex].english} ({NUMBERS[scriptIndex].roman})</span>
+            <div style={{ background: SCRIPT_Q[scriptIndex].num === Number(scriptSelected) ? '#f5f3ff' : '#fef2f2', borderRadius: '14px', padding: '14px 20px', marginBottom: '16px', border: `2px solid ${SCRIPT_Q[scriptIndex].num === Number(scriptSelected) ? '#ede9fe' : '#fca5a5'}` }}>
+              {SCRIPT_Q[scriptIndex].num === Number(scriptSelected)
+                ? <span style={{ color: '#5b21b6', fontWeight: '700' }}>✅ Correct! {SCRIPT_Q[scriptIndex].thai} = {SCRIPT_Q[scriptIndex].english} ({SCRIPT_Q[scriptIndex].roman})</span>
+                : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ That is {SCRIPT_Q[scriptIndex].thai} — {SCRIPT_Q[scriptIndex].english} ({SCRIPT_Q[scriptIndex].roman})</span>
               }
             </div>
           )}
