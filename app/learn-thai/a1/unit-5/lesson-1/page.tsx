@@ -70,7 +70,7 @@ const QUIZ_Q = [
   { q: 'What does "ห้า" (haa) mean?', correct: 'Five', options: ['Four', 'Six', 'Five', 'Seven'] },
   { q: 'Thai people write "555" online to mean what?', correct: 'Hahaha (laughing)', options: ['Very good', 'Hahaha (laughing)', 'I am fine', 'Thank you'] },
   { q: 'What is "sip" in Thai?', correct: 'Ten', options: ['Eight', 'Nine', 'Seven', 'Ten'] },
-  { q: 'What does the Thai word for 2 sound like in English?', correct: 'Two', options: ['Three', 'Two', 'Four', 'One'] },
+  { q: 'In Thai, the number 20 is NOT "soong sip" — it uses a special word instead. What is the Thai word for 20?', correct: 'Yii sip', options: ['Soong sip', 'Yii sip', 'Saam sip', 'Sip soong'] },
   { q: 'Which number is considered lucky in Thailand?', correct: 'Nine', options: ['Seven', 'Eight', 'Nine', 'Six'] },
   { q: 'What is the Thai word for eight?', correct: 'Bpaet', options: ['Jet', 'Gao', 'Hok', 'Bpaet'] },
   { q: '"Saam wan" means...?', correct: 'Three days', options: ['Three people', 'Three hours', 'Three days', 'Three baht'] },
@@ -92,7 +92,7 @@ function shuffleOptions(correct: number, all: number[]): number[] {
 const SCRIPT_Q = NUMBERS.map(n => ({
   thai: n.thai, roman: n.roman, english: n.english, num: n.num,
   options: shuffleOptions(n.num, NUMBERS.map(x => x.num)),
-}))
+})).sort(() => Math.random() - 0.5)
 
 export default function Unit5Lesson1() {
   const [phase, setPhase] = useState<'learn' | 'quiz' | 'script' | 'complete'>('learn')
