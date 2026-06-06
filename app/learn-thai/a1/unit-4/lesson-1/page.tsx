@@ -287,7 +287,7 @@ export default function Unit4Lesson1() {
             {QUIZ_Q[quizIndex].q.includes('สวัสดี') || QUIZ_Q[quizIndex].q.includes('สบาย') || QUIZ_Q[quizIndex].q.includes('ไป') || QUIZ_Q[quizIndex].q.includes('ฝัน') || QUIZ_Q[quizIndex].q.includes('แล้ว') ? (
               <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                 <button onClick={() => {
-                  const thaiWord = QUIZ_Q[quizIndex].q.match(/[\u0E00-\u0E7F\s]+/)?.[0]?.trim() || ''
+                  const thaiWord = QUIZ_Q[quizIndex].q.match(/[\u0E00-\u0E7F]+/)?.[0]?.trim() || ''
                   speak(thaiWord)
                 }} style={{ background: '#fef2f2', color: '#ef4444', border: '2px solid #fca5a5', padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>🔊 Hear it</button>
               </div>
