@@ -86,7 +86,6 @@ const PARTS = [
   },
 ]
 
-// ── Shared translate helper ───────────────────────────────────
 async function fetchTranslation(text: string, lang: string, type: 'word' | 'question' | 'message'): Promise<string> {
   const systems: Record<string, string> = {
     word: `You are a language learning assistant. Translate this English vocabulary entry to ${lang}. Return ONLY the translated word and a brief explanation in ${lang} (max 25 words). No extra text, no English.`,
@@ -101,7 +100,6 @@ async function fetchTranslation(text: string, lang: string, type: 'word' | 'ques
   return data.content || ''
 }
 
-// ── Translate Button ──────────────────────────────────────────
 function TranslateBtn({ text, type, lang, color, onTranslated }: {
   text: string; type: 'word' | 'question' | 'message'; lang: string; color: string; onTranslated: (t: string) => void
 }) {
@@ -125,21 +123,24 @@ function TranslateBtn({ text, type, lang, color, onTranslated }: {
   )
 }
 
-// ── Conversation Box ──────────────────────────────────────────
 type Message = { role: 'user' | 'assistant'; content: string; translation?: string }
 
-function ConversationBox({ question, color, translationLang }: { question: string; color: string; translationLang: string }) {
+// ── CHANGE 1: speed added to props ───────────────────────────
+function ConversationBox({ question, color, translationLang, speed }: { question: string; color: string; translationLang: string; speed: number }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [listening, setListening] = useState(false)
   const [interimText, setInterimText] = useState('')
   const [open, setOpen] = useState(false)
+  // ── CHANGE 2: muted state added ──────────────────────────
+  const [muted, setMuted] = useState(false)
   const recognitionRef = useRef<any>(null)
   const transcriptRef = useRef('')
 
   const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "AI Smart Glasses". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question to keep the conversation going. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — only the most important error. Be encouraging and warm.`
 
+  // ── CHANGE 3: sendMessage now speaks the AI reply ────────
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return
     const userMsg: Message = { role: 'user', content: text.trim() }
@@ -148,7 +149,14 @@ function ConversationBox({ question, color, translationLang }: { question: strin
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: SYSTEM, messages: updated.map(m => ({ role: m.role, content: m.content })) }) })
       const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.content || 'Sorry, try again.' }])
+      const reply = data.content || 'Sorry, try again.'
+      setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+      if (!muted) {
+        window.speechSynthesis.cancel()
+        const u = new SpeechSynthesisUtterance(reply)
+        u.lang = 'en-US'; u.rate = speed; u.pitch = 1
+        window.speechSynthesis.speak(u)
+      }
     } catch { setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }]) }
     setLoading(false)
   }
@@ -194,6 +202,11 @@ function ConversationBox({ question, color, translationLang }: { question: strin
       <div style={{ background: color, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>🤖 AI Conversation Partner</span>
         <div style={{ display: 'flex', gap: '6px' }}>
+          {/* ── CHANGE 4: mute button added ─────────────────── */}
+          <button onClick={() => { setMuted(m => !m); window.speechSynthesis.cancel() }}
+            style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
+            {muted ? '🔇 Muted' : '🔊 Audio'}
+          </button>
           <button onClick={() => setMessages([])} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>🔄 Reset</button>
           <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>✕ Close</button>
         </div>
@@ -280,7 +293,6 @@ function ConversationBox({ question, color, translationLang }: { question: strin
   )
 }
 
-// ── Main Page ─────────────────────────────────────────────────
 export default function AISmartGlassesPage() {
   const [speed, setSpeed] = useState(0.9)
   const [translationLang, setTranslationLang] = useState('none')
@@ -365,7 +377,6 @@ export default function AISmartGlassesPage() {
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}} @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
 
-      {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)', padding: '56px 24px' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <Link href="/esl-resources/reading-comprehension/b2" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← B2 Reading Comprehension</Link>
@@ -389,7 +400,6 @@ export default function AISmartGlassesPage() {
         </div>
       </section>
 
-      {/* HOW TO USE + SPEED + LANGUAGE */}
       <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '14px 24px' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
@@ -510,7 +520,8 @@ export default function AISmartGlassesPage() {
                       </div>
                     </div>
                     <div style={{ marginLeft: '42px' }}>
-                      <ConversationBox question={q.q} color={part.color} translationLang={translationLang} />
+                      {/* ── CHANGE 5: speed={speed} added to all 12 ConversationBox calls ── */}
+                      <ConversationBox question={q.q} color={part.color} translationLang={translationLang} speed={speed} />
                     </div>
                   </div>
                 ))}
@@ -524,7 +535,6 @@ export default function AISmartGlassesPage() {
         </div>
       </div>
 
-      {/* WORD/PHRASE DEFINITION + TRANSLATION POPUP */}
       {selectedText && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 200, animation: 'slideUp 0.25s ease' }}>
           <div style={{ maxWidth: '860px', margin: '0 auto', background: 'white', borderRadius: '20px 20px 0 0', padding: '20px 24px 32px', boxShadow: '0 -8px 32px rgba(0,0,0,0.2)', border: '2px solid #dbeafe', borderBottom: 'none' }}>
