@@ -51,7 +51,7 @@ const LEVELS = [
     desc: 'Complex texts on concrete and abstract topics. Students can discuss ideas, give opinions and follow detailed arguments.',
     who: 'Adult learners · University prep · IELTS 5.5–7.0',
     features: ['4-part extended passages', 'Word highlight & lookup', '13-language translation', 'AI conversation partner'],
-    count: 11,
+    count: 13,
   },
   {
     code: 'c1',
