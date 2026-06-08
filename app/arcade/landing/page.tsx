@@ -75,9 +75,18 @@ export default function TeacherArcadeLanding() {
           </a>
         </div>
 
-        <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '14px', marginBottom: '48px' }}>
+        <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '14px', marginBottom: '24px' }}>
           Message us on any platform — we'll get back to you and set you up with early access
         </p>
+
+        {/* Pricing note */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '14px', padding: '14px 28px', marginBottom: '48px' }}>
+          <span style={{ fontSize: '22px' }}>🎁</span>
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ color: 'white', fontWeight: '900', fontSize: '16px' }}>Free trial for the first 50 teachers</div>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', marginTop: '2px' }}>Then just <strong style={{ color: '#f59e0b' }}>99 THB / month</strong> — less than the price of a coffee ☕</div>
+          </div>
+        </div>
 
         {/* Floating emojis */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '28px', flexWrap: 'wrap' }}>
@@ -178,7 +187,8 @@ export default function TeacherArcadeLanding() {
           <span style={{ background: 'linear-gradient(135deg, #f59e0b, #E85D26)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Get in touch today.</span>
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '17px', marginBottom: '36px', maxWidth: '460px', margin: '0 auto 36px', lineHeight: '1.7' }}>
-          Message us on WhatsApp, LINE or Facebook and we'll get you set up with early access.
+          Message us on WhatsApp, LINE or Facebook and we'll get you set up with early access.<br/>
+          <span style={{ color: '#f59e0b', fontWeight: '700' }}>Free trial for the first 50 teachers — then 99 THB/month.</span>
         </p>
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="contact-btn"
