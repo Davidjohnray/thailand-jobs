@@ -100,20 +100,26 @@ async function fetchTranslation(text: string, lang: string, type: 'word' | 'ques
   return data.content || ''
 }
 
-// ── OpenAI TTS helper ─────────────────────────────────────────
-async function speakWithOpenAI(text: string, speed: number) {
+async function speakWithOpenAI(text: string, speed: number): Promise<any> {
   try {
     const res = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     })
-    const blob = await res.blob()
-    const url = URL.createObjectURL(blob)
-    const audio = new Audio(url)
-    audio.playbackRate = speed
-    audio.play()
-    return audio
+    if (!res.ok) {
+      console.error('TTS failed:', res.status, await res.text())
+      return null
+    }
+    const arrayBuffer = await res.arrayBuffer()
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    const source = audioContext.createBufferSource()
+    source.buffer = audioBuffer
+    source.playbackRate.value = speed
+    source.connect(audioContext.destination)
+    source.start(0)
+    return source
   } catch (e) {
     console.error('TTS error:', e)
     return null
@@ -149,13 +155,14 @@ function ConversationBox({ question, color, translationLang, speed }: { question
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [speaking, setSpeaking] = useState(false)
   const [listening, setListening] = useState(false)
   const [interimText, setInterimText] = useState('')
   const [open, setOpen] = useState(false)
   const [muted, setMuted] = useState(false)
   const recognitionRef = useRef<any>(null)
   const transcriptRef = useRef('')
-  const currentAudioRef = useRef<HTMLAudioElement | null>(null)
+  const currentSourceRef = useRef<any>(null)
 
   const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "AI Smart Glasses". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question to keep the conversation going. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — only the most important error. Be encouraging and warm.`
 
@@ -170,9 +177,15 @@ function ConversationBox({ question, color, translationLang, speed }: { question
       const reply = data.content || 'Sorry, try again.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
       if (!muted) {
-        if (currentAudioRef.current) { currentAudioRef.current.pause(); currentAudioRef.current = null }
-        const audio = await speakWithOpenAI(reply, speed)
-        if (audio) currentAudioRef.current = audio
+        if (currentSourceRef.current) { try { currentSourceRef.current.stop() } catch {} currentSourceRef.current = null }
+        setSpeaking(true)
+        const source = await speakWithOpenAI(reply, speed)
+        if (source) {
+          currentSourceRef.current = source
+          source.onended = () => { setSpeaking(false); currentSourceRef.current = null }
+        } else {
+          setSpeaking(false)
+        }
       }
     } catch { setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }]) }
     setLoading(false)
@@ -209,7 +222,8 @@ function ConversationBox({ question, color, translationLang, speed }: { question
   const stopVoice = () => { recognitionRef.current?.stop() }
 
   const handleMuteToggle = () => {
-    if (currentAudioRef.current) { currentAudioRef.current.pause(); currentAudioRef.current = null }
+    if (currentSourceRef.current) { try { currentSourceRef.current.stop() } catch {} currentSourceRef.current = null }
+    setSpeaking(false)
     setMuted(m => !m)
   }
 
@@ -222,10 +236,13 @@ function ConversationBox({ question, color, translationLang, speed }: { question
   return (
     <div style={{ marginTop: '10px', background: '#f8faff', borderRadius: '14px', border: `2px solid ${color}30`, overflow: 'hidden' }}>
       <div style={{ background: color, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>🤖 AI Conversation Partner</span>
+        <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>
+          🤖 AI Conversation Partner
+          {speaking && <span style={{ marginLeft: '8px', fontSize: '11px', opacity: 0.85 }}>🔊 Speaking...</span>}
+        </span>
         <div style={{ display: 'flex', gap: '6px' }}>
           <button onClick={handleMuteToggle}
-            style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
+            style={{ background: muted ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
             {muted ? '🔇 Muted' : '🔊 Audio'}
           </button>
           <button onClick={() => setMessages([])} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>🔄 Reset</button>
