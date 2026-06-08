@@ -29,36 +29,38 @@ const CATEGORIES = [
     ]
   },
   {
-  id: 'society',
-  title: 'Society & Culture',
-  emoji: '🌍',
-  description: 'People, communities and social change',
-  color: '#f59e0b',
-  lessons: [
-    {
-      id: 'online-learning',
-      title: 'Online Learning Platforms',
-      emoji: '💻',
-      description: 'The Future of Education',
-      detail: 'Explore how online platforms are changing education — flexibility, access, challenges and what comes next.',
-      badges: ['4 parts', '12 questions'],
-      color: '#f59e0b',
-    },
-  ]
-},
+    id: 'society',
+    title: 'Society & Culture',
+    emoji: '🌍',
+    description: 'People, communities and social change',
+    color: '#f59e0b',
+    lessons: [
+      {
+        id: 'online-learning',
+        title: 'Online Learning Platforms',
+        emoji: '💻',
+        description: 'The Future of Education',
+        detail: 'Explore how online platforms are changing education — flexibility, access, challenges and what comes next.',
+        badges: ['4 parts', '12 questions'],
+        color: '#f59e0b',
+      },
+    ]
+  },
   { id: 'environment', title: 'Environment', emoji: '🌿', description: 'Climate, sustainability and the natural world', color: '#16a34a', lessons: [], comingSoon: true },
   { id: 'health', title: 'Health & Science', emoji: '🔬', description: 'Medicine, wellbeing and scientific discovery', color: '#ef4444', lessons: [], comingSoon: true },
   {
-  id: 'work',
-  title: 'Work & Business',
-  emoji: '💼',
-  description: 'Careers, economics and the modern workplace',
-  color: '#6366f1',
-  lessons: [
-    { id: 'income-inequality', title: 'Income Inequality', emoji: '💸', description: 'Is the Gap Between Rich and Poor Too Wide?', detail: 'Explore the causes and consequences of growing income inequality and the debate over what should be done about it.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
-    { id: 'university-degree', title: 'Is a University Degree Still Worth It?', emoji: '🎓', description: 'Degree or No Degree?', detail: 'Explore the rising cost of university, the arguments for and against a degree, and what the future of qualifications might look like.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
-  ]
-},
+    id: 'work',
+    title: 'Work & Business',
+    emoji: '💼',
+    description: 'Careers, economics and the modern workplace',
+    color: '#6366f1',
+    lessons: [
+      { id: 'income-inequality', title: 'Income Inequality', emoji: '💸', description: 'Is the Gap Between Rich and Poor Too Wide?', detail: 'Explore the causes and consequences of growing income inequality and the debate over what should be done about it.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
+      { id: 'university-degree', title: 'Is a University Degree Still Worth It?', emoji: '🎓', description: 'Degree or No Degree?', detail: 'Explore the rising cost of university, the arguments for and against a degree, and what the future of qualifications might look like.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
+      { id: 'digital-nomad-economy', title: 'The Digital Nomad Economy', emoji: '🌍', description: 'Work from Anywhere', detail: 'Explore the rise of location-independent work, its impact on cities and communities, and what the future holds for remote workers worldwide.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
+      { id: 'sea-tech-hub', title: 'The Rise of Southeast Asia as a Tech Hub', emoji: '🌏', description: 'Silicon Valley of the East', detail: 'Explore how Singapore, Vietnam, Indonesia, and Thailand are building world-class tech industries, with Grab, Gojek, and Sea Group leading the way.', badges: ['4 parts', '12 questions'], color: '#22c55e' },
+    ]
+  },
 ]
 
 export default function B2ReadingHub() {
