@@ -68,7 +68,6 @@ const PARTS = [
   },
 ]
 
-// ── Shared translate helper ───────────────────────────────────
 async function fetchTranslation(text: string, lang: string, type: 'word' | 'question' | 'message'): Promise<string> {
   const systems: Record<string, string> = {
     word: `You are a language learning assistant. Translate this English vocabulary entry to ${lang}. Return ONLY the translated word and a brief explanation in ${lang} (max 25 words). No extra text, no English.`,
@@ -83,7 +82,6 @@ async function fetchTranslation(text: string, lang: string, type: 'word' | 'ques
   return data.content || ''
 }
 
-// ── Translate Button ──────────────────────────────────────────
 function TranslateBtn({ text, type, lang, color, onTranslated }: {
   text: string; type: 'word' | 'question' | 'message'; lang: string; color: string; onTranslated: (t: string) => void
 }) {
@@ -105,10 +103,57 @@ function TranslateBtn({ text, type, lang, color, onTranslated }: {
   )
 }
 
-// ── Conversation Box ──────────────────────────────────────────
+function ListenBtn({ text, speed, color }: { text: string; speed: number; color: string }) {
+  const [loading, setLoading] = useState(false)
+  const [playing, setPlaying] = useState(false)
+  const sourceRef = useRef<AudioBufferSourceNode | null>(null)
+
+  const handleClick = async () => {
+    if (playing && sourceRef.current) {
+      try { sourceRef.current.stop() } catch {}
+      sourceRef.current = null
+      setPlaying(false)
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      })
+      if (!res.ok) { console.error('TTS failed:', res.status); setLoading(false); return }
+      const arrayBuffer = await res.arrayBuffer()
+      const audioContext = new AudioContext()
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+      const source = audioContext.createBufferSource()
+      source.buffer = audioBuffer
+      source.playbackRate.value = speed
+      source.connect(audioContext.destination)
+      source.onended = () => { setPlaying(false); sourceRef.current = null }
+      sourceRef.current = source
+      setLoading(false)
+      setPlaying(true)
+      source.start(0)
+    } catch (e) {
+      console.error('TTS error:', e)
+      setLoading(false)
+      setPlaying(false)
+    }
+  }
+
+  return (
+    <button onClick={handleClick}
+      title={playing ? 'Stop audio' : 'Listen with natural AI voice'}
+      style={{ background: playing ? color : color + '15', color: playing ? 'white' : color, border: `1px solid ${color}40`, padding: '2px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {loading ? '...' : playing ? '⏹ Stop' : '🔊 Listen'}
+    </button>
+  )
+}
+
 type Message = { role: 'user' | 'assistant'; content: string; translation?: string }
 
-function ConversationBox({ question, color, translationLang }: { question: string; color: string; translationLang: string }) {
+function ConversationBox({ question, color, translationLang, speed }: { question: string; color: string; translationLang: string; speed: number }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -193,7 +238,8 @@ function ConversationBox({ question, color, translationLang }: { question: strin
                   {m.content}
                 </div>
                 {m.role === 'assistant' && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <ListenBtn text={m.content} speed={speed} color={color} />
                     {!m.translation && <TranslateBtn text={m.content} type="message" lang={translationLang} color={color} onTranslated={(t) => setMessageTranslation(i, t)} />}
                     {translationLang === 'none' && !m.translation && <span style={{ color: '#9ca3af', fontSize: '11px' }}>Select a language to translate</span>}
                   </div>
@@ -255,7 +301,6 @@ function ConversationBox({ question, color, translationLang }: { question: strin
   )
 }
 
-// ── Main Page ─────────────────────────────────────────────────
 export default function HomeRobotsPage() {
   const [speed, setSpeed] = useState(0.9)
   const [translationLang, setTranslationLang] = useState('none')
@@ -339,7 +384,6 @@ export default function HomeRobotsPage() {
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}} @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
 
-      {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #1e3a5f 100%)', padding: '56px 24px' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <Link href="/esl-resources/reading-comprehension/b2" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← B2 Reading Comprehension</Link>
@@ -363,7 +407,6 @@ export default function HomeRobotsPage() {
         </div>
       </section>
 
-      {/* HOW TO USE + SPEED + LANGUAGE */}
       <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '14px 24px' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
@@ -399,7 +442,6 @@ export default function HomeRobotsPage() {
       <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {PARTS.map(part => (
           <div key={part.number} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
-
             <div style={{ background: `linear-gradient(135deg, ${part.color}22, ${part.color}08)`, borderLeft: `5px solid ${part.color}`, padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ background: part.color, color: 'white', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '16px', flexShrink: 0 }}>{part.number}</div>
               <div style={{ flex: 1 }}>
@@ -484,7 +526,7 @@ export default function HomeRobotsPage() {
                       </div>
                     </div>
                     <div style={{ marginLeft: '42px' }}>
-                      <ConversationBox question={q.q} color={part.color} translationLang={translationLang} />
+                      <ConversationBox question={q.q} color={part.color} translationLang={translationLang} speed={speed} />
                     </div>
                   </div>
                 ))}
@@ -498,7 +540,6 @@ export default function HomeRobotsPage() {
         </div>
       </div>
 
-      {/* POPUP */}
       {selectedText && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 200, animation: 'slideUp 0.25s ease' }}>
           <div style={{ maxWidth: '860px', margin: '0 auto', background: 'white', borderRadius: '20px 20px 0 0', padding: '20px 24px 32px', boxShadow: '0 -8px 32px rgba(0,0,0,0.2)', border: '2px solid #dbeafe', borderBottom: 'none' }}>
