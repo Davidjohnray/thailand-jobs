@@ -105,14 +105,12 @@ function TranslateBtn({ text, type, lang, color, onTranslated }: {
 }) {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
-
   const handleClick = async () => {
     if (lang === 'none' || loading || done) return
     setLoading(true)
     const result = await fetchTranslation(text, lang, type)
     onTranslated(result); setDone(true); setLoading(false)
   }
-
   const isDisabled = lang === 'none'
   return (
     <button onClick={handleClick} disabled={isDisabled || loading || done}
@@ -123,9 +121,56 @@ function TranslateBtn({ text, type, lang, color, onTranslated }: {
   )
 }
 
+// ── Listen Button — calls OpenAI TTS on click ─────────────────
+function ListenBtn({ text, speed, color }: { text: string; speed: number; color: string }) {
+  const [loading, setLoading] = useState(false)
+  const [playing, setPlaying] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const handleClick = async () => {
+    // If already playing, stop it
+    if (playing && audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      setPlaying(false)
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      })
+      if (!res.ok) throw new Error('TTS failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const audio = new Audio(url)
+      audio.playbackRate = speed
+      audioRef.current = audio
+      audio.onended = () => { setPlaying(false); URL.revokeObjectURL(url) }
+      audio.onpause = () => setPlaying(false)
+      setLoading(false)
+      setPlaying(true)
+      await audio.play()
+    } catch (e) {
+      console.error('TTS error:', e)
+      setLoading(false)
+      setPlaying(false)
+    }
+  }
+
+  return (
+    <button onClick={handleClick}
+      title={playing ? 'Stop audio' : 'Listen with natural AI voice'}
+      style={{ background: playing ? color : color + '15', color: playing ? 'white' : color, border: `1px solid ${color}40`, padding: '2px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {loading ? '...' : playing ? '⏹ Stop' : '🔊 Listen'}
+    </button>
+  )
+}
+
 type Message = { role: 'user' | 'assistant'; content: string; translation?: string }
 
-// ── CHANGE 1: speed added to props ───────────────────────────
 function ConversationBox({ question, color, translationLang, speed }: { question: string; color: string; translationLang: string; speed: number }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -133,14 +178,12 @@ function ConversationBox({ question, color, translationLang, speed }: { question
   const [listening, setListening] = useState(false)
   const [interimText, setInterimText] = useState('')
   const [open, setOpen] = useState(false)
-  // ── CHANGE 2: muted state added ──────────────────────────
   const [muted, setMuted] = useState(false)
   const recognitionRef = useRef<any>(null)
   const transcriptRef = useRef('')
 
   const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "AI Smart Glasses". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question to keep the conversation going. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — only the most important error. Be encouraging and warm.`
 
-  // ── CHANGE 3: sendMessage now speaks the AI reply ────────
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return
     const userMsg: Message = { role: 'user', content: text.trim() }
@@ -202,7 +245,6 @@ function ConversationBox({ question, color, translationLang, speed }: { question
       <div style={{ background: color, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>🤖 AI Conversation Partner</span>
         <div style={{ display: 'flex', gap: '6px' }}>
-          {/* ── CHANGE 4: mute button added ─────────────────── */}
           <button onClick={() => { setMuted(m => !m); window.speechSynthesis.cancel() }}
             style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
             {muted ? '🔇 Muted' : '🔊 Audio'}
@@ -228,7 +270,9 @@ function ConversationBox({ question, color, translationLang, speed }: { question
                   {m.content}
                 </div>
                 {m.role === 'assistant' && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    {/* 🔊 Listen button — OpenAI natural voice on click */}
+                    <ListenBtn text={m.content} speed={speed} color={color} />
                     {!m.translation && <TranslateBtn text={m.content} type="message" lang={translationLang} color={color} onTranslated={(t) => setMessageTranslation(i, t)} />}
                     {translationLang === 'none' && !m.translation && <span style={{ color: '#9ca3af', fontSize: '11px' }}>Select a language to translate</span>}
                   </div>
@@ -435,7 +479,6 @@ export default function AISmartGlassesPage() {
       <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {PARTS.map(part => (
           <div key={part.number} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
-
             <div style={{ background: `linear-gradient(135deg, ${part.color}22, ${part.color}08)`, borderLeft: `5px solid ${part.color}`, padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ background: part.color, color: 'white', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '16px', flexShrink: 0 }}>{part.number}</div>
               <div style={{ flex: 1 }}>
@@ -520,7 +563,6 @@ export default function AISmartGlassesPage() {
                       </div>
                     </div>
                     <div style={{ marginLeft: '42px' }}>
-                      {/* ── CHANGE 5: speed={speed} added to all 12 ConversationBox calls ── */}
                       <ConversationBox question={q.q} color={part.color} translationLang={translationLang} speed={speed} />
                     </div>
                   </div>
