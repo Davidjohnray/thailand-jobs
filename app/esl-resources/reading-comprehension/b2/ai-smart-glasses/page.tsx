@@ -122,16 +122,16 @@ function TranslateBtn({ text, type, lang, color, onTranslated }: {
 }
 
 // ── Listen Button — calls OpenAI TTS on click ─────────────────
+// ── Listen Button — calls OpenAI TTS on click ─────────────────
 function ListenBtn({ text, speed, color }: { text: string; speed: number; color: string }) {
   const [loading, setLoading] = useState(false)
   const [playing, setPlaying] = useState(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const sourceRef = useRef<AudioBufferSourceNode | null>(null)
 
   const handleClick = async () => {
-    // If already playing, stop it
-    if (playing && audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
+    if (playing && sourceRef.current) {
+      try { sourceRef.current.stop() } catch {}
+      sourceRef.current = null
       setPlaying(false)
       return
     }
@@ -142,17 +142,19 @@ function ListenBtn({ text, speed, color }: { text: string; speed: number; color:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
       })
-      if (!res.ok) throw new Error('TTS failed')
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const audio = new Audio(url)
-      audio.playbackRate = speed
-      audioRef.current = audio
-      audio.onended = () => { setPlaying(false); URL.revokeObjectURL(url) }
-      audio.onpause = () => setPlaying(false)
+      if (!res.ok) { console.error('TTS failed:', res.status); setLoading(false); return }
+      const arrayBuffer = await res.arrayBuffer()
+      const audioContext = new AudioContext()
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+      const source = audioContext.createBufferSource()
+      source.buffer = audioBuffer
+      source.playbackRate.value = speed
+      source.connect(audioContext.destination)
+      source.onended = () => { setPlaying(false); sourceRef.current = null }
+      sourceRef.current = source
       setLoading(false)
       setPlaying(true)
-      await audio.play()
+      source.start(0)
     } catch (e) {
       console.error('TTS error:', e)
       setLoading(false)
