@@ -100,6 +100,26 @@ async function fetchTranslation(text: string, lang: string, type: 'word' | 'ques
   return data.content || ''
 }
 
+// ── OpenAI TTS helper ─────────────────────────────────────────
+async function speakWithOpenAI(text: string, speed: number) {
+  try {
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const audio = new Audio(url)
+    audio.playbackRate = speed
+    audio.play()
+    return audio
+  } catch (e) {
+    console.error('TTS error:', e)
+    return null
+  }
+}
+
 function TranslateBtn({ text, type, lang, color, onTranslated }: {
   text: string; type: 'word' | 'question' | 'message'; lang: string; color: string; onTranslated: (t: string) => void
 }) {
@@ -125,7 +145,6 @@ function TranslateBtn({ text, type, lang, color, onTranslated }: {
 
 type Message = { role: 'user' | 'assistant'; content: string; translation?: string }
 
-// ── CHANGE 1: speed added to props ───────────────────────────
 function ConversationBox({ question, color, translationLang, speed }: { question: string; color: string; translationLang: string; speed: number }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -133,14 +152,13 @@ function ConversationBox({ question, color, translationLang, speed }: { question
   const [listening, setListening] = useState(false)
   const [interimText, setInterimText] = useState('')
   const [open, setOpen] = useState(false)
-  // ── CHANGE 2: muted state added ──────────────────────────
   const [muted, setMuted] = useState(false)
   const recognitionRef = useRef<any>(null)
   const transcriptRef = useRef('')
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null)
 
   const SYSTEM = `You are a friendly English conversation partner helping a B2 level student practise discussion skills. The reading topic is "AI Smart Glasses". The current discussion question is: "${question}". Keep every response to 2-3 sentences maximum. Always end with one natural follow-up question to keep the conversation going. If the student makes a significant grammar error, gently correct it at the very end using "💡 Quick tip: ..." — only the most important error. Be encouraging and warm.`
 
-  // ── CHANGE 3: sendMessage now speaks the AI reply ────────
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return
     const userMsg: Message = { role: 'user', content: text.trim() }
@@ -152,10 +170,9 @@ function ConversationBox({ question, color, translationLang, speed }: { question
       const reply = data.content || 'Sorry, try again.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
       if (!muted) {
-        window.speechSynthesis.cancel()
-        const u = new SpeechSynthesisUtterance(reply)
-        u.lang = 'en-US'; u.rate = speed; u.pitch = 1
-        window.speechSynthesis.speak(u)
+        if (currentAudioRef.current) { currentAudioRef.current.pause(); currentAudioRef.current = null }
+        const audio = await speakWithOpenAI(reply, speed)
+        if (audio) currentAudioRef.current = audio
       }
     } catch { setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }]) }
     setLoading(false)
@@ -191,6 +208,11 @@ function ConversationBox({ question, color, translationLang, speed }: { question
 
   const stopVoice = () => { recognitionRef.current?.stop() }
 
+  const handleMuteToggle = () => {
+    if (currentAudioRef.current) { currentAudioRef.current.pause(); currentAudioRef.current = null }
+    setMuted(m => !m)
+  }
+
   if (!open) return (
     <button onClick={() => setOpen(true)} style={{ marginTop: '10px', width: '100%', background: color + '12', border: `2px dashed ${color}40`, borderRadius: '12px', padding: '10px', color, fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
       🤖 Practice answering with AI
@@ -202,8 +224,7 @@ function ConversationBox({ question, color, translationLang, speed }: { question
       <div style={{ background: color, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>🤖 AI Conversation Partner</span>
         <div style={{ display: 'flex', gap: '6px' }}>
-          {/* ── CHANGE 4: mute button added ─────────────────── */}
-          <button onClick={() => { setMuted(m => !m); window.speechSynthesis.cancel() }}
+          <button onClick={handleMuteToggle}
             style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
             {muted ? '🔇 Muted' : '🔊 Audio'}
           </button>
@@ -435,7 +456,6 @@ export default function AISmartGlassesPage() {
       <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {PARTS.map(part => (
           <div key={part.number} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
-
             <div style={{ background: `linear-gradient(135deg, ${part.color}22, ${part.color}08)`, borderLeft: `5px solid ${part.color}`, padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ background: part.color, color: 'white', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '16px', flexShrink: 0 }}>{part.number}</div>
               <div style={{ flex: 1 }}>
@@ -520,7 +540,6 @@ export default function AISmartGlassesPage() {
                       </div>
                     </div>
                     <div style={{ marginLeft: '42px' }}>
-                      {/* ── CHANGE 5: speed={speed} added to all 12 ConversationBox calls ── */}
                       <ConversationBox question={q.q} color={part.color} translationLang={translationLang} speed={speed} />
                     </div>
                   </div>
