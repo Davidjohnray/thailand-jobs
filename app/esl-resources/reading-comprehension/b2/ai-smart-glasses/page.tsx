@@ -194,13 +194,8 @@ function ConversationBox({ question, color, translationLang, speed }: { question
       const data = await res.json()
       const reply = data.content || 'Sorry, try again.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-      if (!muted) {
-        window.speechSynthesis.cancel()
-        const u = new SpeechSynthesisUtterance(reply)
-        u.lang = 'en-US'; u.rate = speed; u.pitch = 1
-        window.speechSynthesis.speak(u)
-      }
-    } catch { setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }]) }
+      
+          } catch { setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }]) }
     setLoading(false)
   }
 
