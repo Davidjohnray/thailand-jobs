@@ -249,7 +249,7 @@ export default function A2Unit1Lesson1() {
         // Fire and forget — don't block on errors
         fetchAndCache(item.text, item.voice).catch(() => {})
         // Small gap to avoid hammering the API
-        await new Promise(r => setTimeout(r, 120))
+        await new Promise(r => setTimeout(r, 300))
       }
       if (!cancelled) setPreloadDone(true)
     }
