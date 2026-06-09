@@ -347,8 +347,7 @@ export default function A2Unit1Lesson1() {
               <div style={{ fontSize: '44px', fontWeight: '900', color: 'white', lineHeight: 1.1, marginBottom: '10px' }}>{card.thai}</div>
               <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>{card.roman}</div>
               <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', marginBottom: '20px' }}>{card.english}</div>
-              <ListenBtn text={card.thai.replace(/\.\.\./g, '')} voice="nova" label="🔊 Listen"
-                style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '10px 28px', borderRadius: '30px', cursor: 'pointer', fontSize: '15px', fontWeight: '700' }} />
+              
             </div>
             <div style={{ padding: '28px 32px' }}>
               <div style={{ background: '#f0f9ff', borderRadius: '14px', padding: '16px 20px', marginBottom: '16px', border: `2px solid ${C}40` }}>
