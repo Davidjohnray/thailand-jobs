@@ -18,6 +18,17 @@ const CATEGORIES = [
     ]
   },
   {
+    id: 'business',
+    title: 'Business English',
+    emoji: '💼',
+    description: 'Negotiation, reporting, presentations and professional communication',
+    color: '#f59e0b',
+    lessons: [
+      { id: 'negotiating-contracts', title: 'Negotiating Prices and Contracts', emoji: '🤝', description: 'The Art of the Deal', detail: 'Master the language, strategies and skills needed to negotiate effectively in professional business settings.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
+      { id: 'explaining-reports', title: 'Explaining Data and Reports to Your Boss', emoji: '📊', description: 'From Numbers to Decisions', detail: 'Learn how to present findings clearly, structure reports for senior audiences, and make recommendations with confidence.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
+    ]
+  },
+  {
     id: 'sports',
     title: 'Sports',
     emoji: '⚽',
@@ -35,23 +46,15 @@ const CATEGORIES = [
     description: 'People, communities and social change',
     color: '#f59e0b',
     lessons: [
-      {
-        id: 'online-learning',
-        title: 'Online Learning Platforms',
-        emoji: '💻',
-        description: 'The Future of Education',
-        detail: 'Explore how online platforms are changing education — flexibility, access, challenges and what comes next.',
-        badges: ['4 parts', '12 questions'],
-        color: '#f59e0b',
-      },
+      { id: 'online-learning', title: 'Online Learning Platforms', emoji: '💻', description: 'The Future of Education', detail: 'Explore how online platforms are changing education — flexibility, access, challenges and what comes next.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
     ]
   },
   { id: 'environment', title: 'Environment', emoji: '🌿', description: 'Climate, sustainability and the natural world', color: '#16a34a', lessons: [], comingSoon: true },
   { id: 'health', title: 'Health & Science', emoji: '🔬', description: 'Medicine, wellbeing and scientific discovery', color: '#ef4444', lessons: [], comingSoon: true },
   {
     id: 'work',
-    title: 'Work & Business',
-    emoji: '💼',
+    title: 'Work & Economics',
+    emoji: '📈',
     description: 'Careers, economics and the modern workplace',
     color: '#6366f1',
     lessons: [
@@ -85,7 +88,7 @@ export default function B2ReadingHub() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '28px', flexWrap: 'wrap' }}>
-            {['✍️ Highlight any text', '🌍 13-language translation', '🤖 AI conversation partner', '🎤 Push-to-talk voice', '🔊 4-speed audio'].map(f => (
+            {['✍️ Highlight any text', '🌍 13-language translation', '🤖 AI conversation partner', '🎤 Push-to-talk voice', '🔊 4-speed audio', '🔊 Natural AI voice'].map(f => (
               <span key={f} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: '600' }}>{f}</span>
             ))}
           </div>
