@@ -1,17 +1,16 @@
-
 'use client'
 import Link from 'next/link'
 import { useLearnThaiGate } from '@/hooks/useLearnThaiGate'
 
 const UNITS = [
-  { unit: 1, title: 'Talking About Yourself', desc: 'Occupations, how long you\'ve been in Thailand, present continuous, survival phrases', lessons: 3, color: '#0ea5e9', ready: true },
-  { unit: 2, title: 'Food & Ordering', desc: 'Restaurant vocabulary, ordering food, asking about dishes, Thai food culture', lessons: 3, color: '#22c55e', ready: false },
-  { unit: 3, title: 'Shopping & Bargaining', desc: 'Market vocabulary, prices, bargaining phrases, colours and sizes', lessons: 3, color: '#f59e0b', ready: false },
-  { unit: 4, title: 'Getting Around', desc: 'Transport, directions, asking for help, tuk-tuks, Grab, buses', lessons: 3, color: '#ef4444', ready: false },
-  { unit: 5, title: 'Health & Body', desc: 'Body parts, symptoms, at the doctor, pharmacy vocabulary', lessons: 3, color: '#8b5cf6', ready: false },
-  { unit: 6, title: 'Work & Daily Routine', desc: 'School life, teaching vocabulary, daily schedules, telling the time in context', lessons: 3, color: '#f97316', ready: false },
-  { unit: 7, title: 'Making Plans', desc: 'Future tense, making arrangements, days and dates, invitations', lessons: 3, color: '#06b6d4', ready: false },
-  { unit: 8, title: 'Feelings & Social Life', desc: 'Emotions, social situations, Thai greetings culture, festivals', lessons: 3, color: '#ec4899', ready: false },
+  { unit: 1, title: 'Talking About Yourself', desc: 'Occupations, how long you\'ve been in Thailand, present continuous, survival phrases', lessons: 3, color: '#0ea5e9', ready: true, lessonsReady: 2 },
+  { unit: 2, title: 'Food & Ordering', desc: 'Restaurant vocabulary, ordering food, asking about dishes, Thai food culture', lessons: 3, color: '#22c55e', ready: false, lessonsReady: 0 },
+  { unit: 3, title: 'Shopping & Bargaining', desc: 'Market vocabulary, prices, bargaining phrases, colours and sizes', lessons: 3, color: '#f59e0b', ready: false, lessonsReady: 0 },
+  { unit: 4, title: 'Getting Around', desc: 'Transport, directions, asking for help, tuk-tuks, Grab, buses', lessons: 3, color: '#ef4444', ready: false, lessonsReady: 0 },
+  { unit: 5, title: 'Health & Body', desc: 'Body parts, symptoms, at the doctor, pharmacy vocabulary', lessons: 3, color: '#8b5cf6', ready: false, lessonsReady: 0 },
+  { unit: 6, title: 'Work & Daily Routine', desc: 'School life, teaching vocabulary, daily schedules, telling the time in context', lessons: 3, color: '#f97316', ready: false, lessonsReady: 0 },
+  { unit: 7, title: 'Making Plans', desc: 'Future tense, making arrangements, days and dates, invitations', lessons: 3, color: '#06b6d4', ready: false, lessonsReady: 0 },
+  { unit: 8, title: 'Feelings & Social Life', desc: 'Emotions, social situations, Thai greetings culture, festivals', lessons: 3, color: '#ec4899', ready: false, lessonsReady: 0 },
 ]
 
 export default function A2Overview() {
@@ -49,13 +48,22 @@ export default function A2Overview() {
                 <div style={{ flex: 1 }}>
                   <div style={{ color: 'white', fontWeight: '800', fontSize: '17px', marginBottom: '4px' }}>Unit {unit.unit}: {unit.title}</div>
                   <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>{unit.desc}</div>
+                  {unit.ready && (
+                    <div style={{ color: unit.color, fontSize: '12px', fontWeight: '700', marginTop: '4px' }}>
+                      {unit.lessonsReady} of {unit.lessons} lessons available
+                    </div>
+                  )}
                 </div>
                 <div style={{ flexShrink: 0 }}>
                   {unit.ready ? (
-                    <Link href={`/learn-thai/a2/unit-${unit.unit}/lesson-1`}
-                      style={{ background: unit.color, color: 'white', padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '14px', display: 'block' }}>
-                      Start →
-                    </Link>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {Array.from({ length: unit.lessonsReady }, (_, i) => (
+                        <Link key={i} href={`/learn-thai/a2/unit-${unit.unit}/lesson-${i + 1}`}
+                          style={{ background: unit.color, color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '13px', display: 'block', textAlign: 'center' }}>
+                          Lesson {i + 1} →
+                        </Link>
+                      ))}
+                    </div>
                   ) : (
                     <span style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.3)', padding: '10px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: '700' }}>
                       Coming soon
