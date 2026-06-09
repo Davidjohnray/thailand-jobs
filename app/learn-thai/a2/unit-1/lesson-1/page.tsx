@@ -210,9 +210,9 @@ const LISTENING_Q = [
 const ALL_AUDIO: { text: string; voice: 'nova' | 'echo' }[] = [
   // Vocab cards + examples (nova for all Thai content)
   ...VOCAB.flatMap(v => [
-    { text: v.thai, voice: 'nova' as const },
-    { text: v.example.thai, voice: 'nova' as const },
-  ]),
+  { text: v.thai.replace(/\.\.\./g, ''), voice: 'nova' as const },
+  { text: v.example.thai, voice: 'nova' as const },
+]),
   // Conversation lines
   ...CONVERSATION.map(l => ({ text: l.thai, voice: (l.speaker === 'A' ? 'echo' : 'nova') as 'nova' | 'echo' })),
   // Script recognition
