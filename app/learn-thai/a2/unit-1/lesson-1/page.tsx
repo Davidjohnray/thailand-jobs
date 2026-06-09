@@ -1,46 +1,74 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useLearnThaiGate } from '@/hooks/useLearnThaiGate'
 
-// ── ListenBtn — exact same pattern as working ESL pages ──────────
+// ── Audio cache — shared across all buttons on this page ─────────
+const audioCache: Record<string, AudioBuffer> = {}
+let sharedContext: AudioContext | null = null
+
+function getAudioContext(): AudioContext {
+  if (!sharedContext || sharedContext.state === 'closed') {
+    sharedContext = new AudioContext()
+  }
+  return sharedContext
+}
+
+async function fetchAndCache(text: string, voice: 'nova' | 'echo'): Promise<AudioBuffer | null> {
+  const key = `${voice}:${text}`
+  if (audioCache[key]) return audioCache[key]
+  try {
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice }),
+    })
+    if (!res.ok) return null
+    const arrayBuffer = await res.arrayBuffer()
+    const ctx = getAudioContext()
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
+    audioCache[key] = audioBuffer
+    return audioBuffer
+  } catch { return null }
+}
+
+function playBuffer(buffer: AudioBuffer): Promise<void> {
+  return new Promise((resolve) => {
+    try {
+      const ctx = getAudioContext()
+      const source = ctx.createBufferSource()
+      source.buffer = buffer
+      source.connect(ctx.destination)
+      source.onended = () => resolve()
+      source.start(0)
+    } catch { resolve() }
+  })
+}
+
+// ── ListenBtn — plays from cache instantly if preloaded ──────────
 function ListenBtn({ text, voice = 'nova', label = '🔊 Listen', style: btnStyle }: {
   text: string; voice?: 'nova' | 'echo'; label?: string; style?: React.CSSProperties
 }) {
-  const [loading, setLoading] = useState(false)
-  const [playing, setPlaying] = useState(false)
-  const sourceRef = useRef<AudioBufferSourceNode | null>(null)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'playing'>('idle')
+  const activeRef = useRef(false)
 
   const handleClick = async () => {
-    if (playing && sourceRef.current) {
-      try { sourceRef.current.stop() } catch {}
-      sourceRef.current = null; setPlaying(false); return
-    }
-    setLoading(true)
-    try {
-      const res = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice }),
-      })
-      if (!res.ok) { setLoading(false); return }
-      const arrayBuffer = await res.arrayBuffer()
-      const audioContext = new AudioContext()
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-      const source = audioContext.createBufferSource()
-      source.buffer = audioBuffer
-      source.playbackRate.value = 1.0
-      source.connect(audioContext.destination)
-      source.onended = () => { setPlaying(false); sourceRef.current = null }
-      sourceRef.current = source
-      setLoading(false); setPlaying(true)
-      source.start(0)
-    } catch (e) { console.error('TTS error:', e); setLoading(false) }
+    if (status === 'playing') { activeRef.current = false; setStatus('idle'); return }
+    const key = `${voice}:${text}`
+    const cached = audioCache[key]
+    if (!cached) { setStatus('loading') }
+    const buffer = cached ?? await fetchAndCache(text, voice)
+    if (!buffer) { setStatus('idle'); return }
+    activeRef.current = true
+    setStatus('playing')
+    await playBuffer(buffer)
+    if (activeRef.current) setStatus('idle')
+    activeRef.current = false
   }
 
   return (
     <button onClick={handleClick} style={btnStyle}>
-      {loading ? '...' : playing ? '⏹ Stop' : label}
+      {status === 'loading' ? '...' : status === 'playing' ? '⏹ Stop' : label}
     </button>
   )
 }
@@ -178,49 +206,18 @@ const LISTENING_Q = [
   { question: 'Can the man speak Thai?', correct: 'A little', options: ['Not at all', 'A little', 'Very well', 'Fluently'] },
 ]
 
-async function playAudioSequence(
-  lines: typeof CONVERSATION,
-  setActiveLine: (i: number) => void,
-  stopRef: React.MutableRefObject<boolean>,
-  setPlayStatus: (s: 'idle' | 'loading' | 'playing') => void
-) {
-  setPlayStatus('loading')
-  // Fetch all audio buffers first
-  const buffers: (ArrayBuffer | null)[] = []
-  for (const line of lines) {
-    if (stopRef.current) { setPlayStatus('idle'); return }
-    try {
-      const res = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: line.thai, voice: line.speaker === 'A' ? 'echo' : 'nova' }),
-      })
-      buffers.push(res.ok ? await res.arrayBuffer() : null)
-    } catch { buffers.push(null) }
-  }
-  if (stopRef.current) { setPlayStatus('idle'); return }
-  setPlayStatus('playing')
-  // Play in sequence
-  for (let i = 0; i < lines.length; i++) {
-    if (stopRef.current) break
-    if (!buffers[i]) continue
-    setActiveLine(i)
-    await new Promise<void>((resolve) => {
-      const audioContext = new AudioContext()
-      audioContext.decodeAudioData(buffers[i]!).then(audioBuffer => {
-        const source = audioContext.createBufferSource()
-        source.buffer = audioBuffer
-        source.playbackRate.value = 1.0
-        source.connect(audioContext.destination)
-        source.onended = () => resolve()
-        source.start(0)
-      }).catch(() => resolve())
-    })
-    if (!stopRef.current) await new Promise(r => setTimeout(r, 500))
-  }
-  setActiveLine(-1)
-  setPlayStatus('idle')
-}
+// Build list of all audio items to preload
+const ALL_AUDIO: { text: string; voice: 'nova' | 'echo' }[] = [
+  // Vocab cards + examples (nova for all Thai content)
+  ...VOCAB.flatMap(v => [
+    { text: v.thai, voice: 'nova' as const },
+    { text: v.example.thai, voice: 'nova' as const },
+  ]),
+  // Conversation lines
+  ...CONVERSATION.map(l => ({ text: l.thai, voice: (l.speaker === 'A' ? 'echo' : 'nova') as 'nova' | 'echo' })),
+  // Script recognition
+  ...SCRIPT_Q.map(q => ({ text: q.thai, voice: 'nova' as const })),
+]
 
 export default function A2Unit1Lesson1() {
   useLearnThaiGate()
@@ -239,8 +236,26 @@ export default function A2Unit1Lesson1() {
   const [listenScore, setListenScore] = useState(0)
   const [activeLine, setActiveLine] = useState(-1)
   const [listenPlayed, setListenPlayed] = useState(false)
-  const [playStatus, setPlayStatus] = useState<'idle' | 'loading' | 'playing'>('idle')
+  const [playStatus, setPlayStatus] = useState<'idle' | 'playing'>('idle')
+  const [preloadDone, setPreloadDone] = useState(false)
   const stopRef = useRef(false)
+
+  // Preload all audio silently on mount
+  useEffect(() => {
+    let cancelled = false
+    async function preload() {
+      for (const item of ALL_AUDIO) {
+        if (cancelled) return
+        // Fire and forget — don't block on errors
+        fetchAndCache(item.text, item.voice).catch(() => {})
+        // Small gap to avoid hammering the API
+        await new Promise(r => setTimeout(r, 120))
+      }
+      if (!cancelled) setPreloadDone(true)
+    }
+    preload()
+    return () => { cancelled = true }
+  }, [])
 
   const card = VOCAB[cardIndex]
   const pct = Math.round((correct / QUIZ.length) * 100)
@@ -257,10 +272,24 @@ export default function A2Unit1Lesson1() {
     if (quizIndex + 1 >= QUIZ.length) { setPhase('script'); return }
     setQuizIndex(p => p + 1); setSelected(null)
   }
+
   const stopConversation = () => { stopRef.current = true; setActiveLine(-1); setPlayStatus('idle') }
-  const startConversation = () => {
+
+  const startConversation = async () => {
     stopRef.current = false
-    playAudioSequence(CONVERSATION, setActiveLine, stopRef, setPlayStatus)
+    setPlayStatus('playing')
+    for (let i = 0; i < CONVERSATION.length; i++) {
+      if (stopRef.current) break
+      const line = CONVERSATION[i]
+      const voice = line.speaker === 'A' ? 'echo' : 'nova'
+      setActiveLine(i)
+      const buffer = await fetchAndCache(line.thai, voice)
+      if (stopRef.current) break
+      if (buffer) await playBuffer(buffer)
+      if (!stopRef.current) await new Promise(r => setTimeout(r, 400))
+    }
+    setActiveLine(-1)
+    setPlayStatus('idle')
   }
 
   const navBtn = (label: string, id: string) => (
@@ -298,7 +327,11 @@ export default function A2Unit1Lesson1() {
               <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#1a1a2e', marginBottom: '10px' }}>🗣️ A2 Unit 1 — Introducing Yourself in Detail</h2>
               <p style={{ color: '#374151', fontSize: '15px', lineHeight: '1.7', margin: '0 0 12px' }}>Build on your A1 introduction with more natural sentences, present continuous, and cultural context.</p>
               <div style={{ background: '#f0f9ff', borderRadius: '12px', padding: '14px 18px', border: `1px solid ${C}40` }}>
-                <div style={{ color: D, fontWeight: '800', fontSize: '13px', marginBottom: '6px' }}>🎯 15 phrases · 🔊 Male and female AI voices</div>
+                <div style={{ color: D, fontWeight: '800', fontSize: '13px', marginBottom: '6px' }}>
+                  🎯 15 phrases · 🔊 Male and female AI voices
+                  {!preloadDone && <span style={{ color: '#9ca3af', fontWeight: '400', marginLeft: '8px' }}>· ⏳ Loading audio...</span>}
+                  {preloadDone && <span style={{ color: '#22c55e', fontWeight: '400', marginLeft: '8px' }}>· ✅ Audio ready</span>}
+                </div>
                 <div style={{ color: '#374151', fontSize: '14px' }}>Occupations · กำลัง present continuous · ได้ไหม for requests · ช้าๆ survival Thai</div>
               </div>
             </div>
@@ -364,7 +397,7 @@ export default function A2Unit1Lesson1() {
           <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
             <button onClick={startConversation} disabled={playStatus !== 'idle'}
               style={{ flex: 1, background: playStatus !== 'idle' ? '#6b7280' : `linear-gradient(135deg, ${D}, ${C})`, color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: playStatus !== 'idle' ? 'default' : 'pointer' }}>
-              {playStatus === 'loading' ? '⏳ Loading audio...' : playStatus === 'playing' ? '⏸ Playing...' : '▶ Play Full Conversation'}
+              {playStatus === 'playing' ? '⏸ Playing...' : '▶ Play Full Conversation'}
             </button>
             {playStatus !== 'idle' && <button onClick={stopConversation} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '14px 20px', borderRadius: '12px', fontWeight: '900', cursor: 'pointer' }}>■ Stop</button>}
           </div>
@@ -490,7 +523,7 @@ export default function A2Unit1Lesson1() {
             <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>Listen without reading along, then answer the questions.</p>
             <button onClick={() => { startConversation(); setListenPlayed(true) }} disabled={playStatus !== 'idle'}
               style={{ background: playStatus !== 'idle' ? '#6b7280' : `linear-gradient(135deg, ${D}, ${C})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: playStatus !== 'idle' ? 'default' : 'pointer' }}>
-              {playStatus === 'loading' ? '⏳ Loading...' : playStatus === 'playing' ? '⏸ Playing...' : listenPlayed ? '🔄 Play Again' : '▶ Play Conversation'}
+              {playStatus === 'playing' ? '⏸ Playing...' : listenPlayed ? '🔄 Play Again' : '▶ Play Conversation'}
             </button>
           </div>
           {listenPlayed && (
