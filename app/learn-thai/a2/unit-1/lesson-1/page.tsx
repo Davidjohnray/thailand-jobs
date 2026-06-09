@@ -135,11 +135,16 @@ const LISTENING_Q = [
   { question: 'Can the man speak Thai?', correct: 'A little', options: ['Not at all', 'A little', 'Very well', 'Fluently'] },
 ]
 
-function speak(text: string, rate = 0.7) {
+function speak(text: string, rate = 0.65) {
   if (typeof window === 'undefined') return
   window.speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(text)
-  u.lang = 'th-TH'; u.rate = rate; u.pitch = 1.05
+  u.lang = 'th-TH'; u.rate = rate; u.pitch = 1.1
+  const voices = window.speechSynthesis.getVoices()
+  const thaiVoice = voices.find(v => v.lang === 'th-TH' && v.name.toLowerCase().includes('female'))
+    || voices.find(v => v.lang === 'th-TH' && v.name.toLowerCase().includes('woman'))
+    || voices.find(v => v.lang === 'th-TH')
+  if (thaiVoice) u.voice = thaiVoice
   window.speechSynthesis.speak(u)
 }
 
@@ -188,9 +193,9 @@ export default function A2Unit1Lesson1() {
 
   const playConversation = () => {
     CONVERSATION.forEach((line, i) => {
-      setTimeout(() => { speak(line.thai); setActiveLine(i) }, i * 2500)
+      setTimeout(() => { speak(line.thai); setActiveLine(i) }, i * 3200)
     })
-    setTimeout(() => setActiveLine(-1), CONVERSATION.length * 2500)
+    setTimeout(() => setActiveLine(-1), CONVERSATION.length * 3200)
   }
 
   return (
