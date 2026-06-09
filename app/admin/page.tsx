@@ -111,9 +111,12 @@ export default function AdminPage() {
   const [newArcadeName, setNewArcadeName] = useState('')
   const [newArcadeEmail, setNewArcadeEmail] = useState('')
   const [arcadeSubTab, setArcadeSubTab] = useState<'codes' | 'teachers' | 'games'>('codes')
+  const [learnThaiCodes, setLearnThaiCodes] = useState([]);
+  const [generatingLTCode, setGeneratingLTCode] = useState(false);
+  const [newLTEmail, setNewLTEmail] = useState('');
   // ─────────────────────────────────────────────────────────
 
-  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium' | 'arcade' | 'recruiter' | 'tefl' | 'duke'>('unread')
+  const [activeTab, setActiveTab] = useState<'unread' | 'all' | 'members' | 'email' | 'rentals' | 'teachers' | 'esl' | 'blog' | 'direct' | 'partners' | 'premium' | 'arcade' | 'learnthai' | 'recruiter' | 'tefl' | 'duke'>('unread')
   const [replyText, setReplyText] = useState<Record<number, string>>({})
   const [replying, setReplying] = useState<number | null>(null)
   const [expandedTeacher, setExpandedTeacher] = useState<string | null>(null)
