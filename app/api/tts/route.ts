@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       headers: {
         'Content-Type': 'audio/mpeg',
         'Content-Length': arrayBuffer.byteLength.toString(),
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-store',
       },
     })
   } catch (err: any) {
