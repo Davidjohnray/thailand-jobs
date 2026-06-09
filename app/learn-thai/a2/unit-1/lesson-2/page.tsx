@@ -1,125 +1,162 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useLearnThaiGate } from '@/hooks/useLearnThaiGate'
 
+// ── TTS ──────────────────────────────────────────────────────────
+const audioCache: Record<string, string> = {}
+let currentAudio: HTMLAudioElement | null = null
+
+async function speak(text: string, voice: 'nova' | 'echo' = 'nova'): Promise<void> {
+  if (typeof window === 'undefined') return
+  if (currentAudio) { currentAudio.pause(); currentAudio.src = ''; currentAudio = null }
+  const key = `${voice}:${text}`
+  try {
+    let url = audioCache[key]
+    if (!url) {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, voice }),
+      })
+      if (!res.ok) return
+      const blob = await res.blob()
+      url = URL.createObjectURL(blob)
+      audioCache[key] = url
+    }
+    await new Promise<void>((resolve, reject) => {
+      const audio = new Audio(url)
+      currentAudio = audio
+      audio.onended = () => { currentAudio = null; resolve() }
+      audio.onerror = () => { currentAudio = null; reject() }
+      audio.play().catch(reject)
+    })
+  } catch (err) { console.error('TTS:', err) }
+}
+
+function speakVocab(text: string) { return speak(text, 'nova') }
+function speakLine(text: string, speaker: 'A' | 'B') {
+  return speak(text, speaker === 'A' ? 'echo' : 'nova')
+}
+// ────────────────────────────────────────────────────────────────
+
 const VOCAB = [
   {
-    thai: 'ครอบครัว', roman: 'khroob khrua', english: 'Family',
-    example: { thai: 'คุณมีครอบครัวที่ไทยไหมครับ', roman: 'khun mii khroob khrua thii thai mai khrap', english: 'Do you have family in Thailand?' },
-    note: 'ครอบครัว is the formal word for family unit. You\'ll use this constantly in Thailand as Thais always ask about your family situation early in conversation.',
-    tip: 'Thais ask "คุณแต่งงานแล้วหรือยัง?" (Are you married yet?) almost immediately after meeting you. It\'s not intrusive — it\'s genuine interest!',
+    thai: 'ฉันชื่อ...', roman: 'chan chuu...', english: 'My name is... (female)',
+    example: { thai: 'ฉันชื่อซาร่าค่ะ', roman: 'chan chuu Saaraa kha', english: 'My name is Sara.' },
+    note: 'At A2 we build on the A1 intro. ฉัน is the polite female "I". Males use ผม (phom). Always add ค่ะ (female) or ครับ (male) to sound natural and polite.',
+    tip: 'Thais often introduce themselves by nickname — ชื่อเล่น (chuu len). Ask: คุณมีชื่อเล่นไหม? (Do you have a nickname?)',
   },
   {
-    thai: 'แต่งงาน', roman: 'taeng ngaan', english: 'To get married / married',
-    example: { thai: 'ฉันแต่งงานแล้วค่ะ', roman: 'chan taeng ngaan laeo kha', english: 'I am married.' },
-    note: 'แต่งงานแล้ว = already married (แล้ว = already/completed action). ยังไม่แต่งงาน = not yet married. แต่งงานกับ = married to.',
-    tip: 'If married to a Thai person, Thais will be especially warm and curious. เมียไทย (Thai wife) or ผัวฝรั่ง (foreign husband) are common casual terms you\'ll hear.',
+    thai: 'ฉันอายุ...ปี', roman: 'chan aa yu...pii', english: 'I am ... years old',
+    example: { thai: 'ฉันอายุยี่สิบแปดปีค่ะ', roman: 'chan aa yu yii sip bpaet pii kha', english: 'I am 28 years old.' },
+    note: 'อายุ (aa yu) = age. ปี (pii) = year. The number goes between them. Unlike English you never say "I am 28" without ปี.',
+    tip: 'Asking someone\'s age in Thailand is completely normal — not rude at all. คุณอายุเท่าไรครับ/ค่ะ (How old are you?) is a standard question.',
   },
   {
-    thai: 'ลูก', roman: 'luuk', english: 'Child / children',
-    example: { thai: 'ฉันมีลูกสองคนค่ะ', roman: 'chan mii luuk soong khon kha', english: 'I have two children.' },
-    note: 'ลูก = child (gender neutral). ลูกชาย = son, ลูกสาว = daughter. คน is the counter word for people. มีลูกไหม = Do you have children?',
-    tip: 'Children are adored in Thai culture. If you have kids, mention them early — it\'s a huge conversation starter and immediately builds warmth.',
+    thai: 'ฉันเป็น...', roman: 'chan pen...', english: 'I am a... (occupation)',
+    example: { thai: 'ฉันเป็นครูภาษาอังกฤษค่ะ', roman: 'chan pen khruu phasaa ang-grid kha', english: 'I am an English teacher.' },
+    note: 'เป็น (pen) = to be, used for roles and occupations. Common jobs: ครู (teacher), หมอ (doctor), พยาบาล (nurse), นักธุรกิจ (businessperson), วิศวกร (engineer).',
+    tip: 'ภาษาอังกฤษ literally means "English language". You\'ll hear it all the time as a teacher — ครูภาษาอังกฤษ is what everyone will call you.',
   },
   {
-    thai: 'แฟน', roman: 'faen', english: 'Partner / boyfriend / girlfriend',
-    example: { thai: 'ฉันมีแฟนเป็นคนไทยค่ะ', roman: 'chan mii faen pen khon thai kha', english: 'My partner is Thai.' },
-    note: 'แฟน (from English "fan") is used for all romantic partners — boyfriend, girlfriend, or partner. Very casual and widely used regardless of age.',
-    tip: 'คู่ชีวิต (khuu chii wit) is the more formal word for life partner/spouse. You\'ll see this on official forms. แฟน is what everyone actually says.',
+    thai: 'ฉันมาจาก...', roman: 'chan maa jaak...', english: 'I come from...',
+    example: { thai: 'ฉันมาจากอังกฤษค่ะ', roman: 'chan maa jaak Ang-grid kha', english: 'I come from England.' },
+    note: 'มา (maa) = to come, จาก (jaak) = from. Countries: อังกฤษ (England), อเมริกา (America), ออสเตรเลีย (Australia), แคนาดา (Canada), ไอร์แลนด์ (Ireland), นิวซีแลนด์ (New Zealand), สกอตแลนด์ (Scotland).',
+    tip: 'Saying where you\'re from immediately creates connection. Follow up with ฉันอยู่ที่ไทยมา...ปีแล้ว — Thais love hearing this.',
   },
   {
-    thai: 'พ่อแม่', roman: 'phoo maae', english: 'Parents',
-    example: { thai: 'พ่อแม่ของฉันอยู่ที่อังกฤษค่ะ', roman: 'phoo maae khoong chan yuu thii Ang-grid kha', english: 'My parents are in England.' },
-    note: 'พ่อ (phoo) = father, แม่ (maae) = mother. Together พ่อแม่ = parents. ของฉัน = my/mine. อยู่ที่ = live in/at.',
-    tip: 'Thais have immense respect for parents. Saying you send money home to your parents (ส่งเงินให้พ่อแม่) earns enormous respect in Thai culture.',
+    thai: 'ฉันอยู่ที่...', roman: 'chan yuu thii...', english: 'I live in/at...',
+    example: { thai: 'ฉันอยู่ที่อยุธยามาสองปีแล้วค่ะ', roman: 'chan yuu thii A-yut-tha-yaa maa soong pii laeo kha', english: 'I\'ve been living in Ayutthaya for two years.' },
+    note: 'อยู่ที่ (yuu thii) = live at/in. Adding มา...ปีแล้ว (maa...pii laeo) = for...years already. This shows you\'re committed to Thailand — not just a tourist.',
+    tip: 'Cities: กรุงเทพ (Bangkok), เชียงใหม่ (Chiang Mai), อยุธยา (Ayutthaya), ภูเก็ต (Phuket), ขอนแก่น (Khon Kaen).',
   },
   {
-    thai: 'พี่น้อง', roman: 'phii noong', english: 'Siblings',
-    example: { thai: 'ฉันมีพี่น้องสามคนค่ะ', roman: 'chan mii phii noong saam khon kha', english: 'I have three siblings.' },
-    note: 'พี่ = older sibling, น้อง = younger sibling. พี่น้อง together = siblings in general. เป็นลูกคนเดียว = only child.',
-    tip: 'If you\'re an only child, Thais will often express sympathy (เหงาไหม? = Aren\'t you lonely?). Family networks are very important in Thai culture.',
+    thai: 'ฉันชอบ...', roman: 'chan choop...', english: 'I like...',
+    example: { thai: 'ฉันชอบอาหารไทยมากค่ะ', roman: 'chan choop aa haan thai maak kha', english: 'I really like Thai food.' },
+    note: 'ชอบ (choop) = to like. Add มาก (maak) = very much. ไม่ชอบ (mai choop) = don\'t like. ชอบมากที่สุด = like the most.',
+    tip: 'Saying you love Thai food will instantly warm up any Thai person. Food is the biggest bonding topic in Thai culture.',
   },
   {
-    thai: 'อยู่ด้วยกัน', roman: 'yuu duai gan', english: 'To live together',
-    example: { thai: 'เราอยู่ด้วยกันที่อยุธยาค่ะ', roman: 'rao yuu duai gan thii A-yut-tha-yaa kha', english: 'We live together in Ayutthaya.' },
-    note: 'อยู่ = to live/stay, ด้วยกัน = together. เรา (rao) = we/us. This word is essential for talking about your living situation.',
-    tip: 'Cohabiting without marriage is increasingly common in Thailand, especially in cities. Still, older Thais may ask when you plan to make it "official"!',
+    thai: 'ฉันพูดภาษาไทยได้นิดหน่อย', roman: 'chan phuut phasaa thai dai nit noi', english: 'I can speak a little Thai',
+    example: { thai: 'ฉันพูดภาษาไทยได้นิดหน่อยค่ะ', roman: 'chan phuut phasaa thai dai nit noi kha', english: 'I can speak a little Thai.' },
+    note: 'พูด (phuut) = to speak. ได้ (dai) after a verb means "can/able to". นิดหน่อย (nit noi) = a little. This phrase is gold — use it early.',
+    tip: 'After saying this, Thais will often try to teach you more words on the spot. A fantastic way to make friends and practice naturally.',
   },
   {
-    thai: 'คิดถึง', roman: 'khit thueng', english: 'To miss someone',
-    example: { thai: 'ฉันคิดถึงครอบครัวมากค่ะ', roman: 'chan khit thueng khroob khrua maak kha', english: 'I miss my family a lot.' },
-    note: 'คิดถึง literally means "think of/towards". คิดถึงใคร? = Who do you miss? คิดถึงบ้าน = homesick (miss home). This phrase resonates deeply with Thais.',
-    tip: 'Saying คิดถึงครอบครัวมาก immediately creates empathy. Thais understand the sacrifice of living far from family and will respect you deeply for it.',
+    thai: 'ยินดีที่ได้รู้จัก', roman: 'yin dii thii dai ruu jak', english: 'Nice to meet you',
+    example: { thai: 'ยินดีที่ได้รู้จักค่ะ ชื่อซาร่านะคะ', roman: 'yin dii thii dai ruu jak kha chuu Saaraa na kha', english: 'Nice to meet you. My name is Sara.' },
+    note: 'ยินดี (yin dii) = pleased/glad. รู้จัก (ruu jak) = to know/be acquainted with. This formal phrase earns deep respect from Thais.',
+    tip: 'After this, Thais often say แอดไลน์ด้วยนะ (add me on LINE) — LINE IDs are the Thai equivalent of swapping phone numbers.',
   },
   {
-    thai: 'กลับบ้าน', roman: 'glap baan', english: 'To go back home',
-    example: { thai: 'ฉันจะกลับบ้านช่วงคริสต์มาสค่ะ', roman: 'chan ja glap baan chuang Krit-mas kha', english: 'I\'ll go home for Christmas.' },
-    note: 'กลับ = to return/go back, บ้าน = home/house. จะ (ja) before a verb = future tense (will/going to). ช่วง = around/during (a time period).',
-    tip: 'จะ (ja) is your future tense marker in Thai — incredibly useful. ฉันจะ... = I will... Add it before any verb to talk about the future.',
+    thai: 'ฉันสอนที่...', roman: 'chan soon thii...', english: 'I teach at...',
+    example: { thai: 'ฉันสอนที่โรงเรียนประถมค่ะ', roman: 'chan soon thii roong rian pra thom kha', english: 'I teach at a primary school.' },
+    note: 'สอน (soon) = to teach. โรงเรียน (roong rian) = school. ประถม = primary, มัธยม = secondary, มหาวิทยาลัย = university.',
+    tip: 'Being a teacher (ครู) is highly respected in Thailand. Parents will often wai you even in casual settings.',
   },
   {
-    thai: 'ความสัมพันธ์', roman: 'khwaam sam phan', english: 'Relationship',
-    example: { thai: 'เรามีความสัมพันธ์ที่ดีมากค่ะ', roman: 'rao mii khwaam sam phan thii dii maak kha', english: 'We have a really good relationship.' },
-    note: 'ความ (khwaam) is a prefix that turns adjectives into nouns — ดี (good) → ความดี (goodness). สัมพันธ์ = relation/connection. Common in formal speech.',
-    tip: 'ความ is one of the most useful Thai prefixes. ความรัก = love, ความสุข = happiness, ความฝัน = dream. Learn it once, use it forever.',
+    thai: 'คุณอยู่ที่นี่มานานแค่ไหนแล้ว', roman: 'khun yuu thii nii maa naan khae nai laeo', english: 'How long have you been here?',
+    example: { thai: 'คุณอยู่ที่นี่มานานแค่ไหนแล้วครับ', roman: 'khun yuu thii nii maa naan khae nai laeo khrap', english: 'How long have you been here?' },
+    note: 'มา (maa) = coming/been here, นาน (naan) = long time, แค่ไหน (khae nai) = how long, แล้ว (laeo) = already/now.',
+    tip: 'Answer with: ฉันอยู่มา...ปีแล้วค่ะ. Thais are always curious how long foreigners have been here.',
   },
   {
-    thai: 'เลี้ยงดู', roman: 'liang duu', english: 'To raise / take care of',
-    example: { thai: 'พ่อแม่เลี้ยงดูฉันมาอย่างดีค่ะ', roman: 'phoo maae liang duu chan maa yaang dii kha', english: 'My parents raised me well.' },
-    note: 'เลี้ยง = to feed/raise, ดู = to look/watch over. Together it means raising children or caring for someone. Shows deep respect for your upbringing.',
-    tip: 'If you mention how well your parents raised you, Thais will be moved. Thai culture places enormous value on filial piety — caring for and honouring parents.',
+    thai: 'ฉันรักประเทศไทย', roman: 'chan rak pra thet thai', english: 'I love Thailand',
+    example: { thai: 'ฉันรักประเทศไทยมากค่ะ ที่นี่สวยมาก', roman: 'chan rak pra thet thai maak kha thii nii suai maak', english: 'I love Thailand very much. It\'s beautiful here.' },
+    note: 'รัก (rak) = to love. ประเทศไทย = Thailand (formal). Casually Thais say เมืองไทย (mueang thai). This will ALWAYS get a huge smile.',
+    tip: 'Follow with something specific — อาหาร (food), ผู้คน (people), วัฒนธรรม (culture). It shows genuine appreciation.',
   },
   {
-    thai: 'คนเดียว', roman: 'khon diao', english: 'Alone / by oneself',
-    example: { thai: 'ฉันมาอยู่ที่ไทยคนเดียวค่ะ', roman: 'chan maa yuu thii thai khon diao kha', english: 'I came to live in Thailand alone.' },
-    note: 'คน = person, เดียว = single/alone. ลูกคนเดียว = only child. อยู่คนเดียว = live alone. มาคนเดียว = came alone.',
-    tip: 'Thais will often express concern if you live alone: "ไม่เหงาเหรอ?" (Aren\'t you lonely?). It comes from genuine care — community is central to Thai life.',
+    thai: 'คุณพูดภาษาอังกฤษได้ไหม', roman: 'khun phuut phasaa ang-grid dai mai', english: 'Can you speak English?',
+    example: { thai: 'ขอโทษนะครับ คุณพูดภาษาอังกฤษได้ไหมครับ', roman: 'kho thoot na khrap khun phuut phasaa ang-grid dai mai khrap', english: 'Excuse me, can you speak English?' },
+    note: 'ได้ไหม (dai mai) = can you? / is it possible? The standard yes/no question ending for ability. ได้ = yes/can, ไม่ได้ = no/can\'t.',
+    tip: 'Even as your Thai improves, this phrase helps in emergencies. But try Thai first — the effort is always appreciated!',
   },
   {
-    thai: 'ห่วงใย', roman: 'huang yai', english: 'To worry about / care for',
-    example: { thai: 'แม่ห่วงใยฉันมากค่ะ', roman: 'maae huang yai chan maak kha', english: 'My mother worries about me a lot.' },
-    note: 'ห่วง = to worry/be concerned, ใย = care/thread. Together = to care deeply about someone\'s wellbeing. Very common in family conversations.',
-    tip: 'A typical Thai parent message: "กินข้าวหรือยัง? แม่ห่วง" (Have you eaten? Mum is worried). Food and worry are deeply connected in Thai family culture!',
+    thai: 'ฉันกำลังเรียนภาษาไทย', roman: 'chan gam lang rian phasaa thai', english: 'I am learning Thai',
+    example: { thai: 'ฉันกำลังเรียนภาษาไทยอยู่ค่ะ', roman: 'chan gam lang rian phasaa thai yuu kha', english: 'I am currently learning Thai.' },
+    note: 'กำลัง (gam lang) = currently/in the process of (present continuous). เรียน (rian) = to study/learn. อยู่ at the end reinforces the ongoing action.',
+    tip: 'This is your magic phrase. It opens doors — Thais will become your teacher, your friend, and your biggest supporter.',
   },
   {
-    thai: 'รักกัน', roman: 'rak gan', english: 'To love each other',
-    example: { thai: 'เรารักกันมากค่ะ', roman: 'rao rak gan maak kha', english: 'We love each other very much.' },
-    note: 'รัก = to love, กัน = each other (mutual action). กัน at the end of any verb makes it mutual: ช่วยกัน = help each other, เข้าใจกัน = understand each other.',
-    tip: 'กัน is incredibly useful — คุยกัน (talk to each other), ทำงานด้วยกัน (work together), เจอกัน (meet each other). Add it to verbs to make them mutual.',
+    thai: 'ขอโทษ ช่วยพูดช้าๆ ได้ไหม', roman: 'kho thoot chuai phuut chaa chaa dai mai', english: 'Sorry, can you speak slowly?',
+    example: { thai: 'ขอโทษนะคะ ช่วยพูดช้าๆ ได้ไหมคะ', roman: 'kho thoot na kha chuai phuut chaa chaa dai mai kha', english: 'Sorry, can you please speak slowly?' },
+    note: 'ช่วย (chuai) = please/help. ช้าๆ (chaa chaa) = slowly. ESSENTIAL for real conversations — Thais will always slow down for you.',
+    tip: 'The ๆ symbol means repeat the word — ช้าๆ = "slow slow" = very slowly. You\'ll see this pattern everywhere in Thai.',
   },
   {
-    thai: 'อบอุ่น', roman: 'op un', english: 'Warm / loving (atmosphere)',
-    example: { thai: 'ครอบครัวของฉันอบอุ่นมากค่ะ', roman: 'khroob khrua khoong chan op un maak kha', english: 'My family is very warm and loving.' },
-    note: 'อบ = warm air/steam, อุ่น = warm. Together อบอุ่น describes a warm, loving, nurturing atmosphere — especially used for families and homes.',
-    tip: 'บ้านอบอุ่น (warm home) is a cherished Thai concept. Saying your family is อบอุ่น will always resonate — it perfectly captures the Thai ideal of family life.',
+    thai: 'ฉันไม่เข้าใจ', roman: 'chan mai khao jai', english: 'I don\'t understand',
+    example: { thai: 'ขอโทษค่ะ ฉันไม่เข้าใจ ช่วยอธิบายอีกครั้งได้ไหมคะ', roman: 'kho thoot kha chan mai khao jai chuai a thi bai iik khrang dai mai kha', english: 'Sorry, I don\'t understand. Can you explain again?' },
+    note: 'เข้าใจ (khao jai) = to understand (literally "enter heart"). ไม่เข้าใจ = don\'t understand. เข้าใจแล้ว = I understand now.',
+    tip: 'เข้าใจไหม? = Do you understand? Your students will ask you this! เข้าใจแล้ว = Got it.',
   },
 ]
 
 const CONVERSATION = [
-  { speaker: 'A', thai: 'คุณมีครอบครัวที่นี่ไหมครับ', roman: 'khun mii khroob khrua thii nii mai khrap', english: 'Do you have family here?' },
-  { speaker: 'B', thai: 'ไม่มีค่ะ ครอบครัวของฉันอยู่ที่อังกฤษทั้งหมดเลยค่ะ', roman: 'mai mii kha khroob khrua khoong chan yuu thii Ang-grid thang mot loei kha', english: 'No, my whole family is in England.' },
-  { speaker: 'A', thai: 'โอ้ คิดถึงบ้านบ้างไหมครับ', roman: 'oh khit thueng baan baang mai khrap', english: 'Oh, do you miss home?' },
-  { speaker: 'B', thai: 'คิดถึงมากเลยค่ะ โดยเฉพาะแม่ค่ะ แต่เราโทรหากันทุกอาทิตย์ค่ะ', roman: 'khit thueng maak loei kha doi cha phaw maae kha tae rao thoo haa gan thuk aa thit kha', english: 'I miss home a lot, especially my mum. But we call each other every week.' },
-  { speaker: 'A', thai: 'คุณแต่งงานแล้วหรือยังครับ', roman: 'khun taeng ngaan laeo rue yang khrap', english: 'Are you married?' },
-  { speaker: 'B', thai: 'ยังไม่แต่งงานค่ะ แต่มีแฟนเป็นคนไทยค่ะ', roman: 'yang mai taeng ngaan kha tae mii faen pen khon thai kha', english: 'Not yet, but I have a Thai partner.' },
-  { speaker: 'A', thai: 'โอ้ ดีจังเลยนะครับ อยู่ด้วยกันไหมครับ', roman: 'oh dii jang loei na khrap yuu duai gan mai khrap', english: 'Oh wonderful! Do you live together?' },
-  { speaker: 'B', thai: 'ใช่ค่ะ เราอยู่ด้วยกันที่อยุธยาค่ะ', roman: 'chai kha rao yuu duai gan thii A-yut-tha-yaa kha', english: 'Yes, we live together in Ayutthaya.' },
-  { speaker: 'A', thai: 'มีลูกไหมครับ', roman: 'mii luuk mai khrap', english: 'Do you have children?' },
-  { speaker: 'B', thai: 'ยังไม่มีค่ะ แต่อนาคตอยากมีค่ะ', roman: 'yang mai mii kha tae a na khot yaak mii kha', english: 'Not yet, but I\'d like to have some in the future.' },
+  { speaker: 'A' as const, thai: 'สวัสดีครับ ผมชื่อมาร์คครับ', roman: 'sawasdee khrap phom chuu Mark khrap', english: 'Hello, my name is Mark.' },
+  { speaker: 'B' as const, thai: 'สวัสดีค่ะ ดีใจที่ได้รู้จักค่ะ ฉันชื่อนิดค่ะ', roman: 'sawasdee kha dii jai thii dai ruu jak kha chan chuu Nit kha', english: 'Hello, pleased to meet you. My name is Nit.' },
+  { speaker: 'A' as const, thai: 'คุณมาจากไหนครับ', roman: 'khun maa jaak nai khrap', english: 'Where are you from?' },
+  { speaker: 'B' as const, thai: 'ฉันเป็นคนไทยค่ะ มาจากเชียงใหม่ค่ะ คุณล่ะครับ', roman: 'chan pen khon thai kha maa jaak Chiang Mai kha khun la khrap', english: 'I\'m Thai, from Chiang Mai. And you?' },
+  { speaker: 'A' as const, thai: 'ผมมาจากอังกฤษครับ อยู่ที่ไทยมาสองปีแล้วครับ', roman: 'phom maa jaak Ang-grid khrap yuu thii thai maa soong pii laeo khrap', english: 'I\'m from England. I\'ve been in Thailand for two years.' },
+  { speaker: 'B' as const, thai: 'โอ้ สองปีแล้วเหรอคะ พูดภาษาไทยได้บ้างไหมคะ', roman: 'oh soong pii laeo roe kha phuut phasaa thai dai baang mai kha', english: 'Oh, two years already? Can you speak some Thai?' },
+  { speaker: 'A' as const, thai: 'ได้นิดหน่อยครับ กำลังเรียนอยู่ครับ', roman: 'dai nit noi khrap gam lang rian yuu khrap', english: 'A little. I\'m still learning.' },
+  { speaker: 'B' as const, thai: 'เก่งมากเลยค่ะ คุณทำงานอะไรที่นี่คะ', roman: 'geng maak loei kha khun tham ngaan a rai thii nii kha', english: 'Wow, very impressive! What do you do here?' },
+  { speaker: 'A' as const, thai: 'ผมเป็นครูภาษาอังกฤษครับ สอนที่โรงเรียนมัธยมครับ', roman: 'phom pen khruu phasaa ang-grid khrap soon thii roong rian mat tha yom khrap', english: 'I\'m an English teacher at a secondary school.' },
+  { speaker: 'B' as const, thai: 'ดีมากเลยค่ะ ยินดีที่ได้รู้จักค่ะ', roman: 'dii maak loei kha yin dii thii dai ruu jak kha', english: 'That\'s wonderful! Nice to meet you.' },
 ]
 
 const QUIZ = [
-  { q: 'How do you say "I am married" in Thai?', correct: 'Chan taeng ngaan laeo', options: ['Chan mii faen laeo', 'Chan taeng ngaan laeo', 'Chan yuu duai gan laeo', 'Chan rak gan laeo'] },
-  { q: 'What does จะ (ja) indicate before a verb?', correct: 'Future tense (will/going to)', options: ['Past tense', 'Future tense (will/going to)', 'Present continuous', 'A question'] },
-  { q: 'How do you say "I have two children"?', correct: 'Chan mii luuk soong khon', options: ['Chan mii luuk soong', 'Chan mii luuk soong khon', 'Chan mii dek soong khon', 'Chan pen maa soong khon'] },
-  { q: 'What does ความ (khwaam) do to a word?', correct: 'Turns an adjective into a noun', options: ['Makes it negative', 'Turns an adjective into a noun', 'Adds future tense', 'Makes it a question'] },
-  { q: 'How do you say "I miss my family" in Thai?', correct: 'Chan khit thueng khroob khrua', options: ['Chan rak khroob khrua', 'Chan khit thueng khroob khrua', 'Chan huang yai khroob khrua', 'Chan yuu gap khroob khrua'] },
-  { q: 'What does กัน (gan) add to a verb?', correct: 'Makes the action mutual (each other)', options: ['Makes it negative', 'Makes the action mutual (each other)', 'Adds politeness', 'Indicates past tense'] },
-  { q: 'How do you say "My parents are in England"?', correct: 'Phoo maae khoong chan yuu thii Ang-grid', options: ['Phoo maae khoong chan maa jaak Ang-grid', 'Phoo maae khoong chan yuu thii Ang-grid', 'Phoo maae khoong chan pen khon Ang-grid', 'Phoo maae khoong chan glap Ang-grid'] },
-  { q: 'What does อบอุ่น (op un) describe?', correct: 'A warm, loving atmosphere', options: ['Hot weather', 'A warm, loving atmosphere', 'Physical warmth', 'A spicy taste'] },
-  { q: 'How do you say "Not yet married" in Thai?', correct: 'Yang mai taeng ngaan', options: ['Mai taeng ngaan laeo', 'Yang mai taeng ngaan', 'Bpen mai taeng ngaan', 'Yak taeng ngaan'] },
-  { q: 'How do you say "I\'ll go home for Christmas"?', correct: 'Chan ja glap baan chuang Krit-mas', options: ['Chan glap baan chuang Krit-mas', 'Chan ja pai baan chuang Krit-mas', 'Chan ja glap baan chuang Krit-mas', 'Chan yaak glap baan Krit-mas'] },
+  { q: 'How does a female say "My name is Sara" in Thai?', correct: 'Chan chuu Sara kha', options: ['Phom chuu Sara khrap', 'Chan chuu Sara kha', 'Khun chuu Sara kha', 'Chan pen Sara kha'] },
+  { q: 'What does กำลัง (gam lang) indicate in a sentence?', correct: 'A continuous/ongoing action', options: ['Past tense', 'A continuous/ongoing action', 'Future tense', 'A question'] },
+  { q: 'How do you say "I\'ve been in Thailand for 3 years"?', correct: 'Chan yuu thii thai maa saam pii laeo', options: ['Chan yuu thii thai saam pii', 'Chan maa thai saam pii', 'Chan yuu thii thai maa saam pii laeo', 'Chan pen thai saam pii laeo'] },
+  { q: 'What does เข้าใจ (khao jai) literally mean?', correct: 'Enter heart', options: ['Open mind', 'Enter heart', 'Clear head', 'Know well'] },
+  { q: 'How do you ask someone to speak slowly?', correct: 'Chuai phuut chaa chaa dai mai', options: ['Chuai phuut lek lek dai mai', 'Chuai phuut chaa chaa dai mai', 'Chuai phuut nit noi dai mai', 'Chuai phuut yai yai dai mai'] },
+  { q: 'What does ได้ไหม (dai mai) mean at the end of a sentence?', correct: 'Can you? / Is it possible?', options: ['Do you want to?', 'Can you? / Is it possible?', 'Did you?', 'Will you?'] },
+  { q: 'How do you say "I love Thailand" in Thai?', correct: 'Chan rak pra thet thai', options: ['Chan choop pra thet thai', 'Chan rak pra thet thai', 'Chan yuu pra thet thai', 'Chan dii pra thet thai'] },
+  { q: 'The ๆ symbol in Thai means...?', correct: 'Repeat the previous word', options: ['End of sentence', 'Repeat the previous word', 'Question marker', 'Emphasis marker'] },
+  { q: 'How do you say "I teach at a primary school"?', correct: 'Chan soon thii roong rian pra thom', options: ['Chan rian thii roong rian pra thom', 'Chan soon thii roong rian mat tha yom', 'Chan soon thii roong rian pra thom', 'Chan pen khruu roong rian pra thom'] },
+  { q: 'What\'s the polite female sentence ender?', correct: 'ค่ะ (kha)', options: ['ครับ (khrap)', 'ค่ะ (kha)', 'นะ (na)', 'เลย (loei)'] },
 ]
 
 const SCRIPT_Q = VOCAB.slice(0, 10).sort(() => Math.random() - 0.5).map(v => ({
@@ -128,22 +165,14 @@ const SCRIPT_Q = VOCAB.slice(0, 10).sort(() => Math.random() - 0.5).map(v => ({
 }))
 
 const LISTENING_Q = [
-  { question: 'Where is the woman\'s family?', correct: 'In England', options: ['In Thailand', 'In England', 'In Australia', 'In Scotland'] },
-  { question: 'How often does she call her family?', correct: 'Every week', options: ['Every day', 'Every week', 'Every month', 'Never'] },
-  { question: 'Is she married?', correct: 'No, not yet', options: ['Yes', 'No, not yet', 'She doesn\'t know', 'She doesn\'t want to say'] },
-  { question: 'What nationality is her partner?', correct: 'Thai', options: ['English', 'Australian', 'Thai', 'American'] },
-  { question: 'Where do they live together?', correct: 'Ayutthaya', options: ['Bangkok', 'Chiang Mai', 'Ayutthaya', 'Phuket'] },
+  { question: 'What is the man\'s name?', correct: 'Mark', options: ['Mark', 'Nit', 'David', 'James'] },
+  { question: 'Where is the man from?', correct: 'England', options: ['America', 'Australia', 'England', 'Scotland'] },
+  { question: 'How long has the man been in Thailand?', correct: 'Two years', options: ['One year', 'Two years', 'Three years', 'Six months'] },
+  { question: 'What does the man do for work?', correct: 'English teacher', options: ['Doctor', 'Engineer', 'English teacher', 'Business owner'] },
+  { question: 'Can the man speak Thai?', correct: 'A little', options: ['Not at all', 'A little', 'Very well', 'Fluently'] },
 ]
 
-function speak(text: string, rate = 0.7) {
-  if (typeof window === 'undefined') return
-  window.speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(text)
-  u.lang = 'th-TH'; u.rate = rate; u.pitch = 1.05
-  window.speechSynthesis.speak(u)
-}
-
-export default function A2Unit1Lesson2() {
+export default function A2Unit1Lesson1() {
   useLearnThaiGate()
 
   const [phase, setPhase] = useState<'learn' | 'conversation' | 'quiz' | 'script' | 'listening' | 'complete'>('learn')
@@ -160,6 +189,8 @@ export default function A2Unit1Lesson2() {
   const [listenScore, setListenScore] = useState(0)
   const [activeLine, setActiveLine] = useState(-1)
   const [listenPlayed, setListenPlayed] = useState(false)
+  const [loadingAudio, setLoadingAudio] = useState(false)
+  const playingRef = useRef(false)
 
   const card = VOCAB[cardIndex]
   const pct = Math.round((correct / QUIZ.length) * 100)
@@ -179,18 +210,33 @@ export default function A2Unit1Lesson2() {
     setQuizIndex(p => p + 1); setSelected(null)
   }
 
-  const playConversation = () => {
-    CONVERSATION.forEach((line, i) => {
-      setTimeout(() => { speak(line.thai); setActiveLine(i) }, i * 2500)
-    })
-    setTimeout(() => setActiveLine(-1), CONVERSATION.length * 2500)
+  const playConversation = async () => {
+    if (playingRef.current) return
+    playingRef.current = true
+    setLoadingAudio(true)
+    for (let i = 0; i < CONVERSATION.length; i++) {
+      if (!playingRef.current) break
+      setActiveLine(i)
+      await speakLine(CONVERSATION[i].thai, CONVERSATION[i].speaker)
+      await new Promise(r => setTimeout(r, 400))
+    }
+    setActiveLine(-1)
+    setLoadingAudio(false)
+    playingRef.current = false
+  }
+
+  const stopConversation = () => {
+    playingRef.current = false
+    if (currentAudio) { currentAudio.pause(); currentAudio.src = ''; currentAudio = null }
+    setActiveLine(-1)
+    setLoadingAudio(false)
   }
 
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
       <div style={{ background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
         <Link href="/learn-thai/a2" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px' }}>← A2 Overview</Link>
-        <div style={{ color: 'white', fontWeight: '900', fontSize: '17px', flex: 1 }}>A2 · Unit 1 · Lesson 2 — Family & Relationships</div>
+        <div style={{ color: 'white', fontWeight: '900', fontSize: '17px', flex: 1 }}>A2 · Unit 1 · Lesson 1 — Introducing Yourself</div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {[
             { id: 'learn', label: '📖 Learn' },
@@ -200,6 +246,7 @@ export default function A2Unit1Lesson2() {
             { id: 'listening', label: '🎧 Listening' },
           ].map(tab => (
             <button key={tab.id} onClick={() => {
+              stopConversation()
               if (tab.id === 'quiz') { setQuizIndex(0); setSelected(null); setCorrect(0); setAnswers([]) }
               if (tab.id === 'script') { setScriptIndex(0); setScriptSelected(null); setScriptScore(0) }
               if (tab.id === 'listening') { setListenIndex(0); setListenSelected(null); setListenScore(0) }
@@ -216,14 +263,14 @@ export default function A2Unit1Lesson2() {
         <div style={{ maxWidth: '780px', margin: '0 auto', padding: '32px 24px' }}>
           {cardIndex === 0 && (
             <div style={{ background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#1a1a2e', marginBottom: '10px' }}>👨‍👩‍👧 Lesson 2 — Family & Relationships</h2>
+              <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#1a1a2e', marginBottom: '10px' }}>🗣️ A2 Unit 1 — Introducing Yourself in Detail</h2>
               <p style={{ color: '#374151', fontSize: '15px', lineHeight: '1.7', margin: '0 0 12px' }}>
-                After introducing yourself, Thais immediately ask about your family. Are you married? Do you have children? Do you miss home? These questions come fast — and answering them well builds instant connection.
+                You can already give a basic introduction from A1. Now we go deeper — more natural sentences, the present continuous tense, asking about others, and the cultural context that makes your Thai feel real.
               </p>
               <div style={{ background: '#f0f9ff', borderRadius: '12px', padding: '14px 18px', border: `1px solid ${COLOR}40` }}>
-                <div style={{ color: DARK, fontWeight: '800', fontSize: '13px', marginBottom: '6px' }}>🎯 This lesson — 15 vocabulary items</div>
+                <div style={{ color: DARK, fontWeight: '800', fontSize: '13px', marginBottom: '6px' }}>🎯 15 phrases · Male & female AI voices 🔊</div>
                 <div style={{ color: '#374151', fontSize: '14px', lineHeight: '1.6' }}>
-                  Marriage & relationships · Children · Missing home · Future tense จะ · Mutual action กัน · The ความ prefix · Thai family culture
+                  Occupations · How long you've been here · กำลัง present continuous · ได้ไหม for requests · ช้าๆ survival Thai · Cultural tips for every phrase
                 </div>
               </div>
             </div>
@@ -238,13 +285,13 @@ export default function A2Unit1Lesson2() {
 
           <div style={{ background: 'white', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
             <div style={{ background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, padding: '36px 32px', textAlign: 'center' }}>
-              <div style={{ fontSize: '52px', fontWeight: '900', color: 'white', lineHeight: 1.1, marginBottom: '10px' }}>{card.thai}</div>
+              <div style={{ fontSize: '48px', fontWeight: '900', color: 'white', lineHeight: 1.1, marginBottom: '10px' }}>{card.thai}</div>
               <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '19px', fontWeight: '700', marginBottom: '4px' }}>{card.roman}</div>
               <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '16px', marginBottom: '20px' }}>{card.english}</div>
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <button onClick={() => speak(card.thai)} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '10px 28px', borderRadius: '30px', cursor: 'pointer', fontSize: '15px', fontWeight: '700' }}>🔊 Listen</button>
-                <button onClick={() => speak(card.thai, 0.5)} style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.2)', padding: '10px 18px', borderRadius: '30px', cursor: 'pointer', fontSize: '14px' }}>🐢 Slow</button>
-              </div>
+              <button onClick={() => speakVocab(card.thai)}
+                style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '10px 28px', borderRadius: '30px', cursor: 'pointer', fontSize: '15px', fontWeight: '700' }}>
+                🔊 Listen
+              </button>
             </div>
             <div style={{ padding: '28px 32px' }}>
               <div style={{ background: '#f0f9ff', borderRadius: '14px', padding: '16px 20px', marginBottom: '16px', border: `2px solid ${COLOR}40` }}>
@@ -255,7 +302,7 @@ export default function A2Unit1Lesson2() {
                     <div style={{ color: '#374151', fontWeight: '700', fontSize: '14px' }}>{card.example.roman}</div>
                     <div style={{ color: '#9ca3af', fontSize: '13px' }}>{card.example.english}</div>
                   </div>
-                  <button onClick={() => speak(card.example.thai)} style={{ marginLeft: 'auto', background: COLOR, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>🔊</button>
+                  <button onClick={() => speakVocab(card.example.thai)} style={{ marginLeft: 'auto', background: COLOR, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>🔊</button>
                 </div>
               </div>
               <div style={{ background: '#fffbeb', borderRadius: '12px', padding: '14px 16px', marginBottom: '12px', border: '1px solid #fde68a' }}>
@@ -283,20 +330,34 @@ export default function A2Unit1Lesson2() {
       {/* CONVERSATION */}
       {phase === 'conversation' && (
         <div style={{ maxWidth: '720px', margin: '0 auto', padding: '32px 24px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#1a1a2e', marginBottom: '8px' }}>🗣️ Real Conversation — Talking About Family</h2>
-            <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>A Thai colleague asks about family life. This conversation happens constantly in Thailand — be ready for it!</p>
-            <button onClick={playConversation} style={{ background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: 'pointer' }}>▶ Play Full Conversation</button>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#1a1a2e', marginBottom: '6px' }}>🗣️ Real Conversation — Meeting Someone New</h2>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: '0 0 10px' }}>Listen to Mark and Nit meet for the first time. Click any line to hear it.</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <span style={{ background: '#f0f9ff', color: COLOR, fontSize: '12px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px' }}>🧑 Mark = male (echo)</span>
+              <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px' }}>👩 Nit = female (nova)</span>
+            </div>
           </div>
+
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+            <button onClick={playConversation} disabled={loadingAudio}
+              style={{ flex: 1, background: loadingAudio ? '#6b7280' : `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: loadingAudio ? 'wait' : 'pointer' }}>
+              {loadingAudio ? '⏸ Playing...' : '▶ Play Full Conversation'}
+            </button>
+            {loadingAudio && (
+              <button onClick={stopConversation} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '14px 20px', borderRadius: '12px', fontWeight: '900', fontSize: '15px', cursor: 'pointer' }}>■ Stop</button>
+            )}
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
             {CONVERSATION.map((line, i) => (
-              <div key={i} onClick={() => { speak(line.thai); setActiveLine(i); setTimeout(() => setActiveLine(-1), 3000) }}
+              <div key={i} onClick={() => { if (!loadingAudio) speakLine(line.thai, line.speaker) }}
                 style={{ background: activeLine === i ? (line.speaker === 'A' ? '#f0f9ff' : '#f0fdf4') : 'white', borderRadius: '14px', padding: '16px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', border: `2px solid ${activeLine === i ? (line.speaker === 'A' ? COLOR : '#22c55e') : '#e5e7eb'}`, transition: 'all 0.2s', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: line.speaker === 'A' ? COLOR : '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: line.speaker === 'A' ? COLOR : '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '16px', flexShrink: 0 }}>
                   {line.speaker === 'A' ? '🧑' : '👩'}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '18px', fontWeight: '900', color: line.speaker === 'A' ? COLOR : '#15803d', marginBottom: '4px' }}>{line.thai}</div>
+                  <div style={{ fontSize: '20px', fontWeight: '900', color: line.speaker === 'A' ? COLOR : '#15803d', marginBottom: '4px' }}>{line.thai}</div>
                   <div style={{ color: '#6b7280', fontSize: '13px', marginBottom: '2px' }}>{line.roman}</div>
                   <div style={{ color: '#9ca3af', fontSize: '13px', fontStyle: 'italic' }}>{line.english}</div>
                 </div>
@@ -304,7 +365,8 @@ export default function A2Unit1Lesson2() {
               </div>
             ))}
           </div>
-          <button onClick={() => { setQuizIndex(0); setSelected(null); setCorrect(0); setAnswers([]); setPhase('quiz') }}
+
+          <button onClick={() => { stopConversation(); setQuizIndex(0); setSelected(null); setCorrect(0); setAnswers([]); setPhase('quiz') }}
             style={{ width: '100%', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: 'pointer' }}>
             🧠 Take the Quiz →
           </button>
@@ -350,18 +412,18 @@ export default function A2Unit1Lesson2() {
                 : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ Correct: <strong>{QUIZ[quizIndex].correct}</strong></span>}
             </div>
           )}
-          {selected && <button onClick={nextQ} style={{ width: '100%', background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: 'pointer' }}>{quizIndex + 1 >= QUIZ.length ? '✍️ Script Practice →' : 'Next →'}</button>}
+          {selected && <button onClick={nextQ} style={{ width: '100%', background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: 'pointer' }}>{quizIndex + 1 >= QUIZ.length ? '✍️ Script →' : 'Next →'}</button>}
         </div>
       )}
 
       {/* SCRIPT */}
       {phase === 'script' && (
         <div style={{ maxWidth: '600px', margin: '0 auto', padding: '32px 24px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
             <h2 style={{ fontSize: '18px', fontWeight: '900', color: '#1a1a2e', marginBottom: '6px' }}>✍️ Script Recognition</h2>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Read the Thai and choose the correct English meaning.</p>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>Read the Thai phrase and choose the correct English meaning.</p>
           </div>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '14px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ color: COLOR, fontWeight: '700', fontSize: '14px' }}>{scriptIndex + 1} / {SCRIPT_Q.length}</span>
             <div style={{ flex: 1, background: '#e5e7eb', borderRadius: '10px', height: '8px', overflow: 'hidden' }}>
               <div style={{ height: '8px', background: COLOR, borderRadius: '10px', width: `${((scriptIndex + 1) / SCRIPT_Q.length) * 100}%`, transition: 'width 0.3s' }} />
@@ -371,9 +433,9 @@ export default function A2Unit1Lesson2() {
           <div style={{ background: 'white', borderRadius: '20px', padding: '36px 28px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '16px' }}>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
               <div style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>What does this mean?</div>
-              <div style={{ fontSize: '36px', fontWeight: '900', color: COLOR, lineHeight: 1.3, marginBottom: '8px' }}>{SCRIPT_Q[scriptIndex].thai}</div>
+              <div style={{ fontSize: '34px', fontWeight: '900', color: COLOR, lineHeight: 1.3, marginBottom: '8px' }}>{SCRIPT_Q[scriptIndex].thai}</div>
               <div style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '16px' }}>{SCRIPT_Q[scriptIndex].roman}</div>
-              <button onClick={() => speak(SCRIPT_Q[scriptIndex].thai)} style={{ background: '#f0f9ff', color: COLOR, border: `2px solid ${COLOR}40`, padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>🔊 Hear it</button>
+              <button onClick={() => speakVocab(SCRIPT_Q[scriptIndex].thai)} style={{ background: '#f0f9ff', color: COLOR, border: `2px solid ${COLOR}40`, padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>🔊 Hear it</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {SCRIPT_Q[scriptIndex].options.map(opt => {
@@ -419,9 +481,9 @@ export default function A2Unit1Lesson2() {
           <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
             <h2 style={{ fontSize: '18px', fontWeight: '900', color: '#1a1a2e', marginBottom: '8px' }}>🎧 Listening Comprehension</h2>
             <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>Listen to the conversation without reading along, then answer the questions.</p>
-            <button onClick={() => { playConversation(); setListenPlayed(true) }}
-              style={{ background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: 'pointer' }}>
-              {listenPlayed ? '🔄 Play Again' : '▶ Play Conversation'}
+            <button onClick={() => { playConversation(); setListenPlayed(true) }} disabled={loadingAudio}
+              style={{ background: loadingAudio ? '#6b7280' : `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: loadingAudio ? 'wait' : 'pointer' }}>
+              {loadingAudio ? '⏸ Playing...' : listenPlayed ? '🔄 Play Again' : '▶ Play Conversation'}
             </button>
           </div>
           {listenPlayed && (
@@ -484,14 +546,14 @@ export default function A2Unit1Lesson2() {
             <div style={{ fontSize: '48px', fontWeight: '900', color: pct >= 70 ? COLOR : '#f59e0b', marginBottom: '8px' }}>{pct}%</div>
             <div style={{ color: '#888', fontSize: '15px', marginBottom: '24px' }}>{correct} / {QUIZ.length} on the quiz · {listenScore} / {LISTENING_Q.length} on listening</div>
             <div style={{ background: '#f0f9ff', borderRadius: '14px', padding: '16px 20px', marginBottom: '24px', border: `2px solid ${COLOR}40`, textAlign: 'left' }}>
-              <div style={{ color: DARK, fontWeight: '800', fontSize: '14px', marginBottom: '8px' }}>✅ Lesson 2 Complete!</div>
+              <div style={{ color: DARK, fontWeight: '800', fontSize: '14px', marginBottom: '8px' }}>✅ Lesson 1 Complete!</div>
               <div style={{ color: '#374151', fontSize: '14px', lineHeight: '1.6' }}>
-                You can now talk about your family, relationships and home life in Thai. You've also learned the future tense จะ and the mutual action pattern กัน. Next: your daily life and hobbies.
+                You can now introduce yourself in detail in Thai. Next: talking about your family and relationships.
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link href="/learn-thai/a2/unit-1/lesson-3" style={{ display: 'block', background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '16px' }}>
-                Next Lesson: Daily Life & Hobbies →
+              <Link href="/learn-thai/a2/unit-1/lesson-2" style={{ display: 'block', background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '16px' }}>
+                Next Lesson: Family & Relationships →
               </Link>
               <button onClick={() => { setPhase('learn'); setCardIndex(0) }} style={{ background: '#f3f4f6', color: '#374151', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '700', fontSize: '15px', cursor: 'pointer' }}>🔄 Review Again</button>
             </div>
