@@ -4,39 +4,44 @@ import Link from 'next/link'
 import { useLearnThaiGate } from '@/hooks/useLearnThaiGate'
 
 // ── TTS ──────────────────────────────────────────────────────────
-const audioCache: Record<string, string> = {}
-let currentAudio: HTMLAudioElement | null = null
+const audioCache: Record<string, HTMLAudioElement> = {}
 
-async function speak(text: string, voice: 'nova' | 'echo' = 'nova'): Promise<void> {
-  if (typeof window === 'undefined') return
-  if (currentAudio) { currentAudio.pause(); currentAudio.src = ''; currentAudio = null }
+async function fetchAudio(text: string, voice: 'nova' | 'echo' = 'nova'): Promise<HTMLAudioElement> {
   const key = `${voice}:${text}`
-  try {
-    let url = audioCache[key]
-    if (!url) {
-      const res = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice }),
-      })
-      if (!res.ok) return
-      const blob = await res.blob()
-      url = URL.createObjectURL(blob)
-      audioCache[key] = url
-    }
-    await new Promise<void>((resolve, reject) => {
-      const audio = new Audio(url)
-      currentAudio = audio
-      audio.onended = () => { currentAudio = null; resolve() }
-      audio.onerror = () => { currentAudio = null; reject() }
-      audio.play().catch(reject)
-    })
-  } catch (err) { console.error('TTS:', err) }
+  if (audioCache[key]) return audioCache[key]
+  const res = await fetch('/api/tts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, voice }),
+  })
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const audio = new Audio(url)
+  audioCache[key] = audio
+  return audio
 }
 
-function speakVocab(text: string) { return speak(text, 'nova') }
-function speakLine(text: string, speaker: 'A' | 'B') {
-  return speak(text, speaker === 'A' ? 'echo' : 'nova')
+function playAudio(audio: HTMLAudioElement): Promise<void> {
+  return new Promise((resolve) => {
+    audio.currentTime = 0
+    audio.onended = () => resolve()
+    audio.onerror = () => resolve()
+    audio.play().catch(() => resolve())
+  })
+}
+
+async function speakVocab(text: string) {
+  try {
+    const audio = await fetchAudio(text, 'nova')
+    await playAudio(audio)
+  } catch (e) { console.error(e) }
+}
+
+async function speakOne(text: string, speaker: 'A' | 'B') {
+  try {
+    const audio = await fetchAudio(text, speaker === 'A' ? 'echo' : 'nova')
+    await playAudio(audio)
+  } catch (e) { console.error(e) }
 }
 // ────────────────────────────────────────────────────────────────
 
@@ -51,85 +56,85 @@ const VOCAB = [
     thai: 'ฉันอายุ...ปี', roman: 'chan aa yu...pii', english: 'I am ... years old',
     example: { thai: 'ฉันอายุยี่สิบแปดปีค่ะ', roman: 'chan aa yu yii sip bpaet pii kha', english: 'I am 28 years old.' },
     note: 'อายุ (aa yu) = age. ปี (pii) = year. The number goes between them. Unlike English you never say "I am 28" without ปี.',
-    tip: 'Asking someone\'s age in Thailand is completely normal — not rude at all. คุณอายุเท่าไรครับ/ค่ะ (How old are you?) is a standard question.',
+    tip: 'Asking age is completely normal in Thailand — not rude at all. คุณอายุเท่าไรครับ/ค่ะ is a standard question.',
   },
   {
     thai: 'ฉันเป็น...', roman: 'chan pen...', english: 'I am a... (occupation)',
     example: { thai: 'ฉันเป็นครูภาษาอังกฤษค่ะ', roman: 'chan pen khruu phasaa ang-grid kha', english: 'I am an English teacher.' },
-    note: 'เป็น (pen) = to be, used for roles and occupations. Common jobs: ครู (teacher), หมอ (doctor), พยาบาล (nurse), นักธุรกิจ (businessperson), วิศวกร (engineer).',
-    tip: 'ภาษาอังกฤษ literally means "English language". You\'ll hear it all the time as a teacher — ครูภาษาอังกฤษ is what everyone will call you.',
+    note: 'เป็น (pen) = to be, for roles and occupations. Common jobs: ครู (teacher), หมอ (doctor), พยาบาล (nurse), นักธุรกิจ (businessperson).',
+    tip: 'ภาษาอังกฤษ literally means "English language". You\'ll hear it constantly as a teacher — ครูภาษาอังกฤษ is what everyone will call you.',
   },
   {
     thai: 'ฉันมาจาก...', roman: 'chan maa jaak...', english: 'I come from...',
     example: { thai: 'ฉันมาจากอังกฤษค่ะ', roman: 'chan maa jaak Ang-grid kha', english: 'I come from England.' },
-    note: 'มา (maa) = to come, จาก (jaak) = from. Countries: อังกฤษ (England), อเมริกา (America), ออสเตรเลีย (Australia), แคนาดา (Canada), ไอร์แลนด์ (Ireland), นิวซีแลนด์ (New Zealand), สกอตแลนด์ (Scotland).',
-    tip: 'Saying where you\'re from immediately creates connection. Follow up with ฉันอยู่ที่ไทยมา...ปีแล้ว — Thais love hearing this.',
+    note: 'มา = to come, จาก = from. Countries: อังกฤษ (England), อเมริกา (America), ออสเตรเลีย (Australia), แคนาดา (Canada), สกอตแลนด์ (Scotland).',
+    tip: 'Saying where you\'re from creates instant connection. Follow with ฉันอยู่ที่ไทยมา...ปีแล้ว — Thais love hearing this.',
   },
   {
     thai: 'ฉันอยู่ที่...', roman: 'chan yuu thii...', english: 'I live in/at...',
     example: { thai: 'ฉันอยู่ที่อยุธยามาสองปีแล้วค่ะ', roman: 'chan yuu thii A-yut-tha-yaa maa soong pii laeo kha', english: 'I\'ve been living in Ayutthaya for two years.' },
-    note: 'อยู่ที่ (yuu thii) = live at/in. Adding มา...ปีแล้ว (maa...pii laeo) = for...years already. This shows you\'re committed to Thailand — not just a tourist.',
+    note: 'อยู่ที่ = live at/in. Adding มา...ปีแล้ว = for...years already. This shows you\'re committed to Thailand — not just a tourist.',
     tip: 'Cities: กรุงเทพ (Bangkok), เชียงใหม่ (Chiang Mai), อยุธยา (Ayutthaya), ภูเก็ต (Phuket), ขอนแก่น (Khon Kaen).',
   },
   {
     thai: 'ฉันชอบ...', roman: 'chan choop...', english: 'I like...',
     example: { thai: 'ฉันชอบอาหารไทยมากค่ะ', roman: 'chan choop aa haan thai maak kha', english: 'I really like Thai food.' },
-    note: 'ชอบ (choop) = to like. Add มาก (maak) = very much. ไม่ชอบ (mai choop) = don\'t like. ชอบมากที่สุด = like the most.',
-    tip: 'Saying you love Thai food will instantly warm up any Thai person. Food is the biggest bonding topic in Thai culture.',
+    note: 'ชอบ = to like. มาก = very much. ไม่ชอบ = don\'t like. ชอบมากที่สุด = like the most.',
+    tip: 'Saying you love Thai food will instantly warm up any Thai person. Food is the number one bonding topic in Thai culture.',
   },
   {
     thai: 'ฉันพูดภาษาไทยได้นิดหน่อย', roman: 'chan phuut phasaa thai dai nit noi', english: 'I can speak a little Thai',
     example: { thai: 'ฉันพูดภาษาไทยได้นิดหน่อยค่ะ', roman: 'chan phuut phasaa thai dai nit noi kha', english: 'I can speak a little Thai.' },
-    note: 'พูด (phuut) = to speak. ได้ (dai) after a verb means "can/able to". นิดหน่อย (nit noi) = a little. This phrase is gold — use it early.',
-    tip: 'After saying this, Thais will often try to teach you more words on the spot. A fantastic way to make friends and practice naturally.',
+    note: 'พูด = to speak. ได้ after a verb = can/able to. นิดหน่อย = a little. Use this early — Thais will be immediately encouraging.',
+    tip: 'After saying this, Thais often try to teach you more words on the spot. A fantastic way to make friends naturally.',
   },
   {
     thai: 'ยินดีที่ได้รู้จัก', roman: 'yin dii thii dai ruu jak', english: 'Nice to meet you',
     example: { thai: 'ยินดีที่ได้รู้จักค่ะ ชื่อซาร่านะคะ', roman: 'yin dii thii dai ruu jak kha chuu Saaraa na kha', english: 'Nice to meet you. My name is Sara.' },
-    note: 'ยินดี (yin dii) = pleased/glad. รู้จัก (ruu jak) = to know/be acquainted with. This formal phrase earns deep respect from Thais.',
-    tip: 'After this, Thais often say แอดไลน์ด้วยนะ (add me on LINE) — LINE IDs are the Thai equivalent of swapping phone numbers.',
+    note: 'ยินดี = pleased/glad. รู้จัก = to know/be acquainted with. This formal phrase earns immediate respect from Thais.',
+    tip: 'After this, Thais often say แอดไลน์ด้วยนะ (add me on LINE) — LINE is how Thais stay connected.',
   },
   {
     thai: 'ฉันสอนที่...', roman: 'chan soon thii...', english: 'I teach at...',
     example: { thai: 'ฉันสอนที่โรงเรียนประถมค่ะ', roman: 'chan soon thii roong rian pra thom kha', english: 'I teach at a primary school.' },
-    note: 'สอน (soon) = to teach. โรงเรียน (roong rian) = school. ประถม = primary, มัธยม = secondary, มหาวิทยาลัย = university.',
+    note: 'สอน = to teach. โรงเรียน = school. ประถม = primary, มัธยม = secondary, มหาวิทยาลัย = university.',
     tip: 'Being a teacher (ครู) is highly respected in Thailand. Parents will often wai you even in casual settings.',
   },
   {
     thai: 'คุณอยู่ที่นี่มานานแค่ไหนแล้ว', roman: 'khun yuu thii nii maa naan khae nai laeo', english: 'How long have you been here?',
     example: { thai: 'คุณอยู่ที่นี่มานานแค่ไหนแล้วครับ', roman: 'khun yuu thii nii maa naan khae nai laeo khrap', english: 'How long have you been here?' },
-    note: 'มา (maa) = coming/been here, นาน (naan) = long time, แค่ไหน (khae nai) = how long, แล้ว (laeo) = already/now.',
-    tip: 'Answer with: ฉันอยู่มา...ปีแล้วค่ะ. Thais are always curious how long foreigners have been here.',
+    note: 'มา = been here, นาน = long time, แค่ไหน = how long, แล้ว = already/now. A key A2 question pattern.',
+    tip: 'Answer: ฉันอยู่มา...ปีแล้วค่ะ. Thais are always curious how long foreigners have been in Thailand.',
   },
   {
     thai: 'ฉันรักประเทศไทย', roman: 'chan rak pra thet thai', english: 'I love Thailand',
     example: { thai: 'ฉันรักประเทศไทยมากค่ะ ที่นี่สวยมาก', roman: 'chan rak pra thet thai maak kha thii nii suai maak', english: 'I love Thailand very much. It\'s beautiful here.' },
-    note: 'รัก (rak) = to love. ประเทศไทย = Thailand (formal). Casually Thais say เมืองไทย (mueang thai). This will ALWAYS get a huge smile.',
+    note: 'รัก = to love. ประเทศไทย = Thailand (formal). Casually: เมืองไทย. This phrase will ALWAYS get a huge smile.',
     tip: 'Follow with something specific — อาหาร (food), ผู้คน (people), วัฒนธรรม (culture). It shows genuine appreciation.',
   },
   {
     thai: 'คุณพูดภาษาอังกฤษได้ไหม', roman: 'khun phuut phasaa ang-grid dai mai', english: 'Can you speak English?',
     example: { thai: 'ขอโทษนะครับ คุณพูดภาษาอังกฤษได้ไหมครับ', roman: 'kho thoot na khrap khun phuut phasaa ang-grid dai mai khrap', english: 'Excuse me, can you speak English?' },
-    note: 'ได้ไหม (dai mai) = can you? / is it possible? The standard yes/no question ending for ability. ได้ = yes/can, ไม่ได้ = no/can\'t.',
-    tip: 'Even as your Thai improves, this phrase helps in emergencies. But try Thai first — the effort is always appreciated!',
+    note: 'ได้ไหม = can you? / is it possible? The standard ability question ending. ได้ = yes/can, ไม่ได้ = no/can\'t.',
+    tip: 'Even as your Thai improves, this helps in emergencies. But always try Thai first!',
   },
   {
     thai: 'ฉันกำลังเรียนภาษาไทย', roman: 'chan gam lang rian phasaa thai', english: 'I am learning Thai',
     example: { thai: 'ฉันกำลังเรียนภาษาไทยอยู่ค่ะ', roman: 'chan gam lang rian phasaa thai yuu kha', english: 'I am currently learning Thai.' },
-    note: 'กำลัง (gam lang) = currently/in the process of (present continuous). เรียน (rian) = to study/learn. อยู่ at the end reinforces the ongoing action.',
-    tip: 'This is your magic phrase. It opens doors — Thais will become your teacher, your friend, and your biggest supporter.',
+    note: 'กำลัง = currently/in the process of (present continuous marker). เรียน = to study/learn. อยู่ at the end reinforces the ongoing action.',
+    tip: 'This is your magic phrase. It opens every door — Thais become your teacher, friend, and biggest supporter.',
   },
   {
     thai: 'ขอโทษ ช่วยพูดช้าๆ ได้ไหม', roman: 'kho thoot chuai phuut chaa chaa dai mai', english: 'Sorry, can you speak slowly?',
     example: { thai: 'ขอโทษนะคะ ช่วยพูดช้าๆ ได้ไหมคะ', roman: 'kho thoot na kha chuai phuut chaa chaa dai mai kha', english: 'Sorry, can you please speak slowly?' },
-    note: 'ช่วย (chuai) = please/help. ช้าๆ (chaa chaa) = slowly. ESSENTIAL for real conversations — Thais will always slow down for you.',
-    tip: 'The ๆ symbol means repeat the word — ช้าๆ = "slow slow" = very slowly. You\'ll see this pattern everywhere in Thai.',
+    note: 'ช่วย = please/help. ช้าๆ = slowly. ESSENTIAL — Thais will always slow down for you. Never be embarrassed to use this.',
+    tip: 'ๆ means repeat the word — ช้าๆ = "slow slow" = very slowly. You\'ll see this pattern everywhere in Thai.',
   },
   {
     thai: 'ฉันไม่เข้าใจ', roman: 'chan mai khao jai', english: 'I don\'t understand',
     example: { thai: 'ขอโทษค่ะ ฉันไม่เข้าใจ ช่วยอธิบายอีกครั้งได้ไหมคะ', roman: 'kho thoot kha chan mai khao jai chuai a thi bai iik khrang dai mai kha', english: 'Sorry, I don\'t understand. Can you explain again?' },
-    note: 'เข้าใจ (khao jai) = to understand (literally "enter heart"). ไม่เข้าใจ = don\'t understand. เข้าใจแล้ว = I understand now.',
-    tip: 'เข้าใจไหม? = Do you understand? Your students will ask you this! เข้าใจแล้ว = Got it.',
+    note: 'เข้าใจ = to understand (literally "enter heart"). ไม่เข้าใจ = don\'t understand. เข้าใจแล้ว = I understand now.',
+    tip: 'เข้าใจไหม? = Do you understand? Your students ask you this! เข้าใจแล้ว = Got it.',
   },
 ]
 
@@ -189,8 +194,8 @@ export default function A2Unit1Lesson1() {
   const [listenScore, setListenScore] = useState(0)
   const [activeLine, setActiveLine] = useState(-1)
   const [listenPlayed, setListenPlayed] = useState(false)
-  const [loadingAudio, setLoadingAudio] = useState(false)
-  const playingRef = useRef(false)
+  const [playStatus, setPlayStatus] = useState<'idle' | 'loading' | 'playing'>('idle')
+  const stopRef = useRef(false)
 
   const card = VOCAB[cardIndex]
   const pct = Math.round((correct / QUIZ.length) * 100)
@@ -211,25 +216,41 @@ export default function A2Unit1Lesson1() {
   }
 
   const playConversation = async () => {
-    if (playingRef.current) return
-    playingRef.current = true
-    setLoadingAudio(true)
-    for (let i = 0; i < CONVERSATION.length; i++) {
-      if (!playingRef.current) break
-      setActiveLine(i)
-      await speakLine(CONVERSATION[i].thai, CONVERSATION[i].speaker)
-      await new Promise(r => setTimeout(r, 400))
+    if (playStatus === 'loading' || playStatus === 'playing') return
+    stopRef.current = false
+    setPlayStatus('loading')
+
+    // Pre-fetch all audio first
+    const audios: HTMLAudioElement[] = []
+    for (const line of CONVERSATION) {
+      try {
+        const audio = await fetchAudio(line.thai, line.speaker === 'A' ? 'echo' : 'nova')
+        audios.push(audio)
+      } catch {
+        audios.push(new Audio())
+      }
     }
+
+    setPlayStatus('playing')
+
+    // Play in sequence
+    for (let i = 0; i < audios.length; i++) {
+      if (stopRef.current) break
+      setActiveLine(i)
+      await playAudio(audios[i])
+      if (!stopRef.current) {
+        await new Promise(r => setTimeout(r, 500))
+      }
+    }
+
     setActiveLine(-1)
-    setLoadingAudio(false)
-    playingRef.current = false
+    setPlayStatus('idle')
   }
 
   const stopConversation = () => {
-    playingRef.current = false
-    if (currentAudio) { currentAudio.pause(); currentAudio.src = ''; currentAudio = null }
+    stopRef.current = true
     setActiveLine(-1)
-    setLoadingAudio(false)
+    setPlayStatus('idle')
   }
 
   return (
@@ -270,7 +291,7 @@ export default function A2Unit1Lesson1() {
               <div style={{ background: '#f0f9ff', borderRadius: '12px', padding: '14px 18px', border: `1px solid ${COLOR}40` }}>
                 <div style={{ color: DARK, fontWeight: '800', fontSize: '13px', marginBottom: '6px' }}>🎯 15 phrases · Male & female AI voices 🔊</div>
                 <div style={{ color: '#374151', fontSize: '14px', lineHeight: '1.6' }}>
-                  Occupations · How long you've been here · กำลัง present continuous · ได้ไหม for requests · ช้าๆ survival Thai · Cultural tips for every phrase
+                  Occupations · How long you've been here · กำลัง present continuous · ได้ไหม for requests · ช้าๆ survival Thai
                 </div>
               </div>
             </div>
@@ -285,9 +306,9 @@ export default function A2Unit1Lesson1() {
 
           <div style={{ background: 'white', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
             <div style={{ background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, padding: '36px 32px', textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', fontWeight: '900', color: 'white', lineHeight: 1.1, marginBottom: '10px' }}>{card.thai}</div>
-              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '19px', fontWeight: '700', marginBottom: '4px' }}>{card.roman}</div>
-              <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '16px', marginBottom: '20px' }}>{card.english}</div>
+              <div style={{ fontSize: '46px', fontWeight: '900', color: 'white', lineHeight: 1.1, marginBottom: '10px' }}>{card.thai}</div>
+              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>{card.roman}</div>
+              <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', marginBottom: '20px' }}>{card.english}</div>
               <button onClick={() => speakVocab(card.thai)}
                 style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '10px 28px', borderRadius: '30px', cursor: 'pointer', fontSize: '15px', fontWeight: '700' }}>
                 🔊 Listen
@@ -332,7 +353,7 @@ export default function A2Unit1Lesson1() {
         <div style={{ maxWidth: '720px', margin: '0 auto', padding: '32px 24px' }}>
           <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
             <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#1a1a2e', marginBottom: '6px' }}>🗣️ Real Conversation — Meeting Someone New</h2>
-            <p style={{ color: '#6b7280', fontSize: '14px', margin: '0 0 10px' }}>Listen to Mark and Nit meet for the first time. Click any line to hear it.</p>
+            <p style={{ color: '#6b7280', fontSize: '14px', margin: '0 0 10px' }}>Listen to Mark and Nit meet for the first time. Click any line to hear it individually.</p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <span style={{ background: '#f0f9ff', color: COLOR, fontSize: '12px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px' }}>🧑 Mark = male (echo)</span>
               <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px' }}>👩 Nit = female (nova)</span>
@@ -340,24 +361,24 @@ export default function A2Unit1Lesson1() {
           </div>
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-            <button onClick={playConversation} disabled={loadingAudio}
-              style={{ flex: 1, background: loadingAudio ? '#6b7280' : `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: loadingAudio ? 'wait' : 'pointer' }}>
-              {loadingAudio ? '⏸ Playing...' : '▶ Play Full Conversation'}
+            <button onClick={playConversation} disabled={playStatus !== 'idle'}
+              style={{ flex: 1, background: playStatus !== 'idle' ? '#6b7280' : `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: playStatus !== 'idle' ? 'wait' : 'pointer' }}>
+              {playStatus === 'loading' ? '⏳ Loading audio...' : playStatus === 'playing' ? '⏸ Playing...' : '▶ Play Full Conversation'}
             </button>
-            {loadingAudio && (
+            {playStatus !== 'idle' && (
               <button onClick={stopConversation} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '14px 20px', borderRadius: '12px', fontWeight: '900', fontSize: '15px', cursor: 'pointer' }}>■ Stop</button>
             )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
             {CONVERSATION.map((line, i) => (
-              <div key={i} onClick={() => { if (!loadingAudio) speakLine(line.thai, line.speaker) }}
+              <div key={i} onClick={() => speakOne(line.thai, line.speaker)}
                 style={{ background: activeLine === i ? (line.speaker === 'A' ? '#f0f9ff' : '#f0fdf4') : 'white', borderRadius: '14px', padding: '16px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', border: `2px solid ${activeLine === i ? (line.speaker === 'A' ? COLOR : '#22c55e') : '#e5e7eb'}`, transition: 'all 0.2s', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                 <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: line.speaker === 'A' ? COLOR : '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '16px', flexShrink: 0 }}>
                   {line.speaker === 'A' ? '🧑' : '👩'}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '20px', fontWeight: '900', color: line.speaker === 'A' ? COLOR : '#15803d', marginBottom: '4px' }}>{line.thai}</div>
+                  <div style={{ fontSize: '19px', fontWeight: '900', color: line.speaker === 'A' ? COLOR : '#15803d', marginBottom: '4px' }}>{line.thai}</div>
                   <div style={{ color: '#6b7280', fontSize: '13px', marginBottom: '2px' }}>{line.roman}</div>
                   <div style={{ color: '#9ca3af', fontSize: '13px', fontStyle: 'italic' }}>{line.english}</div>
                 </div>
@@ -433,7 +454,7 @@ export default function A2Unit1Lesson1() {
           <div style={{ background: 'white', borderRadius: '20px', padding: '36px 28px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '16px' }}>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
               <div style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>What does this mean?</div>
-              <div style={{ fontSize: '34px', fontWeight: '900', color: COLOR, lineHeight: 1.3, marginBottom: '8px' }}>{SCRIPT_Q[scriptIndex].thai}</div>
+              <div style={{ fontSize: '32px', fontWeight: '900', color: COLOR, lineHeight: 1.3, marginBottom: '8px' }}>{SCRIPT_Q[scriptIndex].thai}</div>
               <div style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '16px' }}>{SCRIPT_Q[scriptIndex].roman}</div>
               <button onClick={() => speakVocab(SCRIPT_Q[scriptIndex].thai)} style={{ background: '#f0f9ff', color: COLOR, border: `2px solid ${COLOR}40`, padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>🔊 Hear it</button>
             </div>
@@ -480,10 +501,10 @@ export default function A2Unit1Lesson1() {
         <div style={{ maxWidth: '620px', margin: '0 auto', padding: '32px 24px' }}>
           <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
             <h2 style={{ fontSize: '18px', fontWeight: '900', color: '#1a1a2e', marginBottom: '8px' }}>🎧 Listening Comprehension</h2>
-            <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>Listen to the conversation without reading along, then answer the questions.</p>
-            <button onClick={() => { playConversation(); setListenPlayed(true) }} disabled={loadingAudio}
-              style={{ background: loadingAudio ? '#6b7280' : `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: loadingAudio ? 'wait' : 'pointer' }}>
-              {loadingAudio ? '⏸ Playing...' : listenPlayed ? '🔄 Play Again' : '▶ Play Conversation'}
+            <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>Listen to the conversation without reading, then answer the questions.</p>
+            <button onClick={() => { playConversation(); setListenPlayed(true) }} disabled={playStatus !== 'idle'}
+              style={{ background: playStatus !== 'idle' ? '#6b7280' : `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: playStatus !== 'idle' ? 'wait' : 'pointer' }}>
+              {playStatus === 'loading' ? '⏳ Loading...' : playStatus === 'playing' ? '⏸ Playing...' : listenPlayed ? '🔄 Play Again' : '▶ Play Conversation'}
             </button>
           </div>
           {listenPlayed && (
