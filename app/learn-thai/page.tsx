@@ -87,7 +87,7 @@ export default function LearnThaiLanding() {
           </div>
         </Link>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Link href="/learn-thai/dashboard" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Sign In</Link>
+          <Link href="/learn-thai/subscribe" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', fontWeight: '600' }}>Sign In</Link>
           <Link href="/learn-thai/subscribe"
             style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', padding: '10px 22px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '14px' }}>
             Start Learning Free →
@@ -306,7 +306,7 @@ export default function LearnThaiLanding() {
               <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: '#f59e0b', color: '#1a1a2e', fontSize: '12px', fontWeight: '900', padding: '4px 16px', borderRadius: '20px', whiteSpace: 'nowrap' }}>MOST POPULAR</div>
               <div style={{ color: '#f59e0b', fontWeight: '800', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Full Access</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '4px' }}>
-                <span style={{ fontSize: '48px', fontWeight: '900', color: 'white' }}>฿249</span>
+                <span style={{ fontSize: '48px', fontWeight: '900', color: 'white' }}>฿199</span>
                 <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }}>/month</span>
               </div>
               <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '28px' }}>฿1,990/year — save 33%</div>
