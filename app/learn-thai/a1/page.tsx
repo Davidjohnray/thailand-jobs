@@ -119,7 +119,7 @@ export default function A1Hub() {
           </Link>
         </div>
 
-        {UNITS.map(unit => (
+                {UNITS.map(unit => (
           <div key={unit.number} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
             <div style={{ background: `linear-gradient(135deg, ${unit.color}20, ${unit.color}08)`, borderLeft: `5px solid ${unit.color}`, padding: '20px 24px', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ background: unit.color, width: '48px', height: '48px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>{unit.emoji}</div>
@@ -143,10 +143,7 @@ export default function A1Hub() {
                       <div style={{ color: '#1a1a2e', fontWeight: '700', fontSize: '15px', marginBottom: '2px' }}>{lesson.title}</div>
                       <div style={{ color: '#9ca3af', fontSize: '13px' }}>{lesson.desc}</div>
                     </div>
-                    {lesson.free
-                      ? <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: '800', padding: '3px 10px', borderRadius: '20px', flexShrink: 0 }}>FREE</span>
-                      : <span style={{ background: '#f3f4f6', color: '#9ca3af', fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', flexShrink: 0 }}>FREE</span>
-                    }
+                    <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: '800', padding: '3px 10px', borderRadius: '20px', flexShrink: 0 }}>FREE</span>
                     <span style={{ color: '#d1d5db', fontSize: '18px', flexShrink: 0 }}>→</span>
                   </div>
                 </Link>
@@ -154,6 +151,27 @@ export default function A1Hub() {
             </div>
           </div>
         ))}
+
+        {/* A2 BANNER */}
+        <div style={{ background: 'linear-gradient(135deg, #0369a1, #0ea5e9)', borderRadius: '20px', padding: '32px 28px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', fontWeight: '700', marginBottom: '6px' }}>🚀 READY FOR MORE?</div>
+            <h3 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: '0 0 8px' }}>Continue to A2 — Elementary Thai</h3>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: '0 0 8px', lineHeight: '1.6' }}>
+              Real conversations · Food & ordering · Shopping & bargaining · Getting around · Health & body
+            </p>
+            <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '15px', fontWeight: '800' }}>฿199/month · Cancel anytime</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexShrink: 0 }}>
+            <Link href="/learn-thai/subscribe" style={{ background: 'white', color: '#0369a1', padding: '14px 28px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '15px', textAlign: 'center' }}>
+              Subscribe & Unlock A2 →
+            </Link>
+            <Link href="/learn-thai/subscribe" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '12px 28px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.3)' }}>
+              Already have a code? Enter it here
+            </Link>
+          </div>
+        </div>
+
       </div>
     </main>
   )
