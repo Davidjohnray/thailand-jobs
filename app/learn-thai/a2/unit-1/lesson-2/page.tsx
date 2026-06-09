@@ -24,7 +24,9 @@ function getAudioContext(): AudioContext {
 }
 
 async function fetchAndCache(text: string, voice: 'nova' | 'echo'): Promise<AudioBuffer | null> {
-  const key = `${voice}:${text}`
+  const clean = text.replace(/\.\.\./g, '').trim()
+  const key = `${voice}:${clean}`
+  text = clean
   if (audioCache[key]) return audioCache[key]
   try {
     const res = await fetch('/api/tts', {
