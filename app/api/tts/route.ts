@@ -5,11 +5,11 @@ export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   try {
-    const { text } = await req.json()
+    const { text, voice = 'nova' } = await req.json()
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     const mp3 = await openai.audio.speech.create({
       model: 'tts-1',
-      voice: 'nova',
+      voice: voice,
       input: text,
       response_format: 'mp3',
     })

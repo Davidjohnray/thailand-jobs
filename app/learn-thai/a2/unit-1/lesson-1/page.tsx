@@ -1,7 +1,39 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useLearnThaiGate } from '@/hooks/useLearnThaiGate'
+
+// ── TTS ──────────────────────────────────────────────────────────
+const audioCache: Record<string, string> = {}
+let currentAudio: HTMLAudioElement | null = null
+
+async function speak(text: string, voice: 'nova' | 'echo' = 'nova') {
+  if (typeof window === 'undefined') return
+  if (currentAudio) { currentAudio.pause(); currentAudio = null }
+  const key = `${voice}:${text}`
+  try {
+    let url = audioCache[key]
+    if (!url) {
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, voice }),
+      })
+      if (!res.ok) return
+      const blob = await res.blob()
+      url = URL.createObjectURL(blob)
+      audioCache[key] = url
+    }
+    currentAudio = new Audio(url)
+    await currentAudio.play()
+  } catch (err) { console.error('TTS:', err) }
+}
+
+function speakVocab(text: string) { return speak(text, 'nova') }
+function speakLine(text: string, speaker: 'A' | 'B') {
+  return speak(text, speaker === 'A' ? 'echo' : 'nova')
+}
+// ────────────────────────────────────────────────────────────────
 
 const VOCAB = [
   {
@@ -59,7 +91,7 @@ const VOCAB = [
     tip: 'Being a teacher (ครู/khruu) is a highly respected profession in Thailand. Parents will often wai you (press palms together) even in casual settings.',
   },
   {
-    thai: 'ฉันอยู่ที่นี่มานานแค่ไหนแล้ว', roman: 'chan yuu thii nii maa naan khae nai laeo', english: 'How long have you been here?',
+    thai: 'คุณอยู่ที่นี่มานานแค่ไหนแล้ว', roman: 'khun yuu thii nii maa naan khae nai laeo', english: 'How long have you been here?',
     example: { thai: 'คุณอยู่ที่นี่มานานแค่ไหนแล้วครับ', roman: 'khun yuu thii nii maa naan khae nai laeo khrap', english: 'How long have you been here?' },
     note: 'A key A2 question pattern. มา (maa) = coming/been here, นาน (naan) = long time, แค่ไหน (khae nai) = how much/how long, แล้ว (laeo) = already/now.',
     tip: 'Answer with: ฉันอยู่มา...ปีแล้วค่ะ (I\'ve been here for...years). Thais are always curious how long foreigners have been in Thailand.',
@@ -97,16 +129,16 @@ const VOCAB = [
 ]
 
 const CONVERSATION = [
-  { speaker: 'A', thai: 'สวัสดีครับ ผมชื่อมาร์คครับ', roman: 'sawasdee khrap phom chuu Mark khrap', english: 'Hello, my name is Mark.' },
-  { speaker: 'B', thai: 'สวัสดีค่ะ ดีใจที่ได้รู้จักค่ะ ฉันชื่อนิดค่ะ', roman: 'sawasdee kha dii jai thii dai ruu jak kha chan chuu Nit kha', english: 'Hello, pleased to meet you. My name is Nit.' },
-  { speaker: 'A', thai: 'คุณมาจากไหนครับ', roman: 'khun maa jaak nai khrap', english: 'Where are you from?' },
-  { speaker: 'B', thai: 'ฉันเป็นคนไทยค่ะ มาจากเชียงใหม่ค่ะ คุณล่ะครับ', roman: 'chan pen khon thai kha maa jaak Chiang Mai kha khun la khrap', english: 'I\'m Thai. I\'m from Chiang Mai. And you?' },
-  { speaker: 'A', thai: 'ผมมาจากอังกฤษครับ อยู่ที่ไทยมาสองปีแล้วครับ', roman: 'phom maa jaak Ang-grid khrap yuu thii thai maa soong pii laeo khrap', english: 'I\'m from England. I\'ve been in Thailand for two years.' },
-  { speaker: 'B', thai: 'โอ้ สองปีแล้วเหรอคะ พูดภาษาไทยได้บ้างไหมคะ', roman: 'oh soong pii laeo roe kha phuut phasaa thai dai baang mai kha', english: 'Oh, two years already? Can you speak some Thai?' },
-  { speaker: 'A', thai: 'ได้นิดหน่อยครับ กำลังเรียนอยู่ครับ', roman: 'dai nit noi khrap gam lang rian yuu khrap', english: 'A little. I\'m still learning.' },
-  { speaker: 'B', thai: 'เก่งมากเลยค่ะ คุณทำงานอะไรที่นี่คะ', roman: 'geng maak loei kha khun tham ngaan a rai thii nii kha', english: 'Wow, very impressive! What do you do here?' },
-  { speaker: 'A', thai: 'ผมเป็นครูภาษาอังกฤษครับ สอนที่โรงเรียนมัธยมครับ', roman: 'phom pen khruu phasaa ang-grid khrap soon thii roong rian mat tha yom khrap', english: 'I\'m an English teacher. I teach at a secondary school.' },
-  { speaker: 'B', thai: 'ดีมากเลยค่ะ ยินดีที่ได้รู้จักค่ะ', roman: 'dii maak loei kha yin dii thii dai ruu jak kha', english: 'That\'s wonderful! Nice to meet you.' },
+  { speaker: 'A' as const, thai: 'สวัสดีครับ ผมชื่อมาร์คครับ', roman: 'sawasdee khrap phom chuu Mark khrap', english: 'Hello, my name is Mark.' },
+  { speaker: 'B' as const, thai: 'สวัสดีค่ะ ดีใจที่ได้รู้จักค่ะ ฉันชื่อนิดค่ะ', roman: 'sawasdee kha dii jai thii dai ruu jak kha chan chuu Nit kha', english: 'Hello, pleased to meet you. My name is Nit.' },
+  { speaker: 'A' as const, thai: 'คุณมาจากไหนครับ', roman: 'khun maa jaak nai khrap', english: 'Where are you from?' },
+  { speaker: 'B' as const, thai: 'ฉันเป็นคนไทยค่ะ มาจากเชียงใหม่ค่ะ คุณล่ะครับ', roman: 'chan pen khon thai kha maa jaak Chiang Mai kha khun la khrap', english: 'I\'m Thai. I\'m from Chiang Mai. And you?' },
+  { speaker: 'A' as const, thai: 'ผมมาจากอังกฤษครับ อยู่ที่ไทยมาสองปีแล้วครับ', roman: 'phom maa jaak Ang-grid khrap yuu thii thai maa soong pii laeo khrap', english: 'I\'m from England. I\'ve been in Thailand for two years.' },
+  { speaker: 'B' as const, thai: 'โอ้ สองปีแล้วเหรอคะ พูดภาษาไทยได้บ้างไหมคะ', roman: 'oh soong pii laeo roe kha phuut phasaa thai dai baang mai kha', english: 'Oh, two years already? Can you speak some Thai?' },
+  { speaker: 'A' as const, thai: 'ได้นิดหน่อยครับ กำลังเรียนอยู่ครับ', roman: 'dai nit noi khrap gam lang rian yuu khrap', english: 'A little. I\'m still learning.' },
+  { speaker: 'B' as const, thai: 'เก่งมากเลยค่ะ คุณทำงานอะไรที่นี่คะ', roman: 'geng maak loei kha khun tham ngaan a rai thii nii kha', english: 'Wow, very impressive! What do you do here?' },
+  { speaker: 'A' as const, thai: 'ผมเป็นครูภาษาอังกฤษครับ สอนที่โรงเรียนมัธยมครับ', roman: 'phom pen khruu phasaa ang-grid khrap soon thii roong rian mat tha yom khrap', english: 'I\'m an English teacher. I teach at a secondary school.' },
+  { speaker: 'B' as const, thai: 'ดีมากเลยค่ะ ยินดีที่ได้รู้จักค่ะ', roman: 'dii maak loei kha yin dii thii dai ruu jak kha', english: 'That\'s wonderful! Nice to meet you.' },
 ]
 
 const QUIZ = [
@@ -135,25 +167,6 @@ const LISTENING_Q = [
   { question: 'Can the man speak Thai?', correct: 'A little', options: ['Not at all', 'A little', 'Very well', 'Fluently'] },
 ]
 
-function speak(text: string, rate = 0.65) {
-  if (typeof window === 'undefined') return
-  window.speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(text)
-  u.lang = 'th-TH'; u.rate = rate; u.pitch = 1.1
-  const voices = window.speechSynthesis.getVoices()
-  const thaiVoice = voices.find(v => v.lang === 'th-TH' && v.name.toLowerCase().includes('female'))
-    || voices.find(v => v.lang === 'th-TH' && v.name.toLowerCase().includes('woman'))
-    || voices.find(v => v.lang === 'th-TH')
-  if (thaiVoice) u.voice = thaiVoice
-  window.speechSynthesis.speak(u)
-}
-
-function speakLine(text: string, index: number, setActive: (n: number) => void) {
-  setActive(index)
-  speak(text)
-  setTimeout(() => setActive(-1), 3000)
-}
-
 export default function A2Unit1Lesson1() {
   useLearnThaiGate()
 
@@ -171,10 +184,11 @@ export default function A2Unit1Lesson1() {
   const [listenScore, setListenScore] = useState(0)
   const [activeLine, setActiveLine] = useState(-1)
   const [listenPlayed, setListenPlayed] = useState(false)
+  const [loadingAudio, setLoadingAudio] = useState(false)
+  const playingRef = useRef(false)
 
   const card = VOCAB[cardIndex]
   const pct = Math.round((correct / QUIZ.length) * 100)
-
   const COLOR = '#0ea5e9'
   const DARK = '#0369a1'
 
@@ -191,16 +205,30 @@ export default function A2Unit1Lesson1() {
     setQuizIndex(p => p + 1); setSelected(null)
   }
 
-  const playConversation = () => {
-    CONVERSATION.forEach((line, i) => {
-      setTimeout(() => { speak(line.thai); setActiveLine(i) }, i * 3200)
-    })
-    setTimeout(() => setActiveLine(-1), CONVERSATION.length * 3200)
+  const playConversation = async () => {
+    if (playingRef.current) return
+    playingRef.current = true
+    setLoadingAudio(true)
+    for (let i = 0; i < CONVERSATION.length; i++) {
+      if (!playingRef.current) break
+      setActiveLine(i)
+      await speakLine(CONVERSATION[i].thai, CONVERSATION[i].speaker)
+      await new Promise(r => setTimeout(r, 600))
+    }
+    setActiveLine(-1)
+    setLoadingAudio(false)
+    playingRef.current = false
+  }
+
+  const stopConversation = () => {
+    playingRef.current = false
+    if (currentAudio) { currentAudio.pause(); currentAudio = null }
+    setActiveLine(-1)
+    setLoadingAudio(false)
   }
 
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
-      {/* HEADER */}
       <div style={{ background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
         <Link href="/learn-thai/a2" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px' }}>← A2 Overview</Link>
         <div style={{ color: 'white', fontWeight: '900', fontSize: '17px', flex: 1 }}>A2 · Unit 1 · Lesson 1 — Introducing Yourself</div>
@@ -213,6 +241,7 @@ export default function A2Unit1Lesson1() {
             { id: 'listening', label: '🎧 Listening' },
           ].map(tab => (
             <button key={tab.id} onClick={() => {
+              stopConversation()
               if (tab.id === 'quiz') { setQuizIndex(0); setSelected(null); setCorrect(0); setAnswers([]) }
               if (tab.id === 'script') { setScriptIndex(0); setScriptSelected(null); setScriptScore(0) }
               if (tab.id === 'listening') { setListenIndex(0); setListenSelected(null); setListenScore(0) }
@@ -234,9 +263,9 @@ export default function A2Unit1Lesson1() {
                 You can already give a basic introduction in Thai from A1. Now we go deeper — more natural sentences, the present continuous tense, asking about others, and the cultural context that makes your Thai feel real rather than textbook.
               </p>
               <div style={{ background: '#f0f9ff', borderRadius: '12px', padding: '14px 18px', border: `1px solid ${COLOR}40` }}>
-                <div style={{ color: DARK, fontWeight: '800', fontSize: '13px', marginBottom: '6px' }}>🎯 This lesson — 15 phrases & patterns</div>
+                <div style={{ color: DARK, fontWeight: '800', fontSize: '13px', marginBottom: '6px' }}>🎯 This lesson — 15 phrases & patterns · OpenAI voices 🔊</div>
                 <div style={{ color: '#374151', fontSize: '14px', lineHeight: '1.6' }}>
-                  Occupations · How long you've been here · กำลัง present continuous · ได้ไหม for requests · ช้าๆ survival Thai · Cultural tips for every phrase
+                  Occupations · How long you've been here · กำลัง present continuous · ได้ไหม for requests · ช้าๆ survival Thai · Male & female voices in conversation
                 </div>
               </div>
             </div>
@@ -254,10 +283,7 @@ export default function A2Unit1Lesson1() {
               <div style={{ fontSize: '52px', fontWeight: '900', color: 'white', lineHeight: 1.1, marginBottom: '10px' }}>{card.thai}</div>
               <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '19px', fontWeight: '700', marginBottom: '4px' }}>{card.roman}</div>
               <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '16px', marginBottom: '20px' }}>{card.english}</div>
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <button onClick={() => speak(card.thai)} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '10px 28px', borderRadius: '30px', cursor: 'pointer', fontSize: '15px', fontWeight: '700' }}>🔊 Listen</button>
-                <button onClick={() => speak(card.thai, 0.5)} style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.2)', padding: '10px 18px', borderRadius: '30px', cursor: 'pointer', fontSize: '14px' }}>🐢 Slow</button>
-              </div>
+              <button onClick={() => speakVocab(card.thai)} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '10px 28px', borderRadius: '30px', cursor: 'pointer', fontSize: '15px', fontWeight: '700' }}>🔊 Listen</button>
             </div>
             <div style={{ padding: '28px 32px' }}>
               <div style={{ background: '#f0f9ff', borderRadius: '14px', padding: '16px 20px', marginBottom: '16px', border: `2px solid ${COLOR}40` }}>
@@ -268,7 +294,7 @@ export default function A2Unit1Lesson1() {
                     <div style={{ color: '#374151', fontWeight: '700', fontSize: '14px' }}>{card.example.roman}</div>
                     <div style={{ color: '#9ca3af', fontSize: '13px' }}>{card.example.english}</div>
                   </div>
-                  <button onClick={() => speak(card.example.thai)} style={{ marginLeft: 'auto', background: COLOR, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>🔊</button>
+                  <button onClick={() => speakVocab(card.example.thai)} style={{ marginLeft: 'auto', background: COLOR, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px' }}>🔊</button>
                 </div>
               </div>
               <div style={{ background: '#fffbeb', borderRadius: '12px', padding: '14px 16px', marginBottom: '12px', border: '1px solid #fde68a' }}>
@@ -285,13 +311,9 @@ export default function A2Unit1Lesson1() {
           <div style={{ display: 'flex', gap: '12px' }}>
             {cardIndex > 0 && <button onClick={() => setCardIndex(p => p - 1)} style={{ background: 'white', color: '#374151', border: '2px solid #e5e7eb', padding: '14px 28px', borderRadius: '12px', fontWeight: '700', fontSize: '15px', cursor: 'pointer' }}>← Back</button>}
             {cardIndex + 1 < VOCAB.length ? (
-              <button onClick={() => setCardIndex(p => p + 1)} style={{ flex: 1, background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' }}>
-                Next →
-              </button>
+              <button onClick={() => setCardIndex(p => p + 1)} style={{ flex: 1, background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' }}>Next →</button>
             ) : (
-              <button onClick={() => setPhase('conversation')} style={{ flex: 1, background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' }}>
-                🗣️ Conversation Practice →
-              </button>
+              <button onClick={() => setPhase('conversation')} style={{ flex: 1, background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' }}>🗣️ Conversation Practice →</button>
             )}
           </div>
         </div>
@@ -302,19 +324,30 @@ export default function A2Unit1Lesson1() {
         <div style={{ maxWidth: '720px', margin: '0 auto', padding: '32px 24px' }}>
           <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
             <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#1a1a2e', marginBottom: '8px' }}>🗣️ Real Conversation — Meeting Someone New</h2>
-            <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>
-              Listen to Mark (foreign teacher) and Nit (Thai person) meeting for the first time. Follow the Thai, then try saying each line yourself.
+            <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6', margin: '0 0 6px' }}>
+              Listen to Mark (🧑 male voice) and Nit (👩 female voice) meeting for the first time. Click any line to hear it individually.
             </p>
-            <button onClick={playConversation} style={{ background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: 'pointer' }}>
-              ▶ Play Full Conversation
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px' }}>
+              <span style={{ background: '#f0f9ff', color: COLOR, fontSize: '12px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px' }}>🧑 Mark = male voice (echo)</span>
+              <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px' }}>👩 Nit = female voice (nova)</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+            <button onClick={playConversation} disabled={loadingAudio}
+              style={{ flex: 1, background: loadingAudio ? '#6b7280' : `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '16px', cursor: loadingAudio ? 'wait' : 'pointer' }}>
+              {loadingAudio ? '⏸ Playing...' : '▶ Play Full Conversation'}
             </button>
+            {loadingAudio && (
+              <button onClick={stopConversation} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '14px 20px', borderRadius: '12px', fontWeight: '900', fontSize: '15px', cursor: 'pointer' }}>■ Stop</button>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
             {CONVERSATION.map((line, i) => (
-              <div key={i} onClick={() => speakLine(line.thai, i, setActiveLine)}
+              <div key={i} onClick={() => speakLine(line.thai, line.speaker)}
                 style={{ background: activeLine === i ? (line.speaker === 'A' ? '#f0f9ff' : '#f0fdf4') : 'white', borderRadius: '14px', padding: '16px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', border: `2px solid ${activeLine === i ? (line.speaker === 'A' ? COLOR : '#22c55e') : '#e5e7eb'}`, transition: 'all 0.2s', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: line.speaker === 'A' ? COLOR : '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '14px', flexShrink: 0 }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: line.speaker === 'A' ? COLOR : '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '16px', flexShrink: 0 }}>
                   {line.speaker === 'A' ? '🧑' : '👩'}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -327,7 +360,7 @@ export default function A2Unit1Lesson1() {
             ))}
           </div>
 
-          <button onClick={() => { setQuizIndex(0); setSelected(null); setCorrect(0); setAnswers([]); setPhase('quiz') }}
+          <button onClick={() => { stopConversation(); setQuizIndex(0); setSelected(null); setCorrect(0); setAnswers([]); setPhase('quiz') }}
             style={{ width: '100%', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#1a1a2e', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: 'pointer' }}>
             🧠 Take the Quiz →
           </button>
@@ -370,8 +403,7 @@ export default function A2Unit1Lesson1() {
             <div style={{ background: selected === QUIZ[quizIndex].correct ? '#f0f9ff' : '#fef2f2', borderRadius: '14px', padding: '14px 20px', marginBottom: '16px', border: `2px solid ${selected === QUIZ[quizIndex].correct ? COLOR + '60' : '#fca5a5'}` }}>
               {selected === QUIZ[quizIndex].correct
                 ? <span style={{ color: DARK, fontWeight: '700' }}>✅ Correct!</span>
-                : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ Correct: <strong>{QUIZ[quizIndex].correct}</strong></span>
-              }
+                : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ Correct: <strong>{QUIZ[quizIndex].correct}</strong></span>}
             </div>
           )}
           {selected && <button onClick={nextQ} style={{ width: '100%', background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '17px', cursor: 'pointer' }}>{quizIndex + 1 >= QUIZ.length ? '✍️ Script Practice →' : 'Next →'}</button>}
@@ -397,7 +429,7 @@ export default function A2Unit1Lesson1() {
               <div style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>What does this mean?</div>
               <div style={{ fontSize: '36px', fontWeight: '900', color: COLOR, lineHeight: 1.3, marginBottom: '8px' }}>{SCRIPT_Q[scriptIndex].thai}</div>
               <div style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '16px' }}>{SCRIPT_Q[scriptIndex].roman}</div>
-              <button onClick={() => speak(SCRIPT_Q[scriptIndex].thai)} style={{ background: '#f0f9ff', color: COLOR, border: `2px solid ${COLOR}40`, padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>🔊 Hear it</button>
+              <button onClick={() => speakVocab(SCRIPT_Q[scriptIndex].thai)} style={{ background: '#f0f9ff', color: COLOR, border: `2px solid ${COLOR}40`, padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>🔊 Hear it</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {SCRIPT_Q[scriptIndex].options.map(opt => {
@@ -409,11 +441,7 @@ export default function A2Unit1Lesson1() {
                   else if (isSelected) { bg = '#fef2f2'; border = '#ef4444'; textColor = '#dc2626' }
                 }
                 return (
-                  <button key={opt} onClick={() => {
-                    if (scriptSelected) return
-                    setScriptSelected(opt)
-                    if (isCorrect) setScriptScore(p => p + 1)
-                  }} disabled={!!scriptSelected}
+                  <button key={opt} onClick={() => { if (scriptSelected) return; setScriptSelected(opt); if (isCorrect) setScriptScore(p => p + 1) }} disabled={!!scriptSelected}
                     style={{ background: bg, border: `2px solid ${border}`, borderRadius: '12px', padding: '14px 20px', cursor: scriptSelected ? 'default' : 'pointer', transition: 'all 0.2s', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: textColor, fontWeight: '700', fontSize: '14px' }}>{opt}</span>
                     {scriptSelected && isCorrect && <span style={{ color: COLOR, fontSize: '20px' }}>✓</span>}
@@ -427,8 +455,7 @@ export default function A2Unit1Lesson1() {
             <div style={{ background: SCRIPT_Q[scriptIndex].english === scriptSelected ? '#f0f9ff' : '#fef2f2', borderRadius: '14px', padding: '14px 20px', marginBottom: '16px', border: `2px solid ${SCRIPT_Q[scriptIndex].english === scriptSelected ? COLOR + '60' : '#fca5a5'}` }}>
               {SCRIPT_Q[scriptIndex].english === scriptSelected
                 ? <span style={{ color: DARK, fontWeight: '700' }}>✅ Correct!</span>
-                : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ That is: <strong>{SCRIPT_Q[scriptIndex].english}</strong></span>
-              }
+                : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ That is: <strong>{SCRIPT_Q[scriptIndex].english}</strong></span>}
             </div>
           )}
           {scriptSelected && (
@@ -448,11 +475,11 @@ export default function A2Unit1Lesson1() {
           <div style={{ background: 'white', borderRadius: '16px', padding: '20px 24px', marginBottom: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', borderLeft: `5px solid ${COLOR}` }}>
             <h2 style={{ fontSize: '18px', fontWeight: '900', color: '#1a1a2e', marginBottom: '8px' }}>🎧 Listening Comprehension</h2>
             <p style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>
-              Listen to the conversation again without reading along. Then answer the questions in English.
+              Listen to the conversation without reading along. Then answer the questions in English.
             </p>
-            <button onClick={() => { playConversation(); setListenPlayed(true) }}
-              style={{ background: `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: 'pointer' }}>
-              {listenPlayed ? '🔄 Play Again' : '▶ Play Conversation'}
+            <button onClick={() => { playConversation(); setListenPlayed(true) }} disabled={loadingAudio}
+              style={{ background: loadingAudio ? '#6b7280' : `linear-gradient(135deg, ${DARK}, ${COLOR})`, color: 'white', border: 'none', padding: '12px 28px', borderRadius: '10px', fontWeight: '900', fontSize: '15px', cursor: loadingAudio ? 'wait' : 'pointer' }}>
+              {loadingAudio ? '⏸ Playing...' : listenPlayed ? '🔄 Play Again' : '▶ Play Conversation'}
             </button>
           </div>
 
@@ -465,7 +492,6 @@ export default function A2Unit1Lesson1() {
                 </div>
                 <span style={{ color: '#f59e0b', fontWeight: '700', fontSize: '14px' }}>⭐ {listenScore}</span>
               </div>
-
               <div style={{ background: 'white', borderRadius: '20px', padding: '32px 28px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '16px' }}>
                 <div style={{ color: '#1a1a2e', fontSize: '18px', fontWeight: '800', lineHeight: '1.4', marginBottom: '24px', textAlign: 'center' }}>{LISTENING_Q[listenIndex].question}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -478,11 +504,7 @@ export default function A2Unit1Lesson1() {
                       else if (isSelected) { bg = '#fef2f2'; border = '#ef4444'; textColor = '#dc2626' }
                     }
                     return (
-                      <button key={opt} onClick={() => {
-                        if (listenSelected) return
-                        setListenSelected(opt)
-                        if (isCorrect) setListenScore(p => p + 1)
-                      }} disabled={!!listenSelected}
+                      <button key={opt} onClick={() => { if (listenSelected) return; setListenSelected(opt); if (isCorrect) setListenScore(p => p + 1) }} disabled={!!listenSelected}
                         style={{ background: bg, border: `2px solid ${border}`, borderRadius: '12px', padding: '14px 20px', cursor: listenSelected ? 'default' : 'pointer', transition: 'all 0.2s', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ color: textColor, fontWeight: '700', fontSize: '15px' }}>{opt}</span>
                         {listenSelected && isCorrect && <span style={{ color: COLOR, fontSize: '20px' }}>✓</span>}
@@ -496,8 +518,7 @@ export default function A2Unit1Lesson1() {
                 <div style={{ background: LISTENING_Q[listenIndex].correct === listenSelected ? '#f0f9ff' : '#fef2f2', borderRadius: '14px', padding: '14px 20px', marginBottom: '16px', border: `2px solid ${LISTENING_Q[listenIndex].correct === listenSelected ? COLOR + '60' : '#fca5a5'}` }}>
                   {LISTENING_Q[listenIndex].correct === listenSelected
                     ? <span style={{ color: DARK, fontWeight: '700' }}>✅ Correct!</span>
-                    : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ Correct answer: <strong>{LISTENING_Q[listenIndex].correct}</strong></span>
-                  }
+                    : <span style={{ color: '#dc2626', fontWeight: '700' }}>❌ Correct answer: <strong>{LISTENING_Q[listenIndex].correct}</strong></span>}
                 </div>
               )}
               {listenSelected && (
@@ -524,7 +545,7 @@ export default function A2Unit1Lesson1() {
             <div style={{ background: '#f0f9ff', borderRadius: '14px', padding: '16px 20px', marginBottom: '24px', border: `2px solid ${COLOR}40`, textAlign: 'left' }}>
               <div style={{ color: DARK, fontWeight: '800', fontSize: '14px', marginBottom: '8px' }}>✅ Lesson 1 Complete!</div>
               <div style={{ color: '#374151', fontSize: '14px', lineHeight: '1.6' }}>
-                You can now introduce yourself in detail in Thai — your name, age, job, where you're from, how long you've been here, and what you love about Thailand. Next: talking about your family and relationships.
+                You can now introduce yourself in detail in Thai. Next: talking about your family and relationships.
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
