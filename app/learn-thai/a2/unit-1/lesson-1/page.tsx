@@ -347,7 +347,7 @@ export default function A2Unit1Lesson1() {
               <div style={{ fontSize: '44px', fontWeight: '900', color: 'white', lineHeight: 1.1, marginBottom: '10px' }}>{card.thai}</div>
               <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>{card.roman}</div>
               <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', marginBottom: '20px' }}>{card.english}</div>
-              <ListenBtn text={card.thai} voice="nova" label="🔊 Listen"
+              <ListenBtn text={card.thai.replace(/\.\.\./g, '')} voice="nova" label="🔊 Listen"
                 style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '2px solid rgba(255,255,255,0.3)', padding: '10px 28px', borderRadius: '30px', cursor: 'pointer', fontSize: '15px', fontWeight: '700' }} />
             </div>
             <div style={{ padding: '28px 32px' }}>
@@ -480,7 +480,7 @@ export default function A2Unit1Lesson1() {
               <div style={{ color: '#9ca3af', fontSize: '13px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>What does this mean?</div>
               <div style={{ fontSize: '32px', fontWeight: '900', color: C, lineHeight: 1.3, marginBottom: '8px' }}>{SCRIPT_Q[scriptIndex].thai}</div>
               <div style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '16px' }}>{SCRIPT_Q[scriptIndex].roman}</div>
-              <ListenBtn text={SCRIPT_Q[scriptIndex].thai} voice="nova" label="🔊 Hear it"
+              <ListenBtn text={SCRIPT_Q[scriptIndex].thai.replace(/\.\.\./g, '')} voice="nova" label="🔊 Hear it"
                 style={{ background: '#f0f9ff', color: C, border: `2px solid ${C}40`, padding: '8px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
