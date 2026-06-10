@@ -28,6 +28,8 @@ const CATEGORIES = [
       { id: 'explaining-reports', title: 'Explaining Data and Reports to Your Boss', emoji: '📊', description: 'From Numbers to Decisions', detail: 'Learn how to present findings clearly, structure reports for senior audiences, and make recommendations with confidence.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
       { id: 'running-meetings', title: 'Running and Participating in Meetings', emoji: '🗓️', description: 'Say What You Mean', detail: 'Learn how to chair meetings confidently, contribute effectively as a participant, and follow up professionally.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
 { id: 'giving-presentations', title: 'Giving Presentations with Confidence', emoji: '🎤', description: 'Stand Up and Speak', detail: 'Learn how to structure, deliver and adapt professional presentations in English with clarity and confidence.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
+{ id: 'job-interviews', title: 'Job Interviews in English', emoji: '💼', description: 'Get the Job', detail: 'Master the preparation, language and strategies needed to succeed in professional job interviews in English.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
+{ id: 'networking-small-talk', title: 'Networking and Small Talk at Events', emoji: '🍹', description: 'Work the Room', detail: 'Master the art of professional small talk, confident introductions, and building lasting connections at business events.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
     ]
   },
   {
