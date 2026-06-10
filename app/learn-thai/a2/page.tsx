@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useLearnThaiGate } from '@/hooks/useLearnThaiGate'
 
 const UNITS = [
-  { unit: 1, title: 'Talking About Yourself', desc: 'Occupations, how long you\'ve been in Thailand, present continuous, survival phrases', lessons: 3, color: '#0ea5e9', ready: true, lessonsReady: 2 },
+  { unit: 1, title: 'Talking About Yourself', desc: 'Occupations, how long you\'ve been in Thailand, present continuous, survival phrases', lessons: 3, color: '#0ea5e9', ready: true, lessonsReady: 3 },
   { unit: 2, title: 'Food & Ordering', desc: 'Restaurant vocabulary, ordering food, asking about dishes, Thai food culture', lessons: 3, color: '#22c55e', ready: false, lessonsReady: 0 },
   { unit: 3, title: 'Shopping & Bargaining', desc: 'Market vocabulary, prices, bargaining phrases, colours and sizes', lessons: 3, color: '#f59e0b', ready: false, lessonsReady: 0 },
   { unit: 4, title: 'Getting Around', desc: 'Transport, directions, asking for help, tuk-tuks, Grab, buses', lessons: 3, color: '#ef4444', ready: false, lessonsReady: 0 },
