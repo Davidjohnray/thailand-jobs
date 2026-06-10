@@ -26,6 +26,8 @@ const CATEGORIES = [
     lessons: [
       { id: 'negotiating-contracts', title: 'Negotiating Prices and Contracts', emoji: '🤝', description: 'The Art of the Deal', detail: 'Master the language, strategies and skills needed to negotiate effectively in professional business settings.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
       { id: 'explaining-reports', title: 'Explaining Data and Reports to Your Boss', emoji: '📊', description: 'From Numbers to Decisions', detail: 'Learn how to present findings clearly, structure reports for senior audiences, and make recommendations with confidence.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
+      { id: 'running-meetings', title: 'Running and Participating in Meetings', emoji: '🗓️', description: 'Say What You Mean', detail: 'Learn how to chair meetings confidently, contribute effectively as a participant, and follow up professionally.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
+{ id: 'giving-presentations', title: 'Giving Presentations with Confidence', emoji: '🎤', description: 'Stand Up and Speak', detail: 'Learn how to structure, deliver and adapt professional presentations in English with clarity and confidence.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
     ]
   },
   {
