@@ -151,39 +151,17 @@ export default function SpeakingPart1Page() {
     setLoadingFeedback(true)
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('/api/ielts/speaking-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{
-            role: 'user',
-            content: `You are an experienced IELTS examiner. Assess the following student answer to an IELTS Speaking Part 1 question.
-
-IELTS Speaking Part 1 — Topic: ${TOPIC}
-Question: "${QUESTIONS[currentQ].question}"
-Student's answer: "${answer}"
-
-Respond ONLY with a JSON object in this exact format, no other text:
-{
-  "bandScore": 6,
-  "summary": "One sentence overall assessment.",
-  "whatWentWell": "2-3 sentences on strengths.",
-  "improvements": "2-3 sentences on specific things to improve with examples.",
-  "modelAnswer": "A natural Band 7-8 answer to this question in 3-4 sentences."
-}
-
-Band score should be a number between 4 and 9. Be realistic and honest. Consider fluency, vocabulary, grammar, and how well the question was answered.`
-          }]
+          question: QUESTIONS[currentQ].question,
+          answer,
+          topic: TOPIC,
         })
       })
 
-      const data = await response.json()
-      const text = data.content?.[0]?.text || ''
-      const clean = text.replace(/```json|```/g, '').trim()
-      const parsed: Feedback = JSON.parse(clean)
-
+      const parsed: Feedback = await response.json()
       const newFeedbacks = [...feedbacks]
       newFeedbacks[currentQ] = parsed
       setFeedbacks(newFeedbacks)
