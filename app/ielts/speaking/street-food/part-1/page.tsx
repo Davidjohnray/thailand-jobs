@@ -53,6 +53,19 @@ type Feedback = {
   modelAnswer: string
 }
 
+type SpeechRecognitionResult = {
+  [key: number]: { transcript: string }
+}
+
+type SpeechRecognitionResultList = {
+  [key: number]: SpeechRecognitionResult
+  length: number
+}
+
+type SpeechRecognitionEvent = {
+  results: SpeechRecognitionResultList
+}
+
 type SpeechRecognitionType = {
   continuous: boolean
   interimResults: boolean
