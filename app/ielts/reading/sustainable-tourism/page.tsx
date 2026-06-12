@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 
-const TEST_TIME = 60 * 60 // 60 minutes total for full test
+const PASSAGE_TIME = 20 * 60 // 20 minutes recommended per passage
+const TOTAL_TEST_TIME = 60 * 60 // 60 minutes total for full test
 
 // ============ PASSAGE 1 ============
 const PASSAGE1_TITLE = 'Sustainable Tourism in Southeast Asia'
@@ -475,7 +476,7 @@ type AnswerMap = { [key: number]: string | number }
 export default function ReadingLesson1Page() {
   const [stage, setStage] = useState<'intro' | 'passage1' | 'passage2' | 'passage3' | 'results'>('intro')
   const [useTimer, setUseTimer] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(TEST_TIME)
+  const [timeLeft, setTimeLeft] = useState(PASSAGE_TIME)
   const [timerRunning, setTimerRunning] = useState(false)
   const [answers, setAnswers] = useState<AnswerMap>({})
   const [showVocab, setShowVocab] = useState(false)
@@ -636,7 +637,7 @@ export default function ReadingLesson1Page() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <p style={{ fontSize: '14px', fontWeight: 'bold', color: '#1e40af', margin: '0 0 4px' }}>⏱️ Timed Exam Mode</p>
-              <p style={{ fontSize: '13px', color: '#1e40af', margin: 0 }}>Simulate real exam conditions with a 60-minute countdown for all 3 passages.</p>
+              <p style={{ fontSize: '13px', color: '#1e40af', margin: 0 }}>Simulate real exam conditions with a 20-minute countdown per passage (60 minutes total) — the recommended pacing for the real test.</p>
             </div>
             <button
               onClick={() => setUseTimer(!useTimer)}
@@ -651,14 +652,14 @@ export default function ReadingLesson1Page() {
         <div style={{ background: '#f0fdf4', borderRadius: '12px', padding: '20px', marginBottom: '24px', border: '1px solid #bbf7d0' }}>
           <p style={{ fontSize: '14px', color: '#166534', margin: '0 0 8px', fontWeight: 'bold' }}>What's included in this test:</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            {['🎯 Score out of 40 + band estimate','📝 AI explanation for every question','📚 Key vocabulary from each passage','👨‍🏫 Teacher mode with discussion points','🔄 Mixed question types per passage','⏱️ Optional 60-minute timer'].map(item => (
+            {['🎯 Score out of 40 + band estimate','📝 AI explanation for every question','📚 Key vocabulary from each passage','👨‍🏫 Teacher mode with discussion points','🔄 Mixed question types per passage','⏱️ Optional 20-min-per-passage timer'].map(item => (
               <div key={item} style={{ fontSize: '13px', color: '#166534' }}>{item}</div>
             ))}
           </div>
         </div>
 
         <button
-          onClick={() => { setStage('passage1'); if (useTimer) { setTimeLeft(TEST_TIME); setTimerRunning(true) } }}
+          onClick={() => { setStage('passage1'); if (useTimer) { setTimeLeft(PASSAGE_TIME); setTimerRunning(true) } }}
           style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #78350f, #d97706)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
         >
           Start Reading Test →
@@ -686,8 +687,10 @@ export default function ReadingLesson1Page() {
               </button>
             )}
             {useTimer && (
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', background: timeLeft < 600 ? '#fee2e2' : '#f1f5f9', borderRadius: '8px', padding: '6px 14px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 'bold', color: timeLeft < 600 ? '#ef4444' : '#555', fontFamily: 'monospace' }}>⏱️ {formatTime(timeLeft)}</span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: timeLeft < 300 ? '#fee2e2' : '#f1f5f9', borderRadius: '8px', padding: '6px 14px' }}>
+                <span style={{ fontSize: '11px', color: timeLeft < 300 ? '#ef4444' : '#94a3b8', fontWeight: '600' }}>This passage:</span>
+                <span style={{ fontSize: '14px', fontWeight: 'bold', color: timeLeft < 300 ? '#ef4444' : '#555', fontFamily: 'monospace' }}>⏱️ {formatTime(timeLeft)}</span>
+                {timeLeft === 0 && <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 'bold' }}>TIME UP</span>}
               </div>
             )}
           </div>
@@ -804,7 +807,7 @@ export default function ReadingLesson1Page() {
               ))}
             </div>
 
-            <button onClick={() => setStage('passage2')} style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg, #78350f, #d97706)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button onClick={() => { if (useTimer) { setTimeLeft(PASSAGE_TIME); setTimerRunning(true) }; setStage('passage2') }} style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg, #78350f, #d97706)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>
               Continue to Passage 2 →
             </button>
           </div>
@@ -832,8 +835,10 @@ export default function ReadingLesson1Page() {
               </button>
             )}
             {useTimer && (
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', background: timeLeft < 600 ? '#fee2e2' : '#f1f5f9', borderRadius: '8px', padding: '6px 14px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 'bold', color: timeLeft < 600 ? '#ef4444' : '#555', fontFamily: 'monospace' }}>⏱️ {formatTime(timeLeft)}</span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: timeLeft < 300 ? '#fee2e2' : '#f1f5f9', borderRadius: '8px', padding: '6px 14px' }}>
+                <span style={{ fontSize: '11px', color: timeLeft < 300 ? '#ef4444' : '#94a3b8', fontWeight: '600' }}>This passage:</span>
+                <span style={{ fontSize: '14px', fontWeight: 'bold', color: timeLeft < 300 ? '#ef4444' : '#555', fontFamily: 'monospace' }}>⏱️ {formatTime(timeLeft)}</span>
+                {timeLeft === 0 && <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 'bold' }}>TIME UP</span>}
               </div>
             )}
           </div>
@@ -943,7 +948,7 @@ export default function ReadingLesson1Page() {
               <button onClick={() => setStage('passage1')} style={{ flex: 1, padding: '14px', background: 'white', color: '#78350f', border: '2px solid #78350f', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>
                 ← Back to Passage 1
               </button>
-              <button onClick={() => setStage('passage3')} style={{ flex: 2, padding: '14px', background: 'linear-gradient(135deg, #78350f, #d97706)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button onClick={() => { if (useTimer) { setTimeLeft(PASSAGE_TIME); setTimerRunning(true) }; setStage('passage3') }} style={{ flex: 2, padding: '14px', background: 'linear-gradient(135deg, #78350f, #d97706)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Continue to Passage 3 →
               </button>
             </div>
@@ -972,8 +977,10 @@ export default function ReadingLesson1Page() {
               </button>
             )}
             {useTimer && (
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', background: timeLeft < 600 ? '#fee2e2' : '#f1f5f9', borderRadius: '8px', padding: '6px 14px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 'bold', color: timeLeft < 600 ? '#ef4444' : '#555', fontFamily: 'monospace' }}>⏱️ {formatTime(timeLeft)}</span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: timeLeft < 300 ? '#fee2e2' : '#f1f5f9', borderRadius: '8px', padding: '6px 14px' }}>
+                <span style={{ fontSize: '11px', color: timeLeft < 300 ? '#ef4444' : '#94a3b8', fontWeight: '600' }}>This passage:</span>
+                <span style={{ fontSize: '14px', fontWeight: 'bold', color: timeLeft < 300 ? '#ef4444' : '#555', fontFamily: 'monospace' }}>⏱️ {formatTime(timeLeft)}</span>
+                {timeLeft === 0 && <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 'bold' }}>TIME UP</span>}
               </div>
             )}
           </div>
@@ -1104,7 +1111,7 @@ export default function ReadingLesson1Page() {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
             <Link href="/ielts/reading" style={{ color: '#d97706', fontSize: '13px', textDecoration: 'none' }}>← Reading Tests</Link>
-            <button onClick={() => { setAnswers({}); setStage('intro'); setTimeLeft(TEST_TIME); setTimerRunning(false) }} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#555', fontSize: '13px', cursor: 'pointer', fontWeight: '600' }}>🔄 Retake Test</button>
+            <button onClick={() => { setAnswers({}); setStage('intro'); setTimeLeft(PASSAGE_TIME); setTimerRunning(false) }} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#555', fontSize: '13px', cursor: 'pointer', fontWeight: '600' }}>🔄 Retake Test</button>
           </div>
 
           {/* Overall Score */}
