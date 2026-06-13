@@ -169,17 +169,38 @@ export default function IELTSHubPage() {
               </Link>
             )}
             {!checkingAccess && hasAccess && (
-              <span style={{
-                background: 'rgba(16,185,129,0.2)',
-                color: '#6ee7b7',
-                padding: '14px 32px',
-                borderRadius: '10px',
-                fontWeight: 'bold',
-                fontSize: '16px',
-                border: '1px solid rgba(16,185,129,0.3)',
-              }}>
-                ✅ Full Access Active
-              </span>
+              <>
+                <span style={{
+                  background: 'rgba(16,185,129,0.2)',
+                  color: '#6ee7b7',
+                  padding: '14px 32px',
+                  borderRadius: '10px',
+                  fontWeight: 'bold',
+                  fontSize: '16px',
+                  border: '1px solid rgba(16,185,129,0.3)',
+                }}>
+                  ✅ Full Access Active
+                </span>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('ielts_email')
+                    localStorage.removeItem('ielts_expires')
+                    setHasAccess(false)
+                  }}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    color: 'rgba(255,255,255,0.7)',
+                    padding: '14px 24px',
+                    borderRadius: '10px',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Log Out
+                </button>
+              </>
             )}
           </div>
         </div>
