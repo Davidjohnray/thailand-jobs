@@ -27,7 +27,8 @@ const SKILLS = [
     gradient: 'linear-gradient(135deg, #1e3a5f, #2563eb)',
     description: 'Practice all 3 parts of the IELTS Speaking test with AI feedback on your answers.',
     parts: ['Part 1 — Personal questions', 'Part 2 — Cue card topics', 'Part 3 — Discussion'],
-    freeLessons: 3,
+    freeLabel: '3 FREE lessons',
+    moreLabel: '+ more with subscription',
   },
   {
     title: 'Writing',
@@ -37,7 +38,8 @@ const SKILLS = [
     gradient: 'linear-gradient(135deg, #064e3b, #059669)',
     description: 'Submit Task 1 and Task 2 responses and get detailed AI feedback on all 4 band score criteria.',
     parts: ['Task Achievement', 'Coherence & Cohesion', 'Lexical Resource', 'Grammatical Range & Accuracy'],
-    freeLessons: 3,
+    freeLabel: '3 FREE lessons',
+    moreLabel: '+ more with subscription',
   },
   {
     title: 'Reading',
@@ -47,14 +49,15 @@ const SKILLS = [
     gradient: 'linear-gradient(135deg, #78350f, #d97706)',
     description: 'Master every IELTS reading task type with guided lessons and AI explanations.',
     parts: ['True / False / Not Given', 'Matching Headings', 'Multiple Choice', 'Summary Completion'],
-    freeLessons: 3,
+    freeLabel: '1 FREE full mock test',
+    moreLabel: '+ more mock tests with subscription',
   },
 ]
 
 const FAQS = [
   {
     q: 'How many free lessons do I get?',
-    a: '3 free lessons in each skill area — Speaking, Writing, and Reading. All free lessons include full AI feedback.',
+    a: '3 free lessons each for Speaking and Writing, plus 1 free full Reading mock test (3 passages, 40 questions). All free content includes full AI feedback.',
   },
   {
     q: 'What do I get with a subscription?',
@@ -135,7 +138,7 @@ export default function IELTSHubPage() {
             margin: '0 0 36px',
           }}>
             Real task-based lessons for Speaking, Writing, and Reading — with AI feedback on every answer.
-            Study alone or use with your teacher. 3 free lessons per skill, then just 149 THB per month.
+            Study alone or use with your teacher. Free lessons in every skill area, then just 149 THB per month.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/ielts/speaking" style={{
@@ -212,7 +215,7 @@ export default function IELTSHubPage() {
           Choose a Skill to Practice
         </h2>
         <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '40px', fontSize: '15px' }}>
-          3 free lessons in every skill area — no account needed to start
+          Free lessons in every skill area — no account needed to start
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
           {SKILLS.map(skill => (
@@ -259,9 +262,9 @@ export default function IELTSHubPage() {
                     borderRadius: '20px',
                     border: '1px solid #bbf7d0',
                   }}>
-                    {skill.freeLessons} FREE lessons
+                    {skill.freeLabel}
                   </span>
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>+ more with subscription</span>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>{skill.moreLabel}</span>
                 </div>
                 <Link href={skill.href} style={{
                   display: 'block',
@@ -431,7 +434,7 @@ export default function IELTSHubPage() {
           Ready to improve your IELTS score?
         </h2>
         <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '24px', fontSize: '15px' }}>
-          Start with 3 free lessons — no signup required.
+          Start with free lessons — no signup required.
         </p>
         <Link href="/ielts/speaking" style={{
           background: '#2563eb',
