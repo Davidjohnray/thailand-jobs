@@ -81,6 +81,10 @@ export default function IELTSHubPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [hasAccess, setHasAccess] = useState(false)
   const [checkingAccess, setCheckingAccess] = useState(true)
+  const [showSignIn, setShowSignIn] = useState(false)
+  const [signInEmail, setSignInEmail] = useState('')
+  const [signInError, setSignInError] = useState('')
+  const [signInLoading, setSignInLoading] = useState(false)
 
   useEffect(() => {
     const email = localStorage.getItem('ielts_email')
@@ -96,6 +100,33 @@ export default function IELTSHubPage() {
         setCheckingAccess(false)
       })
   }, [])
+
+  async function handleSignIn() {
+    setSignInError('')
+    const cleanEmail = signInEmail.trim().toLowerCase()
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setSignInError('Please enter a valid email address.')
+      return
+    }
+    setSignInLoading(true)
+    const { data } = await supabase
+      .from('ielts_access')
+      .select('expires_at, is_active')
+      .eq('email', cleanEmail)
+      .eq('is_active', true)
+      .single()
+
+    if (data && new Date(data.expires_at) > new Date()) {
+      localStorage.setItem('ielts_email', cleanEmail)
+      localStorage.setItem('ielts_expires', data.expires_at)
+      setHasAccess(true)
+      setShowSignIn(false)
+      setSignInEmail('')
+    } else {
+      setSignInError('No active subscription found for this email. Check the email address, or activate a code on the subscribe page.')
+    }
+    setSignInLoading(false)
+  }
 
   return (
     <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
@@ -154,19 +185,36 @@ export default function IELTSHubPage() {
               Start Free Lessons →
             </Link>
             {!checkingAccess && !hasAccess && (
-              <Link href="/ielts/subscribe" style={{
-                background: 'rgba(255,255,255,0.15)',
-                color: 'white',
-                padding: '14px 32px',
-                borderRadius: '10px',
-                fontWeight: 'bold',
-                fontSize: '16px',
-                textDecoration: 'none',
-                display: 'inline-block',
-                border: '1px solid rgba(255,255,255,0.3)',
-              }}>
-                Subscribe — 149 THB/month
-              </Link>
+              <>
+                <Link href="/ielts/subscribe" style={{
+                  background: 'rgba(255,255,255,0.15)',
+                  color: 'white',
+                  padding: '14px 32px',
+                  borderRadius: '10px',
+                  fontWeight: 'bold',
+                  fontSize: '16px',
+                  textDecoration: 'none',
+                  display: 'inline-block',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                }}>
+                  Subscribe — 149 THB/month
+                </Link>
+                <button
+                  onClick={() => setShowSignIn(true)}
+                  style={{
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,0.7)',
+                    padding: '14px 24px',
+                    borderRadius: '10px',
+                    fontWeight: '600',
+                    fontSize: '14px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Already subscribed? Sign In
+                </button>
+              </>
             )}
             {!checkingAccess && hasAccess && (
               <>
@@ -470,6 +518,102 @@ export default function IELTSHubPage() {
           Start Free Now →
         </Link>
       </section>
+
+      {/* Sign In Modal */}
+      {showSignIn && (
+        <div
+          onClick={() => setShowSignIn(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15,23,42,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            zIndex: 50,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '32px',
+              maxWidth: '420px',
+              width: '100%',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            }}
+          >
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 8px' }}>Sign In</h2>
+            <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 20px', lineHeight: 1.5 }}>
+              If you've already activated an access code, enter the same email address to restore your access on this device.
+            </p>
+            <input
+              type="email"
+              value={signInEmail}
+              onChange={e => setSignInEmail(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleSignIn() }}
+              placeholder="you@example.com"
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: '8px',
+                border: '2px solid #e2e8f0',
+                fontSize: '14px',
+                outline: 'none',
+                color: '#1a1a2e',
+                boxSizing: 'border-box',
+                marginBottom: '12px',
+              }}
+            />
+            {signInError && (
+              <p style={{ fontSize: '13px', color: '#dc2626', margin: '0 0 12px', lineHeight: 1.5 }}>{signInError}</p>
+            )}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => { setShowSignIn(false); setSignInError(''); setSignInEmail('') }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  background: 'white',
+                  color: '#555',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSignIn}
+                disabled={signInLoading}
+                style={{
+                  flex: 2,
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: signInLoading ? '#94a3b8' : 'linear-gradient(135deg, #1e3a5f, #2563eb)',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: signInLoading ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {signInLoading ? 'Checking...' : 'Sign In'}
+              </button>
+            </div>
+            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '16px 0 0', textAlign: 'center' }}>
+              Don't have a subscription yet?{' '}
+              <Link href="/ielts/subscribe" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: '600' }} onClick={() => setShowSignIn(false)}>
+                Get an access code
+              </Link>
+            </p>
+          </div>
+        </div>
+      )}
 
     </main>
   )
