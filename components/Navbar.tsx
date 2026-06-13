@@ -128,6 +128,7 @@ export default function Navbar() {
                 {[
                   { href: '/teachers', label: '🎓 Teachers Directory' },
                   { href: '/training', label: '📚 Training' },
+                  { href: '/ielts', label: '🎯 IELTS Practice' },
                   { href: '/cv-builder', label: '📄 CV Builder' },
                   { href: '/esl-resources', label: '📖 ESL Resources' },
                   { href: '/expat-services', label: '🏙️ Expat Services' },
@@ -281,6 +282,7 @@ export default function Navbar() {
               {[
                 { href: '/teachers', label: '🎓 Teachers Directory' },
                 { href: '/training', label: '📚 Training' },
+                { href: '/ielts', label: '🎯 IELTS Practice' },
                 { href: '/cv-builder', label: '📄 CV Builder' },
                 { href: '/esl-resources', label: '📖 ESL Resources' },
                 { href: '/expat-services', label: '🏙️ Expat Services' },
