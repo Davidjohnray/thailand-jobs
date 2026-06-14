@@ -25,7 +25,7 @@ const TESTS = [
   {
     id: 'mock-test-3',
     title: 'Mock Test 3',
-    topics: ['Coming soon', 'Coming soon', 'Coming soon'],
+    topics: ['The Rise of Urban Farming', 'Ocean Plastic: The Scale of the Problem', 'The Science and Culture of Memory'],
     free: false,
   },
 ]
