@@ -34,6 +34,8 @@ const CATEGORIES = [
 { id: 'giving-feedback', title: 'Giving and Receiving Feedback', emoji: '💬', description: 'The Gift of Honesty', detail: 'Master the language and skills needed to give useful feedback, receive it gracefully, and build a culture where teams improve together.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
 { id: 'professional-emails', title: 'Writing Professional Emails', emoji: '📧', description: 'Clear, Confident, Professional', detail: 'Master the structure, tone and strategies needed to write effective emails in any business context.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
 { id: 'managing-conflict', title: 'Managing Conflict at Work', emoji: '🕊️', description: 'From Tension to Resolution', detail: 'Understand what causes workplace conflict, how to address it professionally, and how to build teams that handle disagreement well.', badges: ['4 parts', '12 questions'], color: '#ef4444' },
+{ id: 'business-jargon', title: 'Understanding Business Jargon', emoji: '🗣️', description: 'Synergy, Pivot, Low-Hanging Fruit', detail: 'Decode the most common corporate buzzwords, understand when jargon helps and when it hurts, and learn to communicate with real clarity.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
+{ id: 'salary-negotiation', title: 'Salary Negotiation', emoji: '💰', description: 'Know Your Worth', detail: 'Learn why most people don\'t negotiate, how to research your market value, and the exact language to use when asking for more money.', badges: ['4 parts', '12 questions'], color: '#22c55e' },
     ]
   },
   {
