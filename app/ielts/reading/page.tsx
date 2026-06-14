@@ -17,15 +17,15 @@ const TESTS = [
     free: true,
   },
   {
-    id: 'mock-test-2',
+    id: 'urban-innovation',
     title: 'Mock Test 2',
-    topics: ['Topic A', 'Topic B', 'Topic C'],
+    topics: ['The Psychology of Sleep', 'The History and Science of Chocolate', 'Artificial Intelligence and the Future of Work'],
     free: false,
   },
   {
     id: 'mock-test-3',
     title: 'Mock Test 3',
-    topics: ['Topic A', 'Topic B', 'Topic C'],
+    topics: ['Coming soon', 'Coming soon', 'Coming soon'],
     free: false,
   },
 ]
@@ -69,7 +69,7 @@ export default function IELTSReadingPage() {
           <Link href="/ielts" style={{ color: 'rgba(255,255,255,0.65)', fontSize: '13px', textDecoration: 'none' }}>← IELTS Hub</Link>
           <h1 style={{ color: 'white', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 'bold', margin: '12px 0 8px' }}>📖 IELTS Reading Practice</h1>
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '15px', margin: 0, maxWidth: '580px', lineHeight: 1.6 }}>
-            Full-length mock tests — 3 passages, 40 questions, mixed question types, just like the real exam. AI explanations for every answer, plus an optional 60-minute timer.
+            Full-length mock tests — 3 passages, 40 questions, mixed question types, just like the real exam. AI explanations for every answer, plus an optional 20-minute-per-passage timer.
           </p>
         </div>
       </section>
@@ -80,7 +80,7 @@ export default function IELTSReadingPage() {
           {[
             { icon: '📄', text: '3 passages, increasing difficulty' },
             { icon: '❓', text: '40 questions, mixed types' },
-            { icon: '⏱️', text: 'Optional 60-minute timer' },
+            { icon: '⏱️', text: 'Optional 20-min-per-passage timer' },
             { icon: '🤖', text: 'AI explanation for every question' },
             { icon: '🎯', text: 'Score out of 40 + band estimate' },
           ].map(item => (
@@ -140,23 +140,29 @@ export default function IELTSReadingPage() {
 }
 
 function TestCard({ test, locked }: { test: typeof TESTS[0], locked: boolean }) {
+  const comingSoon = test.topics[0] === 'Coming soon'
   return (
-    <div style={{ background: 'white', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: locked ? '1px solid #e2e8f0' : '1px solid #fde68a', opacity: locked ? 0.85 : 1 }}>
+    <div style={{ background: 'white', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: locked || comingSoon ? '1px solid #e2e8f0' : '1px solid #fde68a', opacity: comingSoon ? 0.6 : locked ? 0.85 : 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ background: '#fef3c7', color: '#92400e', fontSize: '12px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '20px', border: '1px solid #fde68a' }}>3 Passages · 40 Questions</span>
           {test.free && <span style={{ background: '#dcfce7', color: '#16a34a', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>FREE</span>}
+          {comingSoon && <span style={{ background: '#f1f5f9', color: '#94a3b8', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>COMING SOON</span>}
         </div>
       </div>
       <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 10px' }}>{test.title}</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
         {test.topics.map((topic, i) => (
-          <p key={i} style={{ fontSize: '13px', color: '#475569', margin: 0 }}>
-            <span style={{ color: '#d97706', fontWeight: 'bold' }}>Passage {i + 1}: </span>{topic}
+          <p key={i} style={{ fontSize: '13px', color: comingSoon ? '#94a3b8' : '#475569', margin: 0 }}>
+            {!comingSoon && <span style={{ color: '#d97706', fontWeight: 'bold' }}>Passage {i + 1}: </span>}{topic}
           </p>
         ))}
       </div>
-      {locked ? (
+      {comingSoon ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: '#f1f5f9', borderRadius: '8px', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>
+          🕐 Coming Soon
+        </div>
+      ) : locked ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: '#f1f5f9', borderRadius: '8px', color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>
           🔒 Subscription Required
         </div>
