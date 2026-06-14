@@ -32,6 +32,8 @@ const CATEGORIES = [
 { id: 'networking-small-talk', title: 'Networking and Small Talk at Events', emoji: '🍹', description: 'Work the Room', detail: 'Master the art of professional small talk, confident introductions, and building lasting connections at business events.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
 { id: 'multicultural-teams', title: 'Working in Multicultural Teams', emoji: '🌏', description: 'Beyond Borders', detail: 'Understand how culture shapes communication, hierarchy and trust at work, and how to make diverse teams thrive.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
 { id: 'giving-feedback', title: 'Giving and Receiving Feedback', emoji: '💬', description: 'The Gift of Honesty', detail: 'Master the language and skills needed to give useful feedback, receive it gracefully, and build a culture where teams improve together.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
+{ id: 'professional-emails', title: 'Writing Professional Emails', emoji: '📧', description: 'Clear, Confident, Professional', detail: 'Master the structure, tone and strategies needed to write effective emails in any business context.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
+{ id: 'managing-conflict', title: 'Managing Conflict at Work', emoji: '🕊️', description: 'From Tension to Resolution', detail: 'Understand what causes workplace conflict, how to address it professionally, and how to build teams that handle disagreement well.', badges: ['4 parts', '12 questions'], color: '#ef4444' },
     ]
   },
   {
