@@ -43,6 +43,8 @@ const CATEGORIES = [
       { id: 'olympics', title: 'The Olympic Games — History, Politics and the Modern Era', emoji: '🏅', description: 'Faster, Higher, Stronger', detail: 'Explore the ancient origins of the Olympics, how the Games were reborn in 1896, and the complex role they play in politics, identity, and society today.', badges: ['4 parts', '12 questions'], color: '#7C3AED' },
       { id: 'esports', title: 'Esports — Is Gaming a Real Sport?', emoji: '🎮', description: 'Controllers vs. Goalposts', detail: 'Explore the explosive rise of competitive gaming, the arguments for and against calling it a sport, and what it means for the future of competition.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
 { id: 'formula1-boom', title: "Formula 1's Global Boom", emoji: '🏎️', description: 'From Niche to Netflix', detail: 'Explore how Drive to Survive, new races, and the sport\'s human drama transformed F1 from a European institution into a global phenomenon.', badges: ['4 parts', '12 questions'], color: '#ef4444' },
+{ id: 'womens-football', title: "The Rise of Women's Football", emoji: '⚽', description: 'Equal Game', detail: "Explore how women's football went from the margins to the global stage, and the ongoing debates about pay, investment, and the future of the sport.", badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
+{ id: 'var-football', title: 'VAR and Technology in Football', emoji: '📺', description: 'Did Tech Fix the Beautiful Game?', detail: 'Explore the controversy, the arguments for and against VAR, and what its troubled history tells us about technology and sport.', badges: ['4 parts', '12 questions'], color: '#3b82f6' },
     ]
   },
   {
