@@ -10,7 +10,7 @@ type Explanation = {
   form_table?: { headers: string[]; rows: string[][] }
   examples: { sentence: string; note?: string }[]
   common_mistakes: { wrong: string; right: string; note?: string }[]
-  thai_tips: string[]
+  learner_tips: string[]
   tip_box?: string
 }
 
@@ -289,18 +289,20 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                   </div>
                 </div>
 
-                {/* THAI TIPS */}
-                <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '16px', padding: '28px 32px' }}>
-                  <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#92400e', margin: '0 0 4px' }}>🇹🇭 Thai speaker tips</h2>
-                  <p style={{ fontSize: '13px', color: '#a16207', margin: '0 0 14px' }}>Common mistakes Thai students make with this point</p>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {exp.thai_tips.map((tip: string, i: number) => (
-                      <li key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '14px', color: '#78350f', lineHeight: '1.6' }}>
-                        <span style={{ flexShrink: 0, marginTop: '2px' }}>→</span>{tip}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {/* LEARNER TIPS */}
+                {exp.learner_tips && exp.learner_tips.length > 0 && (
+                  <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '16px', padding: '28px 32px' }}>
+                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#92400e', margin: '0 0 4px' }}>💡 Common learner mistakes</h2>
+                    <p style={{ fontSize: '13px', color: '#a16207', margin: '0 0 14px' }}>Mistakes English learners commonly make with this grammar point</p>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {exp.learner_tips.map((tip: string, i: number) => (
+                        <li key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '14px', color: '#78350f', lineHeight: '1.6' }}>
+                          <span style={{ flexShrink: 0, marginTop: '2px' }}>→</span>{tip}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* TIP BOX */}
                 {exp.tip_box && (
