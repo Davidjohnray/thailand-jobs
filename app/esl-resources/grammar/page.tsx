@@ -80,7 +80,7 @@ const MODES = [
     points: [
       'Clear rule explanation with examples',
       'Form tables showing how to build the structure',
-      'Common mistakes Thai speakers make',
+      'Common learner mistakes and how to fix them',
       'Tip boxes with memory tricks',
     ],
   },
@@ -124,11 +124,11 @@ export default function GrammarLandingPage() {
           From A1 basics to C2 advanced — every grammar point explained, practised, and ready to teach
         </p>
         <p style={{ fontSize: '14px', opacity: 0.75, maxWidth: '460px', margin: '0 auto 28px' }}>
-          Self-study mode for learners · Teach mode for the classroom
+          Self-study for learners anywhere · Teach mode for the classroom
         </p>
         <Link href="/esl-resources/grammar/placement" style={{ textDecoration: 'none' }}>
           <span style={{ background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.4)', color: 'white', padding: '12px 28px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', display: 'inline-block' }}>
-            Not sure your level? Take the placement test →
+            Not sure of your level? Take the placement test →
           </span>
         </Link>
       </div>
@@ -206,13 +206,13 @@ export default function GrammarLandingPage() {
         </div>
       </div>
 
-      {/* BOTTOM CTA — Thai speaker note */}
+      {/* BOTTOM CTA */}
       <div style={{ background: '#1a1a2e', padding: '48px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <div style={{ fontSize: '36px', marginBottom: '16px' }}>🇹🇭</div>
-          <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', margin: '0 0 12px' }}>Built for Thai learners & teachers</h2>
+          <div style={{ fontSize: '36px', marginBottom: '16px' }}>🌍</div>
+          <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', margin: '0 0 12px' }}>Grammar for English learners everywhere</h2>
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', lineHeight: '1.7', margin: '0 0 28px' }}>
-            Every topic includes a <strong style={{ color: '#22c55e' }}>Thai speaker tips</strong> section — the specific mistakes Thai students make with each grammar point, and how to fix them.
+            Every topic covers the most common mistakes learners make — whatever your first language — with clear explanations and practice that actually sticks.
           </p>
           <Link href="/esl-resources/grammar/placement" style={{ textDecoration: 'none' }}>
             <span style={{ background: 'linear-gradient(135deg, #059669, #2D6BE4)', color: 'white', padding: '14px 32px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', display: 'inline-block' }}>
