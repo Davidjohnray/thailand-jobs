@@ -12,11 +12,11 @@ export default function ESLResourcesPage() {
         <p style={{ fontSize: '14px', opacity: 0.75, maxWidth: '480px', margin: '0 auto' }}>Designed for bilingual schools, private kindergartens, and ESL programs in Thailand</p>
       </div>
 
-      {/* THREE MAIN SECTION BUTTONS */}
+      {/* FOUR MAIN SECTION BUTTONS */}
       <div style={{ background: '#1a1a2e', padding: '40px 24px' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '24px' }}>Choose a section</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
 
             {/* LESSON PLANS */}
             <Link href="#lesson-plans" style={{ textDecoration: 'none' }}>
@@ -35,6 +35,16 @@ export default function ESLResourcesPage() {
                 <h2 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 8px' }}>Reading Comprehension</h2>
                 <p style={{ opacity: 0.85, fontSize: '14px', margin: '0 0 16px', lineHeight: '1.5' }}>Visual reading passages with discussion questions and vocabulary — perfect for 1-to-1 classes.</p>
                 <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>Browse Lessons →</div>
+              </div>
+            </Link>
+
+            {/* GRAMMAR */}
+            <Link href="/esl-resources/grammar" style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'linear-gradient(135deg, #059669, #10b981)', borderRadius: '20px', padding: '32px 28px', textAlign: 'center', color: 'white', cursor: 'pointer', boxShadow: '0 8px 28px rgba(5,150,105,0.3)', border: '2px solid rgba(255,255,255,0.1)', height: '100%', boxSizing: 'border-box' }}>
+                <div style={{ fontSize: '44px', marginBottom: '12px' }}>✏️</div>
+                <h2 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 8px' }}>Grammar</h2>
+                <p style={{ opacity: 0.85, fontSize: '14px', margin: '0 0 16px', lineHeight: '1.5' }}>From A1 basics to C2 advanced — learn, practise, and teach every grammar point with AI feedback.</p>
+                <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', display: 'inline-block' }}>Explore Grammar →</div>
               </div>
             </Link>
 
