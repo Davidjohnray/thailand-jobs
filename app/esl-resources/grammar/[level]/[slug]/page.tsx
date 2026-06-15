@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 
@@ -42,7 +42,9 @@ const LEVEL_LABELS: Record<string, string> = {
   b2: 'B2 Intermediate', c1: 'C1 Upper-Intermediate', c2: 'C2 Advanced'
 }
 
-export default function GrammarTopicPage({ params }: { params: { level: string; slug: string } }) {
+export default function GrammarTopicPage({ params }: { params: Promise<{ level: string; slug: string }> }) {
+  const { level, slug } = use(params)
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -68,8 +70,8 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
       const { data: t } = await supabase
         .from('grammar_topics')
         .select('*')
-        .eq('slug', params.slug)
-        .eq('level', params.level)
+        .eq('slug', slug)
+        .eq('level', level)
         .single()
       setTopic(t)
 
@@ -95,7 +97,7 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
       setLoading(false)
     }
     load()
-  }, [params.slug, params.level])
+  }, [slug, level])
 
   async function markLearnComplete() {
     if (!topic) return
@@ -120,12 +122,7 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
         const res = await fetch('/api/grammar-feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            topic: topic?.title,
-            level: topic?.level,
-            question: q.question,
-            answer: userAnswer,
-          }),
+          body: JSON.stringify({ topic: topic?.title, level: topic?.level, question: q.question, answer: userAnswer }),
         })
         const data = await res.json()
         setAiFeedback(data.feedback)
@@ -153,7 +150,7 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
     }
   }
 
-  const accent = LEVEL_COLORS[params.level] ?? '#2D6BE4'
+  const accent = LEVEL_COLORS[level] ?? '#2D6BE4'
 
   if (loading) return (
     <main style={{ fontFamily: 'sans-serif', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', fontSize: '15px' }}>
@@ -164,7 +161,7 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
   if (!topic) return (
     <main style={{ fontFamily: 'sans-serif', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px' }}>
       <p style={{ fontSize: '18px', color: '#444' }}>Topic not found.</p>
-      <Link href={`/esl-resources/grammar/${params.level}`} style={{ color: accent, fontWeight: 'bold', textDecoration: 'none' }}>← Back to {params.level.toUpperCase()}</Link>
+      <Link href={`/esl-resources/grammar/${level}`} style={{ color: accent, fontWeight: 'bold', textDecoration: 'none' }}>← Back to {level.toUpperCase()}</Link>
     </main>
   )
 
@@ -173,16 +170,15 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh' }}>
 
-      {/* HEADER + TABS */}
       <div style={{ background: '#1a1a2e', padding: '24px 24px 0', color: 'white' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
-          <Link href={`/esl-resources/grammar/${params.level}`} style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', textDecoration: 'none', display: 'inline-block', marginBottom: '12px' }}>
-            ← {LEVEL_LABELS[params.level] ?? params.level.toUpperCase()}
+          <Link href={`/esl-resources/grammar/${level}`} style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', textDecoration: 'none', display: 'inline-block', marginBottom: '12px' }}>
+            ← {LEVEL_LABELS[level] ?? level.toUpperCase()}
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
             <div>
               <span style={{ background: accent, color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '6px', marginBottom: '8px', display: 'inline-block' }}>
-                {params.level.toUpperCase()}
+                {level.toUpperCase()}
               </span>
               <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '4px 0 4px', letterSpacing: '-0.5px' }}>{topic.title}</h1>
               {topic.short_desc && <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', margin: 0 }}>{topic.short_desc}</p>}
@@ -191,7 +187,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
               <span style={{ background: '#dcfce7', color: '#16a34a', fontSize: '13px', fontWeight: 'bold', padding: '6px 14px', borderRadius: '8px' }}>✓ Learn complete</span>
             )}
           </div>
-
           <div style={{ display: 'flex', gap: '4px' }}>
             {(['learn', 'practise', 'teach'] as Tab[]).map(t => (
               <button key={t} onClick={() => setTab(t)} style={{
@@ -199,7 +194,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                 color: tab === t ? '#1a1a2e' : 'rgba(255,255,255,0.55)',
                 border: 'none', cursor: 'pointer', padding: '10px 22px',
                 borderRadius: '10px 10px 0 0', fontSize: '14px', fontWeight: 'bold',
-                textTransform: 'capitalize',
               }}>
                 {t === 'learn' ? '📖 Learn' : t === 'practise' ? '✍️ Practise' : '📺 Teach'}
               </button>
@@ -208,10 +202,8 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
         </div>
       </div>
 
-      {/* TAB CONTENT */}
       <div style={{ maxWidth: '860px', margin: '0 auto', padding: '36px 24px' }}>
 
-        {/* ── LEARN TAB ── */}
         {tab === 'learn' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {!exp ? (
@@ -221,24 +213,20 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
               </div>
             ) : (
               <>
-                {/* INTRO */}
                 <div style={{ background: 'white', borderRadius: '16px', padding: '28px 32px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
                   <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 14px' }}>What is it?</h2>
                   <p style={{ fontSize: '15px', color: '#444', lineHeight: '1.8', margin: 0 }}>{exp.intro}</p>
                 </div>
 
-                {/* FORM TABLE */}
                 {exp.form_table && (
                   <div style={{ background: 'white', borderRadius: '16px', padding: '28px 32px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
                     <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 16px' }}>Form</h2>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                         <thead>
-                          <tr>
-                            {exp.form_table.headers.map((h: string) => (
-                              <th key={h} style={{ background: accent, color: 'white', padding: '10px 14px', textAlign: 'left', fontWeight: 'bold', fontSize: '13px' }}>{h}</th>
-                            ))}
-                          </tr>
+                          <tr>{exp.form_table.headers.map((h: string) => (
+                            <th key={h} style={{ background: accent, color: 'white', padding: '10px 14px', textAlign: 'left', fontWeight: 'bold', fontSize: '13px' }}>{h}</th>
+                          ))}</tr>
                         </thead>
                         <tbody>
                           {exp.form_table.rows.map((row: string[], i: number) => (
@@ -254,7 +242,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                   </div>
                 )}
 
-                {/* EXAMPLES */}
                 <div style={{ background: 'white', borderRadius: '16px', padding: '28px 32px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
                   <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 16px' }}>Examples</h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -267,7 +254,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                   </div>
                 </div>
 
-                {/* COMMON MISTAKES */}
                 <div style={{ background: 'white', borderRadius: '16px', padding: '28px 32px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
                   <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 16px' }}>Common mistakes</h2>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -283,13 +269,12 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                             <p style={{ fontSize: '14px', color: '#14532d', margin: 0, fontStyle: 'italic' }}>{m.right}</p>
                           </div>
                         </div>
-                        {m.note && <p style={{ fontSize: '13px', color: '#888', margin: '6px 0 0', paddingLeft: '2px' }}>{m.note}</p>}
+                        {m.note && <p style={{ fontSize: '13px', color: '#888', margin: '6px 0 0' }}>{m.note}</p>}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* LEARNER TIPS */}
                 {exp.learner_tips && exp.learner_tips.length > 0 && (
                   <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '16px', padding: '28px 32px' }}>
                     <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#92400e', margin: '0 0 4px' }}>💡 Common learner mistakes</h2>
@@ -304,7 +289,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                   </div>
                 )}
 
-                {/* TIP BOX */}
                 {exp.tip_box && (
                   <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '20px 28px', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                     <span style={{ fontSize: '22px', flexShrink: 0 }}>💡</span>
@@ -312,7 +296,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                   </div>
                 )}
 
-                {/* MARK COMPLETE */}
                 <div style={{ textAlign: 'center', paddingTop: '8px' }}>
                   {learnDone ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
@@ -332,7 +315,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
           </div>
         )}
 
-        {/* ── PRACTISE TAB ── */}
         {tab === 'practise' && (
           <div>
             {questions.length === 0 ? (
@@ -369,7 +351,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                     <div style={{ background: accent, height: '6px', borderRadius: '4px', width: `${(current / questions.length) * 100}%`, transition: 'width 0.3s' }} />
                   </div>
                 </div>
-
                 {(() => {
                   const q = questions[current]
                   return (
@@ -451,12 +432,11 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
           </div>
         )}
 
-        {/* ── TEACH TAB ── */}
         {tab === 'teach' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ background: '#1a1a2e', borderRadius: '20px', padding: '48px 40px', textAlign: 'center', color: 'white' }}>
               <span style={{ background: accent, color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '6px', marginBottom: '20px', display: 'inline-block' }}>
-                {params.level.toUpperCase()} GRAMMAR
+                {level.toUpperCase()} GRAMMAR
               </span>
               <h2 style={{ fontSize: '34px', fontWeight: 'bold', margin: '0 0 12px', letterSpacing: '-0.5px' }}>{topic.title}</h2>
               {topic.short_desc && <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '16px', margin: 0 }}>{topic.short_desc}</p>}
@@ -464,22 +444,20 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
 
             <div style={{ background: 'white', borderRadius: '16px', padding: '28px 32px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
               <h3 style={{ fontSize: '17px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 16px' }}>📋 Classroom activities</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-                {[
-                  { title: 'Concept check questions (CCQs)', desc: 'Ask students concept questions before drilling to check they understand the meaning, not just the form.' },
-                  { title: 'Drilling', desc: 'Choral drill → individual drill → substitution drill. Keep it short — 2 minutes maximum.' },
-                  { title: 'Controlled practice', desc: 'Use the Practise tab questions as a class activity — display on screen, students write answers, then reveal.' },
-                  { title: 'Freer practice', desc: 'Give students a speaking task that naturally requires this grammar point. Monitor and note errors for feedback.' },
-                ].map((a, idx) => (
-                  <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '14px 0', borderBottom: '1px solid #f0f0f0' }}>
-                    <span style={{ color: accent, fontWeight: 'bold', flexShrink: 0, marginTop: '2px' }}>→</span>
-                    <div>
-                      <p style={{ fontWeight: 'bold', fontSize: '14px', color: '#1a1a2e', margin: '0 0 4px' }}>{a.title}</p>
-                      <p style={{ fontSize: '13px', color: '#666', margin: 0, lineHeight: '1.5' }}>{a.desc}</p>
-                    </div>
+              {[
+                { title: 'Concept check questions (CCQs)', desc: 'Ask students concept questions before drilling to check they understand the meaning, not just the form.' },
+                { title: 'Drilling', desc: 'Choral drill → individual drill → substitution drill. Keep it short — 2 minutes maximum.' },
+                { title: 'Controlled practice', desc: 'Use the Practise tab questions as a class activity — display on screen, students write answers, then reveal.' },
+                { title: 'Freer practice', desc: 'Give students a speaking task that naturally requires this grammar point. Monitor and note errors for feedback.' },
+              ].map((a, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '14px 0', borderBottom: '1px solid #f0f0f0' }}>
+                  <span style={{ color: accent, fontWeight: 'bold', flexShrink: 0, marginTop: '2px' }}>→</span>
+                  <div>
+                    <p style={{ fontWeight: 'bold', fontSize: '14px', color: '#1a1a2e', margin: '0 0 4px' }}>{a.title}</p>
+                    <p style={{ fontSize: '13px', color: '#666', margin: 0, lineHeight: '1.5' }}>{a.desc}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
 
             {exp && exp.examples.length > 0 && (
@@ -500,7 +478,7 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
                 <h3 style={{ color: 'white', fontSize: '17px', fontWeight: 'bold', margin: '0 0 6px' }}>📺 TV / Projector mode</h3>
                 <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '14px', margin: 0 }}>Full-screen display — practice questions one at a time for the whole class</p>
               </div>
-              <Link href={`/esl-resources/grammar/${params.level}/${params.slug}/tv`} style={{ textDecoration: 'none' }}>
+              <Link href={`/esl-resources/grammar/${level}/${slug}/tv`} style={{ textDecoration: 'none' }}>
                 <span style={{ background: 'white', color: '#7C3AED', fontWeight: 'bold', fontSize: '14px', padding: '12px 22px', borderRadius: '10px', display: 'inline-block' }}>
                   Open TV mode →
                 </span>
@@ -508,7 +486,6 @@ export default function GrammarTopicPage({ params }: { params: { level: string; 
             </div>
           </div>
         )}
-
       </div>
     </main>
   )
