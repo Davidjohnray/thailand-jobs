@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-6',
           max_tokens: 500,
           messages: [{
             role: 'user',
@@ -133,7 +133,7 @@ Respond ONLY with this JSON, no other text:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1400,
         messages: [{ role: 'user', content: prompt }]
       })
