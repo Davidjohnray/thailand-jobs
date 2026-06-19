@@ -59,10 +59,10 @@ export default function TeachingJobsPage() {
   useEffect(() => {
     const fetchJobs = async () => {
       const now = new Date().toISOString()
-      const { data: featured } = await supabase.from('jobs').select('*').eq('featured', true)
+      const { data: featured } = await supabase.from('jobs').select('*').eq('country', 'Thailand').eq('featured', true)
         .not('category', 'in', `(${otherCategories.map(c => `"${c}"`).join(',')})`)
         .gt('expires_at', now).order('created_at', { ascending: false })
-      const { data: regular } = await supabase.from('jobs').select('*').eq('featured', false)
+      const { data: regular } = await supabase.from('jobs').select('*').eq('country', 'Thailand').eq('featured', false)
         .not('category', 'in', `(${otherCategories.map(c => `"${c}"`).join(',')})`)
         .gt('expires_at', now).order('created_at', { ascending: false })
       const all = [...(featured || []), ...(regular || [])]
