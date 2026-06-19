@@ -30,7 +30,8 @@ const EXPERIENCE_OPTIONS = [
   'Less than 1 year', '1–2 years', '3–5 years', '5–10 years', '10+ years'
 ]
 
-export default function SchoolSlugPage({ params }: { params: { slug: string } }) {
+export default function SchoolSlugPage({ params }: { params: Promise<{ slug: string }> }) {
+  const [slug, setSlug] = useState('')
   const [school, setSchool] = useState<School | null>(null)
   const [vacancies, setVacancies] = useState<Vacancy[]>([])
   const [loading, setLoading] = useState(true)
@@ -55,11 +56,16 @@ export default function SchoolSlugPage({ params }: { params: { slug: string } })
   })
 
   useEffect(() => {
+    params.then(p => setSlug(p.slug))
+  }, [])
+
+  useEffect(() => {
+    if (!slug) return
     const fetchSchool = async () => {
       const { data } = await supabase
         .from('schools')
         .select('*')
-        .eq('slug', params.slug)
+        .eq('slug', slug)
         .eq('active', true)
         .single()
 
@@ -75,7 +81,7 @@ export default function SchoolSlugPage({ params }: { params: { slug: string } })
       setLoading(false)
     }
     fetchSchool()
-  }, [params.slug])
+  }, [slug])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -214,7 +220,7 @@ export default function SchoolSlugPage({ params }: { params: { slug: string } })
           <div style={{
             background: 'white', borderRadius: '12px',
             borderLeft: `4px solid ${accentColor}`,
-            border: `1px solid #e8e8e8`,
+            border: '1px solid #e8e8e8',
             borderLeftWidth: '4px',
             borderLeftColor: accentColor,
             padding: '22px 24px'
