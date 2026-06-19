@@ -72,6 +72,16 @@ export default function Navbar() {
     fontSize: '14px',
   }
 
+  const jobsItems = [
+    { href: '/jobs', label: '📋 All Jobs' },
+    { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
+    { href: '/jobs/other', label: '💼 Other Jobs' },
+    { href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
+    { href: '/jobs/nnes', label: '🌏 NNES Teacher Jobs' },
+    { href: '/jobs-in-asia', label: '🌏 Jobs in Asia' },
+    { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
+  ]
+
   return (
     <>
       <nav style={{ background: '#E85D26', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '62px', position: 'sticky', top: 0, zIndex: 999, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
@@ -98,14 +108,7 @@ export default function Navbar() {
             </button>
             {jobsOpen && (
               <div style={dropdownStyle}>
-                {[
-                  { href: '/jobs', label: '📋 All Jobs' },
-                  { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
-                  { href: '/jobs/other', label: '💼 Other Jobs' },
-                  { href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
-                  { href: '/jobs/nnes', label: '🌏 NNES Teacher Jobs' },
-                  { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
-                ].map(item => (
+                {jobsItems.map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setJobsOpen(false)}
                     style={dropdownLinkStyle}
                     onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
@@ -256,14 +259,7 @@ export default function Navbar() {
           </button>
           {mobileJobsOpen && (
             <div style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {[
-                { href: '/jobs', label: '📋 All Jobs' },
-                { href: '/jobs/teaching', label: '🏫 Teaching Jobs' },
-                { href: '/jobs/other', label: '💼 Other Jobs' },
-                { href: '/jobs/filipino', label: '🇵🇭 Filipino Teacher Jobs' },
-                { href: '/jobs/nnes', label: '🌏 NNES Teacher Jobs' },
-                { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
-              ].map(item => (
+              {jobsItems.map(item => (
                 <Link key={item.href} href={item.href} onClick={closeMobile}
                   style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '14px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)' }}>
                   {item.label}
