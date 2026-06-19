@@ -39,6 +39,9 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [photoUploading, setPhotoUploading] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState('')
+  const [nationalityOther, setNationalityOther] = useState('')
 
   const [form, setForm] = useState({
     full_name: '',
@@ -87,9 +90,51 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Photo must be under 5MB.')
+      return
+    }
+
+    setPhotoUploading(true)
+    setError('')
+
+    const ext = file.name.split('.').pop()
+    const fileName = `school-registrations/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('teacher-images')
+      .upload(fileName, file, { upsert: false })
+
+    if (uploadError) {
+      setError('Photo upload failed. Please try again.')
+      setPhotoUploading(false)
+      return
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('teacher-images')
+      .getPublicUrl(fileName)
+
+    setForm(prev => ({ ...prev, photo_url: urlData.publicUrl }))
+    setPhotoPreview(urlData.publicUrl)
+    setPhotoUploading(false)
+  }
+
   const handleSubmit = async () => {
     setError('')
-    const required = ['full_name', 'email', 'nationality', 'whatsapp', 'available_from', 'subjects', 'qualifications', 'experience', 'photo_url', 'video_url', 'about']
+
+    const finalNationality = form.nationality === 'Other' ? nationalityOther.trim() : form.nationality
+
+    if (!finalNationality) {
+      setError('Please enter your nationality.')
+      return
+    }
+
+    const required = ['full_name', 'email', 'whatsapp', 'available_from', 'subjects', 'qualifications', 'experience', 'photo_url', 'video_url', 'about']
     for (const field of required) {
       if (!form[field as keyof typeof form].trim()) {
         setError('Please fill in all required fields before submitting.')
@@ -103,6 +148,7 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
       .insert({
         school_id: school!.id,
         ...form,
+        nationality: finalNationality,
       })
 
     if (insertError) {
@@ -261,7 +307,6 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
               { label: 'Available from', name: 'available_from', type: 'text', placeholder: 'e.g. May 2025' },
               { label: 'Subject(s) you can teach', name: 'subjects', type: 'text', placeholder: 'e.g. English, Science, Maths, Kindergarten' },
               { label: 'Qualifications', name: 'qualifications', type: 'text', placeholder: 'e.g. BA Education, TEFL 120hr, PGCE' },
-              { label: 'Profile photo link', name: 'photo_url', type: 'text', placeholder: 'Google Drive or Dropbox direct link to your photo' },
               { label: 'Introduction video link', name: 'video_url', type: 'text', placeholder: 'YouTube or Google Drive — 1 to 2 minute intro recommended' },
             ].map((field) => (
               <div key={field.name} style={{ marginBottom: '14px' }}>
@@ -297,6 +342,20 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
                 <option value="">Select...</option>
                 {NATIONALITIES.map(n => <option key={n} value={n}>{n}</option>)}
               </select>
+              {form.nationality === 'Other' && (
+                <input
+                  type="text"
+                  placeholder="Please type your nationality"
+                  value={nationalityOther}
+                  onChange={e => setNationalityOther(e.target.value)}
+                  style={{
+                    width: '100%', padding: '10px 12px',
+                    border: '1px solid #ddd', borderRadius: '8px',
+                    fontSize: '14px', color: '#1a1a1a', outline: 'none',
+                    marginTop: '8px'
+                  }}
+                />
+              )}
             </div>
 
             {/* Experience */}
@@ -313,6 +372,42 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
                 <option value="">Select...</option>
                 {EXPERIENCE_OPTIONS.map(e => <option key={e} value={e}>{e}</option>)}
               </select>
+            </div>
+
+            {/* Photo upload */}
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: '500' }}>
+                Profile photo <span style={{ color: '#c0392b' }}>*</span>
+              </label>
+              <div style={{
+                border: '2px dashed #ddd', borderRadius: '8px',
+                padding: '20px', textAlign: 'center', background: '#fafafa'
+              }}>
+                {photoPreview ? (
+                  <div>
+                    <img src={photoPreview} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px', border: '3px solid #e8e8e8' }} />
+                    <div style={{ fontSize: '12px', color: '#22c55e', fontWeight: 'bold', marginBottom: '8px' }}>✓ Photo uploaded</div>
+                    <label style={{ fontSize: '12px', color: '#888', cursor: 'pointer', textDecoration: 'underline' }}>
+                      Change photo
+                      <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+                    </label>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>📷</div>
+                    <div style={{ fontSize: '13px', color: '#555', marginBottom: '10px' }}>Upload a clear photo of yourself</div>
+                    <label style={{
+                      display: 'inline-block', background: accentColor, color: 'white',
+                      padding: '9px 20px', borderRadius: '8px', fontSize: '13px',
+                      fontWeight: 'bold', cursor: photoUploading ? 'not-allowed' : 'pointer'
+                    }}>
+                      {photoUploading ? 'Uploading...' : 'Choose photo'}
+                      <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} disabled={photoUploading} />
+                    </label>
+                    <div style={{ fontSize: '11px', color: '#aaa', marginTop: '8px' }}>JPG, PNG — max 5MB</div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* About */}
@@ -348,7 +443,7 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
 
             <button
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={submitting || photoUploading}
               style={{
                 background: submitting ? '#888' : accentColor,
                 color: 'white', border: 'none',
