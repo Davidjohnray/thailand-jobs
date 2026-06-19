@@ -54,8 +54,8 @@ export default function JobsPage() {
   useEffect(() => {
     const fetchJobs = async () => {
       const now = new Date().toISOString()
-      const { data: featured } = await supabase.from('jobs').select('*').eq('featured', true).gt('expires_at', now).order('created_at', { ascending: false })
-      const { data: regular } = await supabase.from('jobs').select('*').eq('featured', false).gt('expires_at', now).order('created_at', { ascending: false })
+      const { data: featured } = await supabase.from('jobs').select('*').eq('country', 'Thailand').eq('featured', true).gt('expires_at', now).order('created_at', { ascending: false })
+const { data: regular } = await supabase.from('jobs').select('*').eq('country', 'Thailand').eq('featured', false).gt('expires_at', now).order('created_at', { ascending: false })
       const all = [...(featured || []), ...(regular || [])]
       setJobs(all)
       setFiltered(all)
