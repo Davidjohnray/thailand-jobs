@@ -29,7 +29,8 @@ interface Registration {
   created_at: string
 }
 
-export default function SchoolDashboardPage({ params }: { params: { slug: string } }) {
+export default function SchoolDashboardPage({ params }: { params: Promise<{ slug: string }> }) {
+  const [slug, setSlug] = useState('')
   const [school, setSchool] = useState<School | null>(null)
   const [registrations, setRegistrations] = useState<Registration[]>([])
   const [filtered, setFiltered] = useState<Registration[]>([])
@@ -43,17 +44,22 @@ export default function SchoolDashboardPage({ params }: { params: { slug: string
   const [filterShortlisted, setFilterShortlisted] = useState(false)
 
   useEffect(() => {
+    params.then(p => setSlug(p.slug))
+  }, [])
+
+  useEffect(() => {
+    if (!slug) return
     const fetchSchool = async () => {
       const { data } = await supabase
         .from('schools')
         .select('id, name, slug, programme, dashboard_password')
-        .eq('slug', params.slug)
+        .eq('slug', slug)
         .single()
       if (data) setSchool(data)
       setLoading(false)
     }
     fetchSchool()
-  }, [params.slug])
+  }, [slug])
 
   const handleLogin = () => {
     if (!school) return
@@ -122,13 +128,13 @@ export default function SchoolDashboardPage({ params }: { params: { slug: string
           Enter dashboard
         </button>
         <div style={{ marginTop: '16px' }}>
-          <Link href={`/schools/${params.slug}`} style={{ fontSize: '13px', color: '#888', textDecoration: 'none' }}>← Back to school page</Link>
+          <Link href={`/schools/${slug}`} style={{ fontSize: '13px', color: '#888', textDecoration: 'none' }}>← Back to school page</Link>
         </div>
       </div>
     </main>
   )
 
-  // Teacher detail modal
+  // Teacher detail view
   if (selectedTeacher) return (
     <main style={{ minHeight: '100vh', background: '#f8f8f6', padding: '32px 16px' }}>
       <div style={{ maxWidth: '680px', margin: '0 auto' }}>
@@ -219,7 +225,6 @@ export default function SchoolDashboardPage({ params }: { params: { slug: string
     <main style={{ minHeight: '100vh', background: '#f8f8f6', padding: '32px 16px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
-        {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a1a' }}>Teacher pool</div>
@@ -243,7 +248,6 @@ export default function SchoolDashboardPage({ params }: { params: { slug: string
           </div>
         </div>
 
-        {/* Filters */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <input
             type="text"
@@ -273,7 +277,6 @@ export default function SchoolDashboardPage({ params }: { params: { slug: string
           </button>
         </div>
 
-        {/* Teacher cards */}
         {filtered.length === 0 ? (
           <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e8e8e8', padding: '40px', textAlign: 'center', color: '#888' }}>
             No teachers found matching your filters.
@@ -287,13 +290,12 @@ export default function SchoolDashboardPage({ params }: { params: { slug: string
                 padding: '16px 18px',
                 display: 'flex', gap: '14px', alignItems: 'flex-start'
               }}>
-                {/* Avatar */}
                 <div style={{
                   width: '48px', height: '48px', borderRadius: '50%', flexShrink: 0,
                   background: '#d4edda', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '16px', fontWeight: 'bold', color: '#1a5c3a'
                 }}>
-                  {teacher.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  {teacher.full_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                 </div>
 
                 <div style={{ flex: 1 }}>
