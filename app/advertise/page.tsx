@@ -282,6 +282,39 @@ export default function AdvertisePage() {
             </div>
           </div>
 
+          {/* HERO CENTRE LONG BANNER */}
+          <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px solid #7c3aed', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '-14px', left: '32px', background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', padding: '4px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>🔥 HIGH VISIBILITY</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '32px' }}>📺</span>
+                  <div>
+                    <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Hero Centre Long Banner</h3>
+                    <p style={{ color: '#666', fontSize: '14px', margin: '4px 0 0' }}>Wide banner displayed in the centre of the homepage hero section</p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {['Centre homepage placement', 'Seen by every visitor', 'Full-width visibility', 'Link to your website', 'Your branding & message'].map(f => (
+                    <span key={f} style={{ background: '#f5f3ff', color: '#7c3aed', fontSize: '13px', padding: '4px 12px', borderRadius: '20px' }}>✓ {f}</span>
+                  ))}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ background: '#f5f3ff', borderRadius: '12px', padding: '20px 24px' }}>
+                  <div style={{ color: '#7c3aed', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>PRICING</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {[['1 Month', '฿850'], ['3 Months', '฿2,300'], ['6 Months', '฿4,500']].map(([period, price]) => (
+                      <div key={period} style={{ display: 'flex', justifyContent: 'space-between', gap: '24px', fontSize: '15px', color: '#333' }}>
+                        <span>{period}</span><span style={{ fontWeight: 'bold', color: '#7c3aed' }}>{price}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* EXPAT SERVICES */}
           <div id="expat-services" style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px solid #0ea5e9', position: 'relative', scrollMarginTop: '80px' }}>
             <div style={{ position: 'absolute', top: '-14px', left: '32px', background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: 'white', padding: '4px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>🏙️ NEW</div>
@@ -401,18 +434,23 @@ export default function AdvertisePage() {
             {[
               { name: 'Sidebar Banner', prices: ['฿500', '฿1,400', '฿2,700'] },
               { name: 'Hero Side Banner', prices: ['฿750', '฿2,100', '฿4,000'], highlight: true },
+              { name: 'Hero Centre Long Banner', prices: ['฿850', '฿2,300', '฿4,500'], purple: true },
               { name: 'Expat Services Standard', prices: ['—', '—', '฿500'], teal: true },
               { name: 'Expat Services Featured', prices: ['—', '—', '฿1,000'], gold: true },
               { name: 'Training Page', prices: ['฿300', '฿300/mo', '฿300/mo'], note: 'standalone' },
               { name: 'Featured Job', prices: ['฿300', '—', '—'], note: '14 days' },
             ].map((row, i) => (
-              <div key={row.name} style={{ padding: '14px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', background: row.highlight ? '#fff3ed' : row.teal ? '#e0f2fe' : row.gold ? '#fffbeb' : i % 2 === 0 ? 'white' : '#f9f9f9', borderTop: '1px solid #eee' }}>
+              <div key={row.name} style={{
+                padding: '14px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px',
+                background: row.highlight ? '#fff3ed' : row.purple ? '#f5f3ff' : row.teal ? '#e0f2fe' : row.gold ? '#fffbeb' : i % 2 === 0 ? 'white' : '#f9f9f9',
+                borderTop: '1px solid #eee'
+              }}>
                 <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e' }}>
                   {row.name}
                   {row.note && <span style={{ color: '#9ca3af', fontSize: '11px', fontWeight: '400', marginLeft: '4px' }}>({row.note})</span>}
                 </div>
                 {row.prices.map((p, pi) => (
-                  <div key={pi} style={{ fontWeight: '700', fontSize: '15px', color: row.highlight ? '#E85D26' : row.teal ? '#0369a1' : row.gold ? '#c9a84c' : '#374151' }}>{p}</div>
+                  <div key={pi} style={{ fontWeight: '700', fontSize: '15px', color: row.highlight ? '#E85D26' : row.purple ? '#7c3aed' : row.teal ? '#0369a1' : row.gold ? '#c9a84c' : '#374151' }}>{p}</div>
                 ))}
               </div>
             ))}
