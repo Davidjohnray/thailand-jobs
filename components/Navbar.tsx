@@ -80,6 +80,7 @@ export default function Navbar() {
     { href: '/jobs/nnes', label: '🌏 NNES Teacher Jobs' },
     { href: '/jobs-in-asia', label: '🌏 Jobs in Asia' },
     { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
+    { href: '/schools', label: '🏫 School Partner Pages' },
   ]
 
   return (
