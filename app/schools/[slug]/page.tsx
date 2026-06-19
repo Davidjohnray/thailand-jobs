@@ -14,11 +14,11 @@ interface School {
 }
 
 interface Vacancy {
-  id: string
+  id: number
   title: string
-  start_date: string
+  location: string
   job_type: string
-  urgency: string
+  created_at: string
 }
 
 const NATIONALITIES = [
@@ -72,11 +72,11 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
       if (data) {
         setSchool(data)
         const { data: vacData } = await supabase
-          .from('school_vacancies')
-          .select('*')
+          .from('jobs')
+          .select('id, title, location, job_type, created_at')
           .eq('school_id', data.id)
           .order('created_at', { ascending: false })
-        setVacancies(vacData || [])
+        setVacancies((vacData as Vacancy[]) || [])
       }
       setLoading(false)
     }
@@ -150,15 +150,15 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
             <img
               src={school.banner_url}
               alt={school.name}
-              style={{ width: '100%', height: '190px', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}
+              style={{ width: '100%', height: '220px', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}
             />
           ) : (
-            <div style={{ height: '190px', background: accentColor }} />
+            <div style={{ height: '220px', background: accentColor }} />
           )}
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0,
-            background: 'linear-gradient(transparent, rgba(0,0,0,0.72))',
-            padding: '28px 24px 20px'
+            background: 'rgba(0,0,0,0.52)',
+            padding: '16px 24px'
           }}>
             <div style={{ fontSize: '11px', color: '#a8d5bc', letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: '4px' }}>
               Official teacher recruitment page
@@ -197,19 +197,21 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
                 padding: '11px 0', borderBottom: '1px solid #f0f0f0'
               }}>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a1a1a' }}>{v.title}</div>
+                  <Link href={`/jobs/${v.id}`} style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a1a1a', textDecoration: 'none' }}>
+                    {v.title}
+                  </Link>
                   <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>
-                    {v.start_date && `Start ${v.start_date}`}{v.job_type && ` · ${v.job_type}`}
+                    {v.location && `${v.location}`}{v.job_type && ` · ${v.job_type}`}
                   </div>
                 </div>
-                {v.urgency && (
-                  <span style={{
-                    background: v.urgency === 'Urgent' ? '#FDE8E0' : '#E6F1FB',
-                    color: v.urgency === 'Urgent' ? '#993C1D' : '#185FA5',
-                    fontSize: '11px', fontWeight: 'bold',
-                    padding: '3px 10px', borderRadius: '20px'
-                  }}>{v.urgency}</span>
-                )}
+                <Link href={`/jobs/${v.id}`} style={{
+                  background: '#1a5c3a', color: 'white',
+                  fontSize: '11px', fontWeight: 'bold',
+                  padding: '5px 12px', borderRadius: '6px',
+                  textDecoration: 'none', whiteSpace: 'nowrap'
+                }}>
+                  View job →
+                </Link>
               </div>
             ))}
           </div>
@@ -219,10 +221,8 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
         {!showForm && !submitted && (
           <div style={{
             background: 'white', borderRadius: '12px',
-            borderLeft: `4px solid ${accentColor}`,
             border: '1px solid #e8e8e8',
-            borderLeftWidth: '4px',
-            borderLeftColor: accentColor,
+            borderLeft: `4px solid ${accentColor}`,
             padding: '22px 24px'
           }}>
             <div style={{ fontSize: '17px', fontWeight: 'bold', color: '#1a1a1a', marginBottom: '8px' }}>
