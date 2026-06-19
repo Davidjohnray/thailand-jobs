@@ -11,6 +11,7 @@ export default async function Home() {
   const { data: featuredJobs } = await supabase
     .from('jobs')
     .select('*')
+    .eq('country', 'Thailand')
     .eq('featured', true)
     .gt('expires_at', now)
     .order('created_at', { ascending: false })
