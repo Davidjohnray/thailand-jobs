@@ -25,6 +25,25 @@ const thaiProvinces = [
   'Phichit', 'Phetchabun', 'Remote', 'Online', 'Other'
 ]
 
+const asianCountries = [
+  { value: 'Thailand', flag: '🇹🇭' },
+  { value: 'Vietnam', flag: '🇻🇳' },
+  { value: 'Japan', flag: '🇯🇵' },
+  { value: 'South Korea', flag: '🇰🇷' },
+  { value: 'China', flag: '🇨🇳' },
+  { value: 'Cambodia', flag: '🇰🇭' },
+  { value: 'Myanmar', flag: '🇲🇲' },
+]
+
+const countryCityPlaceholders: Record<string, string> = {
+  Vietnam: 'e.g. Ho Chi Minh City, Hanoi, Da Nang',
+  Japan: 'e.g. Tokyo, Osaka, Kyoto',
+  'South Korea': 'e.g. Seoul, Busan, Incheon',
+  China: 'e.g. Shanghai, Beijing, Shenzhen',
+  Cambodia: 'e.g. Phnom Penh, Siem Reap',
+  Myanmar: 'e.g. Yangon, Mandalay',
+}
+
 const teachingCategories = [
   'Nursery / Pre-Kindergarten', 'Kindergarten (Anuban)',
   'Primary / Prathom (Grades 1–6)', 'Secondary / Matthayom (Grades 7–9)',
@@ -54,11 +73,17 @@ function PostJobPage() {
     description: '', requirements: '', benefits: '', email: '',
     visa_sponsor: false,
     duration: 7,
+    country: 'Thailand',
   })
 
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+    // Reset location when country changes
+    if (name === 'country') {
+      setForm(prev => ({ ...prev, country: value, location: '' }))
+    } else {
+      setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+    }
     setErrors(prev => ({ ...prev, [name]: '' }))
   }
 
@@ -66,11 +91,10 @@ function PostJobPage() {
     const newErrors: Record<string, string> = {}
     if (!form.title.trim()) newErrors.title = 'Job title is required'
     if (!form.company.trim()) newErrors.company = `${isTeaching ? 'School / Company' : 'Company'} name is required`
-    if (!form.location) newErrors.location = 'Please select a location'
+    if (!form.location.trim()) newErrors.location = 'Please select or enter a location'
     if (!form.description.trim()) newErrors.description = 'Job description is required'
     if (!form.requirements.trim()) newErrors.requirements = 'Requirements are required'
     if (!form.benefits.trim()) newErrors.benefits = 'Benefits are required'
-    
     if (!captchaToken) newErrors.captcha = 'Please complete the CAPTCHA'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -96,7 +120,7 @@ function PostJobPage() {
       await fetch('/api/notify-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: form.title, location: form.location }),
+        body: JSON.stringify({ title: form.title, location: form.location, country: form.country }),
       })
       setSuccess(true)
     }
@@ -119,7 +143,14 @@ function PostJobPage() {
     <main style={{ textAlign: 'center', padding: '80px 24px' }}>
       <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎉</div>
       <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '16px', color: '#1a1a2e' }}>Job Posted!</h1>
-      <p style={{ color: '#666', marginBottom: '32px' }}>Your job is now live on Thailand Jobs for {form.duration} days</p>
+      <p style={{ color: '#666', marginBottom: '8px' }}>Your job is now live for {form.duration} days</p>
+      <p style={{ color: '#666', marginBottom: '32px' }}>
+        It will appear on{' '}
+        {form.country === 'Thailand'
+          ? <a href="/jobs" style={{ color: '#E85D26' }}>Thailand Jobs</a>
+          : <a href={`/jobs-in-asia/${form.country.toLowerCase().replace(' ', '-')}`} style={{ color: '#E85D26' }}>{form.country} Jobs</a>
+        }
+      </p>
       <a href="/jobs" style={{ background: '#E85D26', color: 'white', padding: '14px 40px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>View All Jobs</a>
     </main>
   )
@@ -138,15 +169,44 @@ function PostJobPage() {
         <p style={{ color: '#666', marginBottom: '40px' }}>Your listing will appear on the jobs page for your chosen duration</p>
 
         {Object.values(errors).some(e => e !== '') && (
-  <div style={{ background: '#ffeaea', border: '2px solid red', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
-    <div style={{ fontWeight: 'bold', color: 'red', marginBottom: '8px' }}>⚠️ Please fix the following:</div>
-    {Object.values(errors).filter(e => e !== '').map((err, i) => (
-      <div key={i} style={{ color: 'red', fontSize: '13px', marginBottom: '4px' }}>• {err}</div>
-    ))}
-  </div>
-)}
+          <div style={{ background: '#ffeaea', border: '2px solid red', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
+            <div style={{ fontWeight: 'bold', color: 'red', marginBottom: '8px' }}>⚠️ Please fix the following:</div>
+            {Object.values(errors).filter(e => e !== '').map((err, i) => (
+              <div key={i} style={{ color: 'red', fontSize: '13px', marginBottom: '4px' }}>• {err}</div>
+            ))}
+          </div>
+        )}
 
         <div style={{ background: 'white', borderRadius: '12px', padding: '40px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+
+          {/* COUNTRY SELECTOR */}
+          <div style={{ marginBottom: '28px' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '12px', color: '#333' }}>
+              🌏 Which country is this job in? *
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              {asianCountries.map(c => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => handleChange({ target: { name: 'country', value: c.value, type: 'select' } })}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '8px',
+                    border: '2px solid',
+                    borderColor: form.country === c.value ? '#E85D26' : '#ddd',
+                    background: form.country === c.value ? '#fff3ed' : 'white',
+                    color: form.country === c.value ? '#E85D26' : '#555',
+                    fontWeight: form.country === c.value ? 'bold' : 'normal',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                  }}
+                >
+                  {c.flag} {c.value}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Job Title *</label>
@@ -179,11 +239,23 @@ function PostJobPage() {
 
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Province / Location *</label>
-              <select name="location" value={form.location} onChange={handleChange} style={selectStyle('location')}>
-                <option value="">Select province</option>
-                {thaiProvinces.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
+                {form.country === 'Thailand' ? 'Province / Location *' : 'City / Location *'}
+              </label>
+              {form.country === 'Thailand' ? (
+                <select name="location" value={form.location} onChange={handleChange} style={selectStyle('location')}>
+                  <option value="">Select province</option>
+                  {thaiProvinces.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              ) : (
+                <input
+                  name="location"
+                  value={form.location}
+                  onChange={handleChange}
+                  placeholder={countryCityPlaceholders[form.country] || 'Enter city / location'}
+                  style={inputStyle('location')}
+                />
+              )}
               {errors.location && <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{errors.location}</p>}
             </div>
             <div style={{ flex: 1 }}>
@@ -196,7 +268,8 @@ function PostJobPage() {
 
           <div style={{ marginBottom: '24px' }}>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>Salary</label>
-            <input name="salary" value={form.salary} onChange={handleChange} placeholder="e.g. 40,000 - 60,000 THB"
+            <input name="salary" value={form.salary} onChange={handleChange}
+              placeholder={form.country === 'Thailand' ? 'e.g. 40,000 - 60,000 THB' : 'e.g. $1,500 - $2,000 USD/month'}
               style={inputStyle('salary')} />
           </div>
 
