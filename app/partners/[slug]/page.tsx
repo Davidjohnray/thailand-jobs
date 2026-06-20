@@ -18,6 +18,7 @@ type Partner = {
   email: string
   phone: string
   line_id: string
+  facebook: string
   active: boolean
 }
 
@@ -291,6 +292,12 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
                 <a href={partner.website} target="_blank" rel="noopener noreferrer"
                   style={{ background: '#E85D26', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
                   🌐 Visit Website
+                </a>
+              )}
+              {partner.facebook && (
+                <a href={partner.facebook} target="_blank" rel="noopener noreferrer"
+                  style={{ background: '#1877F2', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>
+                  📘 Follow on Facebook
                 </a>
               )}
               {partner.phone && (
