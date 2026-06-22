@@ -37,26 +37,43 @@ export default async function GrammarLevelPage({ params }: { params: Promise<{ l
     .eq('is_published', true)
     .order('order_index')
 
+  // Try all possible Supabase cookie name formats
   const cookieStore = await cookies()
-  const accessToken = cookieStore.get('sb-access-token')?.value
+  const allCookies = cookieStore.getAll()
+  
+  // Find any cookie that looks like a Supabase auth token
+  const authCookie = allCookies.find(c => 
+    c.name.includes('auth-token') || 
+    c.name === 'sb-access-token' ||
+    c.name.includes('supabase-auth')
+  )
 
   const progressMap: Record<string, Progress> = {}
   let isLoggedIn = false
 
-  if (accessToken && topics && topics.length > 0) {
-    const { data: { user } } = await supabase.auth.getUser(accessToken)
-    if (user) {
-      isLoggedIn = true
-      const topicIds = (topics as Topic[]).map((t) => t.id)
-      const { data: progress } = await supabase
-        .from('grammar_progress')
-        .select('topic_id, learn_completed, practice_score')
-        .eq('user_id', user.id)
-        .in('topic_id', topicIds)
-      if (progress) {
-        ;(progress as Progress[]).forEach((p) => { progressMap[p.topic_id] = p })
+  if (authCookie && topics && topics.length > 0) {
+    try {
+      // Try to parse the cookie value — newer Supabase stores a JSON object
+      let accessToken = authCookie.value
+      try {
+        const parsed = JSON.parse(authCookie.value)
+        if (parsed.access_token) accessToken = parsed.access_token
+      } catch { /* not JSON, use raw value */ }
+
+      const { data: { user } } = await supabase.auth.getUser(accessToken)
+      if (user) {
+        isLoggedIn = true
+        const topicIds = (topics as Topic[]).map((t) => t.id)
+        const { data: progress } = await supabase
+          .from('grammar_progress')
+          .select('topic_id, learn_completed, practice_score')
+          .eq('user_id', user.id)
+          .in('topic_id', topicIds)
+        if (progress) {
+          ;(progress as Progress[]).forEach((p) => { progressMap[p.topic_id] = p })
+        }
       }
-    }
+    } catch { /* auth failed silently */ }
   }
 
   const typedTopics = (topics ?? []) as Topic[]
@@ -81,12 +98,12 @@ export default async function GrammarLevelPage({ params }: { params: Promise<{ l
         <p style={{ fontSize: '13px', opacity: 0.7, margin: 0 }}>{totalTopics} grammar topics</p>
       </div>
 
-      {/* PROGRESS BAR STRIP */}
-      <div style={{ background: '#1a1a2e', padding: '20px 24px' }}>
+      {/* DARK NAV STRIP with progress */}
+      <div style={{ background: '#1a1a2e', padding: '16px 24px 20px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
           {/* LEVEL NAV */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: isLoggedIn ? '20px' : '0' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
             {Object.entries(LEVEL_META).map(([code, m]) => (
               <Link key={code} href={`/esl-resources/grammar/${code}`} style={{ textDecoration: 'none' }}>
                 <span style={{
@@ -101,39 +118,24 @@ export default async function GrammarLevelPage({ params }: { params: Promise<{ l
             ))}
           </div>
 
-          {/* PROGRESS — only if logged in */}
-          {isLoggedIn && (
+          {/* PROGRESS BAR — logged in */}
+          {isLoggedIn && totalTopics > 0 && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.9)', fontWeight: 'bold' }}>
-                    Your progress
-                  </span>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
-                    {learnDoneCount} / {totalTopics} learned
-                  </span>
-                  {practisedCount > 0 && (
-                    <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
-                      · {practisedCount} practised
-                    </span>
-                  )}
+                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.9)', fontWeight: 'bold' }}>Your progress</span>
+                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>{learnDoneCount} / {totalTopics} learned</span>
+                  {practisedCount > 0 && <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>· {practisedCount} practised</span>}
                 </div>
-                <span style={{
-                  fontSize: '13px', fontWeight: 'bold',
-                  color: pct === 100 ? '#4ade80' : 'rgba(255,255,255,0.9)'
-                }}>
+                <span style={{ fontSize: '13px', fontWeight: 'bold', color: pct === 100 ? '#4ade80' : 'rgba(255,255,255,0.9)' }}>
                   {pct === 100 ? '✓ Complete!' : `${pct}%`}
                 </span>
               </div>
-              {/* BAR */}
               <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '6px', height: '8px', overflow: 'hidden' }}>
                 <div style={{
                   background: pct === 100 ? '#4ade80' : meta.color,
-                  height: '8px',
-                  borderRadius: '6px',
-                  width: `${pct}%`,
-                  transition: 'width 0.4s ease',
-                  boxShadow: `0 0 8px ${meta.color}80`,
+                  height: '8px', borderRadius: '6px',
+                  width: `${pct}%`, transition: 'width 0.4s ease',
                 }} />
               </div>
             </div>
@@ -141,9 +143,9 @@ export default async function GrammarLevelPage({ params }: { params: Promise<{ l
 
           {/* NOT LOGGED IN nudge */}
           {!isLoggedIn && totalTopics > 0 && (
-            <div style={{ marginTop: '16px', textAlign: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
               <Link href="/account/login" style={{
-                color: 'rgba(255,255,255,0.6)', fontSize: '13px', textDecoration: 'none',
+                color: 'rgba(255,255,255,0.55)', fontSize: '13px', textDecoration: 'none',
                 borderBottom: '1px dashed rgba(255,255,255,0.3)', paddingBottom: '1px'
               }}>
                 Sign in to track your progress →
@@ -176,7 +178,7 @@ export default async function GrammarLevelPage({ params }: { params: Promise<{ l
                     <div style={{
                       background: 'white', borderRadius: '16px', padding: '20px 22px',
                       boxShadow: '0 2px 12px rgba(0,0,0,0.06)', cursor: 'pointer',
-                      border: isFullyDone ? `1.5px solid ${meta.color}40` : '1px solid #eee',
+                      border: isFullyDone ? `1.5px solid ${meta.color}50` : '1px solid #eee',
                       display: 'flex', flexDirection: 'column', gap: '10px',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
@@ -199,11 +201,9 @@ export default async function GrammarLevelPage({ params }: { params: Promise<{ l
                           )}
                         </div>
                       </div>
-
                       {topic.short_desc && (
                         <p style={{ fontSize: '13px', color: '#666', margin: 0, lineHeight: '1.5' }}>{topic.short_desc}</p>
                       )}
-
                       <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                         <span style={{ fontSize: '11px', background: '#eff6ff', color: '#2D6BE4', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>📖 Learn</span>
                         <span style={{ fontSize: '11px', background: '#f0fdf4', color: '#059669', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>✍️ Practise</span>
@@ -215,7 +215,6 @@ export default async function GrammarLevelPage({ params }: { params: Promise<{ l
               })}
             </div>
 
-            {/* PREV / NEXT LEVEL */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '48px', gap: '16px', flexWrap: 'wrap' }}>
               {meta.prev ? (
                 <Link href={`/esl-resources/grammar/${meta.prev}`} style={{ textDecoration: 'none' }}>
