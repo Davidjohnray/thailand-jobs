@@ -11,6 +11,13 @@ interface School {
   location: string
   banner_url: string
   website_url: string
+  description: string
+  founded: string
+  students: string
+  school_type: string
+  address: string
+  facebook_url: string
+  line_id: string
 }
 
 interface Vacancy {
@@ -93,32 +100,25 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     if (file.size > 5 * 1024 * 1024) {
       setError('Photo must be under 5MB.')
       return
     }
-
     setPhotoUploading(true)
     setError('')
-
     const ext = file.name.split('.').pop()
     const fileName = `school-registrations/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-
     const { error: uploadError } = await supabase.storage
       .from('teacher-images')
       .upload(fileName, file, { upsert: false })
-
     if (uploadError) {
       setError('Photo upload failed. Please try again.')
       setPhotoUploading(false)
       return
     }
-
     const { data: urlData } = supabase.storage
       .from('teacher-images')
       .getPublicUrl(fileName)
-
     setForm(prev => ({ ...prev, photo_url: urlData.publicUrl }))
     setPhotoPreview(urlData.publicUrl)
     setPhotoUploading(false)
@@ -126,14 +126,11 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
 
   const handleSubmit = async () => {
     setError('')
-
     const finalNationality = form.nationality === 'Other' ? nationalityOther.trim() : form.nationality
-
     if (!finalNationality) {
       setError('Please enter your nationality.')
       return
     }
-
     const required = ['full_name', 'email', 'whatsapp', 'available_from', 'subjects', 'qualifications', 'experience', 'photo_url', 'video_url', 'about']
     for (const field of required) {
       if (!form[field as keyof typeof form].trim()) {
@@ -141,7 +138,6 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
         return
       }
     }
-
     setSubmitting(true)
     const { error: insertError } = await supabase
       .from('school_registrations')
@@ -150,7 +146,6 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
         ...form,
         nationality: finalNationality,
       })
-
     if (insertError) {
       if (insertError.code === '23505') {
         setError('You have already registered your interest with this school. We will be in touch!')
@@ -160,7 +155,6 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
       setSubmitting(false)
       return
     }
-
     setSubmitted(true)
     setSubmitting(false)
   }
@@ -188,23 +182,16 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
         </Link>
 
         {/* Hero banner */}
-        <div style={{
-          borderRadius: '14px', overflow: 'hidden',
-          position: 'relative', marginBottom: '24px', minHeight: '180px'
-        }}>
+        <div style={{ borderRadius: '14px', overflow: 'hidden', position: 'relative', marginBottom: '24px' }}>
           {school.banner_url ? (
-            <img
-              src={school.banner_url}
-              alt={school.name}
-              style={{ width: '100%', height: '220px', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }}
-            />
+            <img src={school.banner_url} alt={school.name}
+              style={{ width: '100%', height: '220px', objectFit: 'cover', objectPosition: 'center 20%', display: 'block' }} />
           ) : (
             <div style={{ height: '220px', background: accentColor }} />
           )}
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0,
-            background: 'rgba(0,0,0,0.52)',
-            padding: '16px 24px'
+            background: 'rgba(0,0,0,0.55)', padding: '16px 24px'
           }}>
             <div style={{ fontSize: '11px', color: '#a8d5bc', letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: '4px' }}>
               Official teacher recruitment page
@@ -216,20 +203,96 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
               <div style={{ fontSize: '14px', color: '#c8e6d5', marginTop: '3px' }}>{school.programme}</div>
             )}
             <div style={{ marginTop: '10px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{
-                background: '#22c55e', color: 'white',
-                fontSize: '11px', fontWeight: 'bold',
-                padding: '3px 10px', borderRadius: '20px'
-              }}>Actively hiring</span>
+              <span style={{ background: '#22c55e', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '20px' }}>
+                Actively hiring
+              </span>
               {school.website_url && (
                 <a href={school.website_url} target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: '12px', color: '#a8d5bc', textDecoration: 'none' }}>
                   🔗 School website
                 </a>
               )}
+              {school.facebook_url && (
+                <a href={school.facebook_url} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: '12px', color: '#a8d5bc', textDecoration: 'none' }}>
+                  📘 Facebook
+                </a>
+              )}
             </div>
           </div>
         </div>
+
+        {/* About the school */}
+        {(school.description || school.founded || school.students || school.address) && (
+          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e8e8e8', padding: '22px 24px', marginBottom: '20px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', letterSpacing: '.6px', marginBottom: '16px' }}>
+              About the school
+            </div>
+
+            {/* Stats row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', marginBottom: '18px' }}>
+              {school.school_type && (
+                <div style={{ background: '#f0f7f4', borderRadius: '8px', padding: '12px 14px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '18px', marginBottom: '4px' }}>🏫</div>
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#1a5c3a' }}>{school.school_type}</div>
+                </div>
+              )}
+              {school.founded && (
+                <div style={{ background: '#f0f7f4', borderRadius: '8px', padding: '12px 14px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '18px', marginBottom: '4px' }}>📅</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a5c3a' }}>{school.founded}</div>
+                  <div style={{ fontSize: '11px', color: '#888' }}>Founded</div>
+                </div>
+              )}
+              {school.students && (
+                <div style={{ background: '#f0f7f4', borderRadius: '8px', padding: '12px 14px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '18px', marginBottom: '4px' }}>👨‍🎓</div>
+                  <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a5c3a' }}>{school.students}</div>
+                  <div style={{ fontSize: '11px', color: '#888' }}>Students</div>
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
+            {school.description && (
+              <p style={{ fontSize: '14px', color: '#444', lineHeight: '1.8', marginBottom: '16px' }}>
+                {school.description}
+              </p>
+            )}
+
+            {/* Address & contact */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {school.address && (
+                <div style={{ fontSize: '13px', color: '#666', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                  <span>📍</span>
+                  <span>{school.address}</span>
+                </div>
+              )}
+              {school.line_id && (
+                <div style={{ fontSize: '13px', color: '#666', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <span>💬</span>
+                  <span>LINE: {school.line_id}</span>
+                </div>
+              )}
+              {school.website_url && (
+                <div style={{ fontSize: '13px', color: '#666', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <span>🌐</span>
+                  <a href={school.website_url} target="_blank" rel="noopener noreferrer" style={{ color: accentColor, textDecoration: 'none', fontWeight: '500' }}>
+                    {school.website_url.replace('https://', '')}
+                  </a>
+                </div>
+              )}
+              {school.facebook_url && (
+                <div style={{ fontSize: '13px', color: '#666', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <span>📘</span>
+                  <a href={school.facebook_url} target="_blank" rel="noopener noreferrer" style={{ color: accentColor, textDecoration: 'none', fontWeight: '500' }}>
+                    Facebook page
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Vacancies */}
         {vacancies.length > 0 && (
@@ -238,10 +301,7 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
               Current vacancies
             </div>
             {vacancies.map((v) => (
-              <div key={v.id} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '11px 0', borderBottom: '1px solid #f0f0f0'
-              }}>
+              <div key={v.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 0', borderBottom: '1px solid #f0f0f0' }}>
                 <div>
                   <Link href={`/jobs/${v.id}`} style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a1a1a', textDecoration: 'none' }}>
                     {v.title}
@@ -250,12 +310,7 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
                     {v.location && `${v.location}`}{v.job_type && ` · ${v.job_type}`}
                   </div>
                 </div>
-                <Link href={`/jobs/${v.id}`} style={{
-                  background: '#1a5c3a', color: 'white',
-                  fontSize: '11px', fontWeight: 'bold',
-                  padding: '5px 12px', borderRadius: '6px',
-                  textDecoration: 'none', whiteSpace: 'nowrap'
-                }}>
+                <Link href={`/jobs/${v.id}`} style={{ background: '#1a5c3a', color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '5px 12px', borderRadius: '6px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                   View job →
                 </Link>
               </div>
@@ -263,29 +318,16 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
           </div>
         )}
 
-        {/* CTA or Form */}
+        {/* CTA */}
         {!showForm && !submitted && (
-          <div style={{
-            background: 'white', borderRadius: '12px',
-            border: '1px solid #e8e8e8',
-            borderLeft: `4px solid ${accentColor}`,
-            padding: '22px 24px'
-          }}>
+          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e8e8e8', borderLeft: `4px solid ${accentColor}`, padding: '22px 24px' }}>
             <div style={{ fontSize: '17px', fontWeight: 'bold', color: '#1a1a1a', marginBottom: '8px' }}>
               Interested in working here?
             </div>
             <p style={{ fontSize: '14px', color: '#555', lineHeight: '1.7', marginBottom: '18px' }}>
               Even if none of the above roles match right now, register your profile below. The team reviews all submissions and will reach out directly when a suitable vacancy opens up.
             </p>
-            <button
-              onClick={() => setShowForm(true)}
-              style={{
-                background: accentColor, color: 'white',
-                border: 'none', padding: '13px 24px',
-                borderRadius: '8px', fontSize: '14px',
-                fontWeight: 'bold', cursor: 'pointer', width: '100%'
-              }}
-            >
+            <button onClick={() => setShowForm(true)} style={{ background: accentColor, color: 'white', border: 'none', padding: '13px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
               Register my interest →
             </button>
           </div>
@@ -319,11 +361,7 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
                   value={form[field.name as keyof typeof form]}
                   onChange={handleChange}
                   placeholder={field.placeholder}
-                  style={{
-                    width: '100%', padding: '10px 12px',
-                    border: '1px solid #ddd', borderRadius: '8px',
-                    fontSize: '14px', color: '#1a1a1a', outline: 'none'
-                  }}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', color: '#1a1a1a', outline: 'none' }}
                 />
               </div>
             ))}
@@ -333,27 +371,15 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
               <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: '500' }}>
                 Nationality <span style={{ color: '#c0392b' }}>*</span>
               </label>
-              <select
-                name="nationality"
-                value={form.nationality}
-                onChange={handleChange}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', color: '#1a1a1a' }}
-              >
+              <select name="nationality" value={form.nationality} onChange={handleChange}
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', color: '#1a1a1a' }}>
                 <option value="">Select...</option>
                 {NATIONALITIES.map(n => <option key={n} value={n}>{n}</option>)}
               </select>
               {form.nationality === 'Other' && (
-                <input
-                  type="text"
-                  placeholder="Please type your nationality"
-                  value={nationalityOther}
+                <input type="text" placeholder="Please type your nationality" value={nationalityOther}
                   onChange={e => setNationalityOther(e.target.value)}
-                  style={{
-                    width: '100%', padding: '10px 12px',
-                    border: '1px solid #ddd', borderRadius: '8px',
-                    fontSize: '14px', color: '#1a1a1a', outline: 'none',
-                    marginTop: '8px'
-                  }}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', color: '#1a1a1a', outline: 'none', marginTop: '8px' }}
                 />
               )}
             </div>
@@ -363,12 +389,8 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
               <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: '500' }}>
                 Years of teaching experience <span style={{ color: '#c0392b' }}>*</span>
               </label>
-              <select
-                name="experience"
-                value={form.experience}
-                onChange={handleChange}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', color: '#1a1a1a' }}
-              >
+              <select name="experience" value={form.experience} onChange={handleChange}
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', color: '#1a1a1a' }}>
                 <option value="">Select...</option>
                 {EXPERIENCE_OPTIONS.map(e => <option key={e} value={e}>{e}</option>)}
               </select>
@@ -379,10 +401,7 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
               <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: '500' }}>
                 Profile photo <span style={{ color: '#c0392b' }}>*</span>
               </label>
-              <div style={{
-                border: '2px dashed #ddd', borderRadius: '8px',
-                padding: '20px', textAlign: 'center', background: '#fafafa'
-              }}>
+              <div style={{ border: '2px dashed #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center', background: '#fafafa' }}>
                 {photoPreview ? (
                   <div>
                     <img src={photoPreview} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px', border: '3px solid #e8e8e8' }} />
@@ -396,11 +415,7 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
                   <div>
                     <div style={{ fontSize: '32px', marginBottom: '8px' }}>📷</div>
                     <div style={{ fontSize: '13px', color: '#555', marginBottom: '10px' }}>Upload a clear photo of yourself</div>
-                    <label style={{
-                      display: 'inline-block', background: accentColor, color: 'white',
-                      padding: '9px 20px', borderRadius: '8px', fontSize: '13px',
-                      fontWeight: 'bold', cursor: photoUploading ? 'not-allowed' : 'pointer'
-                    }}>
+                    <label style={{ display: 'inline-block', background: accentColor, color: 'white', padding: '9px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: photoUploading ? 'not-allowed' : 'pointer' }}>
                       {photoUploading ? 'Uploading...' : 'Choose photo'}
                       <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} disabled={photoUploading} />
                     </label>
@@ -415,22 +430,13 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
               <label style={{ display: 'block', fontSize: '13px', color: '#555', marginBottom: '5px', fontWeight: '500' }}>
                 About you <span style={{ color: '#c0392b' }}>*</span>
               </label>
-              <textarea
-                name="about"
-                value={form.about}
-                onChange={handleChange}
-                rows={4}
+              <textarea name="about" value={form.about} onChange={handleChange} rows={4}
                 placeholder={`Tell ${school.name} about yourself, your teaching style, and why you'd like to join...`}
                 style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', color: '#1a1a1a', resize: 'vertical' }}
               />
             </div>
 
-            {/* Privacy note */}
-            <div style={{
-              background: '#f0f7f4', borderRadius: '8px',
-              padding: '12px 14px', marginBottom: '16px',
-              fontSize: '12px', color: '#555', display: 'flex', gap: '8px'
-            }}>
+            <div style={{ background: '#f0f7f4', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px', fontSize: '12px', color: '#555', display: 'flex', gap: '8px' }}>
               <span>🔒</span>
               <span>Your details are shared only with {school.name}. Duplicate submissions from the same email address will not be accepted.</span>
             </div>
@@ -441,18 +447,8 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
               </div>
             )}
 
-            <button
-              onClick={handleSubmit}
-              disabled={submitting || photoUploading}
-              style={{
-                background: submitting ? '#888' : accentColor,
-                color: 'white', border: 'none',
-                padding: '13px 24px', borderRadius: '8px',
-                fontSize: '14px', fontWeight: 'bold',
-                cursor: submitting ? 'not-allowed' : 'pointer',
-                width: '100%'
-              }}
-            >
+            <button onClick={handleSubmit} disabled={submitting || photoUploading}
+              style={{ background: submitting ? '#888' : accentColor, color: 'white', border: 'none', padding: '13px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: submitting ? 'not-allowed' : 'pointer', width: '100%' }}>
               {submitting ? 'Submitting...' : 'Submit my profile'}
             </button>
           </div>
@@ -460,23 +456,13 @@ export default function SchoolSlugPage({ params }: { params: Promise<{ slug: str
 
         {/* Success */}
         {submitted && (
-          <div style={{
-            background: 'white', borderRadius: '12px',
-            border: '1px solid #e8e8e8', padding: '40px 24px',
-            textAlign: 'center'
-          }}>
+          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e8e8e8', padding: '40px 24px', textAlign: 'center' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a5c3a', marginBottom: '10px' }}>
-              Profile submitted!
-            </div>
+            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a5c3a', marginBottom: '10px' }}>Profile submitted!</div>
             <p style={{ fontSize: '14px', color: '#555', lineHeight: '1.7', marginBottom: '20px' }}>
               Thank you! The team at {school.name} will review your profile and be in touch when a suitable vacancy arises.
             </p>
-            <Link href="/schools" style={{
-              display: 'inline-block', background: '#E85D26', color: 'white',
-              padding: '12px 24px', borderRadius: '8px',
-              textDecoration: 'none', fontSize: '14px', fontWeight: 'bold'
-            }}>
+            <Link href="/schools" style={{ display: 'inline-block', background: '#E85D26', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
               Browse more schools →
             </Link>
           </div>
