@@ -492,12 +492,16 @@ export default function AdvertisePage() {
             style={{ background: '#25D366', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
             💬 WhatsApp Us →
           </a>
+          <a href="mailto:Admin@jobsinthailand.net"
+            style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid #555' }}>
+            ✉️ Email Us →
+          </a>
           <Link href="#expat-services"
             style={{ background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
             🏙️ Expat Services Enquiry →
           </Link>
           <Link href="/contact"
-            style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid #ddd' }}>
+            style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid rgba(255,255,255,0.3)' }}>
             Contact Us →
           </Link>
         </div>
