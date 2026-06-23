@@ -31,7 +31,9 @@ const CATEGORIES = [
     color: '#8b5cf6',
     lessons: [
       { id: 'do-aliens-exist', title: 'Do Aliens Really Exist?', emoji: '👽', description: 'From Ancient Mysteries to Modern Science', detail: 'Explore the history of UFO sightings, what scientists are searching for in space, and what alien life might actually look like.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
-      { id: 'mediums-talking-to-dead', title: 'Mediums — Can People Really Talk to the Dead?', emoji: '👻', description: 'Spirits, Science and Belief', detail: 'Explore the world of mediums, séances, and spiritual communication — what do people believe, and what does science say?', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
+{ id: 'mediums-talking-to-dead', title: 'Mediums — Can People Really Talk to the Dead?', emoji: '👻', description: 'Spirits, Science and Belief', detail: 'Explore the world of mediums, séances, and spiritual communication — what do people believe, and what does science say?', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
+{ id: 'ghosts', title: 'Ghosts — Do They Really Exist?', emoji: '🏚️', description: 'Hauntings, History and Science', detail: 'Stories of the supernatural, famous hauntings around the world, and what science says about things that go bump in the night.', badges: ['4 parts', '12 questions'], color: '#7c3aed' },
+{ id: 'near-death-experiences', title: 'Near-Death Experiences', emoji: '✨', description: 'Tunnels of Light and Life After Death', detail: 'Tunnels of light, meetings with the dead, and out-of-body journeys — what really happens when we come close to death?', badges: ['4 parts', '12 questions'], color: '#6d28d9' },
     ],
   },
   {
