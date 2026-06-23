@@ -3,128 +3,65 @@ import Link from 'next/link'
 
 const CATEGORIES = [
   {
-    id: 'health',
-    title: 'Health & Science',
-    emoji: '🔬',
-    description: 'Medicine, the body and scientific discoveries',
-    color: '#0ea5e9',
-    lessons: [
-      {
-        id: 'wearable-health-monitors',
-        title: 'Wearable Health Monitors',
-        emoji: '⌚',
-        description: 'Technology on Your Wrist',
-        detail: 'Explore how smartwatches and fitness trackers are changing personal health monitoring.',
-        badges: ['4 parts', '12 questions'],
-        color: '#0ea5e9',
-      },
-    ]
-  },
-  {
-    id: 'society',
-    title: 'Society & Culture',
-    emoji: '🌍',
-    description: 'People, communities, culture and how the world works',
-    color: '#f97316',
-    lessons: [
-      {
-        id: 'indigenous-peoples',
-        title: 'Indigenous Peoples of the World',
-        emoji: '🌍',
-        description: 'Culture, Land and Identity',
-        detail: 'Learn about the world\'s first peoples, the challenges they face, and why their cultures matter to all of us.',
-        badges: ['4 parts', '12 questions'],
-        color: '#f97316',
-      },
-      {
-        id: 'global-events-oil-prices',
-        title: 'Global Events and Oil Prices',
-        emoji: '🛢️',
-        description: 'Why Prices Change Around the World',
-        detail: 'Understand how wars, economies, and clean energy affect the cost of oil and everyday life.',
-        badges: ['4 parts', '12 questions'],
-        color: '#f59e0b',
-      },
-      {
-        id: 'working-from-home',
-        title: 'Working from Home',
-        emoji: '🏡',
-        description: 'Advantages and Disadvantages',
-        detail: 'Explore how remote work has changed our lives — and whether working from home is really better than going to the office.',
-        badges: ['4 parts', '12 questions'],
-        color: '#0ea5e9',
-      },
-      {
-        id: 'tourism',
-        title: 'Tourism',
-        emoji: '✈️',
-        description: 'Good or Bad for Local Communities?',
-        detail: 'Explore the benefits and problems that tourism brings to local communities, and how we can travel in a better way.',
-        badges: ['4 parts', '12 questions'],
-        color: '#f59e0b',
-      },
-    ]
-  },
-  {
-    id: 'sport',
-    title: 'Sport & Society',
-    emoji: '⚽',
-    description: 'Sport, competition and what it tells us about the world',
-    color: '#ef4444',
-    lessons: [
-      {
-        id: 'chinese-football',
-        title: 'Chinese Football',
-        emoji: '⚽',
-        description: 'Big Spending, Big Dreams, Big Problems',
-        detail: 'From the most expensive league in the world to financial collapse — explore the rise and fall of Chinese football spending and the national team today.',
-        badges: ['4 parts', '12 questions'],
-        color: '#ef4444',
-      },
-    ]
-  },
-  {
-    id: 'technology',
-    title: 'Technology',
-    emoji: '💻',
-    description: 'Digital life, gadgets and the modern world',
+    id: 'mystery',
+    title: 'Mystery & the Unknown',
+    emoji: '🔮',
+    description: 'Aliens, spirits, supernatural phenomena and the unexplained',
     color: '#8b5cf6',
     lessons: [
       {
-        id: 'social-media-mental-health',
-        title: 'Social Media and Mental Health',
-        emoji: '📱',
-        description: 'Benefits, Risks and Balance',
-        detail: 'Explore how social media affects daily life and mental health — and how to find a healthy balance.',
+        id: 'do-aliens-exist',
+        title: 'Do Aliens Really Exist?',
+        emoji: '👽',
+        description: 'From Ancient Mysteries to Modern Science',
+        detail: 'Explore the history of UFO sightings, what scientists are searching for in space, and what alien life might actually look like.',
+        badges: ['4 parts', '12 questions'],
+        color: '#6366f1',
+      },
+      {
+        id: 'mediums-talking-to-dead',
+        title: 'Mediums — Can People Really Talk to the Dead?',
+        emoji: '🔮',
+        description: 'Between Worlds',
+        detail: 'Explore the history of mediums, how they claim to work, what scientists say, and why so many people find comfort in the idea of speaking with the dead.',
         badges: ['4 parts', '12 questions'],
         color: '#8b5cf6',
       },
     ]
   },
   {
-    id: 'environment',
-    title: 'Environment',
-    emoji: '🌿',
-    description: 'Climate, nature and sustainability',
-    color: '#16a34a',
-    lessons: [
-      {
-        id: 'climate-change-everyday-life',
-        title: 'Climate Change and Everyday Life',
-        emoji: '🌍',
-        description: 'Causes, Effects and Solutions',
-        detail: 'Explore what climate change is, how it affects daily life around the world, and what we can all do.',
-        badges: ['4 parts', '12 questions'],
-        color: '#16a34a',
-      },
-    ]
+    id: 'people',
+    title: 'People & Society',
+    emoji: '🌍',
+    description: 'Culture, relationships, community and everyday life',
+    color: '#f59e0b',
+    lessons: [],
+    comingSoon: true,
   },
   {
-    id: 'work',
-    title: 'Work & Careers',
-    emoji: '💼',
-    description: 'Jobs, skills and the modern workplace',
-    color: '#6b7280',
+    id: 'science',
+    title: 'Science & Nature',
+    emoji: '🔬',
+    description: 'Space, animals, the environment and scientific discovery',
+    color: '#22c55e',
+    lessons: [],
+    comingSoon: true,
+  },
+  {
+    id: 'sport',
+    title: 'Sport & Leisure',
+    emoji: '⚽',
+    description: 'Sport, hobbies, travel and free time',
+    color: '#0ea5e9',
+    lessons: [],
+    comingSoon: true,
+  },
+  {
+    id: 'health',
+    title: 'Health & Wellbeing',
+    emoji: '💚',
+    description: 'The body, mental health, food and healthy living',
+    color: '#ef4444',
     lessons: [],
     comingSoon: true,
   },
@@ -133,32 +70,27 @@ const CATEGORIES = [
 export default function B1ReadingHub() {
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
-
       {/* HERO */}
-      <section style={{ background: 'linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%)', padding: '56px 24px' }}>
+      <section style={{ background: 'linear-gradient(135deg, #1a0a2e 0%, #3b0764 50%, #6d28d9 100%)', padding: '56px 24px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <Link href="/esl-resources/reading-comprehension" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>
-            ← Reading Comprehension
-          </Link>
+          <Link href="/esl-resources/reading-comprehension" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← Reading Comprehension</Link>
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '16px', padding: '16px 24px', textAlign: 'center', minWidth: '80px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '16px', padding: '16px 24px', textAlign: 'center', minWidth: '80px', flexShrink: 0 }}>
               <div style={{ color: 'white', fontSize: '36px', fontWeight: '900', lineHeight: 1 }}>B1</div>
               <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>INTERMEDIATE</div>
             </div>
             <div>
-              <h1 style={{ color: 'white', fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px' }}>B1 — Intermediate</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', margin: '0 0 12px', lineHeight: '1.5', maxWidth: '520px' }}>
-                Clear texts on real-world topics. Students can understand the main points of familiar subjects and express opinions with support.
-              </p>
+              <h1 style={{ color: 'white', fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px' }}>B1 — Intermediate Reading</h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', margin: '0 0 12px', lineHeight: '1.5', maxWidth: '520px' }}>Clear, engaging texts on interesting topics. Students can understand the main ideas and give their opinions with support.</p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {['Real-world topics', 'Opinion & discussion', 'Vocabulary building', 'IELTS 4.0–5.5'].map(tag => (
-                  <span key={tag} style={{ background: 'rgba(255,255,255,0.25)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>{tag}</span>
+                {['Interesting topics', 'Clear language', 'Express opinions', 'IELTS 4.0–5.5'].map(tag => (
+                  <span key={tag} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>{tag}</span>
                 ))}
               </div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '28px', flexWrap: 'wrap' }}>
-            {['✍️ Highlight any text', '🌍 13-language translation', '🤖 AI conversation partner', '🎤 Push-to-talk voice', '🔊 4-speed audio'].map(f => (
+            {['✍️ Highlight any text', '🌍 13-language translation', '🤖 AI conversation partner', '🎤 Push-to-talk voice', '🔊 4-speed audio', '🔊 Natural AI voice'].map(f => (
               <span key={f} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: '600' }}>{f}</span>
             ))}
           </div>
@@ -169,6 +101,7 @@ export default function B1ReadingHub() {
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexDirection: 'column', gap: '48px' }}>
         {CATEGORIES.map(cat => (
           <div key={cat.id}>
+            {/* Category Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', paddingBottom: '14px', borderBottom: `3px solid ${cat.color}` }}>
               <div style={{ background: cat.color, width: '44px', height: '44px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>{cat.emoji}</div>
               <div>
@@ -182,16 +115,23 @@ export default function B1ReadingHub() {
               )}
             </div>
 
+            {/* Lessons grid */}
             {cat.lessons.length > 0 ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '20px' }}>
                 {cat.lessons.map(lesson => (
                   <Link key={lesson.id} href={`/esl-resources/reading-comprehension/b1/${lesson.id}`} style={{ textDecoration: 'none' }}>
-                    <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: '1px solid #eee', height: '100%', display: 'flex', flexDirection: 'column', transition: 'transform 0.15s, box-shadow 0.15s' }}
+                    <div
+                      style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: '1px solid #eee', height: '100%', display: 'flex', flexDirection: 'column', transition: 'transform 0.15s, box-shadow 0.15s' }}
                       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 28px rgba(0,0,0,0.12)' }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)' }}>
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)' }}
+                    >
                       <div style={{ background: `linear-gradient(135deg, ${lesson.color}22, ${lesson.color}08)`, borderBottom: `3px solid ${lesson.color}`, padding: '22px 20px 16px' }}>
                         <div style={{ fontSize: '44px', marginBottom: '10px' }}>{lesson.emoji}</div>
-                        <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 5px', lineHeight: '1.3' }}>{lesson.title}</h3>
+                        <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ background: lesson.color, color: 'white', fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '20px' }}>B1</span>
+                          <span style={{ background: cat.color + '20', color: cat.color, fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '20px' }}>{cat.title}</span>
+                        </div>
+                        <h3 style={{ fontSize: '17px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 5px', lineHeight: '1.3' }}>{lesson.title}</h3>
                         <p style={{ color: lesson.color, fontSize: '13px', fontWeight: '700', margin: 0 }}>{lesson.description}</p>
                       </div>
                       <div style={{ padding: '16px 20px', flex: 1 }}>
@@ -209,6 +149,7 @@ export default function B1ReadingHub() {
                     </div>
                   </Link>
                 ))}
+                {/* Coming soon card */}
                 <div style={{ background: 'white', borderRadius: '16px', border: '2px dashed #e5e7eb', padding: '32px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', minHeight: '200px' }}>
                   <div style={{ fontSize: '36px' }}>✍️</div>
                   <div style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '600', textAlign: 'center' }}>More {cat.title} lessons coming soon</div>
