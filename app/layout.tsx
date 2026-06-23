@@ -3,6 +3,7 @@ import './globals.css'
 import Navbar from '../components/Navbar'
 import VisitorCounter from '../components/VisitorCounter'
 import MarqueeBar from '../components/MarqueeBar'
+import AppInstallBanner from '../components/AppInstallBanner'
 
 export const metadata: Metadata = {
   title: {
@@ -92,6 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <MarqueeBar />
         {children}
+        <AppInstallBanner />
         <VisitorCounter />
       </body>
     </html>
