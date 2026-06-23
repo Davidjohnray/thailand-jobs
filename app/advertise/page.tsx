@@ -493,9 +493,9 @@ export default function AdvertisePage() {
             💬 WhatsApp Us →
           </a>
           <a href="mailto:Admin@jobsinthailand.net"
-            style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid #555' }}>
-            ✉️ Email Us →
-          </a>
+  style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid #555' }}>
+  ✉️ Admin@jobsinthailand.net
+</a>
           <Link href="#expat-services"
             style={{ background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
             🏙️ Expat Services Enquiry →
