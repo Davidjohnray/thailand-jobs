@@ -158,7 +158,7 @@ function ConversationBox({ partTitle }: { partTitle: string }) {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SR) return
     const rec = new SR(); rec.lang = 'en-US'; rec.interimResults = false
-    rec.onresult = (e: SpeechRecognitionEvent) => { setInput(e.results[0][0].transcript); setListening(false) }
+    rec.onresult = (e: any) => { setInput(e.results[0][0].transcript); setListening(false) }
     rec.onend = () => setListening(false)
     rec.start(); recRef.current = rec; setListening(true)
   }
