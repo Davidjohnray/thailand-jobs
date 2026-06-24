@@ -36,6 +36,8 @@ const CATEGORIES = [
 { id: 'managing-conflict', title: 'Managing Conflict at Work', emoji: '🕊️', description: 'From Tension to Resolution', detail: 'Understand what causes workplace conflict, how to address it professionally, and how to build teams that handle disagreement well.', badges: ['4 parts', '12 questions'], color: '#ef4444' },
 { id: 'business-jargon', title: 'Understanding Business Jargon', emoji: '🗣️', description: 'Synergy, Pivot, Low-Hanging Fruit', detail: 'Decode the most common corporate buzzwords, understand when jargon helps and when it hurts, and learn to communicate with real clarity.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
 { id: 'salary-negotiation', title: 'Salary Negotiation', emoji: '💰', description: 'Know Your Worth', detail: 'Learn why most people don\'t negotiate, how to research your market value, and the exact language to use when asking for more money.', badges: ['4 parts', '12 questions'], color: '#22c55e' },
+{ id: 'remote-work', title: 'Remote Work and the Future of Work', emoji: '🏠', description: 'Office, Home or Hybrid?', detail: 'Explore the remote work revolution — communication challenges, productivity, trust, wellbeing, and what the future workplace might look like.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
+{ id: 'crisis-communication', title: 'Crisis Communication — Delivering Bad News', emoji: '📢', description: 'When Things Go Wrong', detail: 'Redundancies, project failures, corporate scandals — the language and strategies professionals need when delivering difficult news at work.', badges: ['4 parts', '12 questions'], color: '#d97706' },
     ]
   },
   {
