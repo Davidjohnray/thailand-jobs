@@ -47,8 +47,6 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`)
 
   return (
     <div style={{ background: 'white', borderRadius: '20px', padding: '36px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '2px solid #5eead4' }}>
-
-      {/* Step 1 — Package */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e', marginBottom: '12px' }}>1. Choose your package</div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -68,7 +66,6 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`)
         </div>
       </div>
 
-      {/* Step 2 — Banner */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e', marginBottom: '12px' }}>2. Your banner</div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -85,7 +82,6 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`)
         </div>
       </div>
 
-      {/* Step 3 — Business details */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e', marginBottom: '16px' }}>3. Your business details</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
@@ -124,7 +120,6 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`)
         </div>
       </div>
 
-      {/* Step 4 — Contact details */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e', marginBottom: '16px' }}>4. Your contact details</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
@@ -159,13 +154,11 @@ ${form.message ? `\nExtra notes: ${form.message}` : ''}`)
             <div style={{ fontWeight: '800', color: '#14532d', fontSize: '15px', marginBottom: '4px' }}>✅ Your details are ready!</div>
             <div style={{ color: '#15803d', fontSize: '13px' }}>Tap a button below to send your enquiry directly. Your message will be pre-filled with all your details.</div>
           </div>
-          <a href={`https://wa.me/66871033821?text=${waMessage}`}
-            target="_blank" rel="noopener noreferrer"
+          <a href={`https://wa.me/66871033821?text=${waMessage}`} target="_blank" rel="noopener noreferrer"
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#25D366', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '17px', boxShadow: '0 4px 16px rgba(37,211,102,0.4)' }}>
             <span style={{ fontSize: '24px' }}>💬</span> Send via WhatsApp
           </a>
-          <a href="https://line.me/ti/p/+66871033821"
-            target="_blank" rel="noopener noreferrer"
+          <a href="https://line.me/ti/p/+66871033821" target="_blank" rel="noopener noreferrer"
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#06C755', color: 'white', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '17px', boxShadow: '0 4px 16px rgba(6,199,85,0.4)' }}>
             <span style={{ fontSize: '24px' }}>💬</span> Send via LINE
           </a>
@@ -184,8 +177,8 @@ export default function AdvertisePage() {
       <section style={{ background: '#1a1a2e', padding: '60px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>📢</div>
         <h1 style={{ color: 'white', fontSize: '36px', fontWeight: 'bold', marginBottom: '12px' }}>Advertise With Us</h1>
-        <p style={{ color: '#ccc', fontSize: '16px', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
-          Reach thousands of expats, teachers and job seekers across Thailand every month. Affordable rates, targeted audience, instant exposure.
+        <p style={{ color: '#ccc', fontSize: '16px', maxWidth: '640px', margin: '0 auto', lineHeight: '1.6' }}>
+          Reach thousands of expats, teachers and job seekers across Thailand — on our website AND across 240,000+ members on Facebook, WhatsApp and LINE.
         </p>
       </section>
 
@@ -193,10 +186,10 @@ export default function AdvertisePage() {
       <section style={{ background: '#E85D26', padding: '32px 24px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', justifyContent: 'center', gap: '48px', flexWrap: 'wrap', textAlign: 'center' }}>
           {[
-            { number: '10,000+', label: 'Monthly Visitors' },
-            { number: '500+', label: 'Jobs Listed Monthly' },
+            { number: '10,000+', label: 'Monthly Website Visitors' },
+            { number: '240,000+', label: 'Social Media Members' },
             { number: '🇹🇭', label: 'All Thailand' },
-            { number: '100%', label: 'Expat Focused' },
+            { number: '📈', label: 'Growing Every Day' },
           ].map(stat => (
             <div key={stat.label}>
               <div style={{ color: 'white', fontSize: '32px', fontWeight: 'bold' }}>{stat.number}</div>
@@ -206,10 +199,97 @@ export default function AdvertisePage() {
         </div>
       </section>
 
-      {/* AD PACKAGES */}
-      <section style={{ maxWidth: '1000px', margin: '0 auto', padding: '60px 24px' }}>
-        <h2 style={{ textAlign: 'center', fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', color: '#1a1a2e' }}>Advertising Packages</h2>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '48px', fontSize: '16px' }}>Simple transparent pricing — no hidden fees</p>
+      {/* SOCIAL MEDIA PACKAGES */}
+      <section style={{ maxWidth: '1000px', margin: '0 auto', padding: '60px 24px 0' }}>
+        <h2 style={{ textAlign: 'center', fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', color: '#1a1a2e' }}>🌐 Website + Social Media Packages</h2>
+        <p style={{ textAlign: 'center', color: '#666', marginBottom: '12px', fontSize: '16px' }}>
+          All packages include your banner on the website <strong>plus</strong> regular promotion to our Facebook, WhatsApp and LINE communities
+        </p>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <span style={{ background: '#fef3c7', border: '1px solid #fbbf24', color: '#92400e', padding: '8px 20px', borderRadius: '20px', fontSize: '14px', fontWeight: '700' }}>
+            💡 Our audience grows every day — the sooner you start, the bigger the reach!
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+
+          {/* STANDARD */}
+          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px solid #e5e7eb' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>⭐</div>
+              <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' }}>Standard</h3>
+              <div style={{ fontSize: '32px', fontWeight: '900', color: '#E85D26' }}>฿500<span style={{ fontSize: '14px', color: '#888', fontWeight: '400' }}>/month</span></div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+              {['✅ Right-side homepage banner', '✅ Weekly post to all Facebook groups', '✅ 240,000+ Facebook members reached', '✅ Weekly WhatsApp promotion', '✅ Weekly LINE group promotion'].map(f => (
+                <div key={f} style={{ fontSize: '13px', color: '#444' }}>{f}</div>
+              ))}
+            </div>
+            <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px', padding: '12px', fontSize: '13px', color: '#555' }}>
+              <strong style={{ color: '#16a34a' }}>Save with longer packages:</strong><br />
+              3 months — ฿1,275 <span style={{ color: '#16a34a', fontWeight: 'bold' }}>(save 15%)</span><br />
+              6 months — ฿2,250 <span style={{ color: '#16a34a', fontWeight: 'bold' }}>(save 25%)</span>
+            </div>
+          </div>
+
+          {/* FEATURED */}
+          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 8px 24px rgba(232,93,38,0.15)', border: '2px solid #E85D26', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: '#E85D26', color: 'white', padding: '4px 20px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>🔥 MOST POPULAR</div>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔥</div>
+              <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 4px' }}>Featured</h3>
+              <div style={{ fontSize: '32px', fontWeight: '900', color: '#E85D26' }}>฿850<span style={{ fontSize: '14px', color: '#888', fontWeight: '400' }}>/month</span></div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+              {['✅ Everything in Standard', '✅ Banner on homepage + inner pages', '✅ Jobs, ESL Resources, Teachers & more', '✅ Priority placement — shown first', '✅ Twice weekly social media posts'].map(f => (
+                <div key={f} style={{ fontSize: '13px', color: '#444' }}>{f}</div>
+              ))}
+            </div>
+            <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px', padding: '12px', fontSize: '13px', color: '#555' }}>
+              <strong style={{ color: '#16a34a' }}>Save with longer packages:</strong><br />
+              3 months — ฿2,168 <span style={{ color: '#16a34a', fontWeight: 'bold' }}>(save 15%)</span><br />
+              6 months — ฿3,825 <span style={{ color: '#16a34a', fontWeight: 'bold' }}>(save 25%)</span>
+            </div>
+          </div>
+
+          {/* PREMIUM */}
+          <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', borderRadius: '16px', padding: '28px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', border: '2px solid #7c3aed', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: 'white', padding: '4px 20px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>👑 MAXIMUM REACH</div>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>👑</div>
+              <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: 'white', margin: '0 0 4px' }}>Premium</h3>
+              <div style={{ fontSize: '32px', fontWeight: '900', color: '#a78bfa' }}>฿1,500<span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', fontWeight: '400' }}>/month</span></div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+              {['✅ Everything in Featured', '✅ Banner across ALL pages of the site', '✅ 3x weekly social media posts', '✅ Dedicated post written about your business', '✅ Listed in Expat Services Directory'].map(f => (
+                <div key={f} style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)' }}>{f}</div>
+              ))}
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '10px', padding: '12px', fontSize: '13px', color: 'rgba(255,255,255,0.8)' }}>
+              <strong style={{ color: '#a78bfa' }}>Save with longer packages:</strong><br />
+              3 months — ฿3,825 <span style={{ color: '#86efac', fontWeight: 'bold' }}>(save 15%)</span><br />
+              6 months — ฿6,750 <span style={{ color: '#86efac', fontWeight: 'bold' }}>(save 25%)</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* GROWING AUDIENCE BANNER */}
+        <div style={{ background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', borderRadius: '16px', padding: '24px 32px', marginBottom: '60px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          <div style={{ fontSize: '40px' }}>📈</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ color: 'white', fontWeight: '800', fontSize: '16px', marginBottom: '4px' }}>Our audience is growing every single day</div>
+            <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '14px' }}>
+              We currently have over 240,000 members across all our social platforms and it grows daily. Advertisers who join now benefit from an ever-increasing audience at a locked-in rate — the longer you advertise, the more people you reach for the same price.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* WEBSITE-ONLY PACKAGES */}
+      <section style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 24px 60px' }}>
+        <h2 style={{ textAlign: 'center', fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', color: '#1a1a2e' }}>🖥️ Website Banner Packages</h2>
+        <p style={{ textAlign: 'center', color: '#666', marginBottom: '40px', fontSize: '16px' }}>Website-only banner placements</p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
@@ -221,7 +301,7 @@ export default function AdvertisePage() {
                   <span style={{ fontSize: '32px' }}>📦</span>
                   <div>
                     <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Sidebar Banner</h3>
-                    <p style={{ color: '#666', fontSize: '14px', margin: '4px 0 0' }}>250 x 250px — displayed on the homepage sidebar</p>
+                    <p style={{ color: '#666', fontSize: '14px', margin: '4px 0 0' }}>250×250px — displayed on the homepage sidebar</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
@@ -258,7 +338,7 @@ export default function AdvertisePage() {
                   <span style={{ fontSize: '32px' }}>⭐</span>
                   <div>
                     <h3 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>Hero Side Banner</h3>
-                    <p style={{ color: '#666', fontSize: '14px', margin: '4px 0 0' }}>250 x 250px — displayed next to the main homepage title</p>
+                    <p style={{ color: '#666', fontSize: '14px', margin: '4px 0 0' }}>250×250px — displayed next to the main homepage title</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -352,7 +432,6 @@ export default function AdvertisePage() {
                 </div>
               </div>
             </div>
-
             <div style={{ borderTop: '2px solid #e0f2fe', paddingTop: '28px' }}>
               <h4 style={{ fontSize: '18px', fontWeight: '800', color: '#1a1a2e', marginBottom: '6px' }}>📋 Submit Your Listing Enquiry</h4>
               <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Fill in your details and send us a message via WhatsApp or LINE — we will reply within 24 hours with payment details.</p>
@@ -421,55 +500,18 @@ export default function AdvertisePage() {
         </div>
       </section>
 
-      {/* QUICK COMPARISON */}
-      <section style={{ background: 'white', padding: '48px 24px', borderTop: '1px solid #eee' }}>
-        <div style={{ maxWidth: '760px', margin: '0 auto' }}>
-          <h2 style={{ textAlign: 'center', fontSize: '24px', fontWeight: 'bold', marginBottom: '32px', color: '#1a1a2e' }}>Quick Price Summary</h2>
-          <div style={{ borderRadius: '16px', overflow: 'hidden', border: '2px solid #eee' }}>
-            <div style={{ background: '#1a1a2e', padding: '14px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px' }}>
-              {['Placement', '1 Month', '3 Months', '6 Months'].map(h => (
-                <div key={h} style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>{h}</div>
-              ))}
-            </div>
-            {[
-              { name: 'Sidebar Banner', prices: ['฿500', '฿1,400', '฿2,700'] },
-              { name: 'Hero Side Banner', prices: ['฿750', '฿2,100', '฿4,000'], highlight: true },
-              { name: 'Hero Centre Long Banner', prices: ['฿850', '฿2,300', '฿4,500'], purple: true },
-              { name: 'Expat Services Standard', prices: ['—', '—', '฿500'], teal: true },
-              { name: 'Expat Services Featured', prices: ['—', '—', '฿1,000'], gold: true },
-              { name: 'Training Page', prices: ['฿300', '฿300/mo', '฿300/mo'], note: 'standalone' },
-              { name: 'Featured Job', prices: ['฿300', '—', '—'], note: '14 days' },
-            ].map((row, i) => (
-              <div key={row.name} style={{
-                padding: '14px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px',
-                background: row.highlight ? '#fff3ed' : row.purple ? '#f5f3ff' : row.teal ? '#e0f2fe' : row.gold ? '#fffbeb' : i % 2 === 0 ? 'white' : '#f9f9f9',
-                borderTop: '1px solid #eee'
-              }}>
-                <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e' }}>
-                  {row.name}
-                  {row.note && <span style={{ color: '#9ca3af', fontSize: '11px', fontWeight: '400', marginLeft: '4px' }}>({row.note})</span>}
-                </div>
-                {row.prices.map((p, pi) => (
-                  <div key={pi} style={{ fontWeight: '700', fontSize: '15px', color: row.highlight ? '#E85D26' : row.purple ? '#7c3aed' : row.teal ? '#0369a1' : row.gold ? '#c9a84c' : '#374151' }}>{p}</div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* WHY ADVERTISE */}
       <section style={{ background: '#f9f9f9', padding: '60px 24px', borderTop: '1px solid #eee' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '48px', color: '#1a1a2e' }}>Why Advertise With Us?</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px', justifyContent: 'center' }}>
             {[
-              { icon: '🎯', title: 'Targeted Audience', desc: 'Reach expats, teachers and professionals actively looking for work in Thailand' },
-              { icon: '💰', title: 'Affordable Rates', desc: 'Much cheaper than the big job boards — better value for your budget' },
-              { icon: '🇹🇭', title: 'Thailand Focused', desc: 'A dedicated Thailand job board — your ad reaches the right people' },
+              { icon: '🎯', title: 'Targeted Audience', desc: 'Reach expats, teachers and professionals actively looking for services in Thailand' },
+              { icon: '📣', title: '240,000+ Social Members', desc: 'Your promotion goes to our Facebook, WhatsApp and LINE communities — all growing daily' },
+              { icon: '💰', title: 'Affordable Rates', desc: 'Much cheaper than the big platforms — save 15% for 3 months or 25% for 6 months' },
               { icon: '⚡', title: 'Instant Setup', desc: 'Your ad goes live within 24 hours of payment' },
-              { icon: '📱', title: 'Mobile Friendly', desc: 'Your ad is seen on desktop and mobile devices' },
-              { icon: '📈', title: 'Growing Fast', desc: 'New visitors every day as we grow our audience across Thailand' },
+              { icon: '📱', title: 'Mobile Friendly', desc: 'Your ad is seen on desktop and mobile devices across Thailand' },
+              { icon: '📈', title: 'Growing Every Day', desc: 'Our audience grows daily — start now and benefit from increasing reach at the same price' },
             ].map(f => (
               <div key={f.title} style={{ flex: 1, minWidth: '220px', maxWidth: '260px' }}>
                 <div style={{ fontSize: '40px', marginBottom: '12px' }}>{f.icon}</div>
@@ -493,9 +535,9 @@ export default function AdvertisePage() {
             💬 WhatsApp Us →
           </a>
           <a href="mailto:Admin@jobsinthailand.net"
-  style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid #555' }}>
-  ✉️ Admin@jobsinthailand.net
-</a>
+            style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block', border: '1px solid #555' }}>
+            ✉️ Admin@jobsinthailand.net
+          </a>
           <Link href="#expat-services"
             style={{ background: 'linear-gradient(135deg, #0f766e, #0ea5e9)', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
             🏙️ Expat Services Enquiry →
@@ -510,4 +552,3 @@ export default function AdvertisePage() {
     </main>
   )
 }
-
