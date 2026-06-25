@@ -49,6 +49,8 @@ const CATEGORIES = [
     lessons: [
       { id: 'voynich-manuscript', title: 'The Voynich Manuscript', emoji: '📜', description: 'The Book Nobody Can Read', detail: 'A 600-year-old illustrated book in an unknown script that no cryptographer, linguist, or AI has ever been able to decipher.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
       { id: 'time-slips', title: 'Time Slips', emoji: '⏳', description: 'Walking Into the Past', detail: 'People who claim to have briefly stepped into a different historical era — the cases, the witnesses, and what science makes of their accounts.', badges: ['4 parts', '12 questions'], color: '#7c3aed' },
+      { id: 'dyatlov-pass-incident', title: 'The Dyatlov Pass Incident', emoji: '🏔️', description: 'Nine Hikers, One Unsolved Mystery', detail: 'In 1959, nine experienced Soviet hikers were found dead on a remote mountain slope. Their tent was cut open from the inside. No satisfactory explanation has ever been given.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
+{ id: 'spontaneous-human-combustion', title: 'Spontaneous Human Combustion', emoji: '🔥', description: 'Fact, Fiction, or Science?', detail: 'Bodies reduced to ash while surrounding furniture remains intact — a phenomenon that has baffled investigators for centuries, and what science says really happened.', badges: ['4 parts', '12 questions'], color: '#ef4444' },
     ]
   },
   {
