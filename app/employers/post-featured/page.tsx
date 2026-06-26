@@ -2,8 +2,6 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../src/lib/supabase'
-import dynamic from 'next/dynamic'
-const HCaptcha = dynamic(() => import('@hcaptcha/react-hcaptcha'), { ssr: false })
 
 const thaiProvinces = [
   'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya / Chonburi', 'Koh Samui / Surat Thani',
@@ -46,7 +44,6 @@ function PostFeaturedPage() {
   const [jobLoading, setJobLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [jobRef, setJobRef] = useState('')
-  const [captchaToken, setCaptchaToken] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [form, setForm] = useState({
     title: '', company: '', location: '', salary: '',
@@ -71,7 +68,6 @@ function PostFeaturedPage() {
     if (!form.description.trim()) newErrors.description = 'Job description is required'
     if (!form.requirements.trim()) newErrors.requirements = 'Requirements are required'
     if (!form.benefits.trim()) newErrors.benefits = 'Benefits are required'
-    if (!captchaToken) newErrors.captcha = 'Please complete the CAPTCHA'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -90,7 +86,6 @@ function PostFeaturedPage() {
     }]).select().single()
     if (error) {
       alert('Error submitting job: ' + error.message)
-      setCaptchaToken('')
       setJobLoading(false)
       return
     }
@@ -105,15 +100,6 @@ function PostFeaturedPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const waMessage = encodeURIComponent(`Hi, I've just submitted a Featured Job Listing on jobsinthailand.net and would like to arrange payment.
-
-Job Title: ${form.title}
-Company: ${form.company}
-Location: ${form.location}
-Job Ref: ${jobRef}
-
-Please send me payment details. Thank you!`)
-
   const inputStyle = (field: string) => ({
     width: '100%', padding: '12px', borderRadius: '8px',
     border: errors[field] ? '2px solid red' : '1px solid #ddd',
@@ -126,13 +112,22 @@ Please send me payment details. Thank you!`)
     fontSize: '15px', background: 'white', outline: 'none'
   })
 
-  // PAYMENT STEP — shown after form submission
+  // PAYMENT STEP
   if (submitted) {
+    const shortRef = jobRef.slice(0, 8).toUpperCase()
+    const waMessage = encodeURIComponent(`Hi, I've just submitted a Featured Job Listing on jobsinthailand.net and would like to arrange payment.
+
+Job Title: ${form.title}
+Company: ${form.company}
+Location: ${form.location}
+Job Ref: ${shortRef}
+
+Please send me payment details. Thank you!`)
+
     return (
       <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
 
-          {/* Success header */}
           <div style={{ background: '#f0fdf4', border: '2px solid #86efac', borderRadius: '16px', padding: '28px', marginBottom: '28px', textAlign: 'center' }}>
             <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
             <h1 style={{ fontSize: '24px', fontWeight: '900', color: '#14532d', marginBottom: '8px' }}>Job Submitted!</h1>
@@ -141,11 +136,10 @@ Please send me payment details. Thank you!`)
             </p>
             <div style={{ background: 'white', borderRadius: '10px', padding: '12px 16px', display: 'inline-block', marginTop: '8px' }}>
               <span style={{ color: '#666', fontSize: '13px' }}>Job Ref: </span>
-              <span style={{ fontWeight: '900', color: '#1a1a2e', fontSize: '13px', fontFamily: 'monospace' }}>{jobRef}</span>
+              <span style={{ fontWeight: '900', color: '#1a1a2e', fontSize: '13px', fontFamily: 'monospace' }}>{shortRef}</span>
             </div>
           </div>
 
-          {/* Pricing reminder */}
           <div style={{ background: '#fff3ed', border: '2px solid #E85D26', borderRadius: '14px', padding: '24px', marginBottom: '28px' }}>
             <div style={{ fontWeight: '900', color: '#E85D26', fontSize: '20px', marginBottom: '4px' }}>⭐ Featured Listing — ฿300</div>
             <div style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>Highlighted at the top of all listings + homepage for {form.duration} days</div>
@@ -156,7 +150,7 @@ Please send me payment details. Thank you!`)
                 { label: 'Account Name', value: 'Jobs in Thailand' },
                 { label: 'PromptPay', value: '0871033821' },
                 { label: 'Amount', value: '฿300' },
-                { label: 'Reference', value: (jobRef || '').slice(0, 8).toUpperCase() },
+                { label: 'Reference', value: shortRef },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid #ffe0cc', paddingBottom: '6px' }}>
                   <span style={{ color: '#888' }}>{item.label}</span>
@@ -166,7 +160,6 @@ Please send me payment details. Thank you!`)
             </div>
           </div>
 
-          {/* Contact buttons */}
           <div style={{ background: 'white', borderRadius: '14px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', marginBottom: '20px' }}>
             <h2 style={{ fontSize: '17px', fontWeight: '800', color: '#1a1a2e', marginBottom: '6px' }}>📲 Contact Us to Pay</h2>
             <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>
@@ -198,7 +191,7 @@ Please send me payment details. Thank you!`)
           </div>
 
           <p style={{ color: '#9ca3af', fontSize: '13px', textAlign: 'center' }}>
-            Please include your Job Ref <strong>{(jobRef || '').slice(0, 8).toUpperCase()}</strong> when contacting us.
+            Please include your Job Ref <strong>{shortRef}</strong> when contacting us.
           </p>
         </div>
       </main>
@@ -220,9 +213,9 @@ Please send me payment details. Thank you!`)
         </div>
 
         <div style={{ background: '#f0f7ff', border: '1px solid #2D6BE4', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
-  <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>💡 Have a question?</p>
-  <p style={{ color: '#555', fontSize: '13px', margin: '0' }}>Contact us at <a href="mailto:Admin@jobsinthailand.net" style={{ color: '#2D6BE4', fontWeight: 'bold' }}>Admin@jobsinthailand.net</a> or via WhatsApp/LINE.</p>
-</div>
+          <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>💡 Have a question?</p>
+          <p style={{ color: '#555', fontSize: '13px', margin: '0' }}>Contact us at <a href="mailto:Admin@jobsinthailand.net" style={{ color: '#2D6BE4', fontWeight: 'bold' }}>Admin@jobsinthailand.net</a> or via WhatsApp/LINE.</p>
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <span style={{ fontSize: '32px' }}>{isTeaching ? '🏫' : '💼'}</span>
@@ -346,8 +339,7 @@ Please send me payment details. Thank you!`)
             <p style={{ color: '#999', fontSize: '12px', marginTop: '8px' }}>Default is 14 days for featured listings</p>
           </div>
 
-          {/* Payment info */}
-          <div style={{ background: '#f9f9f9', borderRadius: '10px', padding: '16px', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+          <div style={{ background: '#f9f9f9', borderRadius: '10px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
             <div style={{ fontSize: '28px' }}>💳</div>
             <div>
               <div style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px', marginBottom: '4px' }}>Payment via PromptPay or Bank Transfer</div>
@@ -361,15 +353,6 @@ Please send me payment details. Thank you!`)
               </div>
             </div>
           </div>
-
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-            <HCaptcha
-              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
-              onVerify={token => { setCaptchaToken(token); setErrors(prev => ({ ...prev, captcha: '' })) }}
-              onExpire={() => setCaptchaToken('')}
-            />
-          </div>
-          {errors.captcha && <p style={{ color: 'red', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>{errors.captcha}</p>}
 
           <button onClick={handleJobSubmit} disabled={jobLoading}
             style={{ width: '100%', background: jobLoading ? '#ccc' : '#E85D26', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: jobLoading ? 'not-allowed' : 'pointer' }}>
