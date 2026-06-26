@@ -48,7 +48,7 @@ export default function EmployersPage() {
                 MOST POPULAR
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '4px', color: '#1a1a2e' }}>⭐ Featured Listing</h3>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#E85D26', marginBottom: '4px' }}>500 THB</div>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#E85D26', marginBottom: '4px' }}>฿300</div>
               <p style={{ color: '#666', marginBottom: '24px', fontSize: '13px' }}>Per listing</p>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: '32px', flex: 1 }}>
                 {['✓ Listed on jobs page', '✓ Flexible listing duration', '✓ Apply via email', '✓ Featured on homepage', '✓ Top of all listings', '✓ Featured badge', '✓ 3x more applications'].map((item, i) => (
@@ -101,7 +101,7 @@ export default function EmployersPage() {
                 MOST POPULAR
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '4px', color: '#1a1a2e' }}>⭐ Featured Listing</h3>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2D6BE4', marginBottom: '4px' }}>500 THB</div>
+              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#2D6BE4', marginBottom: '4px' }}>฿300</div>
               <p style={{ color: '#666', marginBottom: '24px', fontSize: '13px' }}>Per listing</p>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: '32px', flex: 1 }}>
                 {['✓ Listed on jobs page', '✓ Flexible listing duration', '✓ Apply via email', '✓ Featured on homepage', '✓ Top of all listings', '✓ Featured badge', '✓ 3x more applications'].map((item, i) => (
@@ -121,9 +121,9 @@ export default function EmployersPage() {
           <h3 style={{ fontSize: '22px', fontWeight: 'bold', marginBottom: '24px', textAlign: 'center' }}>Common Questions</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {[
-              { q: 'How do I pay for a featured listing?', a: 'After submitting your job we will contact you by email to arrange payment via bank transfer or PromptPay.' },
-              { q: 'When will my featured job go live?', a: 'Your job goes live immediately. The featured badge and homepage placement is activated once payment is confirmed.' },
-              { q: 'Can I upgrade a free listing to featured?', a: 'Yes! Email us after posting and we can upgrade your listing at any time.' },
+              { q: 'How do I pay for a featured listing?', a: 'After submitting your job contact us via WhatsApp, LINE, Facebook or email to arrange payment via PromptPay or bank transfer.' },
+              { q: 'When will my featured job go live?', a: 'Your job goes live within a few hours of payment confirmation.' },
+              { q: 'Can I upgrade a free listing to featured?', a: 'Yes! Contact us after posting and we can upgrade your listing at any time.' },
               { q: 'How long does a listing stay up?', a: 'You can choose 3, 5, 7 or 14 days when posting your job.' },
             ].map((faq, i) => (
               <div key={i} style={{ background: 'white', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
