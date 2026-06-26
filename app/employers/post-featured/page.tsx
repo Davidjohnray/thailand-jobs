@@ -220,13 +220,9 @@ Please send me payment details. Thank you!`)
         </div>
 
         <div style={{ background: '#f0f7ff', border: '1px solid #2D6BE4', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
-          <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>💡 Have a question?</p>
-          <p style={{ color: '#555', fontSize: '13px', margin: '0 0 10px' }}>Contact us at <a href="mailto:Admin@jobsinthailand.net" style={{ color: '#2D6BE4', fontWeight: 'bold' }}>Admin@jobsinthailand.net</a> or via WhatsApp/LINE.</p>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <a href="/account/register" style={{ background: '#2D6BE4', color: 'white', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', fontWeight: 'bold' }}>Create Account</a>
-            <a href="/account/login" style={{ background: 'white', color: '#2D6BE4', padding: '6px 14px', borderRadius: '6px', textDecoration: 'none', fontSize: '13px', border: '1px solid #2D6BE4' }}>Login</a>
-          </div>
-        </div>
+  <p style={{ color: '#2D6BE4', fontWeight: 'bold', fontSize: '14px', margin: '0 0 4px' }}>💡 Have a question?</p>
+  <p style={{ color: '#555', fontSize: '13px', margin: '0' }}>Contact us at <a href="mailto:Admin@jobsinthailand.net" style={{ color: '#2D6BE4', fontWeight: 'bold' }}>Admin@jobsinthailand.net</a> or via WhatsApp/LINE.</p>
+</div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <span style={{ fontSize: '32px' }}>{isTeaching ? '🏫' : '💼'}</span>
