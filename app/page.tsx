@@ -39,11 +39,11 @@ export default async function Home() {
           {/* HERO TEXT */}
           <div style={{ flex: 1, maxWidth: '600px' }}>
             <h1 className="hero-title" style={{ color: 'white', fontSize: '44px', fontWeight: 'bold', marginBottom: '16px' }}>
-              Find Your Dream Job in Thailand
-            </h1>
-            <p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
-              Teaching jobs, hospitality, tech and more — all across Thailand
-            </p>
+  Find Teaching & Expat Jobs in Thailand
+</h1>
+<p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
+  Browse hundreds of jobs in Bangkok, Chiang Mai, Phuket and more
+</p>
             <Link href="/esl-resources" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
               <div style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #E85D26 100%)', borderRadius: '12px', padding: '16px 20px', border: '2px solid rgba(255,255,255,0.15)' }}>
                 <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>📖 Free ESL Resources for Teachers</div>
