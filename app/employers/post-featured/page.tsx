@@ -156,7 +156,7 @@ Please send me payment details. Thank you!`)
                 { label: 'Account Name', value: 'Jobs in Thailand' },
                 { label: 'PromptPay', value: '0871033821' },
                 { label: 'Amount', value: '฿300' },
-                { label: 'Reference', value: jobRef.slice(0, 8).toUpperCase() },
+                { label: 'Reference', value: (jobRef || '').slice(0, 8).toUpperCase() },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid #ffe0cc', paddingBottom: '6px' }}>
                   <span style={{ color: '#888' }}>{item.label}</span>
@@ -198,7 +198,7 @@ Please send me payment details. Thank you!`)
           </div>
 
           <p style={{ color: '#9ca3af', fontSize: '13px', textAlign: 'center' }}>
-            Please include your Job Ref <strong>{jobRef.slice(0, 8).toUpperCase()}</strong> when contacting us.
+            Please include your Job Ref <strong>{(jobRef || '').slice(0, 8).toUpperCase()}</strong> when contacting us.
           </p>
         </div>
       </main>
