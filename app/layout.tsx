@@ -2,38 +2,36 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '../components/Navbar'
 import VisitorCounter from '../components/VisitorCounter'
-import MarqueeBar from '../components/MarqueeBar'
-import AppInstallBanner from '../components/AppInstallBanner'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Jobs in Thailand 2026 | Teaching, Hospitality & Expat Jobs',
+    default: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
     template: '%s | Jobs in Thailand',
   },
   description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand. Browse hundreds of jobs in Bangkok, Chiang Mai, Phuket and more. Free to join — members see jobs 1 hour early!',
-  keywords: ['jobs in Thailand', 'teaching jobs Thailand', 'ESL jobs Thailand', 'expat jobs Thailand', 'Bangkok jobs', 'Chiang Mai jobs', 'Phuket jobs', 'TEFL Thailand', 'work in Thailand', 'jobs in Thailand 2026', 'English teacher jobs Thailand'],
+  keywords: ['jobs in Thailand', 'teaching jobs Thailand', 'ESL jobs Thailand', 'expat jobs Thailand', 'Bangkok jobs', 'Chiang Mai jobs', 'Phuket jobs', 'TEFL Thailand', 'work in Thailand'],
   metadataBase: new URL('https://www.jobsinthailand.net'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://www.jobsinthailand.net',
     siteName: 'Jobs in Thailand',
-    title: 'Jobs in Thailand 2026 | Teaching, Hospitality & Expat Jobs',
+    title: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
     description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand. Free to join — members see jobs 1 hour early!',
     images: [
       {
-        url: 'https://www.jobsinthailand.net/og-banner.jpg',
-        width: 1376,
-        height: 768,
+        url: 'https://www.jobsinthailand.net/og-image.jpg',
+        width: 1200,
+        height: 630,
         alt: 'Jobs in Thailand — Teaching, Hospitality & Expat Jobs',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Jobs in Thailand 2026 | Teaching, Hospitality & Expat Jobs',
+    title: 'Jobs in Thailand | Teaching, Hospitality & Expat Jobs',
     description: 'Find teaching jobs, hospitality jobs and expat careers across Thailand.',
-    images: ['https://www.jobsinthailand.net/og-banner.jpg'],
+    images: ['https://www.jobsinthailand.net/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -51,13 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Thailand Jobs" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-        <script dangerouslySetInnerHTML={{ __html: `
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-              for (let registration of registrations) { registration.unregister(); }
-            });
-          }
-        `}} />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-QM05PNHVW4"></script>
         <script dangerouslySetInnerHTML={{ __html: `
           window.dataLayer = window.dataLayer || [];
@@ -98,9 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ margin: 0, fontFamily: 'Arial, sans-serif', background: '#f9f9f9' }}>
         <Navbar />
-        <MarqueeBar />
         {children}
-        <AppInstallBanner />
         <VisitorCounter />
       </body>
     </html>
