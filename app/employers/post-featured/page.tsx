@@ -1,8 +1,9 @@
 'use client'
-import { Suspense, useState, useRef } from 'react'
+import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../../../src/lib/supabase'
-import HCaptcha from '@hcaptcha/react-hcaptcha'
+import dynamic from 'next/dynamic'
+const HCaptcha = dynamic(() => import('@hcaptcha/react-hcaptcha'), { ssr: false })
 
 const thaiProvinces = [
   'Bangkok', 'Chiang Mai', 'Phuket', 'Pattaya / Chonburi', 'Koh Samui / Surat Thani',
@@ -47,7 +48,6 @@ function PostFeaturedPage() {
   const [jobRef, setJobRef] = useState('')
   const [captchaToken, setCaptchaToken] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const captchaRef = useRef<HCaptcha>(null)
   const [form, setForm] = useState({
     title: '', company: '', location: '', salary: '',
     job_type: 'Full Time',
@@ -90,7 +90,6 @@ function PostFeaturedPage() {
     }]).select().single()
     if (error) {
       alert('Error submitting job: ' + error.message)
-      captchaRef.current?.resetCaptcha()
       setCaptchaToken('')
       setJobLoading(false)
       return
@@ -369,7 +368,6 @@ Please send me payment details. Thank you!`)
 
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
             <HCaptcha
-              ref={captchaRef}
               sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
               onVerify={token => { setCaptchaToken(token); setErrors(prev => ({ ...prev, captcha: '' })) }}
               onExpire={() => setCaptchaToken('')}
