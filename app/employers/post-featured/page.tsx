@@ -39,12 +39,12 @@ const otherCategories = [
   'Marketing', 'Healthcare', 'Creative', 'Other'
 ]
 
-const STRIPE_FEATURED_LINK = 'https://buy.stripe.com/8x26oA9RF8AH4tjblua7C02'
-
 function PostFeaturedPage() {
   const searchParams = useSearchParams()
   const isTeaching = searchParams.get('category') !== 'other'
   const [jobLoading, setJobLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [jobId, setJobId] = useState('')
   const [captchaToken, setCaptchaToken] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const captchaRef = useRef<HCaptcha>(null)
@@ -102,7 +102,10 @@ function PostFeaturedPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: form.title, location: form.location }),
     })
-    window.location.href = `${STRIPE_FEATURED_LINK}?client_reference_id=${data.id}`
+    setJobId(data.id)
+    setSubmitted(true)
+    setJobLoading(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const inputStyle = (field: string) => ({
@@ -117,6 +120,56 @@ function PostFeaturedPage() {
     fontSize: '15px', background: 'white', outline: 'none'
   })
 
+  if (submitted) {
+    const waMsg = encodeURIComponent(`Hi, I have just submitted a Featured Job Listing on jobsinthailand.net.\n\nJob: ${form.title}\nCompany: ${form.company}\nRef: ${jobId}\n\nPlease send payment details. Thank you!`)
+    return (
+      <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ background: '#f0fdf4', border: '2px solid #86efac', borderRadius: '16px', padding: '28px', marginBottom: '24px', textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
+            <h1 style={{ fontSize: '24px', fontWeight: '900', color: '#14532d', marginBottom: '8px' }}>Job Submitted!</h1>
+            <p style={{ color: '#15803d', fontSize: '15px', margin: 0 }}>Your listing has been saved. Please arrange payment of <strong>฿300</strong> to go live.</p>
+          </div>
+          <div style={{ background: '#fff3ed', border: '2px solid #E85D26', borderRadius: '14px', padding: '24px', marginBottom: '24px' }}>
+            <div style={{ fontWeight: '900', color: '#E85D26', fontSize: '18px', marginBottom: '12px' }}>💳 Payment Details</div>
+            {[
+              { label: 'PromptPay', value: '0871033821' },
+              { label: 'Bank', value: 'Kasikorn Bank (KBank)' },
+              { label: 'Account Name', value: 'Jobs in Thailand' },
+              { label: 'Amount', value: '฿300' },
+            ].map(item => (
+              <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid #ffe0cc', paddingBottom: '8px', marginBottom: '8px' }}>
+                <span style={{ color: '#888' }}>{item.label}</span>
+                <span style={{ fontWeight: 'bold', color: '#1a1a2e' }}>{item.value}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>Send your payment slip via WhatsApp, LINE, Facebook or email and your job will go live within a few hours.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <a href={`https://wa.me/66871033821?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#25D366', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
+                💬 WhatsApp
+              </a>
+              <a href="https://line.me/ti/p/+66871033821" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#06C755', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
+                💬 LINE
+              </a>
+              <a href="https://www.facebook.com/jobsinthailand.net" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#1877F2', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
+                📘 Facebook
+              </a>
+              <a href="mailto:Admin@jobsinthailand.net"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#1a1a2e', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
+                ✉️ Admin@jobsinthailand.net
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
@@ -124,8 +177,8 @@ function PostFeaturedPage() {
 
         <div style={{ background: '#fff3ed', border: '2px solid #E85D26', borderRadius: '12px', padding: '20px 24px', marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontWeight: 'bold', color: '#E85D26', fontSize: '18px' }}>⭐ Featured Listing — 500 THB</div>
-            <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>Pay securely via Stripe — your job goes live instantly after payment</div>
+            <div style={{ fontWeight: 'bold', color: '#E85D26', fontSize: '18px' }}>⭐ Featured Listing — ฿300</div>
+            <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>Pay via PromptPay or bank transfer — live within a few hours of payment</div>
           </div>
           <div style={{ fontSize: '36px' }}>🚀</div>
         </div>
@@ -145,7 +198,7 @@ function PostFeaturedPage() {
             Post a Featured {isTeaching ? 'Teaching' : 'Other'} Job
           </h1>
         </div>
-        <p style={{ color: '#666', marginBottom: '40px' }}>Fill in your job details — then pay securely via Stripe to go live instantly</p>
+        <p style={{ color: '#666', marginBottom: '40px' }}>Fill in your job details — then contact us to arrange payment</p>
 
         {Object.keys(errors).length > 0 && (
           <div style={{ background: '#ffeaea', border: '2px solid red', borderRadius: '10px', padding: '16px', marginBottom: '24px' }}>
@@ -264,8 +317,8 @@ function PostFeaturedPage() {
           <div style={{ background: '#f9f9f9', borderRadius: '10px', padding: '16px', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
             <div style={{ fontSize: '32px' }}>💳</div>
             <div>
-              <div style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>Secure payment via Stripe</div>
-              <div style={{ color: '#666', fontSize: '13px' }}>Card, Apple Pay & PromptPay accepted — your job goes live instantly</div>
+              <div style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>Payment via PromptPay or Bank Transfer</div>
+              <div style={{ color: '#666', fontSize: '13px' }}>After submitting, contact us via WhatsApp, LINE or email with your payment slip — your job goes live within a few hours</div>
             </div>
           </div>
 
@@ -281,10 +334,10 @@ function PostFeaturedPage() {
 
           <button onClick={handleJobSubmit} disabled={jobLoading}
             style={{ width: '100%', background: jobLoading ? '#ccc' : '#E85D26', color: 'white', padding: '16px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '18px', cursor: jobLoading ? 'not-allowed' : 'pointer' }}>
-            {jobLoading ? 'Saving job...' : '⭐ Pay 500 THB & Go Live →'}
+            {jobLoading ? 'Saving job...' : '⭐ Submit Job — ฿300 →'}
           </button>
           <p style={{ textAlign: 'center', color: '#999', fontSize: '13px', marginTop: '12px' }}>
-            You will be redirected to Stripe to complete payment securely
+            We will send you payment details after submission
           </p>
         </div>
       </div>
