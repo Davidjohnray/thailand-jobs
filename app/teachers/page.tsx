@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 
@@ -55,95 +55,101 @@ const subjectOptions = [
 ]
 
 function FeaturedCarousel({ teachers }: { teachers: any[] }) {
-  const [current, setCurrent] = useState(0)
-  const intervalRef = useRef<any>(null)
   const MAX_SLOTS = 12
   const filledSlots = teachers.length
   const emptySlots = MAX_SLOTS - filledSlots
-  // Build display items: real teachers + placeholder "get featured" cards
   const placeholders = Array.from({ length: emptySlots }, (_, i) => ({ _placeholder: true, _id: `placeholder-${i}` }))
   const allItems: any[] = [...teachers, ...placeholders]
-  const total = allItems.length // always 12
+  // Duplicate for seamless infinite loop
+  const loopItems = [...allItems, ...allItems]
 
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setCurrent(prev => (prev + 1) % total)
-    }, 3500)
-    return () => clearInterval(intervalRef.current)
-  }, [total])
+  const cardWidth = 300
+  const cardGap = 16
+  const scrollSpeed = 40 // seconds for one full loop
 
-  const visible = [0, 1, 2].map(offset => allItems[(current + offset) % total])
-
-  return (
-    <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', padding: '28px 24px', borderBottom: '3px solid #f59e0b' }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '20px' }}>⭐</span>
-            <span style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '18px' }}>Featured Teachers</span>
-            <span style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px', border: '1px solid rgba(245,158,11,0.4)' }}>
-              {filledSlots} / {MAX_SLOTS} slots filled this week
-            </span>
+  function renderCard(item: any, key: string) {
+    if (item._placeholder) {
+      return (
+        <Link key={key} href="/teachers/featured" style={{ textDecoration: 'none', flexShrink: 0, width: `${cardWidth}px` }}>
+          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '2px dashed rgba(245,158,11,0.3)', height: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '24px', textAlign: 'center', cursor: 'pointer' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', border: '2px dashed rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>⭐</div>
+            <div>
+              <p style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '14px', margin: '0 0 6px' }}>Featured Slot Available</p>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '0 0 14px', lineHeight: '1.5' }}>Get your profile seen first by schools & recruiters</p>
+              <span style={{ background: '#f59e0b', color: '#1a1a2e', padding: '7px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px' }}>฿50 / week — Contact Us</span>
+            </div>
           </div>
-          <Link href="/teachers/featured"
-            style={{ color: '#f59e0b', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', border: '1px solid #f59e0b', padding: '6px 14px', borderRadius: '6px' }}>
-            ⭐ Get Featured →
+        </Link>
+      )
+    }
+    return (
+      <div key={key} style={{ flexShrink: 0, width: `${cardWidth}px`, background: 'rgba(255,255,255,0.07)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(245,158,11,0.3)' }}>
+        <div style={{ position: 'relative', height: '160px', background: '#0d0d1a', overflow: 'hidden' }}>
+          {item.photo_url ? (
+            <img src={item.photo_url} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px' }}>👤</div>
+          )}
+          <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#f59e0b', color: '#1a1a2e', fontSize: '10px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>⭐ FEATURED</div>
+        </div>
+        <div style={{ padding: '14px' }}>
+          <h3 style={{ color: 'white', fontSize: '15px', fontWeight: 'bold', margin: '0 0 3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</h3>
+          <p style={{ color: '#ccc', fontSize: '12px', margin: '0 0 8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.nationality}{item.location ? ` · 📍 ${item.location}` : ''}</p>
+          {item.subjects?.length > 0 && (
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '10px' }}>
+              {item.subjects.slice(0, 3).map((s: string) => (
+                <span key={s} style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontSize: '10px', padding: '2px 7px', borderRadius: '20px' }}>{s}</span>
+              ))}
+            </div>
+          )}
+          <Link href={`/teachers/${item.slug}`}
+            style={{ display: 'block', textAlign: 'center', background: '#f59e0b', color: '#1a1a2e', padding: '7px', borderRadius: '6px', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none' }}>
+            View Profile →
           </Link>
         </div>
+      </div>
+    )
+  }
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-          {visible.map((item: any, i: number) => {
-            if (item._placeholder) {
-              return (
-                <Link key={`${item._id}-${i}`} href="/teachers/featured" style={{ textDecoration: 'none' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', overflow: 'hidden', border: '2px dashed rgba(245,158,11,0.3)', height: '100%', minHeight: '260px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '24px', textAlign: 'center', cursor: 'pointer' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', border: '2px dashed rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>⭐</div>
-                    <div>
-                      <p style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '14px', margin: '0 0 6px' }}>Featured Slot Available</p>
-                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '0 0 14px', lineHeight: '1.5' }}>Get your profile seen first by schools & recruiters</p>
-                      <span style={{ background: '#f59e0b', color: '#1a1a2e', padding: '7px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px' }}>฿50 / week — Contact Us</span>
-                    </div>
-                  </div>
-                </Link>
-              )
-            }
-            return (
-              <div key={`${item.id}-${i}`}
-                style={{ background: 'rgba(255,255,255,0.07)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(245,158,11,0.3)' }}>
-                <div style={{ position: 'relative', height: '180px', background: '#0d0d1a', overflow: 'hidden' }}>
-                  {item.photo_url ? (
-                    <img src={item.photo_url} alt={item.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '56px' }}>👤</div>
-                  )}
-                  <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#f59e0b', color: '#1a1a2e', fontSize: '10px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>⭐ FEATURED</div>
-                </div>
-                <div style={{ padding: '14px' }}>
-                  <h3 style={{ color: 'white', fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{item.name}</h3>
-                  <p style={{ color: '#ccc', fontSize: '12px', margin: '0 0 8px' }}>{item.nationality}{item.location ? ` · 📍 ${item.location}` : ''}</p>
-                  {item.subjects?.length > 0 && (
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                      {item.subjects.slice(0, 3).map((s: string) => (
-                        <span key={s} style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontSize: '10px', padding: '2px 7px', borderRadius: '20px' }}>{s}</span>
-                      ))}
-                    </div>
-                  )}
-                  <Link href={`/teachers/${item.slug}`}
-                    style={{ display: 'block', textAlign: 'center', background: '#f59e0b', color: '#1a1a2e', padding: '8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none' }}>
-                    View Profile →
-                  </Link>
-                </div>
-              </div>
-            )
-          })}
+  const totalWidth = allItems.length * (cardWidth + cardGap)
+
+  return (
+    <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', padding: '24px 0 28px', borderBottom: '3px solid #f59e0b' }}>
+      <style>{`
+        @keyframes featuredScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-${totalWidth}px); }
+        }
+        .featured-track:hover { animation-play-state: paused; }
+      `}</style>
+
+      {/* Header */}
+      <div style={{ maxWidth: '1100px', margin: '0 auto 18px', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '20px' }}>⭐</span>
+          <span style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '18px' }}>Featured Teachers</span>
+          <span style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px', border: '1px solid rgba(245,158,11,0.4)' }}>
+            {filledSlots} / {MAX_SLOTS} slots filled this week
+          </span>
         </div>
+        <Link href="/teachers/featured"
+          style={{ color: '#f59e0b', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', border: '1px solid #f59e0b', padding: '6px 14px', borderRadius: '6px' }}>
+          ⭐ Get Featured →
+        </Link>
+      </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '16px' }}>
-          {Array.from({ length: total }).map((_, i) => (
-            <button key={i} onClick={() => { setCurrent(i); clearInterval(intervalRef.current) }}
-              style={{ width: i === current ? '20px' : '8px', height: '8px', borderRadius: '4px', background: i === current ? '#f59e0b' : 'rgba(255,255,255,0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease', padding: 0 }} />
-          ))}
+      {/* Scrolling track */}
+      <div style={{ overflow: 'hidden', width: '100%' }}>
+        <div
+          className="featured-track"
+          style={{
+            display: 'flex',
+            gap: `${cardGap}px`,
+            paddingLeft: `${cardGap}px`,
+            width: 'max-content',
+            animation: `featuredScroll ${scrollSpeed}s linear infinite`,
+          }}>
+          {loopItems.map((item, i) => renderCard(item, `${item._id ?? item.id}-${i}`))}
         </div>
       </div>
     </div>
