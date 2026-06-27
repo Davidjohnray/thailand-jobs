@@ -90,12 +90,43 @@ export default function FeaturedTeachersPage() {
         {/* CTA */}
         <div style={{ textAlign: 'center' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px' }}>Ready to get featured?</h2>
-          <p style={{ color: '#666', fontSize: '15px', marginBottom: '24px' }}>Contact us and we'll get your slot set up within a few hours.</p>
-          <a href="mailto:admin@jobsinthailand.net?subject=Featured Teacher Slot&body=Hi, I'd like to book a featured slot on the Teacher Directory. My profile name/link is:"
-            style={{ display: 'inline-block', background: '#f59e0b', color: '#1a1a2e', padding: '16px 40px', borderRadius: '10px', fontWeight: 'bold', fontSize: '18px', textDecoration: 'none', marginBottom: '16px' }}>
-            📩 Contact Us to Book a Slot
-          </a>
-          <br />
+          <p style={{ color: '#666', fontSize: '15px', marginBottom: '28px' }}>Contact us via any of the options below and we'll get your slot set up within a few hours.</p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '420px', margin: '0 auto 32px' }}>
+            {/* WhatsApp */}
+            <a href="https://wa.me/66819603740?text=Hi%2C%20I%27d%20like%20to%20book%20a%20featured%20slot%20on%20the%20Teacher%20Directory.%20My%20profile%20name%2Flink%20is%3A"
+              target="_blank" rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#25D366', color: 'white', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+              <span style={{ fontSize: '22px' }}>💬</span> Contact via WhatsApp
+            </a>
+
+            {/* LINE */}
+            <a href="https://line.me/ti/p/~davidray_thailand"
+              target="_blank" rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#06C755', color: 'white', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+              <span style={{ fontSize: '22px' }}>💚</span> Contact via LINE
+            </a>
+
+            {/* Facebook */}
+            <a href="https://www.facebook.com/jobsinthailand.net"
+              target="_blank" rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#1877F2', color: 'white', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+              <span style={{ fontSize: '22px' }}>📘</span> Message on Facebook
+            </a>
+
+            {/* Email */}
+            <a href="mailto:Admin@jobsinthailand.net?subject=Featured Teacher Slot&body=Hi, I'd like to book a featured slot on the Teacher Directory. My profile name/link is:"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#1a1a2e', color: 'white', padding: '14px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+              <span style={{ fontSize: '22px' }}>📧</span> Email: Admin@jobsinthailand.net
+            </a>
+          </div>
+
+          <div style={{ background: '#f9f9f9', border: '1px solid #eee', borderRadius: '10px', padding: '16px 20px', maxWidth: '420px', margin: '0 auto 28px' }}>
+            <p style={{ color: '#555', fontSize: '13px', margin: 0, lineHeight: '1.6' }}>
+              Send us your <strong>profile name or link</strong> and we'll confirm your slot and send payment details (฿50 via PromptPay or bank transfer). Your profile goes live within a few hours of payment.
+            </p>
+          </div>
+
           <Link href="/teachers" style={{ color: '#2D6BE4', fontSize: '14px', fontWeight: 'bold', textDecoration: 'none' }}>
             ← Back to Teacher Directory
           </Link>
