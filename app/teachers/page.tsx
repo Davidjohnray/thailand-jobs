@@ -54,27 +54,25 @@ const subjectOptions = [
   'Music', 'ICT', 'Drama', 'Phonics', 'IELTS/TOEIC Prep', 'Business English'
 ]
 
-function FeaturedCarousel({ teachers, hasAccess, onGetAccess }: { teachers: any[], hasAccess: boolean, onGetAccess: () => void }) {
+function FeaturedCarousel({ teachers }: { teachers: any[] }) {
   const [current, setCurrent] = useState(0)
   const intervalRef = useRef<any>(null)
-  const total = teachers.length
+  const MAX_SLOTS = 12
+  const filledSlots = teachers.length
+  const emptySlots = MAX_SLOTS - filledSlots
+  // Build display items: real teachers + placeholder "get featured" cards
+  const placeholders = Array.from({ length: emptySlots }, (_, i) => ({ _placeholder: true, _id: `placeholder-${i}` }))
+  const allItems: any[] = [...teachers, ...placeholders]
+  const total = allItems.length // always 12
 
   useEffect(() => {
-    if (total <= 3) return
     intervalRef.current = setInterval(() => {
       setCurrent(prev => (prev + 1) % total)
     }, 3500)
     return () => clearInterval(intervalRef.current)
   }, [total])
 
-  if (total === 0) return null
-
-  const getVisible = () => {
-    if (total <= 3) return teachers
-    return [0, 1, 2].map(offset => teachers[(current + offset) % total])
-  }
-
-  const visible = getVisible()
+  const visible = [0, 1, 2].map(offset => allItems[(current + offset) % total])
 
   return (
     <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', padding: '28px 24px', borderBottom: '3px solid #f59e0b' }}>
@@ -83,56 +81,70 @@ function FeaturedCarousel({ teachers, hasAccess, onGetAccess }: { teachers: any[
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '20px' }}>⭐</span>
             <span style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '18px' }}>Featured Teachers</span>
-            <span style={{ background: '#f59e0b', color: '#1a1a2e', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>{total} this week</span>
+            <span style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px', border: '1px solid rgba(245,158,11,0.4)' }}>
+              {filledSlots} / {MAX_SLOTS} slots filled this week
+            </span>
           </div>
           <Link href="/teachers/featured"
             style={{ color: '#f59e0b', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', border: '1px solid #f59e0b', padding: '6px 14px', borderRadius: '6px' }}>
-            Get Featured →
+            ⭐ Get Featured →
           </Link>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-          {visible.map((teacher: any, i: number) => (
-            <div key={`${teacher.id}-${i}`}
-              style={{ background: 'rgba(255,255,255,0.07)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(245,158,11,0.3)', transition: 'transform 0.3s ease' }}>
-              {/* Big photo */}
-              <div style={{ position: 'relative', height: '180px', background: '#0d0d1a', overflow: 'hidden' }}>
-                {teacher.photo_url ? (
-                  <img src={teacher.photo_url} alt={teacher.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
-                ) : (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '56px' }}>👤</div>
-                )}
-                <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#f59e0b', color: '#1a1a2e', fontSize: '10px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>⭐ FEATURED</div>
-              </div>
-              {/* Info */}
-              <div style={{ padding: '14px' }}>
-                <h3 style={{ color: 'white', fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{teacher.name}</h3>
-                <p style={{ color: '#ccc', fontSize: '12px', margin: '0 0 8px' }}>{teacher.nationality}{teacher.location ? ` · 📍 ${teacher.location}` : ''}</p>
-                {teacher.subjects?.length > 0 && (
-                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                    {teacher.subjects.slice(0, 3).map((s: string) => (
-                      <span key={s} style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontSize: '10px', padding: '2px 7px', borderRadius: '20px' }}>{s}</span>
-                    ))}
+          {visible.map((item: any, i: number) => {
+            if (item._placeholder) {
+              return (
+                <Link key={`${item._id}-${i}`} href="/teachers/featured" style={{ textDecoration: 'none' }}>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', overflow: 'hidden', border: '2px dashed rgba(245,158,11,0.3)', height: '100%', minHeight: '260px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '24px', textAlign: 'center', cursor: 'pointer' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', border: '2px dashed rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>⭐</div>
+                    <div>
+                      <p style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '14px', margin: '0 0 6px' }}>Featured Slot Available</p>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: '0 0 14px', lineHeight: '1.5' }}>Get your profile seen first by schools & recruiters</p>
+                      <span style={{ background: '#f59e0b', color: '#1a1a2e', padding: '7px 16px', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px' }}>฿50 / week — Contact Us</span>
+                    </div>
                   </div>
-                )}
-                <Link href={`/teachers/${teacher.slug}`}
-                  style={{ display: 'block', textAlign: 'center', background: '#f59e0b', color: '#1a1a2e', padding: '8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none' }}>
-                  View Profile →
                 </Link>
+              )
+            }
+            return (
+              <div key={`${item.id}-${i}`}
+                style={{ background: 'rgba(255,255,255,0.07)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <div style={{ position: 'relative', height: '180px', background: '#0d0d1a', overflow: 'hidden' }}>
+                  {item.photo_url ? (
+                    <img src={item.photo_url} alt={item.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '56px' }}>👤</div>
+                  )}
+                  <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#f59e0b', color: '#1a1a2e', fontSize: '10px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>⭐ FEATURED</div>
+                </div>
+                <div style={{ padding: '14px' }}>
+                  <h3 style={{ color: 'white', fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{item.name}</h3>
+                  <p style={{ color: '#ccc', fontSize: '12px', margin: '0 0 8px' }}>{item.nationality}{item.location ? ` · 📍 ${item.location}` : ''}</p>
+                  {item.subjects?.length > 0 && (
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                      {item.subjects.slice(0, 3).map((s: string) => (
+                        <span key={s} style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontSize: '10px', padding: '2px 7px', borderRadius: '20px' }}>{s}</span>
+                      ))}
+                    </div>
+                  )}
+                  <Link href={`/teachers/${item.slug}`}
+                    style={{ display: 'block', textAlign: 'center', background: '#f59e0b', color: '#1a1a2e', padding: '8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none' }}>
+                    View Profile →
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
-        {total > 3 && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '16px' }}>
-            {teachers.map((_, i) => (
-              <button key={i} onClick={() => { setCurrent(i); clearInterval(intervalRef.current) }}
-                style={{ width: i === current ? '20px' : '8px', height: '8px', borderRadius: '4px', background: i === current ? '#f59e0b' : 'rgba(255,255,255,0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease', padding: 0 }} />
-            ))}
-          </div>
-        )}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '16px' }}>
+          {Array.from({ length: total }).map((_, i) => (
+            <button key={i} onClick={() => { setCurrent(i); clearInterval(intervalRef.current) }}
+              style={{ width: i === current ? '20px' : '8px', height: '8px', borderRadius: '4px', background: i === current ? '#f59e0b' : 'rgba(255,255,255,0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease', padding: 0 }} />
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -242,6 +254,10 @@ export default function TeacherDirectoryPage() {
             style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
             + Post Your CV Free
           </Link>
+          <Link href="/teachers/featured"
+            style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', padding: '12px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px', border: '1px solid rgba(245,158,11,0.4)' }}>
+            ⭐ Get Featured
+          </Link>
         </div>
       </section>
 
@@ -253,10 +269,8 @@ export default function TeacherDirectoryPage() {
         </div>
       )}
 
-      {/* FEATURED CAROUSEL */}
-      {featured.length > 0 && (
-        <FeaturedCarousel teachers={featured} hasAccess={hasAccess} onGetAccess={() => setShowAccessForm(true)} />
-      )}
+      {/* FEATURED CAROUSEL — always visible */}
+      <FeaturedCarousel teachers={featured} />
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 16px' }}>
         <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
