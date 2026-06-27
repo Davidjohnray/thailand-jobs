@@ -228,18 +228,13 @@ export default async function Home() {
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
 
           <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-            <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb' }}>
-              <div style={{ background: '#3b5bdb', padding: '8px', textAlign: 'center' }}>
-                <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Sponsored</div>
-              </div>
-              <div style={{ padding: '20px 16px', textAlign: 'center' }}>
-                <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '100%', maxWidth: '180px', height: 'auto', marginBottom: '12px' }} />
-                <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '15px', marginBottom: '6px' }}>Learn Thai, English & Chinese</div>
-                <div style={{ color: '#666', fontSize: '12px', marginBottom: '14px', lineHeight: '1.5' }}>Practical language courses in Bangkok for expats and international learners</div>
-                <div style={{ background: '#3b5bdb', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>Explore Duke Courses →</div>
-              </div>
-            </div>
-          </a>
+  <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
+    <div style={{ background: '#3b5bdb', color: 'white', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', padding: '3px 10px', borderRadius: '20px' }}>Sponsored</div>
+    <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
+    <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.4' }}>Learn Thai, English & Chinese</div>
+    <div style={{ background: '#3b5bdb', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Explore Courses →</div>
+  </div>
+</a>
 
           <a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=banner&utm_campaign=lucky_cleaning"
             target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
