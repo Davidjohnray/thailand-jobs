@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 
@@ -10,83 +10,42 @@ const supabase = createClient(
 
 const nationalities = [
   'All Nationalities',
-
-  // 🌏 East & Southeast Asia
   'Filipino', 'Indonesian', 'Malaysian', 'Singaporean', 'Thai', 'Vietnamese',
   'Cambodian', 'Burmese', 'Laotian', 'Bruneian', 'Timorese',
   'Chinese', 'Japanese', 'Korean', 'Taiwanese', 'Mongolian',
-
-  // 🌏 South Asia
   'Indian', 'Pakistani', 'Sri Lankan', 'Bangladeshi', 'Nepali',
   'Bhutanese', 'Maldivian', 'Afghan',
-
-  // 🌍 English-speaking countries
   'British', 'American', 'Canadian', 'Australian', 'New Zealander',
   'Irish', 'Scottish', 'Welsh',
-
-  // 🌍 West Africa
   'Nigerian', 'Ghanaian', 'Ivorian', 'Senegalese', 'Malian',
   'Beninese', 'Burkinabe', 'Togolese', 'Guinean', 'Sierra Leonean',
   'Liberian', 'Gambian', 'Cape Verdean', 'Mauritanian', 'Nigerien',
-
-  // 🌍 East Africa
   'Kenyan', 'Tanzanian', 'Ugandan', 'Ethiopian', 'Rwandan',
-  'Burundian', 'Somali', 'Djiboutian', 'Eritrean', 'South Sudanese',
-  'Sudanese',
-
-  // 🌍 Central Africa
-  'Cameroonian', 'Congolese', 'Gabonese', 'Equatoguinean',
-  'Central African', 'Chadian',
-
-  // 🌍 Southern Africa
+  'Burundian', 'Somali', 'Djiboutian', 'Eritrean', 'South Sudanese', 'Sudanese',
+  'Cameroonian', 'Congolese', 'Gabonese', 'Equatoguinean', 'Central African', 'Chadian',
   'South African', 'Zimbabwean', 'Zambian', 'Mozambican', 'Malawian',
   'Botswanan', 'Namibian', 'Swazi', 'Lesothan', 'Angolan',
-
-  // 🌍 North Africa
   'Egyptian', 'Moroccan', 'Algerian', 'Tunisian', 'Libyan',
-
-  // 🌍 Indian Ocean Africa
   'Malagasy', 'Mauritian', 'Seychellois', 'Comorian',
-
-  // 🌎 South America
   'Brazilian', 'Argentinian', 'Colombian', 'Chilean', 'Peruvian',
-  'Venezuelan', 'Ecuadorian', 'Bolivian', 'Paraguayan', 'Uruguayan',
-  'Guyanese', 'Surinamese',
-
-  // 🌎 Central America & Caribbean
+  'Venezuelan', 'Ecuadorian', 'Bolivian', 'Paraguayan', 'Uruguayan', 'Guyanese', 'Surinamese',
   'Mexican', 'Jamaican', 'Trinidadian', 'Barbadian', 'Bahamian',
   'Haitian', 'Dominican', 'Cuban', 'Puerto Rican', 'Belizean',
-  'Guatemalan', 'Honduran', 'Salvadoran', 'Nicaraguan', 'Costa Rican',
-  'Panamanian',
-
-  // 🌍 Middle East
+  'Guatemalan', 'Honduran', 'Salvadoran', 'Nicaraguan', 'Costa Rican', 'Panamanian',
   'Lebanese', 'Jordanian', 'Syrian', 'Iraqi', 'Israeli',
   'Palestinian', 'Saudi', 'Emirati', 'Qatari', 'Kuwaiti',
   'Bahraini', 'Omani', 'Yemeni', 'Iranian', 'Turkish',
-
-  // 🌍 Western Europe
   'French', 'German', 'Dutch', 'Belgian', 'Swiss', 'Spanish', 'Italian',
   'Portuguese', 'Austrian', 'Luxembourgish',
-
-  // 🌍 Northern Europe
   'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Icelandic',
   'Estonian', 'Latvian', 'Lithuanian',
-
-  // 🌍 Eastern Europe
   'Russian', 'Ukrainian', 'Polish', 'Romanian', 'Hungarian',
   'Czech', 'Slovak', 'Bulgarian', 'Belarusian', 'Moldovan',
-
-  // 🌍 Southern Europe
   'Greek', 'Croatian', 'Serbian', 'Slovenian', 'Bosnian',
   'Macedonian', 'Albanian', 'Montenegrin', 'Maltese',
-
-  // 🌏 Central Asia & Caucasus
   'Kazakh', 'Uzbek', 'Kyrgyz', 'Tajik', 'Turkmen',
   'Azerbaijani', 'Georgian', 'Armenian',
-
-  // 🌏 Pacific
   'Papua New Guinean', 'Samoan', 'Tongan', 'Fijian', 'Vanuatuan',
-
   'Other'
 ]
 
@@ -95,8 +54,93 @@ const subjectOptions = [
   'Music', 'ICT', 'Drama', 'Phonics', 'IELTS/TOEIC Prep', 'Business English'
 ]
 
+function FeaturedCarousel({ teachers, hasAccess, onGetAccess }: { teachers: any[], hasAccess: boolean, onGetAccess: () => void }) {
+  const [current, setCurrent] = useState(0)
+  const intervalRef = useRef<any>(null)
+  const total = teachers.length
+
+  useEffect(() => {
+    if (total <= 3) return
+    intervalRef.current = setInterval(() => {
+      setCurrent(prev => (prev + 1) % total)
+    }, 3500)
+    return () => clearInterval(intervalRef.current)
+  }, [total])
+
+  if (total === 0) return null
+
+  const getVisible = () => {
+    if (total <= 3) return teachers
+    return [0, 1, 2].map(offset => teachers[(current + offset) % total])
+  }
+
+  const visible = getVisible()
+
+  return (
+    <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%)', padding: '28px 24px', borderBottom: '3px solid #f59e0b' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '20px' }}>⭐</span>
+            <span style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '18px' }}>Featured Teachers</span>
+            <span style={{ background: '#f59e0b', color: '#1a1a2e', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '20px' }}>{total} this week</span>
+          </div>
+          <Link href="/teachers/featured"
+            style={{ color: '#f59e0b', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', border: '1px solid #f59e0b', padding: '6px 14px', borderRadius: '6px' }}>
+            Get Featured →
+          </Link>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          {visible.map((teacher: any, i: number) => (
+            <div key={`${teacher.id}-${i}`}
+              style={{ background: 'rgba(255,255,255,0.07)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(245,158,11,0.3)', transition: 'transform 0.3s ease' }}>
+              {/* Big photo */}
+              <div style={{ position: 'relative', height: '180px', background: '#0d0d1a', overflow: 'hidden' }}>
+                {teacher.photo_url ? (
+                  <img src={teacher.photo_url} alt={teacher.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '56px' }}>👤</div>
+                )}
+                <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#f59e0b', color: '#1a1a2e', fontSize: '10px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '20px' }}>⭐ FEATURED</div>
+              </div>
+              {/* Info */}
+              <div style={{ padding: '14px' }}>
+                <h3 style={{ color: 'white', fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{teacher.name}</h3>
+                <p style={{ color: '#ccc', fontSize: '12px', margin: '0 0 8px' }}>{teacher.nationality}{teacher.location ? ` · 📍 ${teacher.location}` : ''}</p>
+                {teacher.subjects?.length > 0 && (
+                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                    {teacher.subjects.slice(0, 3).map((s: string) => (
+                      <span key={s} style={{ background: 'rgba(245,158,11,0.2)', color: '#f59e0b', fontSize: '10px', padding: '2px 7px', borderRadius: '20px' }}>{s}</span>
+                    ))}
+                  </div>
+                )}
+                <Link href={`/teachers/${teacher.slug}`}
+                  style={{ display: 'block', textAlign: 'center', background: '#f59e0b', color: '#1a1a2e', padding: '8px', borderRadius: '6px', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none' }}>
+                  View Profile →
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {total > 3 && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '16px' }}>
+            {teachers.map((_, i) => (
+              <button key={i} onClick={() => { setCurrent(i); clearInterval(intervalRef.current) }}
+                style={{ width: i === current ? '20px' : '8px', height: '8px', borderRadius: '4px', background: i === current ? '#f59e0b' : 'rgba(255,255,255,0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease', padding: 0 }} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function TeacherDirectoryPage() {
   const [teachers, setTeachers] = useState<any[]>([])
+  const [featured, setFeatured] = useState<any[]>([])
   const [filtered, setFiltered] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [nationality, setNationality] = useState('All Nationalities')
@@ -121,8 +165,19 @@ export default function TeacherDirectoryPage() {
   }, [])
 
   useEffect(() => {
+    const now = new Date().toISOString()
+    // Load all approved teachers
     supabase.from('teachers').select('*').eq('active', true).eq('status', 'approved').order('created_at', { ascending: false })
-      .then(({ data }) => { setTeachers(data || []); setFiltered(data || []); setLoading(false) })
+      .then(({ data }) => {
+        const all = data || []
+        // Split featured (active + not expired) from regular
+        const featuredNow = all.filter(t => t.featured && t.featured_until && t.featured_until > now)
+        const regular = all.filter(t => !(t.featured && t.featured_until && t.featured_until > now))
+        setFeatured(featuredNow)
+        setTeachers(regular)
+        setFiltered(regular)
+        setLoading(false)
+      })
   }, [])
 
   useEffect(() => {
@@ -164,7 +219,7 @@ export default function TeacherDirectoryPage() {
 
       <section style={{ background: '#1a1a2e', padding: '40px 24px', textAlign: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '36px', fontWeight: 'bold', margin: '0 0 8px' }}>🎓 Teacher Directory</h1>
-        <p style={{ color: '#ccc', fontSize: '16px', margin: '0 0 20px' }}>{filtered.length} teachers seeking positions in Thailand</p>
+        <p style={{ color: '#ccc', fontSize: '16px', margin: '0 0 20px' }}>{teachers.length + featured.length} teachers seeking positions in Thailand</p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
           {hasAccess ? (
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '8px', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -196,6 +251,11 @@ export default function TeacherDirectoryPage() {
           <span style={{ color: '#555', fontSize: '14px' }}>Browse all teacher CVs free. Pay to unlock contact details & intro videos. </span>
           <button onClick={() => setShowModal(true)} style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>View pricing →</button>
         </div>
+      )}
+
+      {/* FEATURED CAROUSEL */}
+      {featured.length > 0 && (
+        <FeaturedCarousel teachers={featured} hasAccess={hasAccess} onGetAccess={() => setShowAccessForm(true)} />
       )}
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 16px' }}>
@@ -265,8 +325,6 @@ export default function TeacherDirectoryPage() {
                       {teacher.bio}
                     </p>
                   )}
-
-                  {/* Contact — locked unless recruiter */}
                   {hasAccess ? (
                     <div style={{ background: '#e8f5e9', borderRadius: '8px', padding: '12px', border: '1px solid #c8e6c9' }}>
                       <p style={{ color: '#2e7d32', fontSize: '12px', fontWeight: 'bold', margin: '0 0 8px' }}>✅ Contact Details</p>
@@ -290,7 +348,6 @@ export default function TeacherDirectoryPage() {
                       </button>
                     </div>
                   )}
-
                   <Link href={`/teachers/${teacher.slug}`}
                     style={{ display: 'block', textAlign: 'center', marginTop: '10px', color: '#2D6BE4', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}>
                     View Full Profile →
@@ -351,9 +408,9 @@ export default function TeacherDirectoryPage() {
               </div>
             </div>
             <p style={{ color: '#555', fontSize: '14px', marginBottom: '20px', textAlign: 'center' }}>
-              ✅ Unlimited access to all teacher contact details<br/>
-              ✅ Watch teacher introduction videos<br/>
-              ✅ New teachers added daily<br/>
+              ✅ Unlimited access to all teacher contact details<br />
+              ✅ Watch teacher introduction videos<br />
+              ✅ New teachers added daily<br />
               ✅ Filter by nationality, subject & location
             </p>
             {sent ? (
