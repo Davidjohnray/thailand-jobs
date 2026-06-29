@@ -235,7 +235,7 @@ export default async function ExpatServicesPage() {
             <a href="https://line.me/ti/p/watee7266" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ width: '100%', aspectRatio: '1 / 1', overflow: 'hidden' }}>
-                  <img src="/car-van-rental-thailand.jpg" alt="Car & Van Rental Service Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src="/car-van-rental-service.jpg" alt="Car & Van Rental Service Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <div style={{ padding: '12px 16px', borderTop: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e' }}>Car & Van Rental Service</div>
