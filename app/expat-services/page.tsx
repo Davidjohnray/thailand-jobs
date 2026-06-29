@@ -34,9 +34,9 @@ function AdCard({ ad }: { ad: Ad }) {
   return (
     <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
       {ad.banner_url ? (
-        <div style={{ width: '250px', height: '250px', overflow: 'hidden', margin: '0 auto' }}>
-  <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service" style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
-</div>
+        <div style={{ width: '100%', aspectRatio: '1 / 1', overflow: 'hidden' }}>
+          <img src={ad.banner_url} alt={ad.business_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
       ) : (
         <div style={{ padding: '24px 20px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '8px', minHeight: '200px', justifyContent: 'center' }}>
           <span style={{ background: cat.bg, color: cat.color, fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '20px' }}>{ad.category}</span>
@@ -76,9 +76,9 @@ function FeaturedAdCard({ ad }: { ad: Ad }) {
         <span style={{ color: 'white', fontSize: '11px', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Featured</span>
       </div>
       {ad.banner_url ? (
-        <div style={{ width: '250px', height: '250px', overflow: 'hidden', margin: '0 auto' }}>
-  <img src="/lucky_cleaning_service.jpg" alt="Lucky Cleaning Service" style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
-</div>
+        <div style={{ width: '100%', aspectRatio: '1 / 1', overflow: 'hidden' }}>
+          <img src={ad.banner_url} alt={ad.business_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
       ) : (
         <div style={{ padding: '24px 20px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '8px', minHeight: '200px', justifyContent: 'center', background: 'linear-gradient(135deg, #fffbeb, #fff)' }}>
           <span style={{ background: cat.bg, color: cat.color, fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '20px' }}>{ad.category}</span>
@@ -203,7 +203,7 @@ export default async function ExpatServicesPage() {
           </div>
         </div>
 
-        {/* STANDARD ADS — Lucky Cleaning hardcoded first, then DB ads */}
+        {/* STANDARD ADS */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', paddingBottom: '14px', borderBottom: '3px solid #e5e7eb' }}>
             <div style={{ background: '#0ea5e9', width: '40px', height: '40px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🏙️</div>
@@ -227,6 +227,36 @@ export default async function ExpatServicesPage() {
                   <div style={{ background: '#1a1a2e', color: 'white', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textAlign: 'center', marginTop: '4px' }}>
                     View on Facebook →
                   </div>
+                </div>
+              </div>
+            </a>
+
+            {/* CAR & VAN RENTAL SERVICE — hardcoded */}
+            <a href="https://line.me/ti/p/watee7266" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ width: '100%', aspectRatio: '1 / 1', overflow: 'hidden' }}>
+                  <img src="/car-van-rental-thailand.jpg" alt="Car & Van Rental Service Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div style={{ padding: '12px 16px', borderTop: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e' }}>Car & Van Rental Service</div>
+                  <div style={{ color: '#666', fontSize: '12px' }}>Airport transfers & travel across Thailand</div>
+                  <span style={{ background: '#fff7ed', color: '#c2410c', fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', alignSelf: 'flex-start' }}>Transport</span>
+                  <div style={{ color: '#374151', fontSize: '12px', fontWeight: '600' }}>📞 +66989157266</div>
+                </div>
+              </div>
+            </a>
+
+            {/* HUA HIN MOVING SERVICE — hardcoded */}
+            <a href="tel:0968415264" style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ width: '100%', aspectRatio: '1 / 1', overflow: 'hidden' }}>
+                  <img src="/huahin-moving-service.jpg" alt="Hua Hin Moving Service" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div style={{ padding: '12px 16px', borderTop: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ fontWeight: '700', fontSize: '14px', color: '#1a1a2e' }}>Hua Hin Moving Service</div>
+                  <div style={{ color: '#666', fontSize: '12px' }}>Household, office & condo relocation</div>
+                  <span style={{ background: '#f3f4f6', color: '#4b5563', fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', alignSelf: 'flex-start' }}>Moving</span>
+                  <div style={{ color: '#374151', fontSize: '12px', fontWeight: '600' }}>📞 096-841-5264</div>
                 </div>
               </div>
             </a>
