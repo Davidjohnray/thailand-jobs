@@ -6,10 +6,24 @@ export default function ESLResourcesPage() {
     <main style={{ fontFamily: 'sans-serif', background: '#f8f9fa', minHeight: '100vh' }}>
 
       <div style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #E85D26 100%)', padding: '70px 24px', textAlign: 'center', color: 'white' }}>
-        <div style={{ fontSize: '52px', marginBottom: '16px' }}>📖</div>
-        <h1 style={{ fontSize: '40px', fontWeight: 'bold', margin: '0 0 14px', letterSpacing: '-1px' }}>ESL Resources</h1>
-        <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '560px', margin: '0 auto 10px' }}>Ready-to-teach ESL resources for all ages</p>
-        <p style={{ fontSize: '14px', opacity: 0.75, maxWidth: '480px', margin: '0 auto' }}>Designed for bilingual schools, private kindergartens, and ESL programs in Thailand</p>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
+
+          {/* HERO TEXT */}
+          <div style={{ flex: 1, minWidth: '280px', textAlign: 'center' }}>
+            <div style={{ fontSize: '52px', marginBottom: '16px' }}>📖</div>
+            <h1 style={{ fontSize: '40px', fontWeight: 'bold', margin: '0 0 14px', letterSpacing: '-1px' }}>ESL Resources</h1>
+            <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '560px', margin: '0 auto 10px' }}>Ready-to-teach ESL resources for all ages</p>
+            <p style={{ fontSize: '14px', opacity: 0.75, maxWidth: '480px', margin: '0 auto' }}>Designed for bilingual schools, private kindergartens, and ESL programs in Thailand</p>
+          </div>
+
+          {/* P&V ADVISORY BANNER */}
+          <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
+            <div style={{ width: '250px', height: '250px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+              <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          </a>
+
+        </div>
       </div>
 
       {/* FOUR MAIN SECTION BUTTONS */}
@@ -18,7 +32,6 @@ export default function ESLResourcesPage() {
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '24px' }}>Choose a section</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
 
-            {/* LESSON PLANS */}
             <Link href="#lesson-plans" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #7C3AED, #E85D26)', borderRadius: '20px', padding: '32px 28px', textAlign: 'center', color: 'white', cursor: 'pointer', boxShadow: '0 8px 28px rgba(124,58,237,0.3)', border: '2px solid rgba(255,255,255,0.1)', height: '100%', boxSizing: 'border-box' }}>
                 <div style={{ fontSize: '44px', marginBottom: '12px' }}>📋</div>
@@ -28,7 +41,6 @@ export default function ESLResourcesPage() {
               </div>
             </Link>
 
-            {/* READING COMPREHENSION */}
             <Link href="/esl-resources/reading-comprehension" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #0f3460, #0ea5e9)', borderRadius: '20px', padding: '32px 28px', textAlign: 'center', color: 'white', cursor: 'pointer', boxShadow: '0 8px 28px rgba(14,165,233,0.3)', border: '2px solid rgba(255,255,255,0.1)', height: '100%', boxSizing: 'border-box' }}>
                 <div style={{ fontSize: '44px', marginBottom: '12px' }}>🗞️</div>
@@ -38,7 +50,6 @@ export default function ESLResourcesPage() {
               </div>
             </Link>
 
-            {/* GRAMMAR */}
             <Link href="/esl-resources/grammar" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #059669, #10b981)', borderRadius: '20px', padding: '32px 28px', textAlign: 'center', color: 'white', cursor: 'pointer', boxShadow: '0 8px 28px rgba(5,150,105,0.3)', border: '2px solid rgba(255,255,255,0.1)', height: '100%', boxSizing: 'border-box' }}>
                 <div style={{ fontSize: '44px', marginBottom: '12px' }}>✏️</div>
@@ -48,7 +59,6 @@ export default function ESLResourcesPage() {
               </div>
             </Link>
 
-            {/* LEARN & PLAY */}
             <Link href="/esl-games/live" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #f59e0b, #22c55e)', borderRadius: '20px', padding: '32px 28px', textAlign: 'center', color: 'white', cursor: 'pointer', boxShadow: '0 8px 28px rgba(245,158,11,0.3)', border: '2px solid rgba(255,255,255,0.1)', height: '100%', boxSizing: 'border-box' }}>
                 <div style={{ fontSize: '44px', marginBottom: '12px' }}>🎮</div>
