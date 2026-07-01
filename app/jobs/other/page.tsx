@@ -6,91 +6,18 @@ import { MemberLockCard, isJobLocked } from '../../../components/MemberLock'
 
 const thaiProvinces = [
   'All Locations',
-  // Central
-  'Bangkok',
-  'Nonthaburi',
-  'Pathum Thani',
-  'Samut Prakan',
-  'Samut Sakhon',
-  'Samut Songkhram',
-  'Nakhon Pathom',
-  'Suphan Buri',
-  'Ratchaburi',
-  'Kanchanaburi',
-  'Phetchaburi',
-  'Prachuap Khiri Khan',
-  'Ayutthaya',
-  'Ang Thong',
-  'Lopburi',
-  'Sing Buri',
-  'Chai Nat',
-  'Saraburi',
-  'Nakhon Nayok',
-  'Chachoengsao',
-  'Prachin Buri',
-  'Sa Kaeo',
-  // East
-  'Chon Buri',
-  'Rayong',
-  'Chanthaburi',
-  'Trat',
-  // North
-  'Chiang Mai',
-  'Chiang Rai',
-  'Lampang',
-  'Lamphun',
-  'Mae Hong Son',
-  'Nan',
-  'Phayao',
-  'Phrae',
-  'Uttaradit',
-  // Upper North Central
-  'Tak',
-  'Sukhothai',
-  'Phitsanulok',
-  'Phichit',
-  'Nakhon Sawan',
-  'Uthai Thani',
-  'Kamphaeng Phet',
-  'Phetchabun',
-  // Northeast
-  'Nakhon Ratchasima',
-  'Khon Kaen',
-  'Udon Thani',
-  'Ubon Ratchathani',
-  'Buriram',
-  'Surin',
-  'Si Sa Ket',
-  'Chaiyaphum',
-  'Loei',
-  'Nong Khai',
-  'Nong Bua Lamphu',
-  'Sakon Nakhon',
-  'Nakhon Phanom',
-  'Mukdahan',
-  'Kalasin',
-  'Maha Sarakham',
-  'Roi Et',
-  'Yasothon',
-  'Amnat Charoen',
-  'Bueng Kan',
-  // South
-  'Surat Thani',
-  'Chumphon',
-  'Ranong',
-  'Phangnga',
-  'Phuket',
-  'Krabi',
-  'Nakhon Si Thammarat',
-  'Trang',
-  'Phatthalung',
-  'Songkhla',
-  'Satun',
-  'Pattani',
-  'Yala',
-  'Narathiwat',
-  // Other
-  'Remote',
+  'Bangkok', 'Nonthaburi', 'Pathum Thani', 'Samut Prakan', 'Samut Sakhon', 'Samut Songkhram',
+  'Nakhon Pathom', 'Suphan Buri', 'Ratchaburi', 'Kanchanaburi', 'Phetchaburi', 'Prachuap Khiri Khan',
+  'Ayutthaya', 'Ang Thong', 'Lopburi', 'Sing Buri', 'Chai Nat', 'Saraburi', 'Nakhon Nayok',
+  'Chachoengsao', 'Prachin Buri', 'Sa Kaeo',
+  'Chon Buri', 'Rayong', 'Chanthaburi', 'Trat',
+  'Chiang Mai', 'Chiang Rai', 'Lampang', 'Lamphun', 'Mae Hong Son', 'Nan', 'Phayao', 'Phrae', 'Uttaradit',
+  'Tak', 'Sukhothai', 'Phitsanulok', 'Phichit', 'Nakhon Sawan', 'Uthai Thani', 'Kamphaeng Phet', 'Phetchabun',
+  'Nakhon Ratchasima', 'Khon Kaen', 'Udon Thani', 'Ubon Ratchathani', 'Buriram', 'Surin', 'Si Sa Ket',
+  'Chaiyaphum', 'Loei', 'Nong Khai', 'Nong Bua Lamphu', 'Sakon Nakhon', 'Nakhon Phanom', 'Mukdahan',
+  'Kalasin', 'Maha Sarakham', 'Roi Et', 'Yasothon', 'Amnat Charoen', 'Bueng Kan',
+  'Surat Thani', 'Chumphon', 'Ranong', 'Phangnga', 'Phuket', 'Krabi', 'Nakhon Si Thammarat',
+  'Trang', 'Phatthalung', 'Songkhla', 'Satun', 'Pattani', 'Yala', 'Narathiwat', 'Remote',
 ]
 
 const otherCategories = ['Hospitality', 'Technology', 'Tourism', 'Finance', 'Marketing', 'Healthcare', 'Creative', 'Other']
@@ -175,6 +102,14 @@ export default function OtherJobsPage() {
         style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: '14px', color: '#666' }}>
         Reset Filters
       </button>
+
+      {/* P&V ADVISORY BANNER */}
+      <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+        <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
+          <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+      </a>
+
     </div>
   )
 
