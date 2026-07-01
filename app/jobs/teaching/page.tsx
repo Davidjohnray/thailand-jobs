@@ -117,6 +117,14 @@ export default function TeachingJobsPage() {
         style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: '14px', color: '#666' }}>
         Reset Filters
       </button>
+
+      {/* P&V ADVISORY BANNER */}
+      <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+        <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
+          <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+      </a>
+
     </div>
   )
 
@@ -161,18 +169,12 @@ export default function TeachingJobsPage() {
                   !isLoggedIn && isJobLocked(job.created_at) ? (
                     <MemberLockCard key={job.id} job={job} />
                   ) : job.featured ? (
-                    // FEATURED JOB CARD — prominent styling
                     <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
                       <div style={{
-                        background: 'white',
-                        borderRadius: '14px',
-                        padding: '0',
-                        boxShadow: '0 4px 20px rgba(232,93,38,0.18)',
-                        cursor: 'pointer',
-                        border: '3px solid #E85D26',
-                        overflow: 'hidden',
+                        background: 'white', borderRadius: '14px', padding: '0',
+                        boxShadow: '0 4px 20px rgba(232,93,38,0.18)', cursor: 'pointer',
+                        border: '3px solid #E85D26', overflow: 'hidden',
                       }}>
-                        {/* Featured top bar */}
                         <div style={{ background: '#E85D26', padding: '6px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span style={{ color: 'white', fontSize: '12px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Featured Job</span>
                         </div>
@@ -201,7 +203,6 @@ export default function TeachingJobsPage() {
                       </div>
                     </Link>
                   ) : (
-                    // REGULAR JOB CARD
                     <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
                       <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', cursor: 'pointer', border: '1px solid #eee' }}>
                         <div className="job-card-inner" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
