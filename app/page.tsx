@@ -39,11 +39,11 @@ export default async function Home() {
           {/* HERO TEXT */}
           <div style={{ flex: 1, maxWidth: '600px' }}>
             <h1 className="hero-title" style={{ color: 'white', fontSize: '44px', fontWeight: 'bold', marginBottom: '16px' }}>
-  Find Teaching & Expat Jobs in Thailand
-</h1>
-<p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
-  Browse hundreds of jobs in Bangkok, Chiang Mai, Phuket and more
-</p>
+              Find Teaching & Expat Jobs in Thailand
+            </h1>
+            <p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
+              Browse hundreds of jobs in Bangkok, Chiang Mai, Phuket and more
+            </p>
             <Link href="/esl-resources" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
               <div style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #E85D26 100%)', borderRadius: '12px', padding: '16px 20px', border: '2px solid rgba(255,255,255,0.15)' }}>
                 <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>📖 Free ESL Resources for Teachers</div>
@@ -61,27 +61,18 @@ export default async function Home() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                   <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}>Designed for bilingual schools & ESL classrooms in Thailand</div>
-                  <div style={{ background: 'white', color: '#7C3AED', padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '900', whiteSpace: 'nowrap' as const }}>Explore Free →</div>
+                  <div style={{ background: 'white', color: '#7C3AED', padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '900', whiteSpace: 'nowrap' }}>Explore Free →</div>
                 </div>
               </div>
             </Link>
           </div>
 
-          {/* RIGHT AD BOX - EXPAT SERVICES */}
-          <Link href="/expat-services" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
-            <div style={{ width: '250px', height: '250px', background: 'linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%)', border: '2px solid #5eead4', borderRadius: '10px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-              <div style={{ fontSize: '40px', marginBottom: '2px' }}>🏙️</div>
-              <div style={{ color: '#5eead4', fontWeight: 'bold', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Expat Services Thailand</div>
-              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '14px', lineHeight: '1.4' }}>Cleaning · Visa · Insurance<br />Health · Transport &amp; more</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', margin: '4px 0' }}>
-                {['🧹','🏥','🛂','🚗','🏠'].map(e => (
-                  <span key={e} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '6px', padding: '3px 7px', fontSize: '14px' }}>{e}</span>
-                ))}
-              </div>
-              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '11px', lineHeight: '1.5' }}>Trusted services for expats<br />living &amp; working in Thailand</div>
-              <div style={{ background: '#5eead4', color: '#0f4c47', padding: '7px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', marginTop: '2px' }}>Browse Services →</div>
+          {/* RIGHT AD BOX - P&V ADVISORY */}
+          <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
+            <div style={{ width: '250px', height: '250px', borderRadius: '10px', overflow: 'hidden' }}>
+              <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-          </Link>
+          </a>
 
         </div>
       </section>
@@ -146,6 +137,13 @@ export default async function Home() {
           {/* MOBILE ADS */}
           <div className="mobile-ads" style={{ flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
 
+            {/* P&V Advisory - mobile */}
+            <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
+                <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+              </div>
+            </a>
+
             <Link href="/partners/teach-bridge" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '3px solid #c9a84c', textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
                 <img src="https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/teach%20bridge%20asia.jpg"
@@ -183,13 +181,22 @@ export default async function Home() {
             </a>
 
             <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-  <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
-    <div style={{ background: '#3b5bdb', color: 'white', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', padding: '3px 10px', borderRadius: '20px' }}>Sponsored</div>
-    <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
-    <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.4' }}>Learn Thai, English & Chinese</div>
-    <div style={{ background: '#3b5bdb', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Explore Courses →</div>
-  </div>
-</a>
+              <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
+                <div style={{ background: '#3b5bdb', color: 'white', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', padding: '3px 10px', borderRadius: '20px' }}>Sponsored</div>
+                <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
+                <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.4' }}>Learn Thai, English & Chinese</div>
+                <div style={{ background: '#3b5bdb', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Explore Courses →</div>
+              </div>
+            </a>
+
+            <Link href="/expat-services" style={{ textDecoration: 'none' }}>
+              <div style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%)', borderRadius: '12px', padding: '20px', border: '2px solid #5eead4', textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏙️</div>
+                <div style={{ color: '#5eead4', fontWeight: 'bold', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Expat Services Thailand</div>
+                <div style={{ color: 'white', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>Cleaning · Visa · Insurance · Transport</div>
+                <div style={{ background: '#5eead4', color: '#0f4c47', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', display: 'inline-block' }}>Browse Services →</div>
+              </div>
+            </Link>
 
           </div>
         </div>
@@ -199,14 +206,14 @@ export default async function Home() {
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Official Partner</p>
 
           <Link href="/partners/teach-bridge" style={{ textDecoration: 'none' }}>
-  <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '3px solid #c9a84c', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
-    <div style={{ color: '#c9a84c', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Official Recruitment Partner</div>
-    <img src="https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/teach%20bridge%20asia.jpg"
-      alt="Teach Bridge Asia" style={{ width: '150px', height: 'auto', objectFit: 'contain' }} />
-    <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px' }}>Teacher Recruitment Agency</div>
-    <div style={{ background: '#1a1a2e', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>View Jobs & Apply →</div>
-  </div>
-</Link>
+            <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '3px solid #c9a84c', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
+              <div style={{ color: '#c9a84c', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Official Recruitment Partner</div>
+              <img src="https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/teach%20bridge%20asia.jpg"
+                alt="Teach Bridge Asia" style={{ width: '150px', height: 'auto', objectFit: 'contain' }} />
+              <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px' }}>Teacher Recruitment Agency</div>
+              <div style={{ background: '#1a1a2e', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>View Jobs & Apply →</div>
+            </div>
+          </Link>
 
           <Link href="/tefl" style={{ textDecoration: 'none' }}>
             <div style={{ background: 'linear-gradient(135deg, #2d1b69 0%, #4c2896 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #f59e0b' }}>
@@ -227,15 +234,28 @@ export default async function Home() {
         <div className="ad-sidebar" style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
 
+          {/* DUKE LANGUAGE */}
           <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-  <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
-    <div style={{ background: '#3b5bdb', color: 'white', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', padding: '3px 10px', borderRadius: '20px' }}>Sponsored</div>
-    <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
-    <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.4' }}>Learn Thai, English & Chinese</div>
-    <div style={{ background: '#3b5bdb', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Explore Courses →</div>
-  </div>
-</a>
+            <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
+              <div style={{ background: '#3b5bdb', color: 'white', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', padding: '3px 10px', borderRadius: '20px' }}>Sponsored</div>
+              <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
+              <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.4' }}>Learn Thai, English & Chinese</div>
+              <div style={{ background: '#3b5bdb', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Explore Courses →</div>
+            </div>
+          </a>
 
+          {/* EXPAT SERVICES */}
+          <Link href="/expat-services" style={{ textDecoration: 'none' }}>
+            <div style={{ width: '240px', background: 'linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #5eead4', padding: '20px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '32px' }}>🏙️</div>
+              <div style={{ color: '#5eead4', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px' }}>Expat Services Thailand</div>
+              <div style={{ color: 'white', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.4' }}>Cleaning · Visa · Insurance<br />Health · Transport & more</div>
+              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px', lineHeight: '1.5' }}>Trusted services for expats living & working in Thailand</div>
+              <div style={{ background: '#5eead4', color: '#0f4c47', padding: '7px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Browse Services →</div>
+            </div>
+          </Link>
+
+          {/* LUCKY CLEANING */}
           <a href="https://www.facebook.com/share/1AviMhTNzJ/?utm_source=website&utm_medium=banner&utm_campaign=lucky_cleaning"
             target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
             <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
@@ -243,6 +263,7 @@ export default async function Home() {
             </div>
           </a>
 
+          {/* RENTALS */}
           <a href="/rentals" style={{ textDecoration: 'none' }}>
             <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #E85D26' }}>
               <div style={{ background: '#E85D26', padding: '10px', textAlign: 'center' }}>
