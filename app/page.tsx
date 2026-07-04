@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { supabase } from '../src/lib/supabase'
 import HomeFeaturedJobs from '../components/HomeFeaturedJobs'
 import BuyMeCoffee from '../components/BuyMeCoffee'
+import PVAdvisoryBanner from '../components/PVAdvisoryBanner'
 
 export const revalidate = 0
 
@@ -67,12 +68,10 @@ export default async function Home() {
             </Link>
           </div>
 
-          {/* RIGHT AD BOX - P&V ADVISORY */}
-          <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
-            <div style={{ width: '250px', height: '250px', borderRadius: '10px', overflow: 'hidden' }}>
-              <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          </a>
+          {/* RIGHT AD BOX - P&V ADVISORY with GA tracking */}
+          <div className="hero-side-ad" style={{ flexShrink: 0 }}>
+            <PVAdvisoryBanner size={250} location="homepage_hero" />
+          </div>
 
         </div>
       </section>
@@ -138,11 +137,7 @@ export default async function Home() {
           <div className="mobile-ads" style={{ flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
 
             {/* P&V Advisory - mobile */}
-            <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-              <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
-                <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
-              </div>
-            </a>
+            <PVAdvisoryBanner size={200} location="homepage_mobile" />
 
             <Link href="/partners/teach-bridge" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '3px solid #c9a84c', textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
