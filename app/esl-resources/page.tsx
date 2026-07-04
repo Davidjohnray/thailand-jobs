@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import PVAdvisoryBanner from '../../components/PVAdvisoryBanner'
 
 export default function ESLResourcesPage() {
   return (
@@ -17,11 +18,9 @@ export default function ESLResourcesPage() {
           </div>
 
           {/* P&V ADVISORY BANNER */}
-          <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', flexShrink: 0 }} className="hero-side-ad">
-            <div style={{ width: '250px', height: '250px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
-              <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          </a>
+<div className="hero-side-ad" style={{ flexShrink: 0 }}>
+  <PVAdvisoryBanner size={250} location="esl_resources_hero" />
+</div>
 
         </div>
       </div>

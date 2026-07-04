@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 import { MemberLockCard, isJobLocked } from '../../../components/MemberLock'
+import PVAdvisoryBanner from '../../../components/PVAdvisoryBanner'
 
 const thaiProvinces = [
   'All Locations',
@@ -103,12 +104,7 @@ export default function OtherJobsPage() {
         Reset Filters
       </button>
 
-      {/* P&V ADVISORY BANNER */}
-      <a href="https://www.pvadvisorythailand.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-        <div style={{ width: '240px', height: '240px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
-          <img src="/pv-advisory-thailand.png" alt="P&V Advisory Thailand" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
-      </a>
+      <PVAdvisoryBanner size={240} location="teaching_jobs_sidebar" />
 
     </div>
   )
