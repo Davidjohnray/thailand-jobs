@@ -33,6 +33,16 @@ const CATEGORIES = [
     { id: 'sharks', title: 'Sharks — Misunderstood Predators', emoji: '🦈', description: 'The Truth About the Ocean\'s Most Feared Fish', detail: 'Discover the amazing facts about sharks — their incredible abilities, the truth about attacks, and why these ancient animals desperately need our protection.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
   ],
 },
+{
+  id: 'science',
+  title: 'Science & Space',
+  emoji: '🔭',
+  description: 'How things work, space exploration and scientific discoveries',
+  color: '#8b5cf6',
+  lessons: [
+    { id: 'the-moon', title: 'The Moon', emoji: '🌕', description: 'How It Formed, Why It Glows, and Walking on It', detail: 'Discover how the Moon was born from a giant collision, why it appears to glow, and what it was really like for astronauts to walk on another world.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
+  ],
+},
   {
     id: 'mystery',
     title: 'Mystery & the Unknown',
