@@ -38,7 +38,7 @@ const LEVELS = [
     desc: 'Clear texts on a range of topics. Students can understand the main points and express opinions on familiar subjects.',
     who: 'Teen & adult learners · General English · IELTS 4.0–5.5',
     features: ['4-part extended passages', 'Audio + 4 speeds', '13-language translation', 'AI conversation partner'],
-    count: 10,
+    count: 11,
   },
   {
     code: 'b2',

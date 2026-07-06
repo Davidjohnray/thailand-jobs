@@ -24,6 +24,16 @@ const CATEGORIES = [
     ],
   },
   {
+  id: 'nature',
+  title: 'Nature & Animals',
+  emoji: '🐾',
+  description: 'Wildlife, ecosystems and the natural world',
+  color: '#0ea5e9',
+  lessons: [
+    { id: 'sharks', title: 'Sharks — Misunderstood Predators', emoji: '🦈', description: 'The Truth About the Ocean\'s Most Feared Fish', detail: 'Discover the amazing facts about sharks — their incredible abilities, the truth about attacks, and why these ancient animals desperately need our protection.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
+  ],
+},
+  {
     id: 'mystery',
     title: 'Mystery & the Unknown',
     emoji: '🔮',
