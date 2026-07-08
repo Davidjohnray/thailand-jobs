@@ -15,6 +15,7 @@ const CATEGORIES = [
       { id: 'facial-recognition', title: 'Facial Recognition Technology', emoji: '👁️', description: 'Identity, Privacy and Bias', detail: 'Explore how AI identifies faces — and the growing debate over privacy, accuracy, and government regulation.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
       { id: 'ai-in-healthcare', title: 'Artificial Intelligence in Healthcare', emoji: '🏥', description: 'Can Machines Help Heal Us?', detail: 'Explore how AI is transforming diagnosis, treatment and medicine — and the ethical questions that come with it.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
       { id: 'electric-vehicles', title: 'Electric Vehicles and the Future of Transport', emoji: '⚡', description: 'The Road Ahead', detail: 'Explore the rise of EVs, their environmental impact, infrastructure challenges, and what the future of transport might look like.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
+      { id: 'ai-and-humans', title: 'The Relationship Between AI and Humans', emoji: '🤖', description: 'Trust, Identity and Partnership', detail: 'How is AI reshaping trust, work, and human identity? Explore the black box problem, automation bias, what AI means for employment — and the case for genuine human-machine partnership.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
     ]
   },
   {
