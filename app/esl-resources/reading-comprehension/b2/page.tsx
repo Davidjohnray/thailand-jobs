@@ -19,6 +19,18 @@ const CATEGORIES = [
     ]
   },
   {
+  id: 'hidden-headlines',
+  title: 'Hidden Headlines',
+  emoji: '📰',
+  description: 'Real stories from around the world that didn\'t make the headlines',
+  color: '#0891b2',
+  lessons: [
+    { id: 'neil-the-seal', title: 'Neil the Seal — Australia\'s Most Inconvenient Celebrity', emoji: '🦭', description: 'A One-Tonne Problem Nobody Could Solve', detail: 'A one-tonne elephant seal decided to take up residence in a working Tasmanian harbour — and authorities discovered there was absolutely nothing they could do about it.', badges: ['4 parts', '12 questions'], color: '#0891b2' },
+    { id: 'cockroach-kingpin', title: 'The Cockroach Kingpin', emoji: '🪳', description: 'Australia\'s Record Bug Bust', detail: 'Australian authorities raided a commercial breeder and seized over 100,000 illegal exotic insects — the largest invertebrate bust in the country\'s history.', badges: ['4 parts', '12 questions'], color: '#16a34a' },
+    { id: 'pigeons-navigate-with-livers', title: 'Pigeons Navigate with Their Livers', emoji: '🐦', description: 'The Discovery Nobody Expected', detail: 'Scientists spent decades trying to solve how pigeons find their way home. The answer was hiding inside an organ nobody thought to look at.', badges: ['4 parts', '12 questions'], color: '#7c3aed' },
+  ],
+},
+  {
     id: 'business',
     title: 'Business English',
     emoji: '💼',
