@@ -150,16 +150,7 @@ export default async function Home() {
               </div>
             </Link>
 
-            <Link href="/tefl" style={{ textDecoration: 'none' }}>
-              <div style={{ background: 'linear-gradient(135deg, #2d1b69 0%, #4c2896 100%)', borderRadius: '12px', padding: '20px', border: '2px solid #f59e0b', textAlign: 'center' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>🎓</div>
-                <div style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Get TEFL Certified</div>
-                <div style={{ color: 'white', fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>Teach in Thailand with confidence</div>
-                <div style={{ color: '#ccc', fontSize: '13px', marginBottom: '12px' }}>Earn more · Open more doors · 100% online</div>
-                <div style={{ background: '#f59e0b', color: '#1a1a2e', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', display: 'inline-block' }}>Register Free →</div>
-              </div>
-            </Link>
-
+            
             <a href="/rentals" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', padding: '20px', border: '2px solid #E85D26', textAlign: 'center' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏠</div>
