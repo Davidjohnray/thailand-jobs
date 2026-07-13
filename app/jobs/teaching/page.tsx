@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 import { MemberLockCard, isJobLocked } from '../../../components/MemberLock'
 import PVAdvisoryBanner from '../../../components/PVAdvisoryBanner'
+import EssentialTeflBanner from '../../../components/ads/EssentialTeflBanner'
 
 function JobLogo({ job }: { job: any }) {
   if (!job.source_logo) return null
@@ -120,6 +121,8 @@ export default function TeachingJobsPage() {
       </button>
 
       <PVAdvisoryBanner size={240} location="teaching_jobs_sidebar" />
+
+      <EssentialTeflBanner />
 
     </div>
   )
