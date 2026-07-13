@@ -1,7 +1,5 @@
 'use client'
 
-import Image from 'next/image'
-
 export default function EssentialTeflBanner() {
   const handleClick = () => {
     if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -13,37 +11,39 @@ export default function EssentialTeflBanner() {
   }
 
   return (
-    <a
-      href="/tefl/essential-tefl"
-      onClick={handleClick}
-      style={{
-        display: 'block',
-        width: '100%',
-        maxWidth: '320px',
-        margin: '0 auto',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        border: '1px solid #2d323c',
-        textDecoration: 'none',
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px)'
-        e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = 'none'
-      }}
-    >
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '900 / 499', background: '#272b33' }}>
-        <Image
-          src="/images/essential-tefl-banner.png"
-          alt="Essential TEFL - Get TEFL Certified in Bangkok"
-          fill
-          style={{ objectFit: 'contain', padding: '8px' }}
-          sizes="320px"
-        />
+    <a href="/tefl/essential-tefl" onClick={handleClick} style={{ textDecoration: 'none' }}>
+      <div
+        style={{
+          width: '240px',
+          background: 'white',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+          border: '2px solid #E85D26',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ background: '#E85D26', padding: '10px', width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            🎓 Get TEFL Certified
+          </div>
+        </div>
+
+        <div style={{ padding: '20px 16px', width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ fontSize: '40px', marginBottom: '10px' }}>📜</div>
+          <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '16px', marginBottom: '6px', lineHeight: '1.3' }}>
+            In-Person Course in Bangkok
+          </div>
+          <div style={{ color: '#666', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>
+            120-hour certification with real classroom practice & job placement support
+          </div>
+          <div style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', display: 'inline-block' }}>
+            Learn More →
+          </div>
+        </div>
       </div>
     </a>
   )
