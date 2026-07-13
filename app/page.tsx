@@ -150,7 +150,6 @@ export default async function Home() {
               </div>
             </Link>
 
-            
             <a href="/rentals" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '12px', padding: '20px', border: '2px solid #E85D26', textAlign: 'center' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏠</div>
@@ -203,20 +202,6 @@ export default async function Home() {
           </Link>
 
           <EssentialTeflBanner />
-
-          <Link href="/tefl" style={{ textDecoration: 'none' }}>
-            <div style={{ background: 'linear-gradient(135deg, #2d1b69 0%, #4c2896 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #f59e0b' }}>
-              <div style={{ background: '#f59e0b', padding: '10px', textAlign: 'center' }}>
-                <div style={{ color: '#1a1a2e', fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>🎓 Get TEFL Certified</div>
-              </div>
-              <div style={{ padding: '24px 16px', textAlign: 'center' }}>
-                <div style={{ fontSize: '40px', marginBottom: '10px' }}>📜</div>
-                <div style={{ color: 'white', fontWeight: 'bold', fontSize: '17px', marginBottom: '6px' }}>Teach with Confidence</div>
-                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>Get TEFL certified online and open doors to better-paying teaching jobs in Thailand</div>
-                <div style={{ background: '#f59e0b', color: '#1a1a2e', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>Register Free →</div>
-              </div>
-            </div>
-          </Link>
         </div>
 
         {/* AD SIDEBAR COLUMN 2 */}
