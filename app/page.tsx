@@ -3,6 +3,7 @@ import { supabase } from '../src/lib/supabase'
 import HomeFeaturedJobs from '../components/HomeFeaturedJobs'
 import BuyMeCoffee from '../components/BuyMeCoffee'
 import PVAdvisoryBanner from '../components/PVAdvisoryBanner'
+import EssentialTeflBanner from '../components/ads/EssentialTeflBanner'
 
 export const revalidate = 0
 
@@ -209,6 +210,8 @@ export default async function Home() {
               <div style={{ background: '#1a1a2e', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>View Jobs & Apply →</div>
             </div>
           </Link>
+
+          <EssentialTeflBanner />
 
           <Link href="/tefl" style={{ textDecoration: 'none' }}>
             <div style={{ background: 'linear-gradient(135deg, #2d1b69 0%, #4c2896 100%)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', border: '2px solid #f59e0b' }}>
