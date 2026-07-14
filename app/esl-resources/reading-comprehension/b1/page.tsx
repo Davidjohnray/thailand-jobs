@@ -33,6 +33,7 @@ const CATEGORIES = [
   color: '#0ea5e9',
   lessons: [
     { id: 'sharks', title: 'Sharks — Misunderstood Predators', emoji: '🦈', description: 'The Truth About the Ocean\'s Most Feared Fish', detail: 'Discover the amazing facts about sharks — their incredible abilities, the truth about attacks, and why these ancient animals desperately need our protection.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
+    { id: 'animal-migrations', title: 'Incredible Animal Migrations', emoji: '🦋', description: 'How Animals Travel Thousands of Kilometres Without GPS', detail: 'Arctic terns, monarch butterflies, wildebeest, and humpback whales — how do animals travel thousands of kilometres every year without maps or anyone showing them the way?', badges: ['4 parts', '12 questions'], color: '#059669' },
   ],
 },
 {
@@ -43,6 +44,8 @@ const CATEGORIES = [
   color: '#8b5cf6',
   lessons: [
     { id: 'the-moon', title: 'The Moon', emoji: '🌕', description: 'How It Formed, Why It Glows, and Walking on It', detail: 'Discover how the Moon was born from a giant collision, why it appears to glow, and what it was really like for astronauts to walk on another world.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
+    { id: 'volcanoes', title: 'Volcanoes — Mountains That Explode', emoji: '🌋', description: 'How They Work and Famous Eruptions', detail: 'How do volcanoes form? What buried the city of Pompeii? And why do millions of people choose to live next to them?', badges: ['4 parts', '12 questions'], color: '#ef4444' },
+{ id: 'why-do-we-dream', title: 'Why Do We Dream?', emoji: '💭', description: 'What Happens Inside Your Brain at Night', detail: 'Every night your brain creates its own private movie. Discover what happens when we sleep, why scientists think we dream, and the incredible world of lucid dreaming.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
   ],
 },
   {
@@ -56,6 +59,7 @@ const CATEGORIES = [
 { id: 'mediums-talking-to-dead', title: 'Mediums — Can People Really Talk to the Dead?', emoji: '👻', description: 'Spirits, Science and Belief', detail: 'Explore the world of mediums, séances, and spiritual communication — what do people believe, and what does science say?', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
 { id: 'ghosts', title: 'Ghosts — Do They Really Exist?', emoji: '🏚️', description: 'Hauntings, History and Science', detail: 'Stories of the supernatural, famous hauntings around the world, and what science says about things that go bump in the night.', badges: ['4 parts', '12 questions'], color: '#7c3aed' },
 { id: 'near-death-experiences', title: 'Near-Death Experiences', emoji: '✨', description: 'Tunnels of Light and Life After Death', detail: 'Tunnels of light, meetings with the dead, and out-of-body journeys — what really happens when we come close to death?', badges: ['4 parts', '12 questions'], color: '#6d28d9' },
+{ id: 'bermuda-triangle', title: 'The Bermuda Triangle', emoji: '🔺', description: 'Ships and Planes That Vanish Without Trace', detail: 'Is the Bermuda Triangle really more dangerous than any other part of the ocean? Explore the famous disappearances, the theories, and what the evidence actually shows.', badges: ['4 parts', '12 questions'], color: '#4c1d95' },
     ],
   },
   {
