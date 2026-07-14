@@ -23,6 +23,9 @@ const CATEGORIES = [
       { id: 'global-events-oil-prices', title: 'Global Events and Oil Prices', emoji: '🛢️', description: 'Why Prices Change Around the World', detail: 'Understand how wars, economies, and clean energy affect the cost of oil and everyday life.', badges: ['4 parts', '12 questions'], color: '#f97316' },
       { id: 'running-of-the-bulls', title: 'The Running of the Bulls', emoji: '🐂', description: 'Tradition or Cruelty?', detail: 'Every July, thousands run through the streets of Pamplona chased by angry bulls. Is it a treasured cultural tradition or animal cruelty that should be banned?', badges: ['4 parts', '12 questions'], color: '#ea580c' },
 { id: 'david-attenborough-at-100', title: 'David Attenborough at 100', emoji: '🌿', description: 'The Man Who Showed Us the Natural World', detail: 'At 100 years old, Sir David Attenborough just became the oldest ever Emmy nominee. How one man changed the way the entire world sees nature — and why it matters.', badges: ['4 parts', '12 questions'], color: '#16a34a' },
+{ id: 'climate-change-everyday-life', title: 'Climate Change and Everyday Life', emoji: '🌡️', description: 'How a Warming World Affects Us All', detail: 'Understand how climate change impacts food, weather, health and daily life around the world — and what ordinary people can do about it.', badges: ['4 parts', '12 questions'], color: '#f97316' },
+{ id: 'social-media-mental-health', title: 'Social Media and Mental Health', emoji: '📱', description: 'The Hidden Cost of Being Online', detail: 'How does social media affect our mental health, self-esteem and relationships? Explore the science and the debate.', badges: ['4 parts', '12 questions'], color: '#f97316' },
+{ id: 'tourism', title: 'Tourism', emoji: '✈️', description: 'Travel, Culture and the Impact on Communities', detail: 'Explore the benefits and problems of global tourism — and what responsible travel really looks like.', badges: ['4 parts', '12 questions'], color: '#f97316' },
     ],
   },
   {
@@ -78,8 +81,9 @@ const CATEGORIES = [
     emoji: '💼',
     description: 'Jobs, skills and the modern workplace',
     color: '#6b7280',
-    lessons: [],
-    comingSoon: true,
+    lessons: [
+      { id: 'working-from-home', title: 'Working from Home', emoji: '🏠', description: 'The Future of How We Work', detail: 'How the pandemic changed work forever — the benefits, the challenges, and whether offices will ever be the same.', badges: ['4 parts', '12 questions'], color: '#6b7280' },
+    ],
   },
 ]
 
