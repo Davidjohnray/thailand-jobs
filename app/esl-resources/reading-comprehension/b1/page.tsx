@@ -21,6 +21,8 @@ const CATEGORIES = [
     lessons: [
       { id: 'indigenous-peoples', title: 'Indigenous Peoples of the World', emoji: '🌍', description: 'Culture, Land and Identity', detail: "Learn about the world's first peoples, the challenges they face, and why their cultures matter to all of us.", badges: ['4 parts', '12 questions'], color: '#f97316' },
       { id: 'global-events-oil-prices', title: 'Global Events and Oil Prices', emoji: '🛢️', description: 'Why Prices Change Around the World', detail: 'Understand how wars, economies, and clean energy affect the cost of oil and everyday life.', badges: ['4 parts', '12 questions'], color: '#f97316' },
+      { id: 'running-of-the-bulls', title: 'The Running of the Bulls', emoji: '🐂', description: 'Tradition or Cruelty?', detail: 'Every July, thousands run through the streets of Pamplona chased by angry bulls. Is it a treasured cultural tradition or animal cruelty that should be banned?', badges: ['4 parts', '12 questions'], color: '#ea580c' },
+{ id: 'david-attenborough-at-100', title: 'David Attenborough at 100', emoji: '🌿', description: 'The Man Who Showed Us the Natural World', detail: 'At 100 years old, Sir David Attenborough just became the oldest ever Emmy nominee. How one man changed the way the entire world sees nature — and why it matters.', badges: ['4 parts', '12 questions'], color: '#16a34a' },
     ],
   },
   {
