@@ -166,14 +166,14 @@ export default async function Home() {
               </div>
             </a>
 
-            <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <Link href="/sponsors/duke-language" style={{ textDecoration: 'none' }}>
               <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
                 <div style={{ background: '#3b5bdb', color: 'white', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', padding: '3px 10px', borderRadius: '20px' }}>Sponsored</div>
                 <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
                 <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.4' }}>Learn Thai, English & Chinese</div>
                 <div style={{ background: '#3b5bdb', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Explore Courses →</div>
               </div>
-            </a>
+            </Link>
 
             <Link href="/expat-services" style={{ textDecoration: 'none' }}>
               <div style={{ background: 'linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%)', borderRadius: '12px', padding: '20px', border: '2px solid #5eead4', textAlign: 'center' }}>
@@ -209,14 +209,14 @@ export default async function Home() {
           <p style={{ color: '#999', fontSize: '11px', textAlign: 'center', margin: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Sponsored</p>
 
           {/* DUKE LANGUAGE */}
-          <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+          <Link href="/sponsors/duke-language" style={{ textDecoration: 'none' }}>
             <div style={{ width: '240px', height: '240px', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', border: '2px solid #3b5bdb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', gap: '8px' }}>
               <div style={{ background: '#3b5bdb', color: 'white', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', padding: '3px 10px', borderRadius: '20px' }}>Sponsored</div>
               <img src="/sponsors/dukelanguage_school.png" alt="Duke Language School" style={{ width: '140px', height: 'auto', objectFit: 'contain' }} />
               <div style={{ color: '#1a1a2e', fontWeight: 'bold', fontSize: '13px', lineHeight: '1.4' }}>Learn Thai, English & Chinese</div>
               <div style={{ background: '#3b5bdb', color: 'white', padding: '6px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>Explore Courses →</div>
             </div>
-          </a>
+          </Link>
 
           {/* EXPAT SERVICES */}
           <Link href="/expat-services" style={{ textDecoration: 'none' }}>

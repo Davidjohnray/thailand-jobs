@@ -19,7 +19,7 @@ export default function ThaiLanguagePage() {
         </div>
 
         {/* DUKE LANGUAGE SCHOOL CARD — updated wording */}
-        <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block', marginBottom: '32px' }}>
+        <Link href="/sponsors/duke-language" style={{ textDecoration: 'none', display: 'block', marginBottom: '32px' }}>
           <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', border: '2px solid #3b5bdb' }}>
             <div style={{ background: '#3b5bdb', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ color: 'white', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase' }}>Featured Sponsor</span>
@@ -42,7 +42,7 @@ export default function ThaiLanguagePage() {
               </div>
             </div>
           </div>
-        </a>
+        </Link>
 
         {/* LIST YOUR SCHOOL */}
         <div style={{ background: 'white', borderRadius: '16px', padding: '40px 32px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px dashed #ddd', textAlign: 'center' }}>
