@@ -1,6 +1,25 @@
 'use client'
 import Link from 'next/link'
 
+function NewBadge({ publishedDate }: { publishedDate?: string }) {
+  if (!publishedDate) return null
+  const published = new Date(publishedDate)
+  const now = new Date()
+  const diffDays = (now.getTime() - published.getTime()) / (1000 * 60 * 60 * 24)
+  if (diffDays > 7) return null
+  return (
+    <span style={{
+      position: 'absolute', top: '12px', right: '12px',
+      background: 'linear-gradient(135deg, #ef4444, #f97316)',
+      color: 'white', fontSize: '11px', fontWeight: '800',
+      padding: '4px 10px', borderRadius: '20px',
+      textTransform: 'uppercase', letterSpacing: '1px',
+      boxShadow: '0 2px 8px rgba(239,68,68,0.4)',
+      animation: 'pulse 2s infinite',
+    }}>🔥 New</span>
+  )
+}
+
 const CATEGORIES = [
   {
     id: 'technology',
@@ -19,17 +38,17 @@ const CATEGORIES = [
     ]
   },
   {
-  id: 'hidden-headlines',
-  title: 'Hidden Headlines',
-  emoji: '📰',
-  description: 'Real stories from around the world that didn\'t make the headlines',
-  color: '#0891b2',
-  lessons: [
-    { id: 'neil-the-seal', title: 'Neil the Seal — Australia\'s Most Inconvenient Celebrity', emoji: '🦭', description: 'A One-Tonne Problem Nobody Could Solve', detail: 'A one-tonne elephant seal decided to take up residence in a working Tasmanian harbour — and authorities discovered there was absolutely nothing they could do about it.', badges: ['4 parts', '12 questions'], color: '#0891b2' },
-    { id: 'cockroach-kingpin', title: 'The Cockroach Kingpin', emoji: '🪳', description: 'Australia\'s Record Bug Bust', detail: 'Australian authorities raided a commercial breeder and seized over 100,000 illegal exotic insects — the largest invertebrate bust in the country\'s history.', badges: ['4 parts', '12 questions'], color: '#16a34a' },
-    { id: 'pigeons-navigate-with-livers', title: 'Pigeons Navigate with Their Livers', emoji: '🐦', description: 'The Discovery Nobody Expected', detail: 'Scientists spent decades trying to solve how pigeons find their way home. The answer was hiding inside an organ nobody thought to look at.', badges: ['4 parts', '12 questions'], color: '#7c3aed' },
-  ],
-},
+    id: 'hidden-headlines',
+    title: 'Hidden Headlines',
+    emoji: '📰',
+    description: 'Real stories from around the world that didn\'t make the headlines',
+    color: '#0891b2',
+    lessons: [
+      { id: 'neil-the-seal', title: 'Neil the Seal — Australia\'s Most Inconvenient Celebrity', emoji: '🦭', description: 'A One-Tonne Problem Nobody Could Solve', detail: 'A one-tonne elephant seal decided to take up residence in a working Tasmanian harbour — and authorities discovered there was absolutely nothing they could do about it.', badges: ['4 parts', '12 questions'], color: '#0891b2' },
+      { id: 'cockroach-kingpin', title: 'The Cockroach Kingpin', emoji: '🪳', description: 'Australia\'s Record Bug Bust', detail: 'Australian authorities raided a commercial breeder and seized over 100,000 illegal exotic insects — the largest invertebrate bust in the country\'s history.', badges: ['4 parts', '12 questions'], color: '#16a34a' },
+      { id: 'pigeons-navigate-with-livers', title: 'Pigeons Navigate with Their Livers', emoji: '🐦', description: 'The Discovery Nobody Expected', detail: 'Scientists spent decades trying to solve how pigeons find their way home. The answer was hiding inside an organ nobody thought to look at.', badges: ['4 parts', '12 questions'], color: '#7c3aed' },
+    ],
+  },
   {
     id: 'business',
     title: 'Business English',
@@ -51,6 +70,8 @@ const CATEGORIES = [
       { id: 'salary-negotiation', title: 'Salary Negotiation', emoji: '💰', description: 'Know Your Worth', detail: 'Learn why most people don\'t negotiate, how to research your market value, and the exact language to use when asking for more money.', badges: ['4 parts', '12 questions'], color: '#22c55e' },
       { id: 'remote-work', title: 'Remote Work and the Future of Work', emoji: '🏠', description: 'Office, Home or Hybrid?', detail: 'Explore the remote work revolution — communication challenges, productivity, trust, wellbeing, and what the future workplace might look like.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
       { id: 'crisis-communication', title: 'Crisis Communication — Delivering Bad News', emoji: '📢', description: 'When Things Go Wrong', detail: 'Redundancies, project failures, corporate scandals — the language and strategies professionals need when delivering difficult news at work.', badges: ['4 parts', '12 questions'], color: '#d97706' },
+      { id: 'leadership-and-delegation', title: 'Leadership and Delegation', emoji: '👔', description: 'How to Lead a Team and Get the Best from People', detail: 'Great leaders don\'t do everything themselves — master the language of leading teams, delegating tasks, and building trust across cultures.', badges: ['4 parts', '12 questions'], color: '#d97706', publishedDate: '2026-07-27' },
+      { id: 'handling-customer-complaints', title: 'Handling Customer Complaints', emoji: '🤝', description: 'Turning Problems into Opportunities', detail: 'An angry customer is not a disaster — it is an opportunity. Learn the professional language and psychology of turning complaints into loyalty.', badges: ['4 parts', '12 questions'], color: '#ca8a04', publishedDate: '2026-07-27' },
     ]
   },
   {
@@ -63,11 +84,11 @@ const CATEGORIES = [
       { id: 'voynich-manuscript', title: 'The Voynich Manuscript', emoji: '📜', description: 'The Book Nobody Can Read', detail: 'A 600-year-old illustrated book in an unknown script that no cryptographer, linguist, or AI has ever been able to decipher.', badges: ['4 parts', '12 questions'], color: '#8b5cf6' },
       { id: 'time-slips', title: 'Time Slips', emoji: '⏳', description: 'Walking Into the Past', detail: 'People who claim to have briefly stepped into a different historical era — the cases, the witnesses, and what science makes of their accounts.', badges: ['4 parts', '12 questions'], color: '#7c3aed' },
       { id: 'dyatlov-pass-incident', title: 'The Dyatlov Pass Incident', emoji: '🏔️', description: 'Nine Hikers, One Unsolved Mystery', detail: 'In 1959, nine experienced Soviet hikers were found dead on a remote mountain slope. Their tent was cut open from the inside. No satisfactory explanation has ever been given.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
-{ id: 'spontaneous-human-combustion', title: 'Spontaneous Human Combustion', emoji: '🔥', description: 'Fact, Fiction, or Science?', detail: 'Bodies reduced to ash while surrounding furniture remains intact — a phenomenon that has baffled investigators for centuries, and what science says really happened.', badges: ['4 parts', '12 questions'], color: '#ef4444' },
-{ id: 'wow-signal', title: 'The Wow! Signal', emoji: '📡', description: 'The Most Compelling Evidence of Alien Contact', detail: 'For 72 seconds in 1977, a radio telescope detected something from deep space that matched almost perfectly what an alien transmission would look like. It has never been detected again.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
-{ id: 'ancient-megalithic-structures', title: 'Ancient Megalithic Structures', emoji: '🗿', description: 'Stonehenge, Göbekli Tepe and Prehistoric Builders', detail: 'How did prehistoric peoples without wheels or writing move stones weighing hundreds of tonnes — and why did they build structures that would last thousands of years?', badges: ['4 parts', '12 questions'], color: '#16a34a' },
-{ id: 'cryptids', title: 'Cryptids — Bigfoot, Nessie and Why People Keep Searching', emoji: '🦶', description: 'Hidden Creatures and Human Psychology', detail: 'Blurry photographs, enormous footprints, and the surprisingly deep psychology behind the search for animals science says don\'t exist.', badges: ['4 parts', '12 questions'], color: '#854d0e' },
-{ id: 'simulation-theory', title: 'The Simulation Theory', emoji: '🌀', description: 'Are We Living Inside a Computer?', detail: 'A serious philosophical argument — endorsed by physicists and philosophers — that our entire reality may be a computational simulation running on an inconceivably powerful machine.', badges: ['4 parts', '12 questions'], color: '#06b6d4' },
+      { id: 'spontaneous-human-combustion', title: 'Spontaneous Human Combustion', emoji: '🔥', description: 'Fact, Fiction, or Science?', detail: 'Bodies reduced to ash while surrounding furniture remains intact — a phenomenon that has baffled investigators for centuries, and what science says really happened.', badges: ['4 parts', '12 questions'], color: '#ef4444' },
+      { id: 'wow-signal', title: 'The Wow! Signal', emoji: '📡', description: 'The Most Compelling Evidence of Alien Contact', detail: 'For 72 seconds in 1977, a radio telescope detected something from deep space that matched almost perfectly what an alien transmission would look like. It has never been detected again.', badges: ['4 parts', '12 questions'], color: '#6366f1' },
+      { id: 'ancient-megalithic-structures', title: 'Ancient Megalithic Structures', emoji: '🗿', description: 'Stonehenge, Göbekli Tepe and Prehistoric Builders', detail: 'How did prehistoric peoples without wheels or writing move stones weighing hundreds of tonnes — and why did they build structures that would last thousands of years?', badges: ['4 parts', '12 questions'], color: '#16a34a' },
+      { id: 'cryptids', title: 'Cryptids — Bigfoot, Nessie and Why People Keep Searching', emoji: '🦶', description: 'Hidden Creatures and Human Psychology', detail: 'Blurry photographs, enormous footprints, and the surprisingly deep psychology behind the search for animals science says don\'t exist.', badges: ['4 parts', '12 questions'], color: '#854d0e' },
+      { id: 'simulation-theory', title: 'The Simulation Theory', emoji: '🌀', description: 'Are We Living Inside a Computer?', detail: 'A serious philosophical argument — endorsed by physicists and philosophers — that our entire reality may be a computational simulation running on an inconceivably powerful machine.', badges: ['4 parts', '12 questions'], color: '#06b6d4' },
     ]
   },
   {
@@ -115,6 +136,7 @@ const CATEGORIES = [
 export default function B2ReadingHub() {
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
       <section style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%)', padding: '56px 24px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <Link href="/esl-resources/reading-comprehension" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← Reading Comprehension</Link>
@@ -164,7 +186,8 @@ export default function B2ReadingHub() {
                     <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: '1px solid #eee', height: '100%', display: 'flex', flexDirection: 'column', transition: 'transform 0.15s, box-shadow 0.15s' }}
                       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 28px rgba(0,0,0,0.12)' }}
                       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)' }}>
-                      <div style={{ background: `linear-gradient(135deg, ${lesson.color}22, ${lesson.color}08)`, borderBottom: `3px solid ${lesson.color}`, padding: '22px 20px 16px' }}>
+                      <div style={{ background: `linear-gradient(135deg, ${lesson.color}22, ${lesson.color}08)`, borderBottom: `3px solid ${lesson.color}`, padding: '22px 20px 16px', position: 'relative' }}>
+                        <NewBadge publishedDate={(lesson as any).publishedDate} />
                         <div style={{ fontSize: '44px', marginBottom: '10px' }}>{lesson.emoji}</div>
                         <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 5px', lineHeight: '1.3' }}>{lesson.title}</h3>
                         <p style={{ color: lesson.color, fontSize: '13px', fontWeight: '700', margin: 0 }}>{lesson.description}</p>
