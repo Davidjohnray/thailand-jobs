@@ -56,6 +56,8 @@ const CATEGORIES = [
     lessons: [
       { id: 'sharks', title: 'Sharks — Misunderstood Predators', emoji: '🦈', description: 'The Truth About the Ocean\'s Most Feared Fish', detail: 'Discover the amazing facts about sharks — their incredible abilities, the truth about attacks, and why these ancient animals desperately need our protection.', badges: ['4 parts', '12 questions'], color: '#0ea5e9' },
       { id: 'animal-migrations', title: 'Incredible Animal Migrations', emoji: '🦋', description: 'How Animals Travel Thousands of Kilometres Without GPS', detail: 'Arctic terns, monarch butterflies, wildebeest, and humpback whales — how do animals travel thousands of kilometres every year without maps or anyone showing them the way?', badges: ['4 parts', '12 questions'], color: '#059669' },
+      { id: 'the-deep-ocean', title: 'The Deep Ocean', emoji: '🌊', description: 'The Strangest Place on Earth', detail: 'Deeper than Mount Everest is tall, darker than the darkest night, and full of creatures that look like aliens — the deep ocean is the last great unexplored frontier.', badges: ['4 parts', '12 questions'], color: '#0369a1', publishedDate: '2026-07-27' },
+      { id: 'extreme-weather', title: 'Weather and Extreme Storms', emoji: '⛈️', description: 'Tornadoes, Hurricanes, Lightning and What Causes Them', detail: 'Tornadoes that tear buildings apart, hurricanes bigger than entire countries, and lightning bolts five times hotter than the Sun — how does extreme weather work?', badges: ['4 parts', '12 questions'], color: '#475569', publishedDate: '2026-07-27' },
     ],
   },
   {
