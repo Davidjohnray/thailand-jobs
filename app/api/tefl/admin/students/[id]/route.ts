@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const studentId = params.id
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const studentId = id
 
   const { data: student, error: studentError } = await supabase
     .from('tefl_students')
