@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { getStudentSession } from '@/lib/tefl-auth'
 
-export async function GET(req: NextRequest, { params }: { params: { number: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ number: string }> }) {
+  const { number } = await params
   const studentId = await getStudentSession()
   if (!studentId) {
     return NextResponse.json({ error: 'Not logged in.' }, { status: 401 })
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: { number: stri
   const { data: mod } = await supabase
     .from('tefl_modules')
     .select('id')
-    .eq('module_number', params.number)
+    .eq('module_number', number)
     .single()
 
   if (!mod) {
