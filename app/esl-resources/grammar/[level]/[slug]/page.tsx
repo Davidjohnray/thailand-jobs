@@ -132,7 +132,8 @@ export default function GrammarTopicPage({ params }: { params: Promise<{ level: 
       }
       setAiLoading(false)
     } else {
-      const isCorrect = userAnswer.trim().toLowerCase() === (q.answer ?? '').trim().toLowerCase()
+      const normalise = (s: string) => s.trim().toLowerCase().replace(/[.!?,;:'"]+$/g, '').trim()
+const isCorrect = normalise(userAnswer) === normalise(q.answer ?? '')
       setCorrect(isCorrect)
       if (isCorrect) setScore(s => s + 1)
     }
