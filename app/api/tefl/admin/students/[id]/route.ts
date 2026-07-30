@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { data: student, error: studentError } = await supabase
     .from('tefl_students')
-    .select('id, name, email, created_at')
+    .select('id, full_name, email, enrolled_at')
     .eq('id', studentId)
     .single()
 

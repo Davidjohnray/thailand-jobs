@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 // Change this to your own password.
 const ADMIN_PASSWORD = 'TeflAdmin2026!'
 
-type Student = { id: string; name: string; email: string; created_at: string; submission_count: number }
+type Student = { id: string; full_name: string; email: string; enrolled_at: string; submission_count: number }
 type Piece = {
   content_id: string
   section_title: string
@@ -129,7 +129,7 @@ export default function TeflAdminPage() {
                     border: '1px solid #ddd', borderRadius: '10px', padding: '12px 14px', cursor: 'pointer',
                   }}
                 >
-                  <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{s.name || s.email}</div>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{s.full_name || s.email}</div>
                   <div style={{ fontSize: '12px', opacity: 0.7 }}>{s.submission_count} submissions</div>
                 </button>
               ))}
@@ -148,7 +148,7 @@ export default function TeflAdminPage() {
           ) : (
             <div>
               <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '4px' }}>
-                {selectedStudent.name || selectedStudent.email}
+                {selectedStudent.full_name || selectedStudent.email}
               </h2>
               <p style={{ fontSize: '13px', color: '#888', marginBottom: '20px' }}>{selectedStudent.email}</p>
 

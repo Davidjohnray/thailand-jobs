@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase'
 export async function GET() {
   const { data: students, error } = await supabase
     .from('tefl_students')
-    .select('id, name, email, created_at')
-    .order('created_at', { ascending: false })
+    .select('id, full_name, email, enrolled_at')
+    .order('enrolled_at', { ascending: false })
 
   if (error) {
     console.error(error)
