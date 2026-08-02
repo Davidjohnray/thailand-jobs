@@ -102,6 +102,18 @@ const CATEGORIES = [
     ],
   },
   {
+    id: 'business',
+    title: 'Business English',
+    emoji: '💼',
+    description: 'Professional skills, communication and the modern workplace',
+    color: '#f59e0b',
+    lessons: [
+      { id: 'first-day-at-work', title: 'Your First Day at Work', emoji: '💼', description: 'Making a Great First Impression', detail: 'What to expect, how to introduce yourself, and the simple things that make the difference between a great first impression and a forgettable one.', badges: ['4 parts', '12 questions'], color: '#f59e0b', publishedDate: '2026-07-28' },
+      { id: 'understanding-your-contract', title: 'Understanding Your Contract', emoji: '📄', description: 'What Every Worker Should Know', detail: 'What the key parts of a job contract mean, the hidden clauses most people miss, and why you should never sign anything you do not fully understand.', badges: ['4 parts', '12 questions'], color: '#d97706', publishedDate: '2026-07-28' },
+      { id: 'workplace-rules-and-culture', title: 'Workplace Rules and Culture', emoji: '🏢', description: 'The Rules Nobody Tells You', detail: 'Dress codes, punctuality, hierarchy, and the unwritten rules that nobody tells you about — how to understand workplace culture and fit in.', badges: ['4 parts', '12 questions'], color: '#b45309', publishedDate: '2026-07-28' },
+    ],
+  },
+  {
     id: 'work',
     title: 'Work & Careers',
     emoji: '💼',
