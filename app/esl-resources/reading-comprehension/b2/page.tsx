@@ -116,6 +116,9 @@ const CATEGORIES = [
     color: '#f59e0b',
     lessons: [
       { id: 'online-learning', title: 'Online Learning Platforms', emoji: '💻', description: 'The Future of Education', detail: 'Explore how online platforms are changing education — flexibility, access, challenges and what comes next.', badges: ['4 parts', '12 questions'], color: '#f59e0b' },
+      { id: 'loneliness-epidemic', title: 'The Loneliness Epidemic', emoji: '😔', description: 'Why More People Feel Alone Than Ever', detail: 'Loneliness is as dangerous as smoking 15 cigarettes a day. Why the most connected generation in history is also the loneliest — and what can be done.', badges: ['4 parts', '12 questions'], color: '#d97706', publishedDate: '2026-07-28' },
+      { id: 'cancel-culture', title: 'Cancel Culture — Justice or Mob Rule?', emoji: '📢', description: 'Accountability, Public Shaming, and Where the Line Is', detail: 'When does holding people responsible become mob justice? The debate that divides opinion on free speech, consequences, and the power of social media.', badges: ['4 parts', '12 questions'], color: '#b45309', publishedDate: '2026-07-28' },
+      { id: 'global-housing-crisis', title: 'The Global Housing Crisis', emoji: '🏠', description: 'Why Young People Cannot Afford Homes', detail: 'From London to Sydney to Bangkok — why house prices have risen so far that an entire generation is locked out of home ownership.', badges: ['4 parts', '12 questions'], color: '#92400e', publishedDate: '2026-07-28' },
     ]
   },
   { id: 'environment', title: 'Environment', emoji: '🌿', description: 'Climate, sustainability and the natural world', color: '#16a34a', lessons: [], comingSoon: true },
