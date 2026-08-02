@@ -1,0 +1,483 @@
+'use client'
+import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
+
+const SPEEDS = [
+  { label: '🐢 Very Slow', value: 0.55 },
+  { label: '🚶 Slow', value: 0.72 },
+  { label: '🏃 Normal', value: 0.9 },
+  { label: '⚡ Fast', value: 1.1 },
+]
+
+const LANGUAGES = [
+  { value: 'none', label: '🌍 English only' },
+  { value: 'Thai', label: '🇹🇭 Thai' },
+  { value: 'Japanese', label: '🇯🇵 Japanese' },
+  { value: 'Korean', label: '🇰🇷 Korean' },
+  { value: 'Chinese', label: '🇨🇳 Chinese' },
+  { value: 'Arabic', label: '🇸🇦 Arabic' },
+  { value: 'Spanish', label: '🇪🇸 Spanish' },
+  { value: 'French', label: '🇫🇷 French' },
+  { value: 'German', label: '🇩🇪 German' },
+  { value: 'Portuguese', label: '🇧🇷 Portuguese' },
+  { value: 'Russian', label: '🇷🇺 Russian' },
+  { value: 'Vietnamese', label: '🇻🇳 Vietnamese' },
+  { value: 'Indonesian', label: '🇮🇩 Indonesian' },
+]
+
+
+const PARTS = [
+  {
+    number: 1, title: 'What Is a Family?', emoji: '👨‍👩‍👧‍👦', color: '#f59e0b',
+    text: `If you had asked someone in 1950 to describe a typical family, the answer in most Western countries would have been remarkably consistent: a married man and woman, living together with their biological children. The man worked. The woman raised the children and managed the home. This model — sometimes called the "nuclear family" — was not just common; it was considered the only normal, acceptable way to organise family life.\n\nToday, that model represents a minority of households in most developed countries. In the United States, fewer than 20% of households now consist of a married couple with children. In the UK, single-person households are the fastest-growing household type. In Scandinavia, more than half of all children are born to unmarried parents. In Japan and South Korea, marriage rates have fallen so dramatically that governments are offering financial incentives to encourage people to have children.\n\nThe traditional family has not disappeared — millions of people around the world still live in nuclear families and find them deeply fulfilling. But it is no longer the dominant model, and the range of family structures that exist today is far wider than at any previous point in history: single parents, blended families, same-sex couples with children, multigenerational households, co-parenting arrangements between people who are not romantically involved, and an increasing number of people who choose not to have children at all.\n\nThese changes have been driven by a combination of economic, social, and cultural forces — and they raise profound questions about what family means, what children need, and how societies should adapt to support the families that actually exist rather than the families they wish existed.`,
+    vocab: [
+      { word: 'Nuclear family', definition: 'A family unit consisting of two parents and their children living together.' },
+      { word: 'Blended families', definition: 'Families where one or both partners have children from previous relationships.' },
+      { word: 'Multigenerational', definition: 'Including several generations — grandparents, parents, and children living together.' },
+      { word: 'Incentives', definition: 'Rewards or encouragements designed to motivate people to do something.' },
+    ],
+    questions: [
+      { n: 1, q: 'Fewer than 20% of US households are a married couple with children. Does this surprise you? What does the typical family look like in your country?' },
+      { n: 2, q: 'Japan and South Korea are paying people to have children. Do you think financial incentives can change something as personal as starting a family?' },
+      { n: 3, q: 'The passage lists many different family structures. Do you think all of them are equally valid? Why might some people disagree?' },
+    ]
+  },
+  {
+    number: 2, title: 'Why Families Changed', emoji: '📊', color: '#d97706',
+    text: `The transformation of family structures is not random — it is the result of specific, identifiable changes in how societies work.\n\nThe most significant factor has been the economic independence of women. When women had limited access to education and employment, marriage was often an economic necessity rather than a choice. A woman who could not earn her own income needed a husband to survive. The dramatic expansion of women's education and workforce participation over the past century has fundamentally changed this calculation. Women who can support themselves financially are free to marry for love rather than survival — and free to leave marriages that do not work.\n\nContraception has been equally transformative. The widespread availability of reliable birth control from the 1960s onwards gave women control over when and whether to have children for the first time in history. This single change has had cascading effects on every aspect of family life — enabling women to pursue careers, delaying the age of first marriage and childbirth, and making the choice to remain child-free a practical possibility rather than a social impossibility.\n\nChanging social attitudes have also played a major role. Divorce, once heavily stigmatised, is now widely accepted. Single parenthood, once a source of shame, is recognised as a legitimate family structure. Same-sex relationships, once criminalised in many countries, are now legally recognised and increasingly socially accepted in large parts of the world.\n\nIn many Asian countries, including Thailand, traditional family structures have also shifted — though often in different ways. The extended family remains more common than in Western countries, and multigenerational households are still widespread. But declining birth rates, urbanisation, and changing gender roles are creating similar pressures, and younger generations are increasingly making choices about family that would have been unthinkable for their grandparents.`,
+    vocab: [
+      { word: 'Contraception', definition: 'Methods used to prevent pregnancy — birth control.' },
+      { word: 'Cascading effects', definition: 'A series of consequences where each one triggers the next, like a chain reaction.' },
+      { word: 'Stigmatised', definition: 'Treated as something shameful or disgraceful by society.' },
+      { word: 'Extended family', definition: 'A family that includes grandparents, aunts, uncles, and cousins as well as parents and children.' },
+    ],
+    questions: [
+      { n: 4, q: 'Women gaining economic independence is described as the biggest factor in changing families. Do you agree? How has this affected families in your country?' },
+      { n: 5, q: 'Divorce was once heavily stigmatised but is now widely accepted. Is this a positive change or has something been lost?' },
+      { n: 6, q: 'In Thailand and other Asian countries, extended families are still common. Do you think this will change as younger generations grow up? Should it?' },
+    ]
+  },
+  {
+    number: 3, title: 'The Child-Free Choice', emoji: '🤔', color: '#b45309',
+    text: `One of the most striking trends in modern family life is the growing number of people who choose not to have children at all. In the United States, the percentage of adults under 50 who say they are unlikely to ever have children rose from 37% in 2018 to 47% in 2023. Similar trends are visible across Europe, East Asia, and parts of Southeast Asia.\n\nThe reasons people give for choosing not to have children are varied. Financial concerns are the most commonly cited — the cost of raising a child in a developed country is substantial, and many young adults feel they cannot afford children while also paying high rents or mortgage costs. Climate anxiety is an increasingly common factor — some people say they do not want to bring a child into a world facing environmental crisis. Others cite career ambitions, personal freedom, or simply a lack of desire to be a parent.\n\nThe decision to be child-free remains controversial in many societies. People who choose not to have children — particularly women — often face social pressure, criticism, and assumptions that they are selfish, immature, or will change their minds. In some cultures, having children is considered not just a personal choice but a social obligation — a duty to family, community, or nation.\n\nPronatalist movements — groups that actively encourage people to have more children — have gained visibility in recent years, arguing that declining birth rates threaten economic stability and cultural continuity. Some governments have introduced generous parental leave, childcare subsidies, and direct cash payments to families with children. Hungary offers women who have four or more children a lifetime exemption from income tax.\n\nThe debate touches on fundamental questions about individual freedom and social responsibility. Does a person have the right to choose not to reproduce, even if society needs more children? Or does the collective good sometimes outweigh individual preference?`,
+    vocab: [
+      { word: 'Child-free', definition: 'Choosing not to have children — a deliberate decision rather than an inability to have them.' },
+      { word: 'Climate anxiety', definition: 'Worry and distress about the future of the planet due to climate change.' },
+      { word: 'Pronatalist', definition: 'Supporting or encouraging people to have more children.' },
+      { word: 'Exemption', definition: 'Being officially excused from a rule, duty, or payment that others must follow.' },
+    ],
+    questions: [
+      { n: 7, q: 'Nearly half of US adults under 50 say they probably will not have children. What do you think is driving this trend?' },
+      { n: 8, q: 'People who choose not to have children are sometimes called selfish. Is this fair? Is having children always selfless?' },
+      { n: 9, q: 'Hungary offers tax exemptions for large families. Should governments try to influence how many children people have? Where is the line?' },
+    ]
+  },
+  {
+    number: 4, title: 'What Children Actually Need', emoji: '💚', color: '#92400e',
+    text: `Much of the debate about changing family structures centres on children: what do children need to thrive, and can different family structures provide it?\n\nDecades of research in developmental psychology have produced a clear and perhaps surprising answer: what matters most for children is not the structure of the family but the quality of the relationships within it. Children need stable, loving, attentive caregivers. They need consistency, warmth, and emotional security. They need adults who are present, engaged, and responsive to their needs. These qualities can exist in any family structure — and can be absent in any family structure.\n\nStudies consistently show that children raised by same-sex couples do as well as children raised by heterosexual couples on every measure of wellbeing — academic performance, emotional development, social skills, and mental health. Children raised by single parents face some statistical disadvantages, but research shows these are almost entirely explained by economic factors rather than family structure — single-parent families are more likely to experience poverty, and poverty, not the absence of a second parent, is what harms outcomes.\n\nThe finding that family quality matters more than family structure has important policy implications. Rather than promoting a specific family model, governments could focus on supporting all families — through affordable childcare, parental leave, mental health services, and economic policies that reduce child poverty. The evidence suggests that the best thing a society can do for its children is not to enforce a particular family structure, but to ensure that every family, whatever its shape, has the resources it needs to provide a loving, stable home.\n\nFamilies have always changed. The family structures of today would be unrecognisable to people living 200 years ago — and the family structures of 200 years ago would be unrecognisable to people living 2,000 years ago. What has remained constant, across all of these changes, is the fundamental human need for connection, belonging, and love. The shape of the container changes. What it holds does not.`,
+    vocab: [
+      { word: 'Developmental psychology', definition: 'The scientific study of how people grow, change, and develop throughout their lives.' },
+      { word: 'Caregivers', definition: 'People who look after and are responsible for a child or dependent person.' },
+      { word: 'Heterosexual', definition: 'Attracted to people of the opposite sex.' },
+      { word: 'Policy implications', definition: 'The practical consequences that research findings have for government decisions and laws.' },
+    ],
+    questions: [
+      { n: 10, q: 'Research says family quality matters more than family structure. Does this change how you think about what makes a good family?' },
+      { n: 11, q: 'Children of single parents face disadvantages mainly because of poverty, not family structure. What should governments do about this?' },
+      { n: 12, q: 'The passage ends by saying the shape of families changes but the need for love does not. Do you agree? What would you add to this conclusion?' },
+    ]
+  },
+]
+
+async function fetchTranslation(text: string, lang: string, type: 'word' | 'question' | 'message'): Promise<string> {
+  const systems: Record<string, string> = {
+    word: `You are a language learning assistant. Translate this English vocabulary entry to ${lang}. Return ONLY the translated word and a brief explanation in ${lang} (max 25 words). No extra text, no English.`,
+    question: `You are a translator. Translate this English discussion question to ${lang}. Return ONLY the translated question. No extra text.`,
+    message: `You are a translator. Translate this English text to ${lang}. Return ONLY the translation. No extra text.`,
+  }
+  const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: systems[type], messages: [{ role: 'user', content: text }] }) })
+  const data = await res.json()
+  return data.content || ''
+}
+
+function TranslateBtn({ text, type, lang, color, onTranslated }: { text: string; type: 'word' | 'question' | 'message'; lang: string; color: string; onTranslated: (t: string) => void }) {
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
+  const handleClick = async () => {
+    if (lang === 'none' || loading || done) return
+    setLoading(true)
+    const result = await fetchTranslation(text, lang, type)
+    onTranslated(result); setDone(true); setLoading(false)
+  }
+  const isDisabled = lang === 'none'
+  return (
+    <button onClick={handleClick} disabled={isDisabled || loading || done}
+      title={isDisabled ? 'Select a language above to translate' : done ? 'Translated' : `Translate to ${lang}`}
+      style={{ background: isDisabled ? '#f3f4f6' : done ? '#f0fdf4' : color + '15', color: isDisabled ? '#d1d5db' : done ? '#16a34a' : color, border: `1px solid ${isDisabled ? '#e5e7eb' : done ? '#86efac' : color + '40'}`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: isDisabled ? 'not-allowed' : done ? 'default' : 'pointer', fontWeight: '700', flexShrink: 0, transition: 'all 0.2s' }}>
+      {loading ? '...' : done ? '✓ 🌍' : '🌍'}
+    </button>
+  )
+}
+
+function ListenBtn({ text, speed, color }: { text: string; speed: number; color: string }) {
+  const [loading, setLoading] = useState(false)
+  const [playing, setPlaying] = useState(false)
+  const sourceRef = useRef<AudioBufferSourceNode | null>(null)
+  const handleClick = async () => {
+    if (playing && sourceRef.current) { try { sourceRef.current.stop() } catch {} sourceRef.current = null; setPlaying(false); return }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) })
+      if (!res.ok) { setLoading(false); return }
+      const arrayBuffer = await res.arrayBuffer()
+      const audioContext = new AudioContext()
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+      const source = audioContext.createBufferSource()
+      source.buffer = audioBuffer; source.playbackRate.value = speed
+      source.connect(audioContext.destination)
+      source.onended = () => { setPlaying(false); sourceRef.current = null }
+      sourceRef.current = source; setLoading(false); setPlaying(true); source.start(0)
+    } catch { setLoading(false); setPlaying(false) }
+  }
+  return (
+    <button onClick={handleClick}
+      style={{ background: playing ? color : color + '15', color: playing ? 'white' : color, border: `1px solid ${color}40`, padding: '2px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {loading ? '...' : playing ? '⏹ Stop' : '🔊 Listen'}
+    </button>
+  )
+}
+
+type Message = { role: 'user' | 'assistant'; content: string; translation?: string }
+
+function ConversationBox({ question, color, translationLang, speed }: { question: string; color: string; translationLang: string; speed: number }) {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [listening, setListening] = useState(false)
+  const [interimText, setInterimText] = useState('')
+  const [open, setOpen] = useState(false)
+  const recognitionRef = useRef<any>(null)
+  const transcriptRef = useRef('')
+
+  const SYSTEM = `You are a thoughtful English conversation partner helping a B2 upper-intermediate student practise discussion skills. The reading topic is "The Relationship Between AI and Humans". The current discussion question is: "${question}". Keep responses to 2-3 sentences. Use sophisticated but accessible B2-level English. End with one probing follow-up question. If the student makes a significant grammar error, gently correct it using "💡 Quick tip: ..." at the very end. Be intellectually engaging and encouraging.`
+
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || loading) return
+    const userMsg: Message = { role: 'user', content: text.trim() }
+    const updated = [...messages, userMsg]
+    setMessages(updated); setInput(''); setLoading(true)
+    try {
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: SYSTEM, messages: updated.map(m => ({ role: m.role, content: m.content })) }) })
+      const data = await res.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: data.content || 'Sorry, try again.' }])
+    } catch { setMessages(prev => [...prev, { role: 'assistant', content: 'Connection error — please try again.' }]) }
+    setLoading(false)
+  }
+
+  const setMessageTranslation = (idx: number, translation: string) => {
+    setMessages(prev => prev.map((m, i) => i === idx ? { ...m, translation } : m))
+  }
+
+  const startVoice = () => {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SR) { alert('Voice input requires Chrome browser.'); return }
+    transcriptRef.current = ''
+    const r = new SR(); r.lang = 'en-US'; r.continuous = true; r.interimResults = true
+    r.onstart = () => { setListening(true); setInterimText('') }
+    r.onresult = (e: any) => {
+      let final = ''; let interim = ''
+      for (let i = 0; i < e.results.length; i++) {
+        if (e.results[i].isFinal) { final += e.results[i][0].transcript + ' ' }
+        else { interim += e.results[i][0].transcript }
+      }
+      transcriptRef.current = final; setInterimText(final + interim)
+    }
+    r.onerror = () => { setListening(false); setInterimText('') }
+    r.onend = () => {
+      setListening(false)
+      const text = transcriptRef.current.trim() || interimText.trim()
+      if (text) { setInterimText(''); transcriptRef.current = ''; sendMessage(text) }
+      else { setInterimText(''); transcriptRef.current = '' }
+    }
+    recognitionRef.current = r; r.start()
+  }
+  const stopVoice = () => { recognitionRef.current?.stop() }
+  const currentLang = LANGUAGES.find(l => l.value === translationLang)
+
+  if (!open) return (
+    <button onClick={() => setOpen(true)} style={{ marginTop: '10px', width: '100%', background: color + '12', border: `2px dashed ${color}40`, borderRadius: '12px', padding: '10px', color, fontWeight: '700', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+      🤖 Practice answering with AI
+    </button>
+  )
+
+  return (
+    <div style={{ marginTop: '10px', background: '#eef2ff', borderRadius: '14px', border: `2px solid ${color}30`, overflow: 'hidden' }}>
+      <div style={{ background: color, padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>🤖 AI Conversation Partner</span>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <button onClick={() => setMessages([])} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>🔄 Reset</button>
+          <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>✕ Close</button>
+        </div>
+      </div>
+      {messages.length === 0 && <div style={{ padding: '14px 16px', color: '#6b7280', fontSize: '13px', lineHeight: '1.6', borderBottom: '1px solid #c7d2fe' }}>💡 Type your answer or tap <strong>🎤 Start Recording</strong> — speak your full answer, then tap <strong>⏹ Stop & Send</strong>.</div>}
+      {messages.length > 0 && (
+        <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '320px', overflowY: 'auto' }}>
+          {messages.map((m, i) => (
+            <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', flexDirection: m.role === 'user' ? 'row-reverse' : 'row' }}>
+              <div style={{ fontSize: '20px', flexShrink: 0 }}>{m.role === 'user' ? '🧑‍🎓' : '🤖'}</div>
+              <div style={{ maxWidth: '80%', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                <div style={{ background: m.role === 'user' ? color : 'white', color: m.role === 'user' ? 'white' : '#374151', padding: '10px 14px', borderRadius: m.role === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px', fontSize: '14px', lineHeight: '1.6', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: m.role === 'assistant' ? '1px solid #e5e7eb' : 'none' }}>{m.content}</div>
+                {m.role === 'assistant' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <ListenBtn text={m.content} speed={speed} color={color} />
+                    {!m.translation && <TranslateBtn text={m.content} type="message" lang={translationLang} color={color} onTranslated={(t) => setMessageTranslation(i, t)} />}
+                    {translationLang === 'none' && !m.translation && <span style={{ color: '#9ca3af', fontSize: '11px' }}>Select a language to translate</span>}
+                  </div>
+                )}
+                {m.translation && <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '10px', padding: '8px 12px', fontSize: '13px', color: '#374151', lineHeight: '1.5' }}><span style={{ color: color, fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '3px' }}>🌍 Translation</span>{m.translation}</div>}
+              </div>
+            </div>
+          ))}
+          {loading && <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ fontSize: '20px' }}>🤖</span><div style={{ background: 'white', padding: '10px 14px', borderRadius: '4px 16px 16px 16px', fontSize: '14px', color: '#9ca3af', border: '1px solid #e5e7eb' }}>Thinking...</div></div>}
+        </div>
+      )}
+      <div style={{ padding: '12px 16px', borderTop: '1px solid #c7d2fe', display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+        <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) } }} placeholder="Type your answer here..." rows={2} style={{ flex: 1, padding: '10px 12px', borderRadius: '10px', border: '2px solid #e5e7eb', fontSize: '14px', outline: 'none', resize: 'none', fontFamily: 'inherit', lineHeight: '1.5' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <button onClick={listening ? stopVoice : startVoice} style={{ background: listening ? '#ef4444' : '#22c55e', color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: listening ? '0 0 0 4px rgba(239,68,68,0.3)' : 'none', transition: 'all 0.2s' }}>{listening ? '⏹' : '🎤'}</button>
+          <button onClick={() => sendMessage(input)} disabled={!input.trim() || loading} style={{ background: input.trim() && !loading ? color : '#e5e7eb', color: input.trim() && !loading ? 'white' : '#9ca3af', border: 'none', width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', cursor: input.trim() && !loading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>➤</button>
+        </div>
+      </div>
+      {!listening && <div style={{ padding: '4px 16px 10px', display: 'flex', gap: '16px' }}><span style={{ color: '#9ca3af', fontSize: '11px' }}>🎤 = Start recording</span><span style={{ color: '#9ca3af', fontSize: '11px' }}>⏹ = Stop & send</span><span style={{ color: '#9ca3af', fontSize: '11px' }}>➤ = Send typed</span></div>}
+      {listening && (
+        <div style={{ padding: '10px 16px 14px', borderTop: '1px solid #fee2e2', background: '#fef2f2' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444', animation: 'pulse 1s infinite', flexShrink: 0 }} /><span style={{ color: '#ef4444', fontSize: '12px', fontWeight: '700' }}>Recording... speak your full answer</span></div>
+            <button onClick={stopVoice} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(239,68,68,0.4)' }}>⏹ Stop & Send</button>
+          </div>
+          <div style={{ background: 'white', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: interimText ? '#374151' : '#9ca3af', lineHeight: '1.6', border: '1px solid #fca5a5', fontStyle: 'italic', minHeight: '40px' }}>{interimText || 'Waiting for speech...'}{interimText && <span style={{ display: 'inline-block', width: '2px', height: '16px', background: '#ef4444', marginLeft: '2px', verticalAlign: 'middle', animation: 'pulse 1s infinite' }} />}</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function ChangingFamiliesPage() {
+  const [speed, setSpeed] = useState(0.9)
+  const [translationLang, setTranslationLang] = useState('none')
+  const [selectedText, setSelectedText] = useState<string | null>(null)
+  const [lookupDef, setLookupDef] = useState('')
+  const [lookupTranslation, setLookupTranslation] = useState('')
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [vocabTranslations, setVocabTranslations] = useState<Record<string, string>>({})
+  const [questionTranslations, setQuestionTranslations] = useState<Record<number, string>>({})
+
+  useEffect(() => {
+    const handleSelection = () => {
+      const sel = window.getSelection()
+      if (!sel) return
+      const text = sel.toString().trim().replace(/\s+/g, ' ')
+      if (!text || text.split(' ').length > 6) return
+      const anchor = sel.anchorNode?.parentElement
+      if (!anchor?.closest('[data-passage]')) return
+      handleLookup(text)
+    }
+    document.addEventListener('mouseup', handleSelection)
+    document.addEventListener('touchend', handleSelection)
+    return () => { document.removeEventListener('mouseup', handleSelection); document.removeEventListener('touchend', handleSelection) }
+  }, [translationLang])
+
+  const handleLookup = async (text: string) => {
+    if (!text || text.length < 2) return
+    setSelectedText(text); setLookupDef(''); setLookupTranslation(''); setLookupLoading(true)
+    speakWord(text)
+    const isPhrase = text.includes(' ')
+    try {
+      if (translationLang === 'none') {
+        const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: isPhrase ? `You are an English dictionary for B2 learners. Respond with ONLY one sentence (max 20 words) explaining what the phrase means. No extra text.` : `You are an English dictionary for B2 learners. Respond with ONLY one sentence (max 15 words) defining this word. No extra text.`, messages: [{ role: 'user', content: isPhrase ? `What does "${text}" mean?` : `Define: "${text}"` }] }) })
+        const data = await res.json(); setLookupDef(data.content || 'No definition found.')
+      } else {
+        const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ system: `You are a language learning assistant for B2 English students. Respond ONLY with valid JSON (no markdown, no backticks): {"definition": "one simple English sentence max 15 words", "translation": "the word/phrase in ${translationLang} with a brief explanation in ${translationLang}, max 25 words"}`, messages: [{ role: 'user', content: `Word or phrase: "${text}"` }] }) })
+        const data = await res.json()
+        try { const parsed = JSON.parse(data.content); setLookupDef(parsed.definition || 'No definition found.'); setLookupTranslation(parsed.translation || '') }
+        catch { setLookupDef(data.content || 'No definition found.'); setLookupTranslation('') }
+      }
+    } catch { setLookupDef('Could not load definition.') }
+    setLookupLoading(false)
+  }
+
+  function speakText(text: string) {
+    if (typeof window === 'undefined') return
+    window.speechSynthesis.cancel()
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text]
+    sentences.forEach(s => { const u = new SpeechSynthesisUtterance(s.trim()); u.lang = 'en-GB'; u.rate = speed; u.pitch = 1; window.speechSynthesis.speak(u) })
+  }
+  function speakWord(word: string) {
+    if (typeof window === 'undefined') return
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(word); u.lang = 'en-GB'; u.rate = 0.85; u.pitch = 1; window.speechSynthesis.speak(u)
+  }
+  function stopAudio() { if (typeof window === 'undefined') return; window.speechSynthesis.cancel() }
+  const currentLang = LANGUAGES.find(l => l.value === translationLang)
+
+  return (
+    <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}} @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
+      <section style={{ background: 'linear-gradient(135deg, #0d0a2e 0%, #1e1b4b 50%, #312e81 100%)', padding: '56px 24px' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <Link href="/esl-resources/reading-comprehension/b2" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← B2 Reading Comprehension</Link>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <div style={{ fontSize: '72px', flexShrink: 0 }}>👨‍👩‍👧‍👦</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                <span style={{ background: '#6366f1', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>B2 Upper Intermediate</span>
+                <span style={{ background: 'rgba(99,102,241,0.5)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>Society & Culture</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>4 Parts · 12 Questions</span>
+              </div>
+              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>The Changing Shape of Families</h1>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>Single parents, same-sex couples, child-free by choice, and multigenerational households — how family has changed, why it happened, and what children actually need.</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '20px', marginTop: '28px', flexWrap: 'wrap' }}>
+            {[{ icon: '📄', label: '4 reading parts' }, { icon: '💬', label: '12 discussion questions' }, { icon: '📚', label: '16 vocabulary words' }, { icon: '✍️', label: 'Highlight any text' }, { icon: '🌍', label: 'Multi-language lookup' }, { icon: '🤖', label: 'AI conversation partner' }].map(s => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.75)', fontSize: '13px' }}><span>{s.icon}</span> {s.label}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section style={{ background: 'white', borderBottom: '1px solid #eee', padding: '14px 24px' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
+            <span style={{ color: '#888', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>How to use:</span>
+            {['🔊 Play passage aloud', '✍️ Highlight any text for lookup', '🌍 Translate vocab, questions & AI answers', '🤖 Practice with AI'].map((step, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#555', fontSize: '13px' }}>
+                <span style={{ background: '#6366f1', color: 'white', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', flexShrink: 0 }}>{i + 1}</span>
+                {step}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🔊 Speed:</span>
+              {SPEEDS.map(s => (
+                <button key={s.value} onClick={() => setSpeed(s.value)} style={{ padding: '4px 12px', borderRadius: '20px', border: '2px solid', borderColor: speed === s.value ? '#6366f1' : '#e5e7eb', background: speed === s.value ? '#6366f1' : 'white', color: speed === s.value ? 'white' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>{s.label}</button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: '#888', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', flexShrink: 0 }}>🌍 Translate to:</span>
+              <select value={translationLang} onChange={e => { setTranslationLang(e.target.value); setVocabTranslations({}); setQuestionTranslations({}) }} style={{ padding: '5px 12px', borderRadius: '20px', border: '2px solid', borderColor: translationLang !== 'none' ? '#6366f1' : '#e5e7eb', background: translationLang !== 'none' ? '#eef2ff' : 'white', color: translationLang !== 'none' ? '#3730a3' : '#555', fontWeight: '700', fontSize: '12px', cursor: 'pointer', outline: 'none' }}>
+                {LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        {PARTS.map(part => (
+          <div key={part.number} style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+            <div style={{ background: `linear-gradient(135deg, ${part.color}22, ${part.color}08)`, borderLeft: `5px solid ${part.color}`, padding: '20px 24px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ background: part.color, color: 'white', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '16px', flexShrink: 0 }}>{part.number}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: part.color, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>Part {part.number}</div>
+                <h2 data-passage="true" style={{ color: '#1a1a2e', fontSize: '18px', fontWeight: 'bold', margin: 0, userSelect: 'text', cursor: 'text' }}>{part.emoji} {part.title}</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                <button onClick={() => speakText(part.text.replace(/\n\n/g, ' '))} style={{ background: part.color, color: 'white', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxShadow: `0 3px 10px ${part.color}40` }}>▶ Play Passage</button>
+                <button onClick={stopAudio} style={{ background: 'white', color: '#6b7280', border: '2px solid #e5e7eb', padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>⏹ Stop</button>
+              </div>
+            </div>
+            <div style={{ background: '#eef2ff', padding: '8px 28px', borderBottom: '1px solid #c7d2fe' }}>
+              <span style={{ color: '#3730a3', fontSize: '12px', fontWeight: '600' }}>✍️ Highlight any word or phrase to hear it and see its meaning{translationLang !== 'none' && <span style={{ color: '#6366f1' }}> + {currentLang?.label} translation</span>}</span>
+            </div>
+            <div data-passage="true" style={{ padding: '24px 28px 20px', userSelect: 'text', cursor: 'text' }}>
+              {part.text.split('\n\n').map((para, i) => <p key={i} style={{ color: '#374151', fontSize: '16px', lineHeight: '1.85', margin: i === 0 ? '0 0 18px' : '0', fontFamily: 'Georgia, serif' }}>{para}</p>)}
+            </div>
+            <div style={{ margin: '0 28px 24px', background: part.color + '08', border: `1px solid ${part.color}25`, borderRadius: '14px', overflow: 'hidden' }}>
+              <div style={{ background: part.color + '18', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: `1px solid ${part.color}20` }}>
+                <span style={{ fontSize: '16px' }}>📚</span>
+                <span style={{ color: part.color, fontWeight: 'bold', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px' }}>Vocabulary — Part {part.number}</span>
+              </div>
+              <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {part.vocab.map((v, i) => {
+                  const vKey = `${part.number}-${v.word}`
+                  return (
+                    <div key={v.word} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', paddingBottom: i < part.vocab.length - 1 ? '10px' : '0', borderBottom: i < part.vocab.length - 1 ? `1px solid ${part.color}15` : 'none' }}>
+                      <div style={{ background: part.color, color: 'white', width: '22px', height: '22px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '11px', flexShrink: 0, marginTop: '2px' }}>{i + 1}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
+                          <span data-passage="true" style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px', userSelect: 'text', cursor: 'text' }}>{v.word}</span>
+                          <button onClick={() => speakWord(v.word)} style={{ background: part.color + '15', color: part.color, border: `1px solid ${part.color}30`, padding: '2px 8px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '700', flexShrink: 0 }}>🔊</button>
+                          <TranslateBtn text={`Word: "${v.word}"\nDefinition: "${v.definition}"`} type="word" lang={translationLang} color={part.color} onTranslated={(t) => setVocabTranslations(prev => ({ ...prev, [vKey]: t }))} />
+                          {translationLang === 'none' && <span style={{ color: '#d1d5db', fontSize: '11px' }}>← select a language to translate</span>}
+                        </div>
+                        <span data-passage="true" style={{ color: '#6b7280', fontSize: '14px', lineHeight: '1.5', userSelect: 'text', cursor: 'text' }}>{v.definition}</span>
+                        {vocabTranslations[vKey] && <div style={{ marginTop: '6px', background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '8px', padding: '8px 12px' }}><span style={{ color: '#3730a3', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '3px' }}>{currentLang?.label}</span><span style={{ color: '#374151', fontSize: '14px', lineHeight: '1.5' }}>{vocabTranslations[vKey]}</span></div>}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+            <div style={{ background: '#1a1a2e', padding: '20px 28px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <span style={{ fontSize: '18px' }}>💬</span>
+                <span style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>Discussion Questions</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {part.questions.map(q => (
+                  <div key={q.n}>
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div style={{ background: part.color, color: 'white', width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '13px', flexShrink: 0, marginTop: '1px' }}>{q.n}</div>
+                      <div style={{ flex: 1 }}>
+                        <p data-passage="true" style={{ color: 'rgba(255,255,255,0.88)', fontSize: '15px', lineHeight: '1.6', margin: '0 0 6px', userSelect: 'text', cursor: 'text' }}>{q.q}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <TranslateBtn text={q.q} type="question" lang={translationLang} color={part.color} onTranslated={(t) => setQuestionTranslations(prev => ({ ...prev, [q.n]: t }))} />
+                          {translationLang === 'none' && <span style={{ color: '#4b5563', fontSize: '11px' }}>← select a language to translate</span>}
+                        </div>
+                        {questionTranslations[q.n] && <div style={{ marginTop: '8px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '10px', padding: '10px 14px' }}><span style={{ color: '#a5b4fc', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '3px' }}>{currentLang?.label}</span><span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px', lineHeight: '1.6' }}>{questionTranslations[q.n]}</span></div>}
+                      </div>
+                    </div>
+                    <div style={{ marginLeft: '42px' }}><ConversationBox question={q.q} color={part.color} translationLang={translationLang} speed={speed} /></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+        <div style={{ textAlign: 'center', paddingBottom: selectedText ? '140px' : '16px' }}>
+          <Link href="/esl-resources/reading-comprehension/b2" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>← Back to B2 Reading Comprehension</Link>
+        </div>
+      </div>
+      {selectedText && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 200, animation: 'slideUp 0.25s ease' }}>
+          <div style={{ maxWidth: '860px', margin: '0 auto', background: 'white', borderRadius: '20px 20px 0 0', padding: '20px 24px 32px', boxShadow: '0 -8px 32px rgba(0,0,0,0.2)', border: '2px solid #c7d2fe', borderBottom: 'none' }}>
+            <div style={{ width: '40px', height: '4px', background: '#e5e7eb', borderRadius: '4px', margin: '0 auto 16px' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '22px', fontWeight: '900', color: '#1a1a2e', fontFamily: 'Georgia, serif' }}>"{selectedText}"</span>
+                <button onClick={() => speakWord(selectedText)} style={{ background: '#eef2ff', color: '#3730a3', border: '2px solid #c7d2fe', padding: '6px 14px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>🔊 Hear it</button>
+              </div>
+              <button onClick={() => setSelectedText(null)} style={{ background: '#f3f4f6', border: 'none', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', flexShrink: 0, marginLeft: '12px' }}>✕</button>
+            </div>
+            {lookupLoading ? (
+              <div style={{ background: '#eef2ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #c7d2fe', color: '#9ca3af', fontSize: '15px' }}>{translationLang !== 'none' ? `Looking up definition and ${currentLang?.label} translation...` : 'Looking up...'}</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ background: '#eef2ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #c7d2fe' }}>
+                  <div style={{ color: '#3730a3', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>📖 English Definition</div>
+                  <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{lookupDef}</span>
+                </div>
+                {translationLang !== 'none' && lookupTranslation && (
+                  <div style={{ background: '#eef2ff', borderRadius: '12px', padding: '14px 18px', border: '1px solid #a5b4fc' }}>
+                    <div style={{ color: '#4338ca', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>{currentLang?.label} Translation</div>
+                    <span style={{ color: '#374151', fontSize: '16px', lineHeight: '1.6' }}>{lookupTranslation}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </main>
+  )
+}
