@@ -33,7 +33,7 @@ const CATEGORIES = [
     id: 'weekly-news',
     title: "This Week's News",
     emoji: '📰',
-    description: 'Real stories from this week — new lessons every Monday',
+    description: 'Real stories from this week — updated regularly',
     color: '#dc2626',
     weeklyNews: true,
     lessons: [
