@@ -20,7 +20,27 @@ function NewBadge({ publishedDate }: { publishedDate?: string }) {
   )
 }
 
+function isThisWeek(dateStr?: string) {
+  if (!dateStr) return false
+  const published = new Date(dateStr)
+  const now = new Date()
+  const diffDays = (now.getTime() - published.getTime()) / (1000 * 60 * 60 * 24)
+  return diffDays <= 7
+}
+
 const CATEGORIES = [
+  {
+    id: 'weekly-news',
+    title: "This Week's News",
+    emoji: '📰',
+    description: 'Real stories from this week — new lessons every Monday',
+    color: '#dc2626',
+    weeklyNews: true,
+    lessons: [
+      { id: 'spokane-wildfires', title: 'Wildfires Force Thousands to Evacuate in Spokane', emoji: '🔥', description: 'A US City on Fire', detail: 'Three fires broke out in Spokane, Washington this week, forcing thousands to flee their homes. Why are wildfires getting worse, and can we learn to live with fire?', badges: ['4 parts', '12 questions'], color: '#dc2626', publishedDate: '2026-08-03' },
+      { id: 'ai-breaks-into-computers', title: 'AI Systems Break Into Computers Without Permission', emoji: '💻', description: 'The Machines Went Rogue', detail: 'OpenAI and Anthropic revealed that their AI models tried to hack into other computer systems during testing — without being asked to. What does this mean for AI safety?', badges: ['4 parts', '12 questions'], color: '#991b1b', publishedDate: '2026-08-03' },
+    ],
+  },
   {
     id: 'health',
     title: 'Health & Science',
@@ -164,11 +184,11 @@ export default function B1ReadingHub() {
                 <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>{cat.title}</h2>
                 <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>{cat.description}</p>
               </div>
-              <span style={{ marginLeft: 'auto', background: cat.color + '15', color: cat.color, fontSize: '13px', fontWeight: '700', padding: '4px 14px', borderRadius: '20px', flexShrink: 0 }}>{cat.lessons.length} lesson{cat.lessons.length !== 1 ? 's' : ''}</span>
+              <span style={{ marginLeft: 'auto', background: cat.color + '15', color: cat.color, fontSize: '13px', fontWeight: '700', padding: '4px 14px', borderRadius: '20px', flexShrink: 0 }}>{(cat as any).weeklyNews ? cat.lessons.filter(l => isThisWeek((l as any).publishedDate)).length : cat.lessons.length} lesson{((cat as any).weeklyNews ? cat.lessons.filter(l => isThisWeek((l as any).publishedDate)).length : cat.lessons.length) !== 1 ? 's' : ''}</span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '20px' }}>
-              {cat.lessons.map(lesson => (
+              {((cat as any).weeklyNews ? cat.lessons.filter(l => isThisWeek((l as any).publishedDate)) : cat.lessons).map(lesson => (
                 <Link key={lesson.id} href={`/esl-resources/reading-comprehension/b1/${lesson.id}`} style={{ textDecoration: 'none' }}>
                   <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: '1px solid #eee', height: '100%', display: 'flex', flexDirection: 'column', transition: 'transform 0.15s, box-shadow 0.15s' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 28px rgba(0,0,0,0.12)' }}
@@ -195,8 +215,8 @@ export default function B1ReadingHub() {
                 </Link>
               ))}
               <div style={{ background: 'white', borderRadius: '16px', border: '2px dashed #e5e7eb', padding: '32px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', minHeight: '200px' }}>
-                <div style={{ fontSize: '36px' }}>✍️</div>
-                <div style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '600', textAlign: 'center' }}>More {cat.title} lessons coming soon</div>
+                <div style={{ fontSize: '36px' }}>{(cat as any).weeklyNews ? '📰' : '✍️'}</div>
+                <div style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '600', textAlign: 'center' }}>{(cat as any).weeklyNews ? 'Check back next week for new stories!' : `More ${cat.title} lessons coming soon`}</div>
               </div>
             </div>
           </div>
