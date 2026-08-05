@@ -28,6 +28,24 @@ function isThisWeek(dateStr?: string) {
   return diffDays <= 7
 }
 
+
+function ExpiryBadge({ publishedDate }: { publishedDate?: string }) {
+  if (!publishedDate) return null
+  const published = new Date(publishedDate)
+  const expires = new Date(published.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const label = months[expires.getMonth()] + ' ' + expires.getDate()
+  return (
+    <span style={{
+      position: 'absolute', bottom: '12px', right: '12px',
+      background: '#fef2f2', color: '#991b1b',
+      fontSize: '10px', fontWeight: '700',
+      padding: '3px 8px', borderRadius: '12px',
+      border: '1px solid #fecaca',
+    }}>Expires: {label}</span>
+  )
+}
+
 const CATEGORIES = [
   {
     id: 'weekly-news',
@@ -45,6 +63,8 @@ const CATEGORIES = [
       { id: 'spiderman-box-office', title: 'Spider-Man Breaks Box Office Records', emoji: '🎬', description: '400 Million Dollars in One Weekend', detail: 'The latest Spider-Man earned 400 million dollars in three days. Why are superhero films so popular, and what does their success tell us about the future of cinema?', badges: ['4 parts', '12 questions'], color: '#dc2626', publishedDate: '2026-08-04' },
       { id: 'india-floods', title: 'Deadly Floods Hit Southern India', emoji: '🌧️', description: 'Monsoon Rains Kill 14 and Leave Thousands Stranded', detail: 'Torrential monsoon rains killed 14 people in southern India. Why cities flood, how climate change makes it worse, and what sponge cities can teach us.', badges: ['4 parts', '12 questions'], color: '#991b1b', publishedDate: '2026-08-04' },
       { id: 'solar-eclipse-europe', title: 'Solar Eclipse Coming to Europe Next Week', emoji: '🌑', description: 'The Sun Will Disappear on 12 August', detail: 'On 12 August, the Moon will block the Sun over Europe for the first time since 1999. How eclipses work, their place in history, and why millions are planning to watch.', badges: ['4 parts', '12 questions'], color: '#dc2626', publishedDate: '2026-08-04' },
+      { id: 'rwanda-drones', title: 'Drones Deliver Medicine in Rwanda', emoji: '🚁', description: 'A Small Country Leading the World', detail: 'Drones in Rwanda make 500 medical deliveries per day, saving lives that would be lost waiting for trucks on unpaved roads. How a small African country leads the world.', badges: ['4 parts', '12 questions'], color: '#dc2626', publishedDate: '2026-08-05' },
+      { id: 'pogacar-tour-de-france', title: 'Pogacar Wins Record 5th Tour de France', emoji: '🚴', description: 'A Tiny Country, A Giant Champion', detail: 'Tadej Pogacar from tiny Slovenia won the hardest race in the world for the 5th time, tying the all-time record. Why we love watching sport.', badges: ['4 parts', '12 questions'], color: '#b91c1c', publishedDate: '2026-08-05' },
       { id: 'scooter-gummy-worms', title: 'Scooter the Beagle Eats 1kg of Gummy Worms', emoji: '🐕', description: 'No Regrets, Says the Dog', detail: 'A beagle in Australia ate an entire bag of gummy worms and became an internet celebrity. Why dogs eat everything, the hidden dangers in your kitchen, and why we love pet stories.', badges: ['4 parts', '12 questions'], color: '#b91c1c', publishedDate: '2026-08-04' },
     ],
   },
@@ -202,6 +222,7 @@ export default function B1ReadingHub() {
                     onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)' }}>
                     <div style={{ background: `linear-gradient(135deg, ${lesson.color}22, ${lesson.color}08)`, borderBottom: `3px solid ${lesson.color}`, padding: '22px 20px 16px', position: 'relative' }}>
                       <NewBadge publishedDate={(lesson as any).publishedDate} />
+                      {(cat as any).weeklyNews && <ExpiryBadge publishedDate={(lesson as any).publishedDate} />}
                       <div style={{ fontSize: '44px', marginBottom: '10px' }}>{lesson.emoji}</div>
                       <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 5px', lineHeight: '1.3' }}>{lesson.title}</h3>
                       <p style={{ color: lesson.color, fontSize: '13px', fontWeight: '700', margin: 0 }}>{lesson.description}</p>
