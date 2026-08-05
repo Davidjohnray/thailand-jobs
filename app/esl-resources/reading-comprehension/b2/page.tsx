@@ -28,6 +28,24 @@ function isThisWeek(dateStr?: string) {
   return diffDays <= 7
 }
 
+
+function ExpiryBadge({ publishedDate }: { publishedDate?: string }) {
+  if (!publishedDate) return null
+  const published = new Date(publishedDate)
+  const expires = new Date(published.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const label = months[expires.getMonth()] + ' ' + expires.getDate()
+  return (
+    <span style={{
+      position: 'absolute', bottom: '12px', right: '12px',
+      background: '#fef2f2', color: '#991b1b',
+      fontSize: '10px', fontWeight: '700',
+      padding: '3px 8px', borderRadius: '12px',
+      border: '1px solid #fecaca',
+    }}>Expires: {label}</span>
+  )
+}
+
 const CATEGORIES = [
   {
     id: 'weekly-news',
@@ -45,6 +63,8 @@ const CATEGORIES = [
       { id: 'gaza-disarmament-deal', title: 'The Gaza Disarmament Deal — Can It Work?', emoji: '🕊️', description: 'A Historic Agreement or an Illusion?', detail: 'Trump announced a historic deal for Hamas to disarm. But Israel and Hamas disagree on the terms. Can a deal built on distrust actually deliver peace?', badges: ['4 parts', '12 questions'], color: '#dc2626', publishedDate: '2026-08-04' },
       { id: 'china-economic-slowdown', title: 'China\'s Factory Slowdown and the AI Race', emoji: '🏭', description: 'When the World\'s Factory Goes Quiet', detail: 'Chinese factories are slowing, youth unemployment is rising, and Beijing is betting everything on AI. What went wrong, and what does it mean for the world?', badges: ['4 parts', '12 questions'], color: '#991b1b', publishedDate: '2026-08-04' },
       { id: 'library-book-150-years', title: 'Library Book Returned 150 Years Late', emoji: '📚', description: 'Found Bricked Into a Fireplace', detail: 'A book checked out 150 years ago was found bricked into a fireplace. The quirky story that sparked a global conversation about libraries, reading, and what lasts.', badges: ['4 parts', '12 questions'], color: '#d97706', publishedDate: '2026-08-04' },
+      { id: 'nolan-odyssey', title: "Nolan's Odyssey — When Hollywood Meets Homer", emoji: '🎬', description: 'A 3,000-Year-Old Blockbuster', detail: "Christopher Nolan turned a 2,800-year-old Greek poem into one of the biggest films of 2026. Why ancient stories still fill cinemas and what The Odyssey tells us about being human.", badges: ['4 parts', '12 questions'], color: '#d97706', publishedDate: '2026-08-05' },
+      { id: 'dallas-yall-street', title: 'Dallas Becomes "Y\'all Street"', emoji: '🤠', description: 'Wall Street Moves South', detail: "Goldman Sachs is building a massive campus in Dallas as Wall Street moves south. Why companies are leaving New York and what it means for the future of work.", badges: ['4 parts', '12 questions'], color: '#b45309', publishedDate: '2026-08-05' },
       { id: 'star-ate-planet', title: 'A Star That Ate Its Own Planet', emoji: '⭐', description: 'Cosmic Cannibalism and Why It Matters', detail: 'Astronomers found a star with a chemical fingerprint proving it swallowed one of its own planets. The wonderfully absurd discovery and why space stories matter.', badges: ['4 parts', '12 questions'], color: '#f59e0b', publishedDate: '2026-08-04' },
     ],
   },
@@ -222,6 +242,7 @@ export default function B2ReadingHub() {
                       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.07)' }}>
                       <div style={{ background: `linear-gradient(135deg, ${lesson.color}22, ${lesson.color}08)`, borderBottom: `3px solid ${lesson.color}`, padding: '22px 20px 16px', position: 'relative' }}>
                         <NewBadge publishedDate={(lesson as any).publishedDate} />
+                      {(cat as any).weeklyNews && <ExpiryBadge publishedDate={(lesson as any).publishedDate} />}
                         <div style={{ fontSize: '44px', marginBottom: '10px' }}>{lesson.emoji}</div>
                         <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a1a2e', margin: '0 0 5px', lineHeight: '1.3' }}>{lesson.title}</h3>
                         <p style={{ color: lesson.color, fontSize: '13px', fontWeight: '700', margin: 0 }}>{lesson.description}</p>
