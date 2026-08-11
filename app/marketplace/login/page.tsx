@@ -82,7 +82,7 @@ export default function MarketplaceLoginPage() {
         </button>
 
         <div style={{ textAlign: 'center', fontSize: '13px', color: '#888' }}>
-          Don't have an account? <Link href="/register" style={{ color: '#4F46E5', fontWeight: 'bold', textDecoration: 'none' }}>Sign up</Link>
+          Don't have an account? <Link href="/marketplace/register" style={{ color: '#4F46E5', fontWeight: 'bold', textDecoration: 'none' }}>Sign up</Link>
         </div>
       </div>
     </main>
