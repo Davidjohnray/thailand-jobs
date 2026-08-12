@@ -1,6 +1,13 @@
 // lib/marketplace-auth.ts
-// Shared helper for getting the logged-in user and their marketplace seller record.
-// Uses your existing site-wide Supabase Auth — same accounts as the rest of the site.
+// Fully separate marketplace authentication — independent from your main site's
+// Supabase Auth accounts. Uses its own marketplace_users table, with password
+// hashing handled server-side via /api/marketplace/register and /api/marketplace/login.
+//
+// Session is kept simple (matches the pattern already used for your admin panels):
+// after a successful login/register, the user's id + email are stored in localStorage.
+// This is NOT a secure server-verified session (no expiry, no token signing) — fine
+// for a low-stakes marketplace, but not equivalent to a real auth session. Worth
+// upgrading later (e.g. signed JWT in an httpOnly cookie) if this needs to be hardened.
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -9,8 +16,10 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+const SESSION_KEY = 'marketplace_session'
+
 export type MarketplaceUser = {
-  id: string // auth.users id — used as buyer_id / user_id throughout
+  id: string
   email: string | null
 }
 
@@ -26,14 +35,32 @@ export type MarketplaceSeller = {
   contact_line_or_phone: string
 }
 
+/** Call this after a successful register/login API response to store the session. */
+export function setMarketplaceSession(user: MarketplaceUser) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user))
+  }
+}
+
+export function clearMarketplaceSession() {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(SESSION_KEY)
+  }
+}
+
 /**
- * Returns the currently logged-in user, or null if not logged in.
+ * Returns the currently logged-in marketplace user, or null if not logged in.
  * Redirect to /marketplace/login if this returns null on a page that requires auth.
  */
 export async function getCurrentUser(): Promise<MarketplaceUser | null> {
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data.user) return null
-  return { id: data.user.id, email: data.user.email ?? null }
+  if (typeof window === 'undefined') return null
+  const raw = localStorage.getItem(SESSION_KEY)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw) as MarketplaceUser
+  } catch {
+    return null
+  }
 }
 
 /**

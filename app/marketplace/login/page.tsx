@@ -2,12 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { setMarketplaceSession } from '../../../lib/marketplace-auth'
 
 export default function MarketplaceLoginPage() {
   const router = useRouter()
@@ -24,15 +19,21 @@ export default function MarketplaceLoginPage() {
     setError('')
     setSubmitting(true)
 
-    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password })
+    const res = await fetch('/api/marketplace/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    const data = await res.json()
 
     setSubmitting(false)
 
-    if (loginError) {
-      setError('Incorrect email or password.')
+    if (!res.ok) {
+      setError(data.error || 'Incorrect email or password.')
       return
     }
 
+    setMarketplaceSession({ id: data.id, email: data.email })
     router.push('/marketplace')
   }
 
@@ -43,7 +44,7 @@ export default function MarketplaceLoginPage() {
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ fontSize: '40px', marginBottom: '10px' }}>🛒</div>
           <h1 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e1b4b', margin: 0 }}>Marketplace Login</h1>
-          <p style={{ fontSize: '13px', color: '#888', marginTop: '6px' }}>Log in to buy, sell, and message on the Teacher Marketplace</p>
+          <p style={{ fontSize: '13px', color: '#888', marginTop: '6px' }}>Separate from your main jobsinthailand.net account</p>
         </div>
 
         <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#1e1b4b', display: 'block', marginBottom: '6px' }}>Email</label>
@@ -66,7 +67,7 @@ export default function MarketplaceLoginPage() {
         />
 
         <div style={{ textAlign: 'right', marginBottom: '16px' }}>
-          <Link href="/forgot-password" style={{ fontSize: '12px', color: '#4F46E5', fontWeight: 'bold', textDecoration: 'none' }}>
+          <Link href="/marketplace/forgot-password" style={{ fontSize: '12px', color: '#4F46E5', fontWeight: 'bold', textDecoration: 'none' }}>
             Forgot password?
           </Link>
         </div>
@@ -82,7 +83,7 @@ export default function MarketplaceLoginPage() {
         </button>
 
         <div style={{ textAlign: 'center', fontSize: '13px', color: '#888' }}>
-          Don't have an account? <Link href="/marketplace/register" style={{ color: '#4F46E5', fontWeight: 'bold', textDecoration: 'none' }}>Sign up</Link>
+          Don't have a marketplace account? <Link href="/marketplace/register" style={{ color: '#4F46E5', fontWeight: 'bold', textDecoration: 'none' }}>Sign up</Link>
         </div>
       </div>
     </main>
