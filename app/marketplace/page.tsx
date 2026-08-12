@@ -84,6 +84,7 @@ export default function MarketplacePage() {
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', maxWidth: '1100px', margin: '0 auto 20px', fontSize: '13px' }}>
           <Link href="/marketplace/login" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>Log In</Link>
           <Link href="/marketplace/register" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>Register</Link>
+          <Link href="/marketplace/messages" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>My Messages</Link>
           <Link href="/marketplace/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>My Dashboard</Link>
         </div>
         <div style={{ fontSize: '48px', marginBottom: '12px' }}>🛒</div>

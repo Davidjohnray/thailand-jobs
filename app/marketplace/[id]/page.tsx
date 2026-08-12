@@ -32,6 +32,7 @@ export default function ListingDetailPage() {
   const [showContactForm, setShowContactForm] = useState(false)
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
+  const [hasExistingThread, setHasExistingThread] = useState(false)
 
   useEffect(() => {
     supabase
@@ -39,9 +40,23 @@ export default function ListingDetailPage() {
       .select('*, marketplace_sellers(display_name, bio, trust_tier, positive_feedback_count, total_listings)')
       .eq('id', params.id)
       .single()
-      .then(({ data, error }) => {
+      .then(async ({ data, error }) => {
         if (!error) setListing(data as any)
         setLoading(false)
+
+        // Check if this buyer already has a conversation about this listing
+        const user = await getCurrentUser()
+        if (user && data) {
+          const { data: existingMsgs } = await supabase
+            .from('marketplace_messages')
+            .select('id')
+            .eq('listing_id', data.id)
+            .eq('buyer_id', user.id)
+            .limit(1)
+          if (existingMsgs && existingMsgs.length > 0) {
+            setHasExistingThread(true)
+          }
+        }
       })
   }, [params.id])
 
@@ -124,7 +139,32 @@ export default function ListingDetailPage() {
               </p>
             )}
 
-            {!showContactForm && !sent && (
+            {hasExistingThread && !sent && (
+              <Link href={`/marketplace/messages/${listing.id}`} style={{ textDecoration: 'none' }}>
+                <span
+                  style={{
+                    display: 'block',
+                    background: 'linear-gradient(135deg, #4F46E5, #10b981)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '14px',
+                    padding: '16px 32px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    width: '100%',
+                    marginBottom: '24px',
+                    boxShadow: '0 8px 24px rgba(79,70,229,0.25)',
+                    textAlign: 'center',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  💬 View Conversation
+                </span>
+              </Link>
+            )}
+
+            {!hasExistingThread && !showContactForm && !sent && (
               <button
                 onClick={() => setShowContactForm(true)}
                 style={{
@@ -165,6 +205,10 @@ export default function ListingDetailPage() {
             {sent && (
               <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '14px', padding: '16px 18px', marginBottom: '24px', color: '#065f46', fontSize: '14px' }}>
                 ✅ Message sent! The seller will share their contact and payment details with you directly to arrange the sale.
+                <br />
+                <Link href={`/marketplace/messages/${listing.id}`} style={{ color: '#065f46', fontWeight: 'bold', textDecoration: 'underline' }}>
+                  View conversation →
+                </Link>
               </div>
             )}
 
