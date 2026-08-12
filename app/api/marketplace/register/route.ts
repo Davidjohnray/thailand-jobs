@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       .single()
 
     if (insertError || !newUser) {
-      return NextResponse.json({ error: 'Something went wrong creating your account.' }, { status: 500 })
+      return NextResponse.json({ error: `DB error: ${insertError?.message || 'unknown'} (code: ${insertError?.code || 'n/a'})` }, { status: 500 })
     }
 
     return NextResponse.json({ id: newUser.id, email: newUser.email })
