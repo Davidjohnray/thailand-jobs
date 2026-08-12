@@ -8,6 +8,7 @@ export default function SellerApplyPage() {
   const router = useRouter()
   const [checkingAuth, setCheckingAuth] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
+  const [existingSeller, setExistingSeller] = useState<{ status: string } | null>(null)
 
   const [displayName, setDisplayName] = useState('')
   const [bio, setBio] = useState('')
@@ -18,12 +19,21 @@ export default function SellerApplyPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    getCurrentUser().then((user) => {
+    getCurrentUser().then(async (user) => {
       if (!user) {
         router.push('/marketplace/login?next=/marketplace/sell')
         return
       }
       setUserId(user.id)
+
+      // Check if this user already has a seller application
+      const { data: seller } = await supabase
+        .from('marketplace_sellers')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (seller) setExistingSeller(seller)
       setCheckingAuth(false)
     })
   }, [])
@@ -46,7 +56,8 @@ export default function SellerApplyPage() {
     })
 
     if (insertError) {
-      setError('Something went wrong submitting your application. Please try again.')
+      console.error('Seller application insert error:', insertError)
+      setError(`Something went wrong: ${insertError.message}`)
       setSubmitting(false)
       return
     }
@@ -57,6 +68,49 @@ export default function SellerApplyPage() {
 
   if (checkingAuth) {
     return <main style={{ padding: '48px', textAlign: 'center', color: '#888' }}>Loading...</main>
+  }
+
+  if (existingSeller?.status === 'pending') {
+    return (
+      <main style={{ fontFamily: 'sans-serif', background: '#f8f9fc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div style={{ background: 'white', borderRadius: '20px', padding: '44px', maxWidth: '440px', textAlign: 'center', boxShadow: '0 10px 30px rgba(49,46,129,0.1)' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+          <h1 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e1b4b', marginBottom: '10px' }}>Application Under Review</h1>
+          <p style={{ color: '#666', fontSize: '14px', lineHeight: '1.6' }}>
+            You've already applied to become a seller. We'll approve your account soon — check back here or on your dashboard.
+          </p>
+        </div>
+      </main>
+    )
+  }
+
+  if (existingSeller?.status === 'approved') {
+    return (
+      <main style={{ fontFamily: 'sans-serif', background: '#f8f9fc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div style={{ background: 'white', borderRadius: '20px', padding: '44px', maxWidth: '440px', textAlign: 'center', boxShadow: '0 10px 30px rgba(49,46,129,0.1)' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
+          <h1 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e1b4b', marginBottom: '10px' }}>You're Already a Seller!</h1>
+          <p style={{ color: '#666', fontSize: '14px', lineHeight: '1.6', marginBottom: '20px' }}>
+            Your seller account is approved. Head to your dashboard to create listings.
+          </p>
+          <Link href="/marketplace/dashboard" style={{ color: '#4F46E5', fontWeight: 'bold', textDecoration: 'none' }}>Go to Dashboard →</Link>
+        </div>
+      </main>
+    )
+  }
+
+  if (existingSeller?.status === 'rejected') {
+    return (
+      <main style={{ fontFamily: 'sans-serif', background: '#f8f9fc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div style={{ background: 'white', borderRadius: '20px', padding: '44px', maxWidth: '440px', textAlign: 'center', boxShadow: '0 10px 30px rgba(49,46,129,0.1)' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>❌</div>
+          <h1 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1e1b4b', marginBottom: '10px' }}>Application Not Approved</h1>
+          <p style={{ color: '#666', fontSize: '14px', lineHeight: '1.6' }}>
+            Your previous application wasn't approved. Please contact us if you'd like to discuss this.
+          </p>
+        </div>
+      </main>
+    )
   }
 
   if (submitted) {

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
+import { getCurrentUser } from '../../lib/marketplace-auth'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +32,29 @@ export default function MarketplacePage() {
   const [loading, setLoading] = useState(true)
   const [category, setCategory] = useState('all')
   const [categories, setCategories] = useState<string[]>([])
+  const [sellButtonHref, setSellButtonHref] = useState('/marketplace/welcome')
+
+  useEffect(() => {
+    getCurrentUser().then(async (user) => {
+      if (!user) {
+        setSellButtonHref('/marketplace/welcome')
+        return
+      }
+      const { data: seller } = await supabase
+        .from('marketplace_sellers')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (seller?.status === 'approved') {
+        setSellButtonHref('/marketplace/dashboard')
+      } else if (seller) {
+        setSellButtonHref('/marketplace/sell') // pending/rejected - sell page shows the right message
+      } else {
+        setSellButtonHref('/marketplace/sell') // logged in, no application yet
+      }
+    })
+  }, [])
 
   useEffect(() => {
     supabase
@@ -57,12 +81,17 @@ export default function MarketplacePage() {
 
       {/* HERO */}
       <div style={{ background: 'linear-gradient(135deg, #312e81 0%, #4F46E5 55%, #10b981 100%)', padding: '64px 24px', textAlign: 'center', color: 'white' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', maxWidth: '1100px', margin: '0 auto 20px', fontSize: '13px' }}>
+          <Link href="/marketplace/login" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>Log In</Link>
+          <Link href="/marketplace/register" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>Register</Link>
+          <Link href="/marketplace/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>My Dashboard</Link>
+        </div>
         <div style={{ fontSize: '48px', marginBottom: '12px' }}>🛒</div>
         <h1 style={{ fontSize: '36px', fontWeight: 'bold', margin: '0 0 12px' }}>Teacher Marketplace</h1>
         <p style={{ fontSize: '16px', opacity: 0.9, maxWidth: '540px', margin: '0 auto 24px' }}>
           Buy and sell teaching aids, resources, and classroom materials directly with other teachers
         </p>
-        <Link href="/marketplace/sell" style={{ textDecoration: 'none' }}>
+        <Link href={sellButtonHref} style={{ textDecoration: 'none' }}>
           <span style={{ background: '#10b981', color: 'white', padding: '12px 28px', borderRadius: '24px', fontSize: '14px', fontWeight: 'bold', display: 'inline-block', boxShadow: '0 6px 20px rgba(16,185,129,0.4)' }}>
             + List an Item — ฿20 / 30 days
           </span>
