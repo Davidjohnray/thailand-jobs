@@ -30,22 +30,33 @@ export default function MarketplaceRegisterPage() {
 
     setSubmitting(true)
 
-    const res = await fetch('/api/marketplace/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-    const data = await res.json()
+    try {
+      const res = await fetch('/api/marketplace/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-    setSubmitting(false)
+      let data: any = {}
+      try {
+        data = await res.json()
+      } catch {
+        setError(`Server returned an unexpected response (status ${res.status}). Check Vercel function logs for /api/marketplace/register.`)
+        return
+      }
 
-    if (!res.ok) {
-      setError(data.error || 'Something went wrong. Please try again.')
-      return
+      if (!res.ok) {
+        setError(data.error || `Something went wrong (status ${res.status}).`)
+        return
+      }
+
+      setMarketplaceSession({ id: data.id, email: data.email })
+      router.push('/marketplace')
+    } catch (err: any) {
+      setError(`Network error: ${err?.message || 'could not reach the server.'}`)
+    } finally {
+      setSubmitting(false)
     }
-
-    setMarketplaceSession({ id: data.id, email: data.email })
-    router.push('/marketplace')
   }
 
   return (
