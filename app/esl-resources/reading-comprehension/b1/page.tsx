@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useState } from 'react'
 
 function NewBadge({ publishedDate }: { publishedDate?: string }) {
   if (!publishedDate) return null
@@ -43,6 +44,63 @@ function ExpiryBadge({ publishedDate }: { publishedDate?: string }) {
       padding: '3px 8px', borderRadius: '12px',
       border: '1px solid #fecaca',
     }}>Expires: {label}</span>
+  )
+}
+
+function getWeekLabel(dateStr: string) {
+  const d = new Date(dateStr)
+  const start = new Date(d)
+  start.setDate(start.getDate() - start.getDay() + 1)
+  const end = new Date(start)
+  end.setDate(end.getDate() + 6)
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return months[start.getMonth()] + ' ' + start.getDate() + ' - ' + months[end.getMonth()] + ' ' + end.getDate()
+}
+
+function WeeklyArchive({ lessons, catColor, level }: { lessons: any[], catColor: string, level: string }) {
+  const [openWeek, setOpenWeek] = useState<string | null>(null)
+  const pastLessons = lessons.filter((l: any) => l.publishedDate && !isThisWeek(l.publishedDate))
+  if (pastLessons.length === 0) return null
+  
+  const weeks: Record<string, any[]> = {}
+  pastLessons.forEach((l: any) => {
+    const key = getWeekLabel(l.publishedDate)
+    if (!weeks[key]) weeks[key] = []
+    weeks[key].push(l)
+  })
+  
+  return (
+    <div style={{ marginTop: '20px' }}>
+      <div style={{ fontSize: '15px', fontWeight: '700', color: '#6b7280', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '18px' }}>📂</span> Previous Weeks
+      </div>
+      {Object.entries(weeks).reverse().map(([week, items]) => (
+        <div key={week} style={{ marginBottom: '8px' }}>
+          <button onClick={() => setOpenWeek(openWeek === week ? null : week)} style={{ width: '100%', textAlign: 'left', background: openWeek === week ? '#fef2f2' : '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+            <span>📰 {week} <span style={{ color: '#9ca3af', fontWeight: '400' }}>({items.length} {items.length === 1 ? 'story' : 'stories'})</span></span>
+            <span style={{ fontSize: '18px', color: '#9ca3af', transform: openWeek === week ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+          </button>
+          {openWeek === week && (
+            <div style={{ padding: '8px 0 0 0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {items.map((lesson: any) => (
+                <Link key={lesson.id} href={'/esl-resources/reading-comprehension/' + level + '/' + lesson.id} style={{ textDecoration: 'none' }}>
+                  <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', transition: 'background 0.15s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = '#fef2f2' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'white' }}>
+                    <span style={{ fontSize: '24px' }}>{lesson.emoji}</span>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#1a1a2e' }}>{lesson.title}</div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>{lesson.description}</div>
+                    </div>
+                    <span style={{ marginLeft: 'auto', fontSize: '12px', color: catColor, fontWeight: '600' }}>Open →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -252,6 +310,7 @@ export default function B1ReadingHub() {
                 <div style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '600', textAlign: 'center' }}>{(cat as any).weeklyNews ? 'Check back next week for new stories!' : `More ${cat.title} lessons coming soon`}</div>
               </div>
             </div>
+            {(cat as any).weeklyNews && <WeeklyArchive lessons={cat.lessons} catColor={cat.color} level="b1" />}
           </div>
         ))}
       </div>
