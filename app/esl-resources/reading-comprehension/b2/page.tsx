@@ -295,7 +295,7 @@ export default function B2ReadingHub() {
             </div>
 
             {cat.lessons.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '20px' }}>
+              <><div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '20px' }}>
                 {((cat as any).weeklyNews ? cat.lessons.filter(l => isThisWeek((l as any).publishedDate)) : cat.lessons).map(lesson => (
                   <Link key={lesson.id} href={`/esl-resources/reading-comprehension/b2/${lesson.id}`} style={{ textDecoration: 'none' }}>
                     <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.07)', border: '1px solid #eee', height: '100%', display: 'flex', flexDirection: 'column', transition: 'transform 0.15s, box-shadow 0.15s' }}
@@ -328,6 +328,8 @@ export default function B2ReadingHub() {
                   <div style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '600', textAlign: 'center' }}>{(cat as any).weeklyNews ? 'Check back next week for new stories!' : `More ${cat.title} lessons coming soon`}</div>
                 </div>
               </div>
+              {(cat as any).weeklyNews && <WeeklyArchive lessons={cat.lessons} catColor={cat.color} level="b2" />}
+              </>
             ) : (
               <div style={{ background: 'white', borderRadius: '16px', border: '2px dashed #e5e7eb', padding: '32px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ fontSize: '40px', opacity: 0.4 }}>{cat.emoji}</div>
