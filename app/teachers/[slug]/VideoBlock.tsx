@@ -15,7 +15,14 @@ export default function VideoBlock({ videoUrl }: { videoUrl: string | null }) {
     return (
       <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
         <h3 style={{ color: 'white', fontSize: '15px', fontWeight: 'bold', marginBottom: '12px' }}>🎥 Introduction Video</h3>
-        <video controls src={videoUrl} style={{ width: '100%', borderRadius: '8px', display: 'block' }} />
+        <a
+          href={videoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: 'block', background: '#E85D26', color: 'white', padding: '12px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', textAlign: 'center' }}
+        >
+          ▶ Watch Introduction Video
+        </a>
       </div>
     )
   }
