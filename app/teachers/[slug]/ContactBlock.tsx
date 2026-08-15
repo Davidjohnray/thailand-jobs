@@ -5,7 +5,7 @@ export default function ContactBlock({ teacher, variant = 'dark' }: { teacher: a
   const [hasAccess, setHasAccess] = useState(false)
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('recruiter_email')
+    const saved = localStorage.getItem('recruiter_email')
     if (saved) setHasAccess(true)
   }, [])
 

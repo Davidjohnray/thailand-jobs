@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import ContactBlock from './ContactBlock'
+import VideoBlock from './VideoBlock'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,23 +17,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${teacher.name} — Private Teacher in Thailand`,
     description: teacher.tagline || `${teacher.name} is a private teacher in Thailand offering lessons in ${teacher.subjects?.join(', ')}`,
   }
-}
-
-function VideoBlock({ videoUrl }: { videoUrl: string | null }) {
-  if (!videoUrl) return null
-  return (
-    <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '20px', marginTop: '16px' }}>
-      <h3 style={{ color: 'white', fontSize: '15px', fontWeight: 'bold', marginBottom: '12px' }}>🎥 Introduction Video</h3>
-      <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '20px', textAlign: 'center', border: '2px dashed #ddd' }}>
-        <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔒</div>
-        <p style={{ color: '#555', fontSize: '13px', fontWeight: 'bold', margin: '0 0 4px' }}>Video intro available</p>
-        <p style={{ color: '#888', fontSize: '12px', margin: '0 0 12px' }}>Unlock with recruiter access</p>
-        <a href="/teachers" style={{ display: 'inline-block', background: '#E85D26', color: 'white', padding: '8px 20px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-          Get Recruiter Access →
-        </a>
-      </div>
-    </div>
-  )
 }
 
 export default async function TeacherPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -196,7 +180,7 @@ export default async function TeacherPage({ params }: { params: Promise<{ slug: 
           {teacher.teaching_style && <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px solid #dcfce7' }}><h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#16a34a', marginBottom: '16px' }}>💡 How I Teach</h2><p style={{ color: '#555', lineHeight: '1.9', fontSize: '15px', whiteSpace: 'pre-line' }}>{teacher.teaching_style}</p></div>}
           {teacher.levels?.length > 0 && <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px solid #e8f0fe' }}><h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#2D6BE4', marginBottom: '16px' }}>🎯 Who I Work With</h2><div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>{teacher.levels.map((l: string) => <span key={l} style={{ background: '#e8f0fe', color: '#2D6BE4', padding: '8px 20px', borderRadius: '30px', fontWeight: 'bold', fontSize: '14px' }}>{l}</span>)}</div></div>}
           {(teacher.qualifications?.length > 0 || teacher.certifications?.length > 0) && <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px solid #fef9c3' }}><h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#ca8a04', marginBottom: '16px' }}>🏅 My Credentials</h2>{teacher.qualifications?.map((q: string) => <div key={q} style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#444', fontSize: '14px', marginBottom: '10px' }}><span>🎓</span> {q}</div>)}{teacher.certifications?.map((c: string) => <div key={c} style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#444', fontSize: '14px', marginBottom: '10px' }}><span>✅</span> {c}</div>)}</div>}
-          {teacher.video_url && <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '2px solid #e9d5ff' }}><h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#7C3AED', marginBottom: '16px' }}>🎥 Introduction Video</h2><div style={{ background: '#f8f4ff', borderRadius: '12px', padding: '24px', textAlign: 'center' }}><div style={{ fontSize: '40px', marginBottom: '12px' }}>🔒</div><p style={{ color: '#7C3AED', fontSize: '14px', fontWeight: 'bold', margin: '0 0 4px' }}>Video intro available</p><p style={{ color: '#888', fontSize: '13px', margin: '0 0 16px' }}>Only available to recruiters with paid access</p><a href="/teachers" style={{ display: 'inline-block', background: '#7C3AED', color: 'white', padding: '10px 24px', borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>Get Recruiter Access →</a></div></div>}
+          <VideoBlock videoUrl={teacher.video_url} />
           <div style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', borderRadius: '20px', padding: '32px', textAlign: 'center' }}>
             <div style={{ fontSize: '40px', marginBottom: '12px' }}>😊</div>
             <h2 style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Let's get started!</h2>
