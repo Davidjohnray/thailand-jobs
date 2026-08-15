@@ -178,7 +178,7 @@ export default function TeacherDirectoryPage() {
   const hasAccess = !!recruiterEmail
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('recruiter_email')
+    const saved = localStorage.getItem('recruiter_email')
     if (saved) setRecruiterEmail(saved)
   }, [])
 
@@ -215,7 +215,7 @@ export default function TeacherDirectoryPage() {
     setCheckingAccess(false)
     if (data) {
       setRecruiterEmail(recruiterInput.trim().toLowerCase())
-      sessionStorage.setItem('recruiter_email', recruiterInput.trim().toLowerCase())
+      localStorage.setItem('recruiter_email', recruiterInput.trim().toLowerCase())
       setAccessExpiry(new Date(data.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))
       setShowAccessForm(false)
     } else {
@@ -243,7 +243,7 @@ export default function TeacherDirectoryPage() {
             <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '8px', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ color: '#4ade80', fontWeight: 'bold', fontSize: '14px' }}>✅ Recruiter Access Active</span>
               {accessExpiry && <span style={{ color: '#ccc', fontSize: '12px' }}>until {accessExpiry}</span>}
-              <button onClick={() => { setRecruiterEmail(''); sessionStorage.removeItem('recruiter_email') }}
+              <button onClick={() => { setRecruiterEmail(''); localStorage.removeItem('recruiter_email') }}
                 style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: '12px' }}>Sign out</button>
             </div>
           ) : (
