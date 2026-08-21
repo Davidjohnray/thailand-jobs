@@ -121,12 +121,12 @@ export default function MarketplacePage() {
           .fi-e { animation: float-e 3.1s ease-in-out infinite; }
           .fi-spin { animation: spin-slow 12s linear infinite; }
         `}</style>
-        <div className="fi-a" style={{ position: 'absolute', top: '30%', right: '8%', fontSize: '34px', opacity: 0.5 }}>📚</div>
-        <div className="fi-b" style={{ position: 'absolute', top: '16%', left: '7%', fontSize: '28px', opacity: 0.5 }}>✏️</div>
-        <div className="fi-c" style={{ position: 'absolute', bottom: '16%', left: '11%', fontSize: '26px', opacity: 0.45 }}>🎨</div>
-        <div className="fi-d" style={{ position: 'absolute', top: '10%', right: '20%', fontSize: '24px', opacity: 0.45 }}>🎒</div>
-        <div className="fi-e" style={{ position: 'absolute', bottom: '22%', right: '13%', fontSize: '24px', opacity: 0.4 }}>📐</div>
-        <div className="fi-spin" style={{ position: 'absolute', bottom: '10%', left: '4%', fontSize: '22px', opacity: 0.35 }}>⭐</div>
+        <div className="fi-a" style={{ position: 'absolute', top: '28%', right: '7%', fontSize: '56px', opacity: 0.75 }}>📚</div>
+        <div className="fi-b" style={{ position: 'absolute', top: '12%', left: '5%', fontSize: '46px', opacity: 0.75 }}>✏️</div>
+        <div className="fi-c" style={{ position: 'absolute', bottom: '14%', left: '9%', fontSize: '44px', opacity: 0.7 }}>🎨</div>
+        <div className="fi-d" style={{ position: 'absolute', top: '8%', right: '18%', fontSize: '42px', opacity: 0.7 }}>🎒</div>
+        <div className="fi-e" style={{ position: 'absolute', bottom: '18%', right: '10%', fontSize: '42px', opacity: 0.65 }}>📐</div>
+        <div className="fi-spin" style={{ position: 'absolute', bottom: '8%', left: '3%', fontSize: '38px', opacity: 0.6 }}>⭐</div>
 
         <div style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end', gap: '16px', maxWidth: '1100px', margin: '0 auto 20px', fontSize: '13px' }}>
           <Link href="/marketplace/login" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>Log In</Link>
