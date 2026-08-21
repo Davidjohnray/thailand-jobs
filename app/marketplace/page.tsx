@@ -105,9 +105,28 @@ export default function MarketplacePage() {
         {/* decorative floating shapes */}
         <div style={{ position: 'absolute', top: '-40px', left: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '-30px', width: '220px', height: '220px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
-        <div style={{ position: 'absolute', top: '30%', right: '8%', fontSize: '32px', opacity: 0.25, transform: 'rotate(-12deg)' }}>📚</div>
-        <div style={{ position: 'absolute', top: '18%', left: '7%', fontSize: '28px', opacity: 0.25, transform: 'rotate(10deg)' }}>✏️</div>
-        <div style={{ position: 'absolute', bottom: '14%', left: '12%', fontSize: '26px', opacity: 0.2, transform: 'rotate(-8deg)' }}>🎨</div>
+
+        {/* animated floating classroom items */}
+        <style jsx>{`
+          @keyframes float-a { 0%, 100% { transform: translateY(0) rotate(-12deg); } 50% { transform: translateY(-14px) rotate(-6deg); } }
+          @keyframes float-b { 0%, 100% { transform: translateY(0) rotate(10deg); } 50% { transform: translateY(-10px) rotate(16deg); } }
+          @keyframes float-c { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-16px) rotate(-2deg); } }
+          @keyframes float-d { 0%, 100% { transform: translateY(0) rotate(6deg); } 50% { transform: translateY(-12px) rotate(0deg); } }
+          @keyframes float-e { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-9px) rotate(4deg); } }
+          @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          .fi-a { animation: float-a 3.4s ease-in-out infinite; }
+          .fi-b { animation: float-b 4.1s ease-in-out infinite; }
+          .fi-c { animation: float-c 3.8s ease-in-out infinite; }
+          .fi-d { animation: float-d 4.6s ease-in-out infinite; }
+          .fi-e { animation: float-e 3.1s ease-in-out infinite; }
+          .fi-spin { animation: spin-slow 12s linear infinite; }
+        `}</style>
+        <div className="fi-a" style={{ position: 'absolute', top: '30%', right: '8%', fontSize: '34px', opacity: 0.5 }}>📚</div>
+        <div className="fi-b" style={{ position: 'absolute', top: '16%', left: '7%', fontSize: '28px', opacity: 0.5 }}>✏️</div>
+        <div className="fi-c" style={{ position: 'absolute', bottom: '16%', left: '11%', fontSize: '26px', opacity: 0.45 }}>🎨</div>
+        <div className="fi-d" style={{ position: 'absolute', top: '10%', right: '20%', fontSize: '24px', opacity: 0.45 }}>🎒</div>
+        <div className="fi-e" style={{ position: 'absolute', bottom: '22%', right: '13%', fontSize: '24px', opacity: 0.4 }}>📐</div>
+        <div className="fi-spin" style={{ position: 'absolute', bottom: '10%', left: '4%', fontSize: '22px', opacity: 0.35 }}>⭐</div>
 
         <div style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end', gap: '16px', maxWidth: '1100px', margin: '0 auto 20px', fontSize: '13px' }}>
           <Link href="/marketplace/login" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: 'bold' }}>Log In</Link>
