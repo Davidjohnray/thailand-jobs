@@ -80,7 +80,7 @@ export default function MarketplaceBadge() {
               letterSpacing: '0.5px',
             }}
           >
-            FREE
+            ฿20
           </span>
         </div>
       </Link>
