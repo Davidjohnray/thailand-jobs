@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../src/lib/supabase'
-import MarketplaceBadge from './MarketplaceBadge'
+
 
 export default function Navbar() {
   const [jobsOpen, setJobsOpen] = useState(false)
@@ -230,9 +230,6 @@ export default function Navbar() {
             </Link>
           )}
 
-          {/* Marketplace Badge */}
-          <MarketplaceBadge />
-
           {/* Post a Job */}
           <Link href="/employers"
             style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', padding: '8px 16px', borderRadius: '6px', background: 'white', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
@@ -357,7 +354,6 @@ export default function Navbar() {
                 👤 Login / Register
               </Link>
             )}
-            <MarketplaceBadge />
             <Link href="/employers" onClick={closeMobile}
               style={{ display: 'block', color: '#E85D26', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'white', fontWeight: 'bold', textAlign: 'center' }}>
               + Post a Job

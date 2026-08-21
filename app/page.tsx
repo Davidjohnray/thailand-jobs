@@ -46,15 +46,15 @@ export default async function Home() {
             <p className="hero-sub" style={{ color: '#ccc', fontSize: '18px', marginBottom: '40px' }}>
               Browse hundreds of jobs in Bangkok, Chiang Mai, Phuket and more
             </p>
-            <Link href="/esl-resources" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
-              <div style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #E85D26 100%)', borderRadius: '12px', padding: '16px 20px', border: '2px solid rgba(255,255,255,0.15)' }}>
-                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>📖 Free ESL Resources for Teachers</div>
+            <Link href="/marketplace" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
+              <div style={{ background: 'linear-gradient(135deg, #4F46E5 0%, #10b981 100%)', borderRadius: '12px', padding: '16px 20px', border: '2px solid rgba(255,255,255,0.15)' }}>
+                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>🛒 Teacher Marketplace — ฿20 / 30 days</div>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
                   {[
-                    { icon: '📋', label: 'Lesson Plans' },
-                    { icon: '🎮', label: 'Learn & Play Games' },
-                    { icon: '🗞️', label: 'Reading Comprehension' },
-                    { icon: '✨', label: 'More Coming Soon' },
+                    { icon: '📚', label: 'Books & Resources' },
+                    { icon: '🎲', label: 'Games & Toys' },
+                    { icon: '🎨', label: 'Classroom Decor' },
+                    { icon: '💻', label: 'Equipment' },
                   ].map(item => (
                     <div key={item.label} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '8px', padding: '5px 12px', color: 'white', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px' }}>
                       {item.icon} {item.label}
@@ -62,8 +62,8 @@ export default async function Home() {
                   ))}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}>Designed for bilingual schools & ESL classrooms in Thailand</div>
-                  <div style={{ background: 'white', color: '#7C3AED', padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '900', whiteSpace: 'nowrap' }}>Explore Free →</div>
+                  <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px' }}>Buy and sell teaching aids directly with other teachers</div>
+                  <div style={{ background: 'white', color: '#4F46E5', padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '900', whiteSpace: 'nowrap' }}>Browse Now →</div>
                 </div>
               </div>
             </Link>
