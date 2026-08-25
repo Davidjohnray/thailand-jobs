@@ -92,9 +92,9 @@ export default function SchoolsPage() {
               <div style={{ fontSize: '36px', marginBottom: '12px' }}>🏫</div>
               <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#888', marginBottom: '6px' }}>Your school here</div>
               <div style={{ fontSize: '13px', color: '#aaa', marginBottom: '16px' }}>Get your own branded recruitment page and private teacher pool</div>
-              <a href="mailto:david@jobsinthailand.net" style={{ background: '#E85D26', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none' }}>
-                Get in touch
-              </a>
+              <Link href="/school-partners" style={{ background: '#E85D26', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none' }}>
+  Get in touch
+</Link>
             </div>
           </div>
         )}
