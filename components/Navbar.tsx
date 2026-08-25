@@ -58,7 +58,7 @@ export default function Navbar() {
     background: 'white',
     borderRadius: '10px',
     boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-    minWidth: '200px',
+    minWidth: '220px',
     zIndex: 1000,
     padding: '8px',
     border: '1px solid #eee',
@@ -82,6 +82,7 @@ export default function Navbar() {
     { href: '/jobs-in-asia', label: '🌏 Jobs in Asia' },
     { href: '/partners/teach-bridge', label: '🤝 Recruitment Agency' },
     { href: '/schools', label: '🏫 School Partner Pages' },
+    { href: '/school-partners', label: '📣 Schools — Get Your Page' },
   ]
 
   return (
