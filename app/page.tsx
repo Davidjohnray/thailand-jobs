@@ -17,7 +17,7 @@ export default async function Home() {
     .eq('featured', true)
     .gt('expires_at', now)
     .order('created_at', { ascending: false })
-    .limit(6)
+    
 
   return (
     <main>
