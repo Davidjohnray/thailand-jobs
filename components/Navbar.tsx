@@ -90,10 +90,10 @@ export default function Navbar() {
       <nav style={{ background: '#E85D26', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '62px', position: 'sticky', top: 0, zIndex: 999, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
 
         {/* LEFT — Logo + Bell */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Link href="/" style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-            🇹🇭 Thailand Jobs
-          </Link>
+<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+  <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+    <img src="/logo.jpg" alt="Jobs in Thailand" style={{ height: '50px', borderRadius: '4px' }} />
+  </Link>
           <button onClick={handleNotifications} title="Get job alerts"
             style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '6px', padding: '5px 9px', cursor: 'pointer', fontSize: '16px', color: 'white' }}>
             🔔
