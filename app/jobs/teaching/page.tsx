@@ -10,7 +10,7 @@ function JobLogo({ job }: { job: any }) {
   if (!job.source_logo) return null
   return (
     <img src={job.source_logo} alt="Posted by"
-      style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee', flexShrink: 0 }} />
+      style={{ width: '52px', height: '52px', borderRadius: '8px', objectFit: 'contain', border: '1px solid #eee', flexShrink: 0, background: 'white', padding: '2px' }} />
   )
 }
 

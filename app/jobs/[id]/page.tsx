@@ -83,6 +83,13 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
         <Link href="/jobs" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '24px' }}>← Back to all jobs</Link>
         <div style={{ background: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
+          {job.source_logo && (
+            <img
+              src={job.source_logo}
+              alt="Company logo"
+              style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '10px', border: '1px solid #eee', marginBottom: '16px', display: 'block' }}
+            />
+          )}
           <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px' }}>{job.title}</h1>
           <p style={{ color: '#666', fontSize: '15px', marginBottom: '16px' }}>{job.company} • {job.location}</p>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -131,7 +138,14 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
         )}
         <div style={{ background: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
+            <div style={{ flex: 1 }}>
+              {job.source_logo && (
+                <img
+                  src={job.source_logo}
+                  alt="Company logo"
+                  style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '10px', border: '1px solid #eee', marginBottom: '16px', display: 'block' }}
+                />
+              )}
               <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '8px' }}>{job.title}</h1>
               <p style={{ color: '#666', fontSize: '16px', marginBottom: '16px' }}>{job.company} • {job.location}</p>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -140,7 +154,7 @@ export default function JobDetail({ params }: { params: Promise<{ id: string }> 
                 {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '13px', padding: '4px 12px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa Sponsor</span>}
               </div>
             </div>
-            <div style={{ textAlign: 'right' }}>
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
               <div style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '22px' }}>{job.salary}</div>
               <div style={{ color: '#999', fontSize: '13px', marginTop: '4px' }}>Expires: {new Date(job.expires_at).toLocaleDateString()}</div>
             </div>
