@@ -5,10 +5,10 @@ export default function FeaturedSuccess() {
     <main style={{ background: '#f9f9f9', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ background: 'white', borderRadius: '16px', padding: '48px 32px', maxWidth: '520px', width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.08)', textAlign: 'center' }}>
         <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '12px' }}>Payment Successful!</h1>
-        <p style={{ color: '#666', fontSize: '16px', lineHeight: '1.6', marginBottom: '32px' }}>
-          Your featured job listing is now live! It will appear on the homepage and at the top of search results for 14 days.
-        </p>
+        <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a2e', marginBottom: '12px' }}>Job Submitted!</h1>
+<p style={{ color: '#666', fontSize: '16px', lineHeight: '1.6', marginBottom: '32px' }}>
+  Contact us for payment details: <a href="mailto:Admin@jobsinthailand.net" style={{ color: '#E85D26', fontWeight: 'bold' }}>Admin@jobsinthailand.net</a>
+</p>
         <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '20px', marginBottom: '32px', textAlign: 'left' }}>
           <p style={{ color: '#166534', fontSize: '14px', fontWeight: 'bold', margin: '0 0 8px' }}>✅ Your listing is now:</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
