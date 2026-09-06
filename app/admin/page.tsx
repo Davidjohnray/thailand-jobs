@@ -10,6 +10,7 @@ const TB_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/publ
 const FILIPINO_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/nnes-logo.png'
 const NNES_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/nnes-global-logo.png'
 const ONENESS_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/teacher-images/ONENESS.png'
+const TEACHSIAM_LOGO = '/teachsiam.png'
 
 function EmailMembers() {
   const [subject, setSubject] = useState('')
@@ -758,7 +759,7 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        {[{ label: '🏷️ Mine', logo: JIT_LOGO }, { label: '🤝 TB', logo: TB_LOGO }, { label: '🇵🇭 Filipino', logo: FILIPINO_LOGO }, { label: '🌏 NNES', logo: NNES_LOGO }, { label: '🏫 Oneness', logo: ONENESS_LOGO }].map(item => (
+                        {[{ label: '🏷️ Mine', logo: JIT_LOGO }, { label: '🤝 TB', logo: TB_LOGO }, { label: '🇵🇭 Filipino', logo: FILIPINO_LOGO }, { label: '🌏 NNES', logo: NNES_LOGO }, { label: '🏫 Oneness', logo: ONENESS_LOGO }, { label: '🇹🇭 TeachSiam', logo: TEACHSIAM_LOGO }].map(item => (
                           <button key={item.label} disabled={savingLogo === job.id} onClick={() => assignLogo(job.id, item.logo)}
                             style={{ background: jobLogoMap[job.id] === item.logo ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === item.logo ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
                             {item.label}
