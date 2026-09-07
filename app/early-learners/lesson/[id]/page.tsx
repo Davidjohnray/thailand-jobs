@@ -1,6 +1,8 @@
 'use client'
 import { use, useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 type Activity = {
@@ -19,7 +21,10 @@ const IMAGE_BASE = '/images/'
 
 export default function LessonPlayerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  const router = useRouter()
   const [lessonTitle, setLessonTitle] = useState('')
+  const [unitId, setUnitId] = useState<number | null>(null)
+  const [nextLessonId, setNextLessonId] = useState<number | null>(null)
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -29,11 +34,25 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
     async function load() {
       const { data: lesson, error: lessonError } = await supabase
         .from('early_course_lessons')
-        .select('title')
+        .select('title, unit_id, sort_order')
         .eq('id', id)
         .single()
       if (lessonError) setDebugError('Lesson query error: ' + JSON.stringify(lessonError))
-      if (lesson) setLessonTitle(lesson.title)
+      if (lesson) {
+        setLessonTitle(lesson.title)
+        setUnitId(lesson.unit_id)
+
+        // Find the next lesson in the same unit (by sort_order)
+        const { data: nextLesson } = await supabase
+          .from('early_course_lessons')
+          .select('id')
+          .eq('unit_id', lesson.unit_id)
+          .gt('sort_order', lesson.sort_order)
+          .order('sort_order', { ascending: true })
+          .limit(1)
+          .maybeSingle()
+        setNextLessonId(nextLesson ? nextLesson.id : null)
+      }
 
       const { data: acts, error: actsError } = await supabase
         .from('early_course_activities')
@@ -74,10 +93,28 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
   }
 
   const activity = activities[activeIndex]
+  const isLastActivity = activeIndex === activities.length - 1
+
+  function goNext() {
+    if (!isLastActivity) {
+      setActiveIndex((i) => Math.min(i + 1, activities.length - 1))
+      return
+    }
+    if (nextLessonId) {
+      router.push(`/early-learners/lesson/${nextLessonId}`)
+    } else if (unitId) {
+      router.push(`/early-learners/unit/${unitId}`)
+    }
+  }
 
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #FFE9A8, #FFD3E0)', fontFamily: 'sans-serif', padding: '32px 16px' }}>
       <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+        {unitId && (
+          <Link href={`/early-learners/unit/${unitId}`} style={{ display: 'inline-block', marginBottom: '16px', color: '#7C3AED', textDecoration: 'none', fontWeight: 'bold' }}>
+            ← Back to lessons
+          </Link>
+        )}
         <h1 style={{ textAlign: 'center', fontSize: '28px', color: '#5b3a29', marginBottom: '8px' }}>{lessonTitle}</h1>
         <p style={{ textAlign: 'center', color: '#8a6a55', marginBottom: '24px' }}>
           Activity {activeIndex + 1} of {activities.length}
@@ -94,7 +131,7 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
             <TapMatch
               content={activity.content_json}
               onPlay={playAudio}
-              onComplete={() => setActiveIndex((i) => Math.min(i + 1, activities.length - 1))}
+              onComplete={goNext}
             />
           )}
         </div>
@@ -107,12 +144,8 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
           >
             ← Back
           </button>
-          <button
-            onClick={() => setActiveIndex((i) => Math.min(i + 1, activities.length - 1))}
-            disabled={activeIndex === activities.length - 1}
-            style={navButtonStyle(activeIndex === activities.length - 1)}
-          >
-            Next →
+          <button onClick={goNext} style={navButtonStyle(false)}>
+            {isLastActivity ? (nextLessonId ? 'Next Lesson →' : 'Finish Unit →') : 'Next →'}
           </button>
         </div>
       </div>
