@@ -152,7 +152,15 @@ function FlashcardAudio({ content, onPlay }: { content: any; onPlay: (file: stri
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔊</div>
+            {item.image ? (
+              <img
+                src={IMAGE_BASE + item.image}
+                alt={item.word}
+                style={{ width: '64px', height: '64px', objectFit: 'contain', marginBottom: '8px' }}
+              />
+            ) : (
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔊</div>
+            )}
             <div style={{ fontWeight: 'bold', color: '#5b3a29' }}>{item.word}</div>
           </button>
         ))}
@@ -178,6 +186,13 @@ function Chant({ content, onPlay }: { content: any; onPlay: (file: string) => vo
   return (
     <div style={{ textAlign: 'center' }}>
       <h2 style={{ color: '#5b3a29', marginBottom: '20px' }}>Listen and Say It Back</h2>
+      {item.image && (
+        <img
+          src={IMAGE_BASE + item.image}
+          alt={item.phrase}
+          style={{ width: '96px', height: '96px', objectFit: 'contain', marginBottom: '12px' }}
+        />
+      )}
       <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#7C3AED', marginBottom: '16px' }}>{item.phrase}</div>
       <button onClick={() => onPlay(item.audio)} style={{ fontSize: '40px', background: 'none', border: 'none', cursor: 'pointer' }}>
         🔊
