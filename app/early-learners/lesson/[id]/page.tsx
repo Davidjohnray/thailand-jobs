@@ -23,21 +23,24 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [debugError, setDebugError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
-      const { data: lesson } = await supabase
+      const { data: lesson, error: lessonError } = await supabase
         .from('early_course_lessons')
         .select('title')
         .eq('id', id)
         .single()
+      if (lessonError) setDebugError('Lesson query error: ' + JSON.stringify(lessonError))
       if (lesson) setLessonTitle(lesson.title)
 
-      const { data: acts } = await supabase
+      const { data: acts, error: actsError } = await supabase
         .from('early_course_activities')
         .select('*')
         .eq('lesson_id', id)
         .order('sort_order', { ascending: true })
+      if (actsError) setDebugError('Activities query error: ' + JSON.stringify(actsError))
       setActivities(acts || [])
       setLoading(false)
     }
@@ -61,6 +64,11 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
     return (
       <main style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif' }}>
         No activities found for this lesson yet.
+        {debugError && (
+          <div style={{ marginTop: '24px', color: '#c00', fontSize: '13px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto', textAlign: 'left', wordBreak: 'break-word' }}>
+            DEBUG: {debugError}
+          </div>
+        )}
       </main>
     )
   }
