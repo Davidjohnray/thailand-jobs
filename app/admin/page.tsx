@@ -758,26 +758,50 @@ export default function AdminPage() {
                           <div style={{ color: '#888', fontSize: '13px' }}>{job.company} • {job.location} • {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        {[{ label: '🏷️ Mine', logo: JIT_LOGO }, { label: '🤝 TB', logo: TB_LOGO }, { label: '🇵🇭 Filipino', logo: FILIPINO_LOGO }, { label: '🌏 NNES', logo: NNES_LOGO }, { label: '🏫 Oneness', logo: ONENESS_LOGO }, { label: '🇹🇭 TeachSiam', logo: TEACHSIAM_LOGO }].map(item => (
-                          <button key={item.label} disabled={savingLogo === job.id} onClick={() => assignLogo(job.id, item.logo)}
-                            style={{ background: jobLogoMap[job.id] === item.logo ? '#1a1a2e' : '#f0f0f0', color: jobLogoMap[job.id] === item.logo ? 'white' : '#555', border: 'none', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>
-                            {item.label}
-                          </button>
-                        ))}
-                        {jobLogoMap[job.id] && <button disabled={savingLogo === job.id} onClick={() => assignLogo(job.id, null)} style={{ background: '#ffeaea', color: '#c62828', border: 'none', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>✕</button>}
-                      </div>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <select value={jobPartnerMap[job.id] || ''} onChange={e => setJobPartnerMap(prev => ({ ...prev, [job.id]: e.target.value }))}
-                          style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '13px', outline: 'none', background: 'white' }}>
-                          <option value=''>— No partner —</option>
-                          {partners.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                        </select>
-                        <button disabled={assigningJob === job.id} onClick={async () => { setAssigningJob(job.id); await adminSupabase.from('jobs').update({ partner_id: jobPartnerMap[job.id] || null }).eq('id', job.id); setAssigningJob(null) }}
-                          style={{ background: assigningJob === job.id ? '#ccc' : '#1a1a2e', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: assigningJob === job.id ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '13px' }}>
-                          {assigningJob === job.id ? '...' : 'Save'}
-                        </button>
-                      </div>
+  <select
+    disabled={savingLogo === job.id}
+    value={(() => {
+      const logo = jobLogoMap[job.id]
+      if (!logo) return ''
+      if (logo === JIT_LOGO) return 'mine'
+      if (logo === TB_LOGO) return 'tb'
+      if (logo === FILIPINO_LOGO) return 'filipino'
+      if (logo === NNES_LOGO) return 'nnes'
+      if (logo === ONENESS_LOGO) return 'oneness'
+      if (logo === TEACHSIAM_LOGO) return 'teachsiam'
+      return ''
+    })()}
+    onChange={async e => {
+      const val = e.target.value
+      setSavingLogo(job.id)
+      const logoMap: Record<string, string> = {
+        'mine': JIT_LOGO, 'tb': TB_LOGO, 'filipino': FILIPINO_LOGO,
+        'nnes': NNES_LOGO, 'oneness': ONENESS_LOGO, 'teachsiam': TEACHSIAM_LOGO,
+      }
+      const logo = val ? logoMap[val] : null
+      const tbPartner = partners.find((p: any) => p.name?.toLowerCase().includes('teach bridge'))
+      const partnerId = val === 'tb' && tbPartner ? tbPartner.id : null
+      await adminSupabase.from('jobs').update({ source_logo: logo, partner_id: partnerId }).eq('id', job.id)
+      setJobLogoMap(prev => ({ ...prev, [job.id]: logo }))
+      setJobPartnerMap(prev => ({ ...prev, [job.id]: partnerId || '' }))
+      setSavingLogo(null)
+    }}
+    style={{ padding: '7px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '13px', background: 'white', cursor: 'pointer', minWidth: '160px' }}
+  >
+    <option value=''>— No logo —</option>
+    <option value='mine'>🏷️ Mine (JIT)</option>
+    <option value='tb'>🤝 Teach Bridge</option>
+    <option value='filipino'>🇵🇭 Filipino</option>
+    <option value='nnes'>🌏 NNES</option>
+    <option value='oneness'>🏫 Oneness</option>
+    <option value='teachsiam'>🇹🇭 TeachSiam</option>
+  </select>
+  {jobLogoMap[job.id] && (
+    <img src={jobLogoMap[job.id]!} alt="logo" style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'contain', border: '1px solid #eee', background: 'white' }} />
+  )}
+</div>
+                      
                     </div>
                   </div>
                 ))}
