@@ -294,12 +294,13 @@ function TapMatch({
             key={i}
             onClick={() => handleChoice(opt)}
             style={{
-              width: '100px',
-              height: '100px',
+              width: '140px',
+              height: '140px',
               borderRadius: '16px',
               border: '3px solid #ddd',
-              background: `#f5f5f5 center/cover no-repeat url(${IMAGE_BASE}${opt})`,
+              background: `white center/contain no-repeat url(${IMAGE_BASE}${opt})`,
               cursor: 'pointer',
+              padding: '8px',
             }}
           />
         ))}
