@@ -1,106 +1,324 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-type Unit = {
+type Activity = {
   id: number
-  name: string
+  skill_type: string
+  activity_type: string
+  title: string | null
   sort_order: number
-  is_published: boolean
+  content_json: any
 }
 
-export default function EarlyLearnersHomePage() {
-  const [levelName, setLevelName] = useState('')
-  const [units, setUnits] = useState<Unit[]>([])
+// TEMP: pointing at public/ folders for the pilot. Swap to a Supabase storage
+// bucket URL once you're ready to move assets off local files.
+const AUDIO_BASE = '/audio/'
+const IMAGE_BASE = '/images/'
+const VIDEO_BASE = '/videos/'
+
+export default function LessonPlayerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  const router = useRouter()
+  const [lessonTitle, setLessonTitle] = useState('')
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [unitId, setUnitId] = useState<number | null>(null)
+  const [nextLessonId, setNextLessonId] = useState<number | null>(null)
+  const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [debugError, setDebugError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
-      // TEMP: hardcoded to Level 1 for now. Once Level 2/3 have content,
-      // this page can list all levels instead of assuming level_id = 1.
-      const { data: level } = await supabase.from('early_course_levels').select('name').eq('slug', 'level-1').single()
-      if (level) setLevelName(level.name)
+      const { data: lesson, error: lessonError } = await supabase
+        .from('early_course_lessons')
+        .select('title, unit_id, sort_order, video_url')
+        .eq('id', id)
+        .single()
+      if (lessonError) setDebugError('Lesson query error: ' + JSON.stringify(lessonError))
+      if (lesson) {
+        setLessonTitle(lesson.title)
+        setUnitId(lesson.unit_id)
+        setVideoUrl(lesson.video_url)
 
-      const { data: unitRows } = await supabase
-        .from('early_course_units')
-        .select('id, name, sort_order, is_published')
-        .eq('level_id', 1)
+        // Find the next lesson in the same unit (by sort_order)
+        const { data: nextLesson } = await supabase
+          .from('early_course_lessons')
+          .select('id')
+          .eq('unit_id', lesson.unit_id)
+          .gt('sort_order', lesson.sort_order)
+          .order('sort_order', { ascending: true })
+          .limit(1)
+          .maybeSingle()
+        setNextLessonId(nextLesson ? nextLesson.id : null)
+      }
+
+      const { data: acts, error: actsError } = await supabase
+        .from('early_course_activities')
+        .select('*')
+        .eq('lesson_id', id)
         .order('sort_order', { ascending: true })
-      setUnits(unitRows || [])
+      if (actsError) setDebugError('Activities query error: ' + JSON.stringify(actsError))
+      setActivities(acts || [])
       setLoading(false)
     }
     load()
-  }, [])
+  }, [id])
+
+  function playAudio(file: string) {
+    const audio = new Audio(AUDIO_BASE + file)
+    audio.play().catch(() => {})
+  }
 
   if (loading) {
     return (
       <main style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif' }}>
-        Loading course...
+        Loading lesson...
       </main>
     )
   }
 
+  if (!activities.length) {
+    return (
+      <main style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif' }}>
+        No activities found for this lesson yet.
+        {debugError && (
+          <div style={{ marginTop: '24px', color: '#c00', fontSize: '13px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto', textAlign: 'left', wordBreak: 'break-word' }}>
+            DEBUG: {debugError}
+          </div>
+        )}
+      </main>
+    )
+  }
+
+  const activity = activities[activeIndex]
+  const isLastActivity = activeIndex === activities.length - 1
+
+  function goNext() {
+    if (!isLastActivity) {
+      setActiveIndex((i) => Math.min(i + 1, activities.length - 1))
+      return
+    }
+    if (nextLessonId) {
+      router.push(`/early-learners/lesson/${nextLessonId}`)
+    } else if (unitId) {
+      router.push(`/early-learners/unit/${unitId}`)
+    }
+  }
+
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #FFE9A8, #FFD3E0)', fontFamily: 'sans-serif', padding: '32px 16px' }}>
-      <div style={{ maxWidth: '520px', margin: '0 auto' }}>
-        <Link href="/courses" style={{ display: 'inline-block', marginBottom: '16px', color: '#7C3AED', textDecoration: 'none', fontWeight: 'bold' }}>
-          ← All Courses
-        </Link>
-        <h1 style={{ textAlign: 'center', fontSize: '30px', color: '#5b3a29', marginBottom: '4px' }}>
-          Early Learners English
-        </h1>
-        <p style={{ textAlign: 'center', color: '#8a6a55', marginBottom: '32px' }}>{levelName}</p>
+      <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+        {unitId && (
+          <Link href={`/early-learners/unit/${unitId}`} style={{ display: 'inline-block', marginBottom: '16px', color: '#7C3AED', textDecoration: 'none', fontWeight: 'bold' }}>
+            ← Back to lessons
+          </Link>
+        )}
+        <h1 style={{ textAlign: 'center', fontSize: '28px', color: '#5b3a29', marginBottom: '8px' }}>{lessonTitle}</h1>
+        <p style={{ textAlign: 'center', color: '#8a6a55', marginBottom: '24px' }}>
+          Activity {activeIndex + 1} of {activities.length}
+        </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {units.map((unit, i) => {
-            const ready = unit.is_published
-            return (
-              <Link
-                key={unit.id}
-                href={ready ? `/early-learners/unit/${unit.id}` : '#'}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '16px',
-                  background: 'white',
-                  borderRadius: '18px',
-                  padding: '18px 22px',
-                  boxShadow: '0 6px 16px rgba(0,0,0,0.08)',
-                  textDecoration: 'none',
-                  opacity: ready ? 1 : 0.5,
-                  cursor: ready ? 'pointer' : 'default',
-                  pointerEvents: ready ? 'auto' : 'none',
-                }}
-              >
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    background: ready ? '#7C3AED' : '#bbb',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 'bold',
-                    flexShrink: 0,
-                    fontSize: '14px',
-                  }}
-                >
-                  {i + 1}
-                </div>
-                <div style={{ fontSize: '17px', fontWeight: 'bold', color: '#5b3a29' }}>{unit.name}</div>
-                {!ready && (
-                  <div style={{ marginLeft: 'auto', fontSize: '12px', color: '#8a6a55', fontStyle: 'italic' }}>
-                    Coming soon
-                  </div>
-                )}
-              </Link>
-            )
-          })}
+        {videoUrl && (
+          <div style={{ marginBottom: '24px', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
+            <video controls src={VIDEO_BASE + videoUrl} style={{ width: '100%', display: 'block', background: 'black' }} />
+          </div>
+        )}
+
+        <div style={{ background: 'white', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
+          {activity.activity_type === 'flashcard_audio' && (
+            <FlashcardAudio content={activity.content_json} onPlay={playAudio} />
+          )}
+          {activity.activity_type === 'chant' && (
+            <Chant content={activity.content_json} onPlay={playAudio} />
+          )}
+          {activity.activity_type === 'tap_match' && (
+            <TapMatch
+              content={activity.content_json}
+              onPlay={playAudio}
+              onComplete={goNext}
+            />
+          )}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
+          <button
+            onClick={() => setActiveIndex((i) => Math.max(i - 1, 0))}
+            disabled={activeIndex === 0}
+            style={navButtonStyle(activeIndex === 0)}
+          >
+            ← Back
+          </button>
+          <button onClick={goNext} style={navButtonStyle(false)}>
+            {isLastActivity ? (nextLessonId ? 'Next Lesson →' : 'Finish Unit →') : 'Next →'}
+          </button>
         </div>
       </div>
     </main>
+  )
+}
+
+function navButtonStyle(disabled: boolean): CSSProperties {
+  return {
+    background: disabled ? '#ddd' : '#7C3AED',
+    color: 'white',
+    border: 'none',
+    borderRadius: '20px',
+    padding: '12px 28px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: disabled ? 'default' : 'pointer',
+  }
+}
+
+// ---------- Activity: Flashcard Audio ----------
+function FlashcardAudio({ content, onPlay }: { content: any; onPlay: (file: string) => void }) {
+  return (
+    <div>
+      <h2 style={{ textAlign: 'center', color: '#5b3a29', marginBottom: '20px' }}>Tap each word to listen</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px' }}>
+        {content.items.map((item: any, i: number) => (
+          <button
+            key={i}
+            onClick={() => onPlay(item.audio)}
+            style={{
+              background: '#FFF3D6',
+              border: '3px solid #FFD98A',
+              borderRadius: '16px',
+              padding: '16px 8px',
+              cursor: 'pointer',
+              textAlign: 'center',
+            }}
+          >
+            {item.image ? (
+              <img
+                src={IMAGE_BASE + item.image}
+                alt={item.word}
+                style={{ width: '64px', height: '64px', objectFit: 'contain', marginBottom: '8px' }}
+              />
+            ) : (
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔊</div>
+            )}
+            <div style={{ fontWeight: 'bold', color: '#5b3a29' }}>{item.word}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ---------- Activity: Chant (repeat after me) ----------
+function Chant({ content, onPlay }: { content: any; onPlay: (file: string) => void }) {
+  const [index, setIndex] = useState(0)
+  const [showPrompt, setShowPrompt] = useState(false)
+  const item = content.items[index]
+
+  useEffect(() => {
+    setShowPrompt(false)
+    onPlay(item.audio)
+    const timer = setTimeout(() => setShowPrompt(true), (content.pause_seconds || 3) * 1000)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index])
+
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <h2 style={{ color: '#5b3a29', marginBottom: '20px' }}>Listen and Say It Back</h2>
+      {item.image && (
+        <img
+          src={IMAGE_BASE + item.image}
+          alt={item.phrase}
+          style={{ width: '96px', height: '96px', objectFit: 'contain', marginBottom: '12px' }}
+        />
+      )}
+      <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#7C3AED', marginBottom: '16px' }}>{item.phrase}</div>
+      <button onClick={() => onPlay(item.audio)} style={{ fontSize: '40px', background: 'none', border: 'none', cursor: 'pointer' }}>
+        🔊
+      </button>
+      {showPrompt && <p style={{ color: '#E85D26', fontWeight: 'bold', marginTop: '16px' }}>Now you say it!</p>}
+      <div style={{ marginTop: '24px' }}>
+        <button
+          onClick={() => setIndex((i) => Math.min(i + 1, content.items.length - 1))}
+          disabled={index === content.items.length - 1}
+          style={navButtonStyle(index === content.items.length - 1)}
+        >
+          Next Word →
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ---------- Activity: Tap Match ----------
+function TapMatch({
+  content,
+  onPlay,
+  onComplete,
+}: {
+  content: any
+  onPlay: (file: string) => void
+  onComplete: () => void
+}) {
+  const [round, setRound] = useState(0)
+  const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null)
+  const currentRound = content.rounds[round]
+
+  useEffect(() => {
+    setFeedback(null)
+    onPlay(currentRound.audio)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round])
+
+  function handleChoice(option: string) {
+    if (option === currentRound.correct_image) {
+      setFeedback('correct')
+      setTimeout(() => {
+        if (round < content.rounds.length - 1) {
+          setRound((r) => r + 1)
+        } else {
+          onComplete()
+        }
+      }, 1200)
+    } else {
+      setFeedback('wrong')
+    }
+  }
+
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <h2 style={{ color: '#5b3a29', marginBottom: '8px' }}>Which One?</h2>
+      <button
+        onClick={() => onPlay(currentRound.audio)}
+        style={{ fontSize: '40px', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '16px' }}
+      >
+        🔊
+      </button>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+        {currentRound.options.map((opt: string, i: number) => (
+          <button
+            key={i}
+            onClick={() => handleChoice(opt)}
+            style={{
+              width: '140px',
+              height: '140px',
+              borderRadius: '16px',
+              border: '3px solid #ddd',
+              background: `white center/contain no-repeat url(${IMAGE_BASE}${opt})`,
+              cursor: 'pointer',
+              padding: '8px',
+            }}
+          />
+        ))}
+      </div>
+      {feedback === 'correct' && <p style={{ color: '#22c55e', fontWeight: 'bold', marginTop: '16px' }}>Great job! ⭐</p>}
+      {feedback === 'wrong' && <p style={{ color: '#E85D26', fontWeight: 'bold', marginTop: '16px' }}>Try again!</p>}
+      <p style={{ marginTop: '12px', color: '#8a6a55', fontSize: '14px' }}>
+        Round {round + 1} of {content.rounds.length}
+      </p>
+    </div>
   )
 }
