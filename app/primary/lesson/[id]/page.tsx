@@ -123,12 +123,12 @@ export default function PrimaryLessonPlayerPage({ params }: { params: Promise<{ 
         </p>
 
         <div style={{ background: 'white', borderRadius: '20px', padding: '32px', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
-          {activity.activity_type === 'listening_dialogue' && <ListeningDialogue content={activity.content_json} onPlay={playAudio} />}
-          {activity.activity_type === 'comprehension_quiz' && <ComprehensionQuiz content={activity.content_json} onComplete={goNext} />}
-          {activity.activity_type === 'speaking_recorder' && <SpeakingRecorder content={activity.content_json} onPlay={playAudio} />}
-          {activity.activity_type === 'reading_passage' && <ReadingPassage content={activity.content_json} onPlay={playAudio} />}
-          {activity.activity_type === 'sentence_builder' && <SentenceBuilder content={activity.content_json} onComplete={goNext} />}
-          {activity.activity_type === 'fill_in_blank' && <FillInBlank content={activity.content_json} onComplete={goNext} />}
+          {activity.activity_type === 'listening_dialogue' && <ListeningDialogue key={activity.id} content={activity.content_json} onPlay={playAudio} />}
+          {activity.activity_type === 'comprehension_quiz' && <ComprehensionQuiz key={activity.id} content={activity.content_json} onComplete={goNext} />}
+          {activity.activity_type === 'speaking_recorder' && <SpeakingRecorder key={activity.id} content={activity.content_json} onPlay={playAudio} />}
+          {activity.activity_type === 'reading_passage' && <ReadingPassage key={activity.id} content={activity.content_json} onPlay={playAudio} />}
+          {activity.activity_type === 'sentence_builder' && <SentenceBuilder key={activity.id} content={activity.content_json} onComplete={goNext} />}
+          {activity.activity_type === 'fill_in_blank' && <FillInBlank key={activity.id} content={activity.content_json} onComplete={goNext} />}
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
