@@ -3,31 +3,32 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
-type Unit = {
+type Level = {
   id: number
   name: string
+  age_range: string | null
   sort_order: number
-  is_published: boolean
 }
 
 export default function EarlyLearnersHomePage() {
-  const [levelName, setLevelName] = useState('')
-  const [units, setUnits] = useState<Unit[]>([])
+  const [levels, setLevels] = useState<Level[]>([])
+  const [unitCounts, setUnitCounts] = useState<Record<number, number>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
-      // TEMP: hardcoded to Level 1 for now. Once Level 2/3 have content,
-      // this page can list all levels instead of assuming level_id = 1.
-      const { data: level } = await supabase.from('early_course_levels').select('name').eq('slug', 'level-1').single()
-      if (level) setLevelName(level.name)
-
-      const { data: unitRows } = await supabase
-        .from('early_course_units')
-        .select('id, name, sort_order, is_published')
-        .eq('level_id', 1)
+      const { data: levelRows } = await supabase
+        .from('early_course_levels')
+        .select('id, name, age_range, sort_order')
         .order('sort_order', { ascending: true })
-      setUnits(unitRows || [])
+      setLevels(levelRows || [])
+
+      const { data: unitRows } = await supabase.from('early_course_units').select('id, level_id').eq('is_published', true)
+      const counts: Record<number, number> = {}
+      ;(unitRows || []).forEach((u: any) => {
+        counts[u.level_id] = (counts[u.level_id] || 0) + 1
+      })
+      setUnitCounts(counts)
       setLoading(false)
     }
     load()
@@ -50,51 +51,35 @@ export default function EarlyLearnersHomePage() {
         <h1 style={{ textAlign: 'center', fontSize: '30px', color: '#5b3a29', marginBottom: '4px' }}>
           Early Learners English
         </h1>
-        <p style={{ textAlign: 'center', color: '#8a6a55', marginBottom: '32px' }}>{levelName}</p>
+        <p style={{ textAlign: 'center', color: '#8a6a55', marginBottom: '32px' }}>Choose a level</p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {units.map((unit, i) => {
-            const ready = unit.is_published
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {levels.map((level) => {
+            const hasUnits = (unitCounts[level.id] || 0) > 0
             return (
               <Link
-                key={unit.id}
-                href={ready ? `/early-learners/unit/${unit.id}` : '#'}
+                key={level.id}
+                href={hasUnits ? `/early-learners/level/${level.id}` : '#'}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '16px',
+                  justifyContent: 'space-between',
                   background: 'white',
                   borderRadius: '18px',
-                  padding: '18px 22px',
+                  padding: '20px 24px',
                   boxShadow: '0 6px 16px rgba(0,0,0,0.08)',
                   textDecoration: 'none',
-                  opacity: ready ? 1 : 0.5,
-                  cursor: ready ? 'pointer' : 'default',
-                  pointerEvents: ready ? 'auto' : 'none',
+                  opacity: hasUnits ? 1 : 0.5,
+                  cursor: hasUnits ? 'pointer' : 'default',
+                  pointerEvents: hasUnits ? 'auto' : 'none',
                 }}
               >
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    background: ready ? '#7C3AED' : '#bbb',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 'bold',
-                    flexShrink: 0,
-                    fontSize: '14px',
-                  }}
-                >
-                  {i + 1}
+                <div>
+                  <div style={{ fontSize: '19px', fontWeight: 'bold', color: '#5b3a29' }}>{level.name}</div>
+                  <div style={{ fontSize: '14px', color: '#8a6a55' }}>{level.age_range ? `Ages ${level.age_range}` : ''}</div>
                 </div>
-                <div style={{ fontSize: '17px', fontWeight: 'bold', color: '#5b3a29' }}>{unit.name}</div>
-                {!ready && (
-                  <div style={{ marginLeft: 'auto', fontSize: '12px', color: '#8a6a55', fontStyle: 'italic' }}>
-                    Coming soon
-                  </div>
+                {!hasUnits && (
+                  <div style={{ fontSize: '12px', color: '#8a6a55', fontStyle: 'italic' }}>Coming soon</div>
                 )}
               </Link>
             )

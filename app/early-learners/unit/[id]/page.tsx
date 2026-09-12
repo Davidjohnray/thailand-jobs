@@ -12,13 +12,17 @@ type Lesson = {
 export default function UnitOverviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const [unitName, setUnitName] = useState('')
+  const [levelId, setLevelId] = useState<number | null>(null)
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
-      const { data: unit } = await supabase.from('early_course_units').select('name').eq('id', id).single()
-      if (unit) setUnitName(unit.name)
+      const { data: unit } = await supabase.from('early_course_units').select('name, level_id').eq('id', id).single()
+      if (unit) {
+        setUnitName(unit.name)
+        setLevelId(unit.level_id)
+      }
 
       const { data: lessonRows } = await supabase
         .from('early_course_lessons')
@@ -42,7 +46,7 @@ export default function UnitOverviewPage({ params }: { params: Promise<{ id: str
   return (
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #FFE9A8, #FFD3E0)', fontFamily: 'sans-serif', padding: '32px 16px' }}>
       <div style={{ maxWidth: '480px', margin: '0 auto' }}>
-        <Link href="/early-learners" style={{ display: 'inline-block', marginBottom: '16px', color: '#7C3AED', textDecoration: 'none', fontWeight: 'bold' }}>
+        <Link href={levelId ? `/early-learners/level/${levelId}` : '/early-learners'} style={{ display: 'inline-block', marginBottom: '16px', color: '#7C3AED', textDecoration: 'none', fontWeight: 'bold' }}>
           ← All Units
         </Link>
         <h1 style={{ textAlign: 'center', fontSize: '28px', color: '#5b3a29', marginBottom: '32px' }}>{unitName}</h1>
