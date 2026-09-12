@@ -22,14 +22,14 @@ const courses: Course[] = [
     ageRange: '7–10 years',
     description: 'Reading, writing, listening and speaking through stories, dialogues and interactive practice.',
     status: 'preview',
-    href: '/primary/lesson/1',
+    href: '/primary',
   },
   {
     name: 'Secondary',
     ageRange: '11+ years',
     description: 'More advanced reading, writing and exam-focused English skills.',
-    status: 'coming-soon',
-    href: '#',
+    status: 'preview',
+    href: '/secondary',
   },
 ]
 
