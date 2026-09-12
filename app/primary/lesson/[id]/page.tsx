@@ -110,8 +110,8 @@ export default function PrimaryLessonPlayerPage({ params }: { params: Promise<{ 
     <main style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #DCEEFB, #E8F9F0)', fontFamily: 'sans-serif', padding: '32px 16px' }}>
       <div style={{ maxWidth: '680px', margin: '0 auto' }}>
         {unitId && (
-          <Link href={`/primary/unit/${unitId}`} style={{ display: 'inline-block', marginBottom: '16px', color: '#2563EB', textDecoration: 'none', fontWeight: 'bold' }}>
-            ← Back to lessons
+          <Link href="/courses" style={{ display: 'inline-block', marginBottom: '16px', color: '#2563EB', textDecoration: 'none', fontWeight: 'bold' }}>
+            ← All Courses
           </Link>
         )}
         <h1 style={{ textAlign: 'center', fontSize: '26px', color: '#1E3A5F', marginBottom: '4px' }}>{lessonTitle}</h1>
