@@ -5,6 +5,7 @@ export const runtime = 'edge'
 
 const NAVY = '#14172B'
 const GOLD = '#D9A441'
+const ORANGE = '#E85D26'
 
 export async function GET(
   req: Request,
@@ -14,7 +15,7 @@ export async function GET(
 
   const { data: job } = await supabase
     .from('jobs')
-    .select('title, company, location, salary, job_type, category, source_logo, visa_sponsor, featured')
+    .select('title, company, location, salary, job_type, category, source_logo, visa_sponsor, featured, description, expires_at')
     .eq('id', id)
     .single()
 
@@ -24,6 +25,22 @@ export async function GET(
 
   const isFeatured = !!job.featured
 
+  const snippet = job.description
+    ? job.description.replace(/\s+/g, ' ').trim().slice(0, 110) + (job.description.length > 110 ? '…' : '')
+    : ''
+
+  const deadline = job.expires_at
+    ? new Date(job.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    : null
+
+  // Right-panel colors: gold/navy for featured, site-orange for everything else —
+  // keeps regular listings visually strong, but never mistaken for a featured one.
+  const panelBg = isFeatured
+    ? `linear-gradient(160deg, ${NAVY}, #23284A)`
+    : `linear-gradient(160deg, ${ORANGE}, #F08A52)`
+  const panelAccent = isFeatured ? GOLD : '#FFFFFF'
+  const panelLabelBg = isFeatured ? 'rgba(217,164,65,0.18)' : 'rgba(255,255,255,0.22)'
+
   return new ImageResponse(
     (
       <div
@@ -31,158 +48,189 @@ export async function GET(
           width: '1200px',
           height: '630px',
           display: 'flex',
-          flexDirection: 'column',
           background: '#ffffff',
           fontFamily: 'Inter',
         }}
       >
-        {/* Top banner */}
+        {/* LEFT — job details */}
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '20px 48px',
-            background: isFeatured ? NAVY : '#F1F1F4',
-            color: isFeatured ? GOLD : '#6B7280',
-            fontSize: '26px',
-            fontWeight: 800,
-            letterSpacing: '1px',
-            textTransform: 'uppercase',
+            flexDirection: 'column',
+            width: '760px',
+            padding: '52px 44px',
           }}
         >
-          {isFeatured ? '⭐ Featured Job' : 'Jobs in Thailand'}
-        </div>
-
-        {/* Body */}
-        <div
-          style={{
-            display: 'flex',
-            flex: 1,
-            padding: '48px',
-            gap: '36px',
-          }}
-        >
-          {job.source_logo ? (
-            <img
-              src={job.source_logo}
-              width={140}
-              height={140}
-              style={{
-                borderRadius: '16px',
-                objectFit: 'contain',
-                border: '1px solid #eee',
-                background: '#fff',
-              }}
-            />
-          ) : null}
-
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <div
-              style={{
-                fontSize: '44px',
-                fontWeight: 800,
-                color: NAVY,
-                lineHeight: 1.2,
-                marginBottom: '14px',
-              }}
-            >
-              {job.title}
-            </div>
-
-            <div
-              style={{
-                fontSize: '26px',
-                color: '#444',
-                fontWeight: 600,
-                marginBottom: '28px',
-                display: 'flex',
-              }}
-            >
-              {job.company} • {job.location}
-            </div>
-
-            <div style={{ display: 'flex', gap: '14px', marginBottom: '24px' }}>
-              {job.visa_sponsor && (
-                <div
-                  style={{
-                    display: 'flex',
-                    background: '#DDF3E4',
-                    color: '#1E7A44',
-                    fontSize: '20px',
-                    fontWeight: 700,
-                    padding: '8px 20px',
-                    borderRadius: '100px',
-                  }}
-                >
-                  ✓ Visa
-                </div>
-              )}
-              {job.job_type && (
-                <div
-                  style={{
-                    display: 'flex',
-                    background: '#EAF0FF',
-                    color: '#2D5BD0',
-                    fontSize: '20px',
-                    fontWeight: 700,
-                    padding: '8px 20px',
-                    borderRadius: '100px',
-                  }}
-                >
-                  {job.job_type}
-                </div>
-              )}
-              {job.category && (
-                <div
-                  style={{
-                    display: 'flex',
-                    background: NAVY,
-                    color: GOLD,
-                    fontSize: '20px',
-                    fontWeight: 700,
-                    padding: '8px 20px',
-                    borderRadius: '100px',
-                  }}
-                >
-                  🏫 {job.category}
-                </div>
-              )}
-            </div>
-
+          <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '28px' }}>
+            {job.source_logo ? (
+              <img
+                src={job.source_logo}
+                width={72}
+                height={72}
+                style={{
+                  borderRadius: '14px',
+                  objectFit: 'contain',
+                  border: '1px solid #eee',
+                  background: '#fff',
+                }}
+              />
+            ) : null}
             <div
               style={{
                 display: 'flex',
-                alignSelf: 'flex-start',
-                background: 'linear-gradient(120deg, #D9A441, #F3CE85)',
-                color: NAVY,
-                fontSize: '30px',
+                background: isFeatured ? NAVY : '#F1F1F4',
+                color: isFeatured ? GOLD : '#6B7280',
+                fontSize: '18px',
                 fontWeight: 800,
-                padding: '14px 28px',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                padding: '8px 18px',
                 borderRadius: '100px',
               }}
             >
-              {job.salary}
+              {isFeatured ? '⭐ Featured Job' : 'Jobs in Thailand'}
             </div>
+          </div>
+
+          <div
+            style={{
+              fontSize: '42px',
+              fontWeight: 800,
+              color: NAVY,
+              lineHeight: 1.15,
+              marginBottom: '12px',
+              display: 'flex',
+            }}
+          >
+            {job.title}
+          </div>
+
+          <div
+            style={{
+              fontSize: '24px',
+              color: '#444',
+              fontWeight: 600,
+              marginBottom: '14px',
+              display: 'flex',
+            }}
+          >
+            {job.company} • {job.location}
+          </div>
+
+          {snippet && (
+            <div
+              style={{
+                fontSize: '19px',
+                color: '#666',
+                fontWeight: 400,
+                lineHeight: 1.45,
+                marginBottom: '22px',
+                maxWidth: '660px',
+                display: 'flex',
+              }}
+            >
+              {snippet}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            {job.visa_sponsor && (
+              <div
+                style={{
+                  display: 'flex',
+                  background: '#DDF3E4',
+                  color: '#1E7A44',
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  padding: '7px 18px',
+                  borderRadius: '100px',
+                }}
+              >
+                ✅ Visa
+              </div>
+            )}
+            {job.category && (
+              <div
+                style={{
+                  display: 'flex',
+                  background: isFeatured ? NAVY : '#F1F1F4',
+                  color: isFeatured ? GOLD : '#555',
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  padding: '7px 18px',
+                  borderRadius: '100px',
+                }}
+              >
+                🏫 {job.category}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flex: 1 }} />
+
+          <div style={{ display: 'flex', fontSize: '18px', fontWeight: 700, color: NAVY }}>
+            jobsinthailand.net
           </div>
         </div>
 
-        {/* Footer */}
+        {/* RIGHT — salary / apply panel */}
         <div
           style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '24px 48px',
-            borderTop: '2px solid #F1F1F4',
-            fontSize: '22px',
-            fontWeight: 700,
-            color: NAVY,
+            flexDirection: 'column',
+            width: '440px',
+            background: panelBg,
+            padding: '52px 40px',
+            justifyContent: 'center',
           }}
         >
-          <div style={{ display: 'flex' }}>jobsinthailand.net</div>
-          <div style={{ display: 'flex', color: '#6B7280', fontWeight: 500 }}>
-            Apply today
+          <div
+            style={{
+              display: 'flex',
+              background: panelLabelBg,
+              color: panelAccent,
+              fontSize: '16px',
+              fontWeight: 800,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              padding: '6px 16px',
+              borderRadius: '100px',
+              alignSelf: 'flex-start',
+              marginBottom: '18px',
+            }}
+          >
+            Salary
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              fontSize: '38px',
+              fontWeight: 800,
+              color: '#ffffff',
+              lineHeight: 1.2,
+              marginBottom: '32px',
+            }}
+          >
+            {job.salary}
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              paddingTop: '28px',
+              borderTop: `2px solid ${isFeatured ? 'rgba(217,164,65,0.3)' : 'rgba(255,255,255,0.3)'}`,
+            }}
+          >
+            {job.job_type && (
+              <div style={{ display: 'flex', fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>
+                {job.job_type}
+              </div>
+            )}
+            <div style={{ display: 'flex', fontSize: '18px', fontWeight: 500, color: 'rgba(255,255,255,0.75)' }}>
+              {deadline ? `Apply by ${deadline}` : 'Apply today'}
+            </div>
           </div>
         </div>
       </div>
