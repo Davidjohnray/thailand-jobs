@@ -4,6 +4,12 @@ import Link from 'next/link'
 import { supabase } from '../../src/lib/supabase'
 import { MemberLockCard, isJobLocked } from '../../components/MemberLock'
 
+// Featured colors — matches the homepage featured job styling.
+const NAVY = '#14172B'
+const GOLD = '#D9A441'
+const BLUE_SOFT = '#EAF0FF'
+const BLUE_TEXT = '#2D5BD0'
+
 function JobLogo({ job }: { job: any }) {
   if (!job.source_logo) return null
   return (
@@ -171,19 +177,33 @@ export default function JobsPage() {
                   ) : (
                     <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
                       <div style={{
+                        position: 'relative',
                         background: 'white',
                         borderRadius: '12px',
-                        boxShadow: job.featured ? '0 4px 20px rgba(232,93,38,0.18)' : '0 2px 8px rgba(0,0,0,0.06)',
+                        boxShadow: job.featured
+                          ? '0 4px 24px rgba(217,164,65,0.22), 0 4px 20px rgba(20,23,43,0.12)'
+                          : '0 2px 8px rgba(0,0,0,0.06)',
                         cursor: 'pointer',
-                        border: job.featured ? '3px solid #E85D26' : '1px solid #eee',
+                        border: job.featured ? `3px solid ${NAVY}` : '1px solid #eee',
                         overflow: 'hidden',
                       }}>
                         {job.featured && (
-                          <div style={{ background: '#E85D26', padding: '6px 20px' }}>
-                            <span style={{ color: 'white', fontSize: '12px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Featured Job</span>
+                          <div style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            width: '6px',
+                            background: `linear-gradient(180deg, ${GOLD}, #F3CE85, ${GOLD})`,
+                            zIndex: 1,
+                          }} />
+                        )}
+                        {job.featured && (
+                          <div style={{ background: NAVY, padding: '6px 20px 6px 26px' }}>
+                            <span style={{ color: GOLD, fontSize: '12px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Featured Job</span>
                           </div>
                         )}
-                        <div style={{ padding: '20px' }}>
+                        <div style={{ padding: '20px', paddingLeft: job.featured ? '26px' : '20px' }}>
                           <div className="job-card-inner" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
@@ -197,11 +217,37 @@ export default function JobsPage() {
                               <div style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
                                 Posted: {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                               </div>
-                              <span style={{ background: '#f0f0f0', color: '#555', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>{job.category}</span>
+                              <span style={{
+                                background: job.featured ? NAVY : '#f0f0f0',
+                                color: job.featured ? GOLD : '#555',
+                                fontSize: '12px',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                              }}>{job.category}</span>
                             </div>
                             <div className="job-card-right" style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>{job.salary}</div>
-                              <div style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', display: 'inline-block' }}>{job.job_type}</div>
+                              {job.featured ? (
+                                <div style={{
+                                  display: 'inline-block',
+                                  background: `linear-gradient(120deg, ${GOLD}, #F3CE85)`,
+                                  color: NAVY,
+                                  fontWeight: '800',
+                                  fontSize: '14px',
+                                  padding: '5px 12px',
+                                  borderRadius: '20px',
+                                  marginBottom: '8px',
+                                }}>{job.salary}</div>
+                              ) : (
+                                <div style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>{job.salary}</div>
+                              )}
+                              <div style={{
+                                background: job.featured ? BLUE_SOFT : '#fff3ed',
+                                color: job.featured ? BLUE_TEXT : '#E85D26',
+                                fontSize: '12px',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                display: 'inline-block',
+                              }}>{job.job_type}</div>
                             </div>
                           </div>
                         </div>
