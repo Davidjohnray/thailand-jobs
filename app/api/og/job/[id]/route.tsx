@@ -8,12 +8,14 @@ const GOLD = '#D9A441'
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   const { data: job } = await supabase
     .from('jobs')
     .select('title, company, location, salary, job_type, category, source_logo, visa_sponsor, featured')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!job) {
