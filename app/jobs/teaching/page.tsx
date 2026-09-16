@@ -6,6 +6,12 @@ import { MemberLockCard, isJobLocked } from '../../../components/MemberLock'
 import PVAdvisoryBanner from '../../../components/PVAdvisoryBanner'
 import EssentialTeflBanner from '../../../components/ads/EssentialTeflBanner'
 
+// Featured colors — matches the homepage and main jobs page featured styling.
+const NAVY = '#14172B'
+const GOLD = '#D9A441'
+const BLUE_SOFT = '#EAF0FF'
+const BLUE_TEXT = '#2D5BD0'
+
 function JobLogo({ job }: { job: any }) {
   if (!job.source_logo) return null
   return (
@@ -170,14 +176,24 @@ export default function TeachingJobsPage() {
                   ) : job.featured ? (
                     <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
                       <div style={{
+                        position: 'relative',
                         background: 'white', borderRadius: '14px', padding: '0',
-                        boxShadow: '0 4px 20px rgba(232,93,38,0.18)', cursor: 'pointer',
-                        border: '3px solid #E85D26', overflow: 'hidden',
+                        boxShadow: '0 4px 24px rgba(217,164,65,0.22), 0 4px 20px rgba(20,23,43,0.12)', cursor: 'pointer',
+                        border: `3px solid ${NAVY}`, overflow: 'hidden',
                       }}>
-                        <div style={{ background: '#E85D26', padding: '6px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ color: 'white', fontSize: '12px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Featured Job</span>
+                        <div style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: '6px',
+                          background: `linear-gradient(180deg, ${GOLD}, #F3CE85, ${GOLD})`,
+                          zIndex: 1,
+                        }} />
+                        <div style={{ background: NAVY, padding: '6px 20px 6px 26px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ color: GOLD, fontSize: '12px', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Featured Job</span>
                         </div>
-                        <div style={{ padding: '20px 24px' }}>
+                        <div style={{ padding: '20px 24px 20px 30px' }}>
                           <div className="job-card-inner" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
@@ -191,11 +207,20 @@ export default function TeachingJobsPage() {
                               <div style={{ color: '#999', fontSize: '12px', marginBottom: '8px' }}>
                                 Posted: {new Date(job.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                               </div>
-                              <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>🏫 {job.category}</span>
+                              <span style={{ background: NAVY, color: GOLD, fontSize: '12px', padding: '4px 10px', borderRadius: '20px' }}>🏫 {job.category}</span>
                             </div>
                             <div className="job-card-right" style={{ textAlign: 'right', flexShrink: 0 }}>
-                              <div style={{ color: '#E85D26', fontWeight: '900', fontSize: '17px', marginBottom: '8px' }}>{job.salary}</div>
-                              <div style={{ background: '#fff3ed', color: '#E85D26', fontSize: '12px', padding: '4px 10px', borderRadius: '20px', display: 'inline-block', fontWeight: '700' }}>{job.job_type}</div>
+                              <div style={{
+                                display: 'inline-block',
+                                background: `linear-gradient(120deg, ${GOLD}, #F3CE85)`,
+                                color: NAVY,
+                                fontWeight: '800',
+                                fontSize: '15px',
+                                padding: '5px 12px',
+                                borderRadius: '20px',
+                                marginBottom: '8px',
+                              }}>{job.salary}</div>
+                              <div style={{ background: BLUE_SOFT, color: BLUE_TEXT, fontSize: '12px', padding: '4px 10px', borderRadius: '20px', display: 'inline-block', fontWeight: '700' }}>{job.job_type}</div>
                             </div>
                           </div>
                         </div>
