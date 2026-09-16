@@ -19,7 +19,13 @@ export async function generateMetadata(
 
   const title = `${job.title} — ${job.company} | Jobs in Thailand`
   const description = `${job.company} • ${job.location} — ${job.salary}. Apply now on Jobs in Thailand.`
-  const imageUrl = `https://www.jobsinthailand.net/api/og/job/${id}`
+
+  // Cache-buster: Vercel gives every deployment a unique commit SHA.
+  // Adding it to the image URL forces Facebook/Line/WhatsApp to treat the
+  // image as "new" on every future deploy, instead of reusing an old cached
+  // picture just because the underlying URL looks the same.
+  const buildId = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) || 'v1'
+  const imageUrl = `https://www.jobsinthailand.net/api/og/job/${id}?v=${buildId}`
 
   return {
     title,
