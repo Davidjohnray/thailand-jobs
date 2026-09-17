@@ -15,34 +15,60 @@ const TRACKED_SCOPES: { scope: string; label: string }[] = [
 ]
 
 const REFRESH_MS = 8000
+const RANGE_OPTIONS = [7, 30, 90]
 
 function bangkokToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(new Date())
 }
 
+// 'live' = today only, auto-refreshing. Anything else = a fixed historical range.
+type RangeMode = 'live' | number | 'custom'
+
 export default function LiveStatsPage() {
+  const [rangeMode, setRangeMode] = useState<RangeMode>('live')
+  const [customFrom, setCustomFrom] = useState('')
+  const [customTo, setCustomTo] = useState('')
+
   const [scopeStats, setScopeStats] = useState<Record<string, { views: number; clicks: number }>>({})
   const [featuredJobs, setFeaturedJobs] = useState<any[]>([])
   const [regularJobs, setRegularJobs] = useState<any[]>([])
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchAll = useCallback(async () => {
-    const today = bangkokToday()
+  const fetchScopeStats = useCallback(async () => {
+    let from: string
+    let to: string
+
+    if (rangeMode === 'live') {
+      from = bangkokToday()
+      to = from
+    } else if (rangeMode === 'custom') {
+      if (!customFrom || !customTo) return
+      from = customFrom
+      to = customTo
+    } else {
+      from = new Date(Date.now() - rangeMode * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+      to = bangkokToday()
+    }
 
     const { data: statsRows } = await supabase
       .from('daily_stats')
       .select('scope, views, clicks')
-      .eq('stat_date', today)
       .in('scope', TRACKED_SCOPES.map(s => s.scope))
+      .gte('stat_date', from)
+      .lte('stat_date', to)
 
     const map: Record<string, { views: number; clicks: number }> = {}
     for (const s of TRACKED_SCOPES) map[s.scope] = { views: 0, clicks: 0 }
     for (const row of statsRows || []) {
-      map[row.scope] = { views: row.views || 0, clicks: row.clicks || 0 }
+      map[row.scope].views += row.views || 0
+      map[row.scope].clicks += row.clicks || 0
     }
     setScopeStats(map)
+    setLastUpdated(new Date())
+  }, [rangeMode, customFrom, customTo])
 
+  const fetchJobs = useCallback(async () => {
     const now = new Date().toISOString()
 
     const { data: featured } = await supabase
@@ -62,35 +88,110 @@ export default function LiveStatsPage() {
       .limit(20)
     setRegularJobs(regular || [])
 
-    setLastUpdated(new Date())
     setLoading(false)
   }, [])
 
+  // Scope stats: refetch whenever the range changes, and poll only in live mode.
   useEffect(() => {
-    fetchAll()
-    const interval = setInterval(fetchAll, REFRESH_MS)
-    return () => clearInterval(interval)
-  }, [fetchAll])
+    fetchScopeStats()
+    if (rangeMode === 'live') {
+      const interval = setInterval(fetchScopeStats, REFRESH_MS)
+      return () => clearInterval(interval)
+    }
+  }, [fetchScopeStats, rangeMode])
+
+  // Jobs: lifetime totals, not date-scoped — fetched once, refreshed alongside live polling.
+  useEffect(() => {
+    fetchJobs()
+    if (rangeMode === 'live') {
+      const interval = setInterval(fetchJobs, REFRESH_MS)
+      return () => clearInterval(interval)
+    }
+  }, [fetchJobs, rangeMode])
+
+  const handleCustomSearch = () => {
+    if (customFrom && customTo) setRangeMode('custom')
+  }
 
   const siteViews = scopeStats['site']?.views ?? 0
+  const rangeLabel =
+    rangeMode === 'live' ? 'Today' :
+    rangeMode === 'custom' ? `${customFrom} to ${customTo}` :
+    `Last ${rangeMode} Days`
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '760px', margin: '0 auto' }}>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, color: NAVY }}>Live Stats</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#999' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2e7d32' }} />
-            {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString('en-GB')}` : 'Loading…'}
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: NAVY }}>Stats</h1>
+          {rangeMode === 'live' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#999' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2e7d32' }} />
+              {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString('en-GB')}` : 'Loading…'}
+            </div>
+          )}
         </div>
 
-        {/* Site total — big ticking number */}
+        {/* Range controls */}
+        <div style={{ background: NAVY, borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
+          <button
+            onClick={() => setRangeMode('live')}
+            style={{
+              background: rangeMode === 'live' ? GOLD : 'rgba(255,255,255,0.12)',
+              color: rangeMode === 'live' ? NAVY : 'white',
+              border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+            }}
+          >
+            🔴 Live
+          </button>
+          {RANGE_OPTIONS.map(opt => (
+            <button
+              key={opt}
+              onClick={() => setRangeMode(opt)}
+              style={{
+                background: rangeMode === opt ? GOLD : 'rgba(255,255,255,0.12)',
+                color: rangeMode === opt ? NAVY : 'white',
+                border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              {opt}d
+            </button>
+          ))}
+          <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.2)' }} />
+          <input
+            type="date"
+            value={customFrom}
+            onChange={e => setCustomFrom(e.target.value)}
+            style={{ background: 'rgba(255,255,255,0.12)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '6px 10px', fontSize: '13px' }}
+          />
+          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>to</span>
+          <input
+            type="date"
+            value={customTo}
+            onChange={e => setCustomTo(e.target.value)}
+            style={{ background: 'rgba(255,255,255,0.12)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '6px 10px', fontSize: '13px' }}
+          />
+          <button
+            onClick={handleCustomSearch}
+            disabled={!customFrom || !customTo}
+            style={{
+              background: rangeMode === 'custom' ? GOLD : 'rgba(255,255,255,0.12)',
+              color: rangeMode === 'custom' ? NAVY : 'white',
+              border: 'none', borderRadius: '8px', padding: '6px 16px', fontSize: '13px', fontWeight: 700,
+              cursor: customFrom && customTo ? 'pointer' : 'not-allowed',
+              opacity: customFrom && customTo ? 1 : 0.5,
+            }}
+          >
+            Search
+          </button>
+        </div>
+
+        {/* Site total */}
         <div style={{ background: NAVY, borderRadius: '16px', padding: '32px', textAlign: 'center', marginBottom: '20px' }}>
           <div style={{ fontSize: '56px', fontWeight: 800, color: 'white' }}>{siteViews}</div>
           <div style={{ fontSize: '14px', color: GOLD, fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-            Website Views Today
+            Website Views — {rangeLabel}
           </div>
         </div>
 
@@ -116,9 +217,13 @@ export default function LiveStatsPage() {
           })}
         </div>
 
-        {/* Currently active featured jobs — the paying customers, ranked by views */}
+        <p style={{ fontSize: '12px', color: '#999', marginBottom: '20px', marginTop: '-14px' }}>
+          Note: the job lists below always show lifetime totals — they don't change with the range picker above.
+        </p>
+
+        {/* Currently active featured jobs */}
         <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '20px' }}>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: '#333', marginBottom: '14px' }}>⭐ Currently Featured Jobs</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: '#333', marginBottom: '14px' }}>⭐ Currently Featured Jobs (Lifetime Views)</div>
           {loading ? (
             <p style={{ fontSize: '13px', color: '#999' }}>Loading…</p>
           ) : featuredJobs.length === 0 ? (
@@ -145,9 +250,9 @@ export default function LiveStatsPage() {
           )}
         </div>
 
-        {/* Regular (non-featured) active jobs, capped to keep this scannable */}
+        {/* Regular jobs */}
         <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: '#333', marginBottom: '14px' }}>Regular Jobs (Top 20 by Views)</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: '#333', marginBottom: '14px' }}>Regular Jobs — Top 20 (Lifetime Views)</div>
           {loading ? (
             <p style={{ fontSize: '13px', color: '#999' }}>Loading…</p>
           ) : regularJobs.length === 0 ? (
