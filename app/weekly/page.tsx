@@ -2,6 +2,13 @@ import { Metadata } from 'next'
 import { supabase } from '../../src/lib/supabase'
 import WeeklyClient from './WeeklyClient'
 
+// This page has no dynamic [param] in its URL, so Next.js would otherwise try
+// to pre-build it once at build time — and generateMetadata's live Supabase
+// query would run during that build, which was hanging and timing out.
+// Forcing dynamic rendering makes it fetch fresh data on every real visit
+// instead, which is what we actually want for "jobs from the last 7 days" anyway.
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata(): Promise<Metadata> {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
   const now = new Date().toISOString()
