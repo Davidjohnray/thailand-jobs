@@ -281,7 +281,11 @@ export async function GET(
     {
       width: 1200,
       height: 630,
-      fonts: fontConfig,
+      // Only pass `fonts` when we actually have one — an empty array
+      // makes the renderer throw ("At least one font is required"),
+      // which is worse than just omitting the key and using its
+      // built-in default font.
+      ...(fontConfig.length > 0 ? { fonts: fontConfig } : {}),
     }
   )
 }
