@@ -34,6 +34,18 @@ export default function JobStatsPage({ params }: { params: Promise<{ id: string 
     </main>
   )
 
+  if (!job.featured) return (
+    <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '48px 24px', textAlign: 'center' }}>
+      <div style={{ maxWidth: '440px', margin: '0 auto', background: 'white', borderRadius: '16px', padding: '40px 32px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+        <div style={{ fontSize: '36px', marginBottom: '16px' }}>⭐</div>
+        <h1 style={{ fontSize: '20px', fontWeight: 700, color: NAVY, marginBottom: '10px' }}>Stats are a Featured Job perk</h1>
+        <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6 }}>
+          View tracking and performance stats are available for Featured listings. Upgrade this job to Featured to unlock stats like this.
+        </p>
+      </div>
+    </main>
+  )
+
   const now = new Date()
   const expires = new Date(job.expires_at)
   const daysLeft = Math.max(0, Math.ceil((expires.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))

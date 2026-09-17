@@ -20,6 +20,10 @@ export default function JobDetailClient({ id }: { id: string }) {
       // Fire-and-forget view count increment — doesn't block rendering,
       // and errors here shouldn't affect the visitor's experience.
       supabase.rpc('increment_job_views', { job_id: id }).then(() => {}, () => {})
+      // Also log a daily-bucketed view for this job, so a history/trend
+      // view (last 7/30/90 days) becomes possible later — separate from
+      // the lifetime total above.
+      supabase.rpc('increment_daily_stat', { p_scope: `job-${id}`, p_metric: 'views' }).then(() => {}, () => {})
     }
     init()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
