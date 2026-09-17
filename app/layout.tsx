@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '../components/Navbar'
 import VisitorCounter from '../components/VisitorCounter'
+import TrackView from '../components/TrackView'
 
 export const metadata: Metadata = {
   title: {
@@ -91,6 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         {children}
         <VisitorCounter />
+        <TrackView scope="site" />
       </body>
     </html>
   )
