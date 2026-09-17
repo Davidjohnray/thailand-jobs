@@ -10,7 +10,7 @@ const GOLD = '#D9A441'
 const TRACKED_SCOPES: { scope: string; label: string }[] = [
   { scope: 'site', label: 'Whole Website' },
   { scope: 'banner-duke', label: 'Duke Language School' },
-  { scope: 'banner-pv-advisory', label: 'P&V Advisory' },
+  { scope: 'banner-teachbridge', label: 'Teach Bridge Asia' },
   { scope: 'banner-essential-tefl', label: 'Essential TEFL' },
 ]
 
@@ -22,7 +22,8 @@ function bangkokToday() {
 
 export default function LiveStatsPage() {
   const [scopeStats, setScopeStats] = useState<Record<string, { views: number; clicks: number }>>({})
-  const [topJobs, setTopJobs] = useState<any[]>([])
+  const [featuredJobs, setFeaturedJobs] = useState<any[]>([])
+  const [regularJobs, setRegularJobs] = useState<any[]>([])
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -43,13 +44,23 @@ export default function LiveStatsPage() {
     setScopeStats(map)
 
     const now = new Date().toISOString()
-    const { data: jobs } = await supabase
+
+    const { data: featured } = await supabase
       .from('jobs')
       .select('id, title, company, view_count, expires_at')
       .eq('featured', true)
       .gt('expires_at', now)
       .order('view_count', { ascending: false })
-    setTopJobs(jobs || [])
+    setFeaturedJobs(featured || [])
+
+    const { data: regular } = await supabase
+      .from('jobs')
+      .select('id, title, company, view_count, expires_at')
+      .eq('featured', false)
+      .gt('expires_at', now)
+      .order('view_count', { ascending: false })
+      .limit(20)
+    setRegularJobs(regular || [])
 
     setLastUpdated(new Date())
     setLoading(false)
@@ -106,19 +117,48 @@ export default function LiveStatsPage() {
         </div>
 
         {/* Currently active featured jobs — the paying customers, ranked by views */}
-        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '20px' }}>
           <div style={{ fontSize: '14px', fontWeight: 700, color: '#333', marginBottom: '14px' }}>⭐ Currently Featured Jobs</div>
           {loading ? (
             <p style={{ fontSize: '13px', color: '#999' }}>Loading…</p>
-          ) : topJobs.length === 0 ? (
+          ) : featuredJobs.length === 0 ? (
             <p style={{ fontSize: '13px', color: '#999' }}>No featured jobs running right now.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {topJobs.map((job, i) => {
+              {featuredJobs.map((job, i) => {
                 const daysLeft = Math.max(0, Math.ceil((new Date(job.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                 return (
                   <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < topJobs.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < featuredJobs.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {job.title}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#999' }}>{job.company} · {daysLeft} day{daysLeft === 1 ? '' : 's'} left</div>
+                      </div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: NAVY, flexShrink: 0 }}>{job.view_count ?? 0} views</div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Regular (non-featured) active jobs, capped to keep this scannable */}
+        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: '#333', marginBottom: '14px' }}>Regular Jobs (Top 20 by Views)</div>
+          {loading ? (
+            <p style={{ fontSize: '13px', color: '#999' }}>Loading…</p>
+          ) : regularJobs.length === 0 ? (
+            <p style={{ fontSize: '13px', color: '#999' }}>No active regular jobs right now.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {regularJobs.map((job, i) => {
+                const daysLeft = Math.max(0, Math.ceil((new Date(job.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                return (
+                  <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < regularJobs.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {job.title}
