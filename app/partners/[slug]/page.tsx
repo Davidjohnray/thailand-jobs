@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
+import TrackView from '../../../components/TrackView'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -273,6 +274,7 @@ export default function PartnerPage({ params }: { params: Promise<{ slug: string
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
+      <TrackView scope={`partner-${slug}`} />
 
       {/* HERO */}
       <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', padding: '48px 24px' }}>
