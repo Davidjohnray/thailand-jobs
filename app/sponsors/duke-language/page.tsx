@@ -1,8 +1,11 @@
-﻿import Link from 'next/link'
+﻿'use client'
+import Link from 'next/link'
+import TrackView, { trackClick } from '../../../components/TrackView'
 
 export default function DukeLanguagePage() {
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh' }}>
+      <TrackView scope="banner-duke" />
 
       {/* HERO */}
       <section style={{ background: '#1a1a2e', padding: '64px 24px', textAlign: 'center' }}>
@@ -14,6 +17,7 @@ export default function DukeLanguagePage() {
           Professional Thai language courses in Bangkok for expats and teachers living in Thailand — from complete beginners to advanced learners.
         </p>
         <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer"
+          onClick={() => trackClick('banner-duke')}
           style={{ display: 'inline-block', background: '#c9a84c', color: '#1a1a2e', padding: '14px 36px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '15px' }}>
           Visit Duke Language School
         </a>
@@ -77,6 +81,7 @@ export default function DukeLanguagePage() {
           Whether you're brand new to Thailand or have been here for years, Duke's courses are built for people who want to get serious about learning Thai.
         </p>
         <a href="https://dukelanguage.com/" target="_blank" rel="noopener noreferrer"
+          onClick={() => trackClick('banner-duke')}
           style={{ display: 'inline-block', background: '#3b5bdb', color: 'white', padding: '14px 36px', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '15px' }}>
           Visit Duke Language School
         </a>
