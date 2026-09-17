@@ -10,9 +10,19 @@ const ORANGE = '#E85D26'
 // Fetches a real Inter font file at the requested weight from Google Fonts.
 // Without this, the image renderer fakes bold text by smearing a thin font,
 // which is what was causing the blurry/fuzzy text on Facebook.
+// NOTE: Google Fonts serves .woff2 to modern browsers by default, but our
+// renderer needs .ttf/.otf — so we pretend to be an old browser via the
+// User-Agent header, which makes Google respond with a compatible format.
 async function loadGoogleFont(font: string, weight: number) {
   const cssUrl = `https://fonts.googleapis.com/css2?family=${font}:wght@${weight}`
-  const css = await (await fetch(cssUrl)).text()
+  const css = await (
+    await fetch(cssUrl, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
+      },
+    })
+  ).text()
   const match = css.match(/src: url\(([^)]+)\) format\('(opentype|truetype)'\)/)
   if (match) {
     const res = await fetch(match[1])
@@ -55,11 +65,24 @@ export async function GET(
   const panelAccent = isFeatured ? GOLD : '#FFFFFF'
   const panelLabelBg = isFeatured ? 'rgba(217,164,65,0.18)' : 'rgba(255,255,255,0.22)'
 
-  const [interRegular, interSemibold, interBold] = await Promise.all([
-    loadGoogleFont('Inter', 400),
-    loadGoogleFont('Inter', 600),
-    loadGoogleFont('Inter', 800),
-  ])
+  let fontConfig: { name: string; data: ArrayBuffer; weight: 400 | 600 | 800; style: 'normal' }[] = []
+  try {
+    const [interRegular, interSemibold, interBold] = await Promise.all([
+      loadGoogleFont('Inter', 400),
+      loadGoogleFont('Inter', 600),
+      loadGoogleFont('Inter', 800),
+    ])
+    fontConfig = [
+      { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
+      { name: 'Inter', data: interSemibold, weight: 600, style: 'normal' },
+      { name: 'Inter', data: interBold, weight: 800, style: 'normal' },
+    ]
+  } catch (e) {
+    // If Google Fonts is unreachable or changes its response format again,
+    // fall back to the renderer's default font rather than failing the
+    // entire image — a slightly less crisp banner beats no banner at all.
+    fontConfig = []
+  }
 
   return new ImageResponse(
     (
@@ -258,11 +281,7 @@ export async function GET(
     {
       width: 1200,
       height: 630,
-      fonts: [
-        { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
-        { name: 'Inter', data: interSemibold, weight: 600, style: 'normal' },
-        { name: 'Inter', data: interBold, weight: 800, style: 'normal' },
-      ],
+      fonts: fontConfig,
     }
   )
 }

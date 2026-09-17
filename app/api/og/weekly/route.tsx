@@ -6,9 +6,19 @@ export const runtime = 'edge'
 const NAVY = '#14172B'
 const GOLD = '#D9A441'
 
+// NOTE: Google Fonts serves .woff2 to modern browsers by default, but our
+// renderer needs .ttf/.otf — so we pretend to be an old browser via the
+// User-Agent header, which makes Google respond with a compatible format.
 async function loadGoogleFont(font: string, weight: number) {
   const cssUrl = `https://fonts.googleapis.com/css2?family=${font}:wght@${weight}`
-  const css = await (await fetch(cssUrl)).text()
+  const css = await (
+    await fetch(cssUrl, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
+      },
+    })
+  ).text()
   const match = css.match(/src: url\(([^)]+)\) format\('(opentype|truetype)'\)/)
   if (match) {
     const res = await fetch(match[1])
@@ -39,10 +49,19 @@ export async function GET(req: Request) {
 
   const dateRange = `${new Date(sevenDaysAgo).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
 
-  const [interRegular, interBold] = await Promise.all([
-    loadGoogleFont('Inter', 400),
-    loadGoogleFont('Inter', 800),
-  ])
+  let fontConfig: { name: string; data: ArrayBuffer; weight: 400 | 800; style: 'normal' }[] = []
+  try {
+    const [interRegular, interBold] = await Promise.all([
+      loadGoogleFont('Inter', 400),
+      loadGoogleFont('Inter', 800),
+    ])
+    fontConfig = [
+      { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
+      { name: 'Inter', data: interBold, weight: 800, style: 'normal' },
+    ]
+  } catch (e) {
+    fontConfig = []
+  }
 
   return new ImageResponse(
     (
@@ -145,10 +164,7 @@ export async function GET(req: Request) {
     {
       width: 1200,
       height: 630,
-      fonts: [
-        { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
-        { name: 'Inter', data: interBold, weight: 800, style: 'normal' },
-      ],
+      fonts: fontConfig,
     }
   )
 }
