@@ -17,6 +17,9 @@ export default function JobDetailClient({ id }: { id: string }) {
       const { data } = await supabase.from('jobs').select('*').eq('id', id).single()
       setJob(data)
       setLoading(false)
+      // Fire-and-forget view count increment — doesn't block rendering,
+      // and errors here shouldn't affect the visitor's experience.
+      supabase.rpc('increment_job_views', { job_id: id }).then(() => {}, () => {})
     }
     init()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
