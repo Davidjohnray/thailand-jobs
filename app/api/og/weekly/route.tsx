@@ -6,6 +6,19 @@ export const runtime = 'edge'
 const NAVY = '#14172B'
 const GOLD = '#D9A441'
 
+async function loadGoogleFont(font: string, weight: number) {
+  const cssUrl = `https://fonts.googleapis.com/css2?family=${font}:wght@${weight}`
+  const css = await (await fetch(cssUrl)).text()
+  const match = css.match(/src: url\(([^)]+)\) format\('(opentype|truetype)'\)/)
+  if (match) {
+    const res = await fetch(match[1])
+    if (res.status === 200) {
+      return await res.arrayBuffer()
+    }
+  }
+  throw new Error(`Failed to load font: ${font} ${weight}`)
+}
+
 export async function GET(req: Request) {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
   const now = new Date().toISOString()
@@ -25,6 +38,11 @@ export async function GET(req: Request) {
   const extra = total - logos.length
 
   const dateRange = `${new Date(sevenDaysAgo).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
+
+  const [interRegular, interBold] = await Promise.all([
+    loadGoogleFont('Inter', 400),
+    loadGoogleFont('Inter', 800),
+  ])
 
   return new ImageResponse(
     (
@@ -75,6 +93,7 @@ export async function GET(req: Request) {
           style={{
             display: 'flex',
             fontSize: '26px',
+            fontWeight: 400,
             color: 'rgba(255,255,255,0.7)',
             marginBottom: '44px',
           }}
@@ -126,6 +145,10 @@ export async function GET(req: Request) {
     {
       width: 1200,
       height: 630,
+      fonts: [
+        { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
+        { name: 'Inter', data: interBold, weight: 800, style: 'normal' },
+      ],
     }
   )
 }
