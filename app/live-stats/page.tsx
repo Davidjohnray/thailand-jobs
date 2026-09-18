@@ -10,7 +10,7 @@ const GOLD = '#D9A441'
 const TRACKED_SCOPES: { scope: string; label: string }[] = [
   { scope: 'site', label: 'Whole Website' },
   { scope: 'banner-duke', label: 'Duke Language School' },
-  { scope: 'banner-teachbridge', label: 'Teach Bridge Asia' },
+  { scope: 'partner-teach-bridge', label: 'Teach Bridge Asia' },
   { scope: 'banner-essential-tefl', label: 'Essential TEFL' },
 ]
 

@@ -8,7 +8,7 @@ const GOLD = '#D9A441'
 const SCOPE_NAMES: Record<string, string> = {
   site: 'Website Traffic',
   'banner-duke': 'Duke Language School Banner',
-  'banner-teachbridge': 'Teach Bridge Asia Banner',
+  'partner-teach-bridge': 'Teach Bridge Asia',
   'banner-essential-tefl': 'Essential TEFL Banner',
 }
 
