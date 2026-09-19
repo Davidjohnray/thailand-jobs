@@ -7,11 +7,13 @@ const NAVY = '#14172B'
 const GOLD = '#D9A441'
 
 // Add a scope here whenever you wire up tracking on a new banner.
-const TRACKED_SCOPES: { scope: string; label: string }[] = [
+// trackClicks: false = this one only measures views (e.g. it links to an
+// internal page with no separate click event) — CTR wouldn't mean anything.
+const TRACKED_SCOPES: { scope: string; label: string; trackClicks?: boolean }[] = [
   { scope: 'site', label: 'Whole Website' },
-  { scope: 'banner-duke', label: 'Duke Language School' },
-  { scope: 'partner-teach-bridge', label: 'Teach Bridge Asia' },
-  { scope: 'banner-essential-tefl', label: 'Essential TEFL' },
+  { scope: 'banner-duke', label: 'Duke Language School', trackClicks: true },
+  { scope: 'partner-teach-bridge', label: 'Teach Bridge Asia', trackClicks: false },
+  { scope: 'banner-essential-tefl', label: 'Essential TEFL', trackClicks: true },
 ]
 
 // ESL Resources hub — these only track clicks (into the section), not views.
@@ -211,7 +213,7 @@ export default function LiveStatsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px', marginBottom: '28px' }}>
           {TRACKED_SCOPES.filter(s => s.scope !== 'site').map((s) => {
             const stat = scopeStats[s.scope] || { views: 0, clicks: 0 }
-            const ctr = stat.views > 0 ? Math.round((stat.clicks / stat.views) * 100) : null
+            const ctr = s.trackClicks && stat.views > 0 ? Math.round((stat.clicks / stat.views) * 100) : null
             return (
               <div key={s.scope} style={{ background: 'white', borderRadius: '12px', padding: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
