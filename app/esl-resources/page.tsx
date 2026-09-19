@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import PVAdvisoryBanner from '../../components/PVAdvisoryBanner'
+import { trackClick } from '../../components/TrackView'
 
 export default function ESLResourcesPage() {
   const sections = [
@@ -12,6 +13,7 @@ export default function ESLResourcesPage() {
       cta: 'Browse Lesson Plans →',
       gradient: 'linear-gradient(135deg, #7C3AED, #E85D26)',
       shadow: 'rgba(124,58,237,0.3)',
+      scope: 'resource-lesson-plans',
     },
     {
       href: '/esl-resources/reading-comprehension',
@@ -21,6 +23,7 @@ export default function ESLResourcesPage() {
       cta: 'Browse Lessons →',
       gradient: 'linear-gradient(135deg, #0f3460, #0ea5e9)',
       shadow: 'rgba(14,165,233,0.3)',
+      scope: 'resource-reading-comprehension',
     },
     {
       href: '/esl-resources/grammar',
@@ -30,6 +33,7 @@ export default function ESLResourcesPage() {
       cta: 'Explore Grammar →',
       gradient: 'linear-gradient(135deg, #059669, #10b981)',
       shadow: 'rgba(5,150,105,0.3)',
+      scope: 'resource-grammar',
     },
     {
       href: '/esl-games/live',
@@ -39,6 +43,7 @@ export default function ESLResourcesPage() {
       cta: 'Play Games →',
       gradient: 'linear-gradient(135deg, #f59e0b, #22c55e)',
       shadow: 'rgba(245,158,11,0.3)',
+      scope: 'resource-games',
     },
     {
       href: '/esl-resources/conversation-topics',
@@ -48,6 +53,7 @@ export default function ESLResourcesPage() {
       cta: 'Start Talking →',
       gradient: 'linear-gradient(135deg, #dc2626, #f97316)',
       shadow: 'rgba(220,38,38,0.3)',
+      scope: 'resource-conversation-topics',
     },
   ]
 
@@ -80,7 +86,12 @@ export default function ESLResourcesPage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px' }}>
             {sections.map((s, i) => (
-              <Link key={i} href={s.href} style={{ textDecoration: 'none', flex: '1 1 280px', maxWidth: '320px' }}>
+              <Link
+                key={i}
+                href={s.href}
+                onClick={() => trackClick(s.scope)}
+                style={{ textDecoration: 'none', flex: '1 1 280px', maxWidth: '320px' }}
+              >
                 <div
                   style={{
                     background: s.gradient,
