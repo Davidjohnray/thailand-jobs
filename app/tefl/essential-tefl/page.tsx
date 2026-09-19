@@ -1,9 +1,11 @@
 'use client'
+import TrackView, { trackClick } from '../../../components/TrackView'
 
 export default function EssentialTeflLandingPage() {
   const affiliateLink = 'https://www.essentialtefl.com/?ref=DAVIDRAY'
 
   const handleCtaClick = () => {
+    trackClick('banner-essential-tefl')
     if (typeof window !== 'undefined' && (window as any).gtag) {
       ;(window as any).gtag('event', 'affiliate_click', {
         partner_name: 'essential_tefl',
@@ -13,6 +15,7 @@ export default function EssentialTeflLandingPage() {
 
   return (
     <main style={{ fontFamily: 'sans-serif', background: '#f9f9f9', minHeight: '100vh' }}>
+      <TrackView scope="banner-essential-tefl" />
 
       {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)', padding: '80px 24px', textAlign: 'center' }}>
