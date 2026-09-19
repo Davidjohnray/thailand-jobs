@@ -211,9 +211,17 @@ export default function LiveStatsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px', marginBottom: '28px' }}>
           {TRACKED_SCOPES.filter(s => s.scope !== 'site').map((s) => {
             const stat = scopeStats[s.scope] || { views: 0, clicks: 0 }
+            const ctr = stat.views > 0 ? Math.round((stat.clicks / stat.views) * 100) : null
             return (
               <div key={s.scope} style={{ background: 'white', borderRadius: '12px', padding: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <div style={{ fontSize: '12px', color: '#666', fontWeight: 600, marginBottom: '8px' }}>{s.label}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '12px', color: '#666', fontWeight: 600 }}>{s.label}</div>
+                  {ctr !== null && (
+                    <div style={{ fontSize: '11px', color: GOLD, fontWeight: 800, background: '#FBF0DC', padding: '2px 8px', borderRadius: '20px' }}>
+                      {ctr}% CTR
+                    </div>
+                  )}
+                </div>
                 <div style={{ display: 'flex', gap: '16px' }}>
                   <div>
                     <div style={{ fontSize: '22px', fontWeight: 800, color: NAVY }}>{stat.views}</div>
