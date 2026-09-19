@@ -14,6 +14,15 @@ const TRACKED_SCOPES: { scope: string; label: string }[] = [
   { scope: 'banner-essential-tefl', label: 'Essential TEFL' },
 ]
 
+// ESL Resources hub — these only track clicks (into the section), not views.
+const RESOURCE_SCOPES: { scope: string; label: string }[] = [
+  { scope: 'resource-lesson-plans', label: 'Lesson Plans' },
+  { scope: 'resource-reading-comprehension', label: 'Reading Comprehension' },
+  { scope: 'resource-grammar', label: 'Grammar' },
+  { scope: 'resource-games', label: 'Learn & Play' },
+  { scope: 'resource-conversation-topics', label: 'Conversation Topics' },
+]
+
 const REFRESH_MS = 8000
 const RANGE_OPTIONS = [7, 30, 90]
 
@@ -34,6 +43,7 @@ export default function LiveStatsPage() {
   const [regularJobs, setRegularJobs] = useState<any[]>([])
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [loading, setLoading] = useState(true)
+  const [resourcesOpen, setResourcesOpen] = useState(false)
 
   const fetchScopeStats = useCallback(async () => {
     let from: string
@@ -51,15 +61,17 @@ export default function LiveStatsPage() {
       to = bangkokToday()
     }
 
+    const allScopes = [...TRACKED_SCOPES, ...RESOURCE_SCOPES]
+
     const { data: statsRows } = await supabase
       .from('daily_stats')
       .select('scope, views, clicks')
-      .in('scope', TRACKED_SCOPES.map(s => s.scope))
+      .in('scope', allScopes.map(s => s.scope))
       .gte('stat_date', from)
       .lte('stat_date', to)
 
     const map: Record<string, { views: number; clicks: number }> = {}
-    for (const s of TRACKED_SCOPES) map[s.scope] = { views: 0, clicks: 0 }
+    for (const s of allScopes) map[s.scope] = { views: 0, clicks: 0 }
     for (const row of statsRows || []) {
       map[row.scope].views += row.views || 0
       map[row.scope].clicks += row.clicks || 0
@@ -215,6 +227,44 @@ export default function LiveStatsPage() {
               </div>
             )
           })}
+        </div>
+
+        {/* Resources — collapsible */}
+        <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '20px', overflow: 'hidden' }}>
+          <button
+            onClick={() => setResourcesOpen(o => !o)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '16px 18px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#333',
+            }}
+          >
+            <span>📚 Resources — {rangeLabel}</span>
+            <span style={{ color: '#999', fontSize: '13px' }}>{resourcesOpen ? '▲ Hide' : '▼ Show'}</span>
+          </button>
+          {resourcesOpen && (
+            <div style={{ padding: '0 18px 18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[...RESOURCE_SCOPES]
+                .sort((a, b) => (scopeStats[b.scope]?.clicks ?? 0) - (scopeStats[a.scope]?.clicks ?? 0))
+                .map((s, i, arr) => {
+                  const stat = scopeStats[s.scope] || { views: 0, clicks: 0 }
+                  return (
+                    <div key={s.scope} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: i < arr.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
+                      <div style={{ fontSize: '14px', color: '#1a1a2e', fontWeight: 600 }}>{s.label}</div>
+                      <div style={{ fontSize: '15px', fontWeight: 700, color: NAVY }}>{stat.clicks} clicks</div>
+                    </div>
+                  )
+                })}
+            </div>
+          )}
         </div>
 
         <p style={{ fontSize: '12px', color: '#999', marginBottom: '20px', marginTop: '-14px' }}>
