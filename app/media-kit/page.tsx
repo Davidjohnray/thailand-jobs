@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../src/lib/supabase'
 
-// ── EDIT THESE MANUALLY — pulled from LINE/WhatsApp group info, not tracked automatically ──
-const LINE_MEMBERS = 0        // e.g. 3200
-const WHATSAPP_MEMBERS = 0    // e.g. 1800
-// ───────────────────────────────────────────────────────────────────────────────────────
+// ── EDIT THESE MANUALLY — pulled from LINE/WhatsApp/Facebook group info, not tracked automatically ──
+const LINE_MEMBERS = 681        // e.g. 3200
+const WHATSAPP_MEMBERS = 488    // e.g. 1800
+const FACEBOOK_MEMBERS = 246395    // e.g. 77700 — combine multiple groups if you run more than one
+// ──────────────────────────────────────────────────────────────────────────────────────────────
 
 const NAVY = '#1a1a2e'
 const ORANGE = '#E85D26'
@@ -63,7 +64,12 @@ export default function MediaKitPage() {
     { value: monthlyViews, label: 'Website Views', sub: 'Last 30 days', icon: '📈' },
     { value: liveJobs, label: 'Live Job Listings', sub: 'Right now', icon: '💼' },
     { value: avgFeaturedViews, label: 'Avg. Views per Featured Job', sub: 'Currently running', icon: '⭐' },
-    { value: LINE_MEMBERS + WHATSAPP_MEMBERS || null, label: 'Community Members', sub: 'LINE + WhatsApp combined', icon: '💬' },
+  ]
+
+  const communityStats = [
+    { value: FACEBOOK_MEMBERS, label: 'Facebook Group Members', icon: '📘', color: '#1877F2' },
+    { value: LINE_MEMBERS, label: 'LINE Community Members', icon: '💬', color: '#06C755' },
+    { value: WHATSAPP_MEMBERS, label: 'WhatsApp Community Members', icon: '💬', color: '#25D366' },
   ]
 
   return (
@@ -109,6 +115,26 @@ export default function MediaKitPage() {
               <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>{s.sub}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* COMMUNITY REACH */}
+      <section style={{ padding: '48px 24px 0' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <p style={{ textAlign: 'center', color: '#999', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '20px' }}>
+            Community Reach
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+            {communityStats.map((c) => (
+              <div key={c.label} style={{ background: 'white', borderRadius: '14px', padding: '22px 18px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize: '26px', marginBottom: '8px' }}>{c.icon}</div>
+                <div style={{ fontSize: '26px', fontWeight: 800, color: c.color, marginBottom: '4px' }}>
+                  {formatNumber(c.value)}
+                </div>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#444' }}>{c.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
