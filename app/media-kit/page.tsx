@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { supabase } from '../../src/lib/supabase'
 
 // ── EDIT THESE MANUALLY — pulled from LINE/WhatsApp/Facebook group info, not tracked automatically ──
-const LINE_MEMBERS = 681        // e.g. 3200
-const WHATSAPP_MEMBERS = 488    // e.g. 1800
+const LINE_MEMBERS = 685        // e.g. 3200
+const WHATSAPP_MEMBERS = 491    // e.g. 1800
 const FACEBOOK_MEMBERS = 246395    // e.g. 77700 — combine multiple groups if you run more than one
 // ──────────────────────────────────────────────────────────────────────────────────────────────
 
