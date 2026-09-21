@@ -26,6 +26,8 @@ export default function PrimaryLessonPlayerPage({ params }: { params: Promise<{ 
   const [loading, setLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [debugError, setDebugError] = useState<string | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [playingFile, setPlayingFile] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -63,9 +65,27 @@ export default function PrimaryLessonPlayerPage({ params }: { params: Promise<{ 
   }, [id])
 
   function playAudio(file: string) {
+    if (audioRef.current && playingFile === file && !audioRef.current.paused) {
+      audioRef.current.pause()
+      setPlayingFile(null)
+      return
+    }
+    if (audioRef.current) {
+      audioRef.current.pause()
+    }
     const audio = new Audio(AUDIO_BASE + file)
-    audio.play().catch(() => {})
+    audioRef.current = audio
+    audio.onended = () => setPlayingFile(null)
+    setPlayingFile(file)
+    audio.play().catch(() => setPlayingFile(null))
   }
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause()
+      setPlayingFile(null)
+    }
+  }, [activeIndex])
 
   if (loading) {
     return <main style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif' }}>Loading lesson...</main>
@@ -123,10 +143,10 @@ export default function PrimaryLessonPlayerPage({ params }: { params: Promise<{ 
         </p>
 
         <div style={{ background: 'white', borderRadius: '20px', padding: '32px', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
-          {activity.activity_type === 'listening_dialogue' && <ListeningDialogue key={activity.id} content={activity.content_json} onPlay={playAudio} />}
+          {activity.activity_type === 'listening_dialogue' && <ListeningDialogue key={activity.id} content={activity.content_json} onPlay={playAudio} playingFile={playingFile} />}
           {activity.activity_type === 'comprehension_quiz' && <ComprehensionQuiz key={activity.id} content={activity.content_json} onComplete={goNext} />}
-          {activity.activity_type === 'speaking_recorder' && <SpeakingRecorder key={activity.id} content={activity.content_json} onPlay={playAudio} />}
-          {activity.activity_type === 'reading_passage' && <ReadingPassage key={activity.id} content={activity.content_json} onPlay={playAudio} />}
+          {activity.activity_type === 'speaking_recorder' && <SpeakingRecorder key={activity.id} content={activity.content_json} onPlay={playAudio} playingFile={playingFile} />}
+          {activity.activity_type === 'reading_passage' && <ReadingPassage key={activity.id} content={activity.content_json} onPlay={playAudio} playingFile={playingFile} />}
           {activity.activity_type === 'sentence_builder' && <SentenceBuilder key={activity.id} content={activity.content_json} onComplete={goNext} />}
           {activity.activity_type === 'fill_in_blank' && <FillInBlank key={activity.id} content={activity.content_json} onComplete={goNext} />}
         </div>
@@ -158,8 +178,9 @@ function navButtonStyle(disabled: boolean): CSSProperties {
 }
 
 // ---------- Listening Dialogue ----------
-function ListeningDialogue({ content, onPlay }: { content: any; onPlay: (file: string) => void }) {
+function ListeningDialogue({ content, onPlay, playingFile }: { content: any; onPlay: (file: string) => void; playingFile: string | null }) {
   const [revealed, setRevealed] = useState(false)
+  const isPlaying = playingFile === content.audio
   return (
     <div>
       <h2 style={{ textAlign: 'center', color: '#1E3A5F', marginBottom: '16px' }}>Listen to the conversation</h2>
@@ -171,7 +192,7 @@ function ListeningDialogue({ content, onPlay }: { content: any; onPlay: (file: s
           }}
           style={{ fontSize: '48px', background: 'none', border: 'none', cursor: 'pointer' }}
         >
-          🔊
+          {isPlaying ? '⏸' : '🔊'}
         </button>
       </div>
       {revealed && (
@@ -262,11 +283,12 @@ function ComprehensionQuiz({ content, onComplete }: { content: any; onComplete: 
 }
 
 // ---------- Speaking Recorder ----------
-function SpeakingRecorder({ content, onPlay }: { content: any; onPlay: (file: string) => void }) {
+function SpeakingRecorder({ content, onPlay, playingFile }: { content: any; onPlay: (file: string) => void; playingFile: string | null }) {
   const [recording, setRecording] = useState(false)
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
+  const isPlaying = content.prompt_audio && playingFile === content.prompt_audio
 
   async function startRecording() {
     try {
@@ -297,7 +319,7 @@ function SpeakingRecorder({ content, onPlay }: { content: any; onPlay: (file: st
       <h2 style={{ color: '#1E3A5F', marginBottom: '16px' }}>Your Turn to Speak</h2>
       {content.prompt_audio && (
         <button onClick={() => onPlay(content.prompt_audio)} style={{ fontSize: '32px', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '8px' }}>
-          🔊
+          {isPlaying ? '⏸' : '🔊'}
         </button>
       )}
       <p style={{ fontSize: '17px', color: '#1E3A5F', marginBottom: '24px', fontStyle: 'italic' }}>{content.prompt}</p>
@@ -330,14 +352,15 @@ function SpeakingRecorder({ content, onPlay }: { content: any; onPlay: (file: st
 }
 
 // ---------- Reading Passage ----------
-function ReadingPassage({ content, onPlay }: { content: any; onPlay: (file: string) => void }) {
+function ReadingPassage({ content, onPlay, playingFile }: { content: any; onPlay: (file: string) => void; playingFile: string | null }) {
+  const isPlaying = content.audio && playingFile === content.audio
   return (
     <div>
       <h2 style={{ textAlign: 'center', color: '#1E3A5F', marginBottom: '16px' }}>Read the passage</h2>
       {content.audio && (
         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
           <button onClick={() => onPlay(content.audio)} style={{ fontSize: '32px', background: 'none', border: 'none', cursor: 'pointer' }}>
-            🔊
+            {isPlaying ? '⏸' : '🔊'}
           </button>
           <p style={{ fontSize: '13px', color: '#8a99a8' }}>Tap to hear it read aloud</p>
         </div>

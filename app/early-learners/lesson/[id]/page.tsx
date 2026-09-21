@@ -1,5 +1,5 @@
 'use client'
-import { use, useEffect, useState } from 'react'
+import { use, useEffect, useState, useRef } from 'react'
 import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -31,6 +31,8 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [debugError, setDebugError] = useState<string | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [playingFile, setPlayingFile] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -70,9 +72,30 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
   }, [id])
 
   function playAudio(file: string) {
+    // Clicking the currently-playing sound again pauses it
+    if (audioRef.current && playingFile === file && !audioRef.current.paused) {
+      audioRef.current.pause()
+      setPlayingFile(null)
+      return
+    }
+    // Stop whatever else was playing before starting the new one
+    if (audioRef.current) {
+      audioRef.current.pause()
+    }
     const audio = new Audio(AUDIO_BASE + file)
-    audio.play().catch(() => {})
+    audioRef.current = audio
+    audio.onended = () => setPlayingFile(null)
+    setPlayingFile(file)
+    audio.play().catch(() => setPlayingFile(null))
   }
+
+  // Stop any playing audio whenever the activity changes or the page is left
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause()
+      setPlayingFile(null)
+    }
+  }, [activeIndex])
 
   if (loading) {
     return (
@@ -131,15 +154,16 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
 
         <div style={{ background: 'white', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
           {activity.activity_type === 'flashcard_audio' && (
-            <FlashcardAudio content={activity.content_json} onPlay={playAudio} />
+            <FlashcardAudio content={activity.content_json} onPlay={playAudio} playingFile={playingFile} />
           )}
           {activity.activity_type === 'chant' && (
-            <Chant content={activity.content_json} onPlay={playAudio} />
+            <Chant content={activity.content_json} onPlay={playAudio} playingFile={playingFile} />
           )}
           {activity.activity_type === 'tap_match' && (
             <TapMatch
               content={activity.content_json}
               onPlay={playAudio}
+              playingFile={playingFile}
               onComplete={goNext}
             />
           )}
@@ -176,46 +200,50 @@ function navButtonStyle(disabled: boolean): CSSProperties {
 }
 
 // ---------- Activity: Flashcard Audio ----------
-function FlashcardAudio({ content, onPlay }: { content: any; onPlay: (file: string) => void }) {
+function FlashcardAudio({ content, onPlay, playingFile }: { content: any; onPlay: (file: string) => void; playingFile: string | null }) {
   return (
     <div>
       <h2 style={{ textAlign: 'center', color: '#5b3a29', marginBottom: '20px' }}>Tap each word to listen</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px' }}>
-        {content.items.map((item: any, i: number) => (
-          <button
-            key={i}
-            onClick={() => onPlay(item.audio)}
-            style={{
-              background: '#FFF3D6',
-              border: '3px solid #FFD98A',
-              borderRadius: '16px',
-              padding: '16px 8px',
-              cursor: 'pointer',
-              textAlign: 'center',
-            }}
-          >
-            {item.image ? (
-              <img
-                src={IMAGE_BASE + item.image}
-                alt={item.word}
-                style={{ width: '64px', height: '64px', objectFit: 'contain', marginBottom: '8px' }}
-              />
-            ) : (
-              <div style={{ fontSize: '36px', marginBottom: '8px' }}>🔊</div>
-            )}
-            <div style={{ fontWeight: 'bold', color: '#5b3a29' }}>{item.word}</div>
-          </button>
-        ))}
+        {content.items.map((item: any, i: number) => {
+          const isPlaying = playingFile === item.audio
+          return (
+            <button
+              key={i}
+              onClick={() => onPlay(item.audio)}
+              style={{
+                background: '#FFF3D6',
+                border: '3px solid #FFD98A',
+                borderRadius: '16px',
+                padding: '16px 8px',
+                cursor: 'pointer',
+                textAlign: 'center',
+              }}
+            >
+              {item.image ? (
+                <img
+                  src={IMAGE_BASE + item.image}
+                  alt={item.word}
+                  style={{ width: '64px', height: '64px', objectFit: 'contain', marginBottom: '8px' }}
+                />
+              ) : (
+                <div style={{ fontSize: '36px', marginBottom: '8px' }}>{isPlaying ? '⏸' : '🔊'}</div>
+              )}
+              <div style={{ fontWeight: 'bold', color: '#5b3a29' }}>{item.word}</div>
+            </button>
+          )
+        })}
       </div>
     </div>
   )
 }
 
 // ---------- Activity: Chant (repeat after me) ----------
-function Chant({ content, onPlay }: { content: any; onPlay: (file: string) => void }) {
+function Chant({ content, onPlay, playingFile }: { content: any; onPlay: (file: string) => void; playingFile: string | null }) {
   const [index, setIndex] = useState(0)
   const [showPrompt, setShowPrompt] = useState(false)
   const item = content.items[index]
+  const isPlaying = playingFile === item.audio
 
   useEffect(() => {
     setShowPrompt(false)
@@ -237,7 +265,7 @@ function Chant({ content, onPlay }: { content: any; onPlay: (file: string) => vo
       )}
       <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#7C3AED', marginBottom: '16px' }}>{item.phrase}</div>
       <button onClick={() => onPlay(item.audio)} style={{ fontSize: '40px', background: 'none', border: 'none', cursor: 'pointer' }}>
-        🔊
+        {isPlaying ? '⏸' : '🔊'}
       </button>
       {showPrompt && <p style={{ color: '#E85D26', fontWeight: 'bold', marginTop: '16px' }}>Now you say it!</p>}
       <div style={{ marginTop: '24px' }}>
@@ -257,15 +285,18 @@ function Chant({ content, onPlay }: { content: any; onPlay: (file: string) => vo
 function TapMatch({
   content,
   onPlay,
+  playingFile,
   onComplete,
 }: {
   content: any
   onPlay: (file: string) => void
+  playingFile: string | null
   onComplete: () => void
 }) {
   const [round, setRound] = useState(0)
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null)
   const currentRound = content.rounds[round]
+  const isPlaying = playingFile === currentRound.audio
 
   useEffect(() => {
     setFeedback(null)
@@ -295,7 +326,7 @@ function TapMatch({
         onClick={() => onPlay(currentRound.audio)}
         style={{ fontSize: '40px', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '16px' }}
       >
-        🔊
+        {isPlaying ? '⏸' : '🔊'}
       </button>
       <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
         {currentRound.options.map((opt: string, i: number) => (
