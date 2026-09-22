@@ -6,7 +6,7 @@ import { supabase } from '../../src/lib/supabase'
 // ── EDIT THESE MANUALLY — pulled from LINE/WhatsApp/Facebook group info, not tracked automatically ──
 const LINE_MEMBERS = 685        // e.g. 3200
 const WHATSAPP_MEMBERS = 491    // e.g. 1800
-const FACEBOOK_MEMBERS = 246395    // e.g. 77700 — combine multiple groups if you run more than one
+const FACEBOOK_MEMBERS = 246436    // e.g. 77700 — combine multiple groups if you run more than one
 // ──────────────────────────────────────────────────────────────────────────────────────────────
 
 const NAVY = '#1a1a2e'
