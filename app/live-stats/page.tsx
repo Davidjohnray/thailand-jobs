@@ -14,6 +14,7 @@ const TRACKED_SCOPES: { scope: string; label: string; trackClicks?: boolean }[] 
   { scope: 'banner-duke', label: 'Duke Language School', trackClicks: true },
   { scope: 'partner-teach-bridge', label: 'Teach Bridge Asia', trackClicks: false },
   { scope: 'banner-essential-tefl', label: 'Essential TEFL', trackClicks: true },
+  { scope: 'banner-teachers', label: 'Teachers Directory (Job Pages)', trackClicks: true },
 ]
 
 // ESL Resources hub — these only track clicks (into the section), not views.
