@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
+import TeachersDirectoryBanner from '../../../components/TeachersDirectoryBanner'
 
 export const metadata: Metadata = {
   openGraph: {
     images: [
       {
         url: 'https://www.jobsinthailand.net/og-banner.jpg',
-        width: 1376,
-        height: 768,
+        width: 1200,
+        height: 630,
         alt: 'Jobs in Thailand — Teaching, Hospitality & Expat Jobs',
       }
     ],
@@ -18,5 +19,10 @@ export const metadata: Metadata = {
 }
 
 export default function JobDetailLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    <>
+      <TeachersDirectoryBanner />
+      {children}
+    </>
+  )
 }
