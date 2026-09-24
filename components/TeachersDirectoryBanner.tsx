@@ -12,12 +12,12 @@ export default function TeachersDirectoryBanner() {
         onClick={() => trackClick('banner-teachers')}
         style={{
           display: 'block',
-          background: 'linear-gradient(135deg, #E85D26 0%, #F28C4E 100%)',
+          background: 'linear-gradient(135deg, #1E40AF 0%, #2563EB 100%)',
           borderRadius: '12px',
           padding: '20px',
           textDecoration: 'none',
           textAlign: 'center',
-          boxShadow: '0 2px 10px rgba(232, 93, 38, 0.25)',
+          boxShadow: '0 2px 12px rgba(30, 64, 175, 0.35)',
         }}
       >
         <div style={{ color: 'white', fontWeight: 'bold', fontSize: '20px', marginBottom: '6px', lineHeight: '1.3' }}>
@@ -33,8 +33,8 @@ export default function TeachersDirectoryBanner() {
         <span
           style={{
             display: 'inline-block',
-            background: 'white',
-            color: '#E85D26',
+            background: '#FFD23F',
+            color: '#1E293B',
             padding: '12px 32px',
             borderRadius: '8px',
             fontWeight: 'bold',
