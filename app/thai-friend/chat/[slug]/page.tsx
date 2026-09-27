@@ -27,10 +27,20 @@ export default function ThaiFriendChatPage() {
   const [levelUpMessage, setLevelUpMessage] = useState<string | null>(null)
   const [speaking, setSpeaking] = useState(false)
   const [topic, setTopic] = useState<string | null>(null)
-  const [showTopicPicker, setShowTopicPicker] = useState(true)
+  const [showTopicPicker, setShowTopicPicker] = useState(false)
+  const [showLevelPicker, setShowLevelPicker] = useState(false)
   const [languageHint, setLanguageHint] = useState<'auto' | 'th' | 'en'>('auto')
 
   const TOPIC_SUGGESTIONS = ['Just chat freely', 'At the supermarket', 'Ordering food', 'Asking for directions', 'At the doctor', 'Meeting for the first time']
+
+  const LEVEL_OPTIONS = [
+    { level: 'A1', title: 'Complete beginner', desc: 'I know a few words and phrases, but can\'t really hold a conversation yet' },
+    { level: 'A2', title: 'Beginner', desc: 'I can handle very basic conversations about familiar topics' },
+    { level: 'B1', title: 'Intermediate', desc: 'I can talk about everyday things, with some mistakes along the way' },
+    { level: 'B2', title: 'Upper Intermediate', desc: 'I can have fairly natural conversations on most topics' },
+    { level: 'C1', title: 'Advanced', desc: 'I\'m close to fluent, just want more natural practice' },
+    { level: 'C2', title: 'Fluent', desc: 'I want completely natural, unrestricted conversation' },
+  ]
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -78,6 +88,7 @@ export default function ThaiFriendChatPage() {
     if (existingRel) {
       setRelationshipId(existingRel.id)
       setProficiencyLevel(existingRel.proficiency_level || 'A1')
+      setShowTopicPicker(true) // returning relationship — level already known, skip straight to topic
     } else {
       const { data: newRel } = await supabase
         .from('thai_friend_relationships')
@@ -85,9 +96,19 @@ export default function ThaiFriendChatPage() {
         .select()
         .single()
       if (newRel) setRelationshipId(newRel.id)
+      setShowLevelPicker(true) // brand new relationship — ask once, never again
     }
 
     setLoading(false)
+  }
+
+  const selectLevel = async (level: string) => {
+    setProficiencyLevel(level)
+    if (relationshipId) {
+      await supabase.from('thai_friend_relationships').update({ proficiency_level: level }).eq('id', relationshipId)
+    }
+    setShowLevelPicker(false)
+    setShowTopicPicker(true)
   }
 
   const startRecording = async () => {
@@ -284,6 +305,44 @@ export default function ThaiFriendChatPage() {
               <p style={{ fontFamily: "'Fraunces', serif", color: '#D4A24C', fontSize: '22px', fontWeight: 700, maxWidth: '340px', margin: '0 auto' }}>
                 {levelUpMessage}
               </p>
+            </div>
+          </div>
+        )}
+
+        {showLevelPicker && (
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,32,28,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 15, overflowY: 'auto' }}>
+            <div style={{ maxWidth: '440px', width: '100%' }}>
+              <p style={{ fontFamily: "'Fraunces', serif", color: 'white', fontSize: '22px', fontWeight: 700, marginBottom: '8px', textAlign: 'center' }}>
+                What's your Thai level?
+              </p>
+              <p style={{ color: 'rgba(245,239,225,0.65)', fontSize: '13px', marginBottom: '24px', textAlign: 'center' }}>
+                {character?.name} will match how they talk to you based on this — don't worry, it can always adjust as you go.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {LEVEL_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.level}
+                    onClick={() => selectLevel(opt.level)}
+                    style={{
+                      background: 'rgba(245,239,225,0.06)',
+                      border: '1px solid rgba(245,239,225,0.15)',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <span style={{ background: '#D4A24C', color: '#14201C', fontWeight: 700, fontSize: '12px', borderRadius: '6px', padding: '4px 8px', flexShrink: 0 }}>{opt.level}</span>
+                    <span>
+                      <span style={{ display: 'block', color: '#F5EFE1', fontWeight: 600, fontSize: '13px' }}>{opt.title}</span>
+                      <span style={{ display: 'block', color: 'rgba(245,239,225,0.6)', fontSize: '12px' }}>{opt.desc}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
