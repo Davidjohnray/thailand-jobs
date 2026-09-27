@@ -99,11 +99,11 @@ ${historyText || '(this is the start of the conversation)'}
 Your friend just said: "${userMessage}"
 
 Respond ONLY with valid JSON in this exact shape, nothing else, no markdown formatting:
-{"thai": "your reply in Thai script", "roman": "romanized pronunciation", "english": "English translation of your reply"}`
+{"thai": "your reply in Thai script", "roman": "romanized pronunciation", "english": "English translation of your reply", "studentMessageRoman": "romanization of what your friend just said, ONLY if their message was in Thai script — otherwise just repeat their message as-is"}`
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 500,
+      max_tokens: 1000,
       messages: [{ role: 'user', content: systemPrompt }],
     })
 
@@ -114,15 +114,15 @@ Respond ONLY with valid JSON in this exact shape, nothing else, no markdown form
 
     const cleaned = (textBlock as any).text.replace(/```json|```/g, '').trim()
 
-    let thai, roman, english
+    let thai, roman, english, studentMessageRoman
     try {
-      ;({ thai, roman, english } = JSON.parse(cleaned))
+      ;({ thai, roman, english, studentMessageRoman } = JSON.parse(cleaned))
     } catch (parseErr) {
       console.error('JSON parse failed. Raw Claude output was:', cleaned)
-      return NextResponse.json({ error: `Could not parse response. Raw output: ${cleaned.slice(0, 200)}` }, { status: 500 })
+      return NextResponse.json({ error: `Could not parse response. Raw output: ${cleaned.slice(0, 400)}` }, { status: 500 })
     }
 
-    return NextResponse.json({ thai, roman, english })
+    return NextResponse.json({ thai, roman, english, studentMessageRoman })
   } catch (err: any) {
     console.error('Conversation error:', err)
     return NextResponse.json({ error: `Generation error: ${err?.message || 'unknown'}` }, { status: 500 })

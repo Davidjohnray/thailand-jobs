@@ -143,6 +143,7 @@ export default function ThaiFriendChatPage() {
       const studentTurn: Turn = { speaker: 'student', english_text: transcribeData.text }
       const updatedTranscript = [...transcript, studentTurn]
       setTranscript(updatedTranscript)
+      const studentTurnIndex = updatedTranscript.length - 1
 
       // 2. Get the character's response
       const conversationRes = await fetch('/api/thai-friend/conversation', {
@@ -161,6 +162,18 @@ export default function ThaiFriendChatPage() {
         setError(conversationData.error || 'Something went wrong getting a response.')
         setProcessing(false)
         return
+      }
+
+      // If the student's message was in Thai script, replace it with the romanized
+      // version now that we have it — avoids ever showing raw Thai script on screen.
+      if (conversationData.studentMessageRoman) {
+        setTranscript((prev) => {
+          const copy = [...prev]
+          if (copy[studentTurnIndex]) {
+            copy[studentTurnIndex] = { ...copy[studentTurnIndex], english_text: conversationData.studentMessageRoman }
+          }
+          return copy
+        })
       }
 
       const characterTurn: Turn = {
