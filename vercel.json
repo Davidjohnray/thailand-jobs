@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/thai-friend/cron/checkins",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}
