@@ -25,6 +25,7 @@ export default function ThaiFriendChatPage() {
   const [ending, setEnding] = useState(false)
   const [topic, setTopic] = useState<string | null>(null)
   const [showTopicPicker, setShowTopicPicker] = useState(true)
+  const [languageHint, setLanguageHint] = useState<'auto' | 'th' | 'en'>('auto')
 
   const TOPIC_SUGGESTIONS = ['Just chat freely', 'At the supermarket', 'Ordering food', 'Asking for directions', 'At the doctor', 'Meeting for the first time']
 
@@ -115,6 +116,9 @@ export default function ThaiFriendChatPage() {
       // 1. Transcribe what the student said
       const formData = new FormData()
       formData.append('audio', audioBlob, 'recording.webm')
+      if (languageHint !== 'auto') {
+        formData.append('language', languageHint)
+      }
 
       const transcribeRes = await fetch('/api/thai-friend/transcribe', { method: 'POST', body: formData })
       const transcribeData = await transcribeRes.json()
@@ -289,7 +293,29 @@ export default function ThaiFriendChatPage() {
         )}
 
         {/* MIC CONTROL */}
-        <div style={{ padding: '24px 24px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+        <div style={{ padding: '24px 24px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' }}>
+
+          <div style={{ display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.25)', borderRadius: '20px', padding: '4px' }}>
+            {(['auto', 'th', 'en'] as const).map((opt) => (
+              <button
+                key={opt}
+                onClick={() => setLanguageHint(opt)}
+                style={{
+                  background: languageHint === opt ? '#D4A24C' : 'transparent',
+                  color: languageHint === opt ? '#14201C' : 'rgba(245,239,225,0.7)',
+                  border: 'none',
+                  borderRadius: '16px',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {opt === 'auto' ? 'Auto-detect' : opt === 'th' ? '🇹🇭 I\'m speaking Thai' : '🇬🇧 I\'m speaking English'}
+              </button>
+            ))}
+          </div>
+
           <button
             onClick={recording ? stopRecording : startRecording}
             disabled={processing}
