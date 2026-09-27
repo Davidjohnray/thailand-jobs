@@ -294,8 +294,11 @@ export default function ThaiFriendChatPage() {
               <p style={{ fontFamily: "'Fraunces', serif", color: 'white', fontSize: '24px', fontWeight: 700, marginBottom: '10px' }}>
                 What do you want to talk about?
               </p>
-              <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '14px', marginBottom: '28px' }}>
+              <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '14px', marginBottom: '16px' }}>
                 Pick a situation to practice, or just chat freely — you can always change direction mid-conversation.
+              </p>
+              <p style={{ color: 'rgba(245,239,225,0.4)', fontSize: '11px', marginBottom: '24px' }}>
+                {character.name} is an AI character, not a real person.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {TOPIC_SUGGESTIONS.map((t) => (
@@ -328,7 +331,7 @@ export default function ThaiFriendChatPage() {
           </button>
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontFamily: "'Fraunces', serif", color: 'white', fontSize: '18px', fontWeight: 700, margin: 0 }}>{character.name}</p>
-            <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '12px', margin: 0 }}>{character.hometown}</p>
+            <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '12px', margin: 0 }}>{character.hometown} · AI Character</p>
           </div>
         </div>
 

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase, getCurrentThaiFriendUser, getFullUserRecord, trialStatus, clearThaiFriendSession } from '../../../lib/thai-friend-auth'
+import InstallPrompt from '../InstallPrompt'
 
 type Character = {
   id: string
@@ -138,7 +139,11 @@ export default function CharacterPickerPage() {
                   transition: 'transform 0.15s',
                 }}
               >
-                <div style={{ height: '160px', background: `url('/thai-friend/characters/${char.slug}.svg')`, backgroundSize: 'cover', backgroundPosition: 'top center' }} />
+                <div style={{ height: '160px', background: `url('/thai-friend/characters/${char.slug}.svg')`, backgroundSize: 'cover', backgroundPosition: 'top center', position: 'relative' }}>
+                  <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(20,32,28,0.75)', color: 'rgba(245,239,225,0.85)', fontSize: '10px', fontWeight: 600, padding: '4px 8px', borderRadius: '10px', letterSpacing: '0.3px' }}>
+                    AI Character
+                  </span>
+                </div>
                 <div style={{ padding: '20px' }}>
                   <p style={{ fontFamily: "'Fraunces', serif", fontSize: '20px', fontWeight: 700, margin: '0 0 4px' }}>{char.name}</p>
                   <p style={{ fontSize: '12px', color: 'rgba(245,239,225,0.5)', margin: '0 0 10px' }}>{char.hometown}, {char.age}</p>
@@ -158,6 +163,8 @@ export default function CharacterPickerPage() {
           })}
         </div>
       </div>
+
+      <InstallPrompt />
     </main>
   )
 }

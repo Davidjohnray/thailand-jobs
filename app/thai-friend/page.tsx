@@ -141,8 +141,11 @@ export default function ThaiFriendLandingPage() {
       <section style={{ background: '#1B2B25', padding: '72px 32px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <h2 className="ff-display" style={{ fontSize: '30px', fontWeight: 700, marginBottom: '10px' }}>Meet your Thai friends</h2>
-          <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '15px', marginBottom: '40px', maxWidth: '520px' }}>
-            Each one is a real person with a real life — pick whoever you click with. They'll remember everything about you, separately.
+          <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '15px', marginBottom: '10px', maxWidth: '520px' }}>
+            Each one has their own personality and story — pick whoever you click with. They'll remember everything about you, separately.
+          </p>
+          <p style={{ color: 'rgba(245,239,225,0.4)', fontSize: '12px', marginBottom: '40px' }}>
+            These are AI characters, not real people.
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
