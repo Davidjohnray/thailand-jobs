@@ -26,6 +26,7 @@ export default function ThaiFriendChatPage() {
   const [error, setError] = useState('')
   const [ending, setEnding] = useState(false)
   const [levelUpMessage, setLevelUpMessage] = useState<string | null>(null)
+  const [speaking, setSpeaking] = useState(false)
   const [topic, setTopic] = useState<string | null>(null)
   const [showTopicPicker, setShowTopicPicker] = useState(true)
   const [languageHint, setLanguageHint] = useState<'auto' | 'th' | 'en'>('auto')
@@ -178,6 +179,9 @@ export default function ThaiFriendChatPage() {
         const url = URL.createObjectURL(blob)
         if (audioRef.current) {
           audioRef.current.src = url
+          audioRef.current.onplay = () => setSpeaking(true)
+          audioRef.current.onended = () => setSpeaking(false)
+          audioRef.current.onpause = () => setSpeaking(false)
           audioRef.current.play()
         }
       }
@@ -248,7 +252,27 @@ export default function ThaiFriendChatPage() {
         fontFamily: "'Work Sans', sans-serif",
       }}
     >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=Work+Sans:wght@400;500;600;700&display=swap');`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=Work+Sans:wght@400;500;600;700&display=swap');
+        @keyframes waveform-bounce {
+          0%, 100% { height: 8px; }
+          50% { height: 28px; }
+        }
+        .waveform-bar {
+          width: 4px;
+          background: #D4A24C;
+          border-radius: 2px;
+          animation: waveform-bounce 0.6s ease-in-out infinite;
+        }
+      `}</style>
+
+      {speaking && (
+        <div style={{ position: 'absolute', top: '80px', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: '4px', height: '28px', zIndex: 5, background: 'rgba(20,32,28,0.5)', padding: '8px 16px', borderRadius: '20px' }}>
+          {[0, 0.15, 0.3, 0.15, 0].map((delay, i) => (
+            <div key={i} className="waveform-bar" style={{ animationDelay: `${delay}s` }} />
+          ))}
+        </div>
+      )}
 
       {/* Dark overlay so text stays readable over the portrait */}
       <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, rgba(20,32,28,0.55) 0%, rgba(20,32,28,0.75) 55%, rgba(20,32,28,0.95) 100%)', display: 'flex', flexDirection: 'column' }}>
