@@ -217,13 +217,22 @@ export default function ThaiFriendChatPage() {
         const blob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' })
         const url = URL.createObjectURL(blob)
         if (audioRef.current) {
-          audioRef.current.pause()
-          audioRef.current.currentTime = 0
-          audioRef.current.src = url
-          audioRef.current.onplay = () => setSpeaking(true)
-          audioRef.current.onended = () => setSpeaking(false)
-          audioRef.current.onpause = () => setSpeaking(false)
-          audioRef.current.play()
+          const audioEl = audioRef.current
+          audioEl.pause()
+          audioEl.currentTime = 0
+          audioEl.onplay = () => setSpeaking(true)
+          audioEl.onended = () => setSpeaking(false)
+          audioEl.onpause = () => setSpeaking(false)
+
+          // Wait until enough of the file is actually buffered before playing —
+          // playing immediately on src assignment can sometimes start before the
+          // browser has decoded enough audio, causing a choppy/unclear start.
+          audioEl.oncanplaythrough = () => {
+            audioEl.oncanplaythrough = null
+            audioEl.play()
+          }
+          audioEl.src = url
+          audioEl.load()
         }
       }
     } catch (err) {
