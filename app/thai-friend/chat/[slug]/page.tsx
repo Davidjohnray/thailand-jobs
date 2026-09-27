@@ -23,6 +23,10 @@ export default function ThaiFriendChatPage() {
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [ending, setEnding] = useState(false)
+  const [topic, setTopic] = useState<string | null>(null)
+  const [showTopicPicker, setShowTopicPicker] = useState(true)
+
+  const TOPIC_SUGGESTIONS = ['Just chat freely', 'At the supermarket', 'Ordering food', 'Asking for directions', 'At the doctor', 'Meeting for the first time']
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -133,6 +137,7 @@ export default function ThaiFriendChatPage() {
           relationshipId,
           userMessage: transcribeData.text,
           recentHistory: updatedTranscript.slice(-8),
+          topic: topic && topic !== 'Just chat freely' ? topic : null,
         }),
       })
       const conversationData = await conversationRes.json()
@@ -210,6 +215,39 @@ export default function ThaiFriendChatPage() {
 
       {/* Dark overlay so text stays readable over the portrait */}
       <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, rgba(20,32,28,0.55) 0%, rgba(20,32,28,0.75) 55%, rgba(20,32,28,0.95) 100%)', display: 'flex', flexDirection: 'column' }}>
+
+        {showTopicPicker && (
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,32,28,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 10 }}>
+            <div style={{ maxWidth: '400px', textAlign: 'center' }}>
+              <p style={{ fontFamily: "'Fraunces', serif", color: 'white', fontSize: '24px', fontWeight: 700, marginBottom: '10px' }}>
+                What do you want to talk about?
+              </p>
+              <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '14px', marginBottom: '28px' }}>
+                Pick a situation to practice, or just chat freely — you can always change direction mid-conversation.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {TOPIC_SUGGESTIONS.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => { setTopic(t); setShowTopicPicker(false) }}
+                    style={{
+                      background: t === 'Just chat freely' ? '#D4A24C' : 'rgba(245,239,225,0.08)',
+                      color: t === 'Just chat freely' ? '#14201C' : '#F5EFE1',
+                      border: '1px solid rgba(245,239,225,0.15)',
+                      borderRadius: '10px',
+                      padding: '13px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* HEADER */}
         <div style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
