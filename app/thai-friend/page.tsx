@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { setThaiFriendSession } from '../../lib/thai-friend-auth'
 
 export default function ThaiFriendLandingPage() {
   const router = useRouter()
@@ -22,21 +23,33 @@ export default function ThaiFriendLandingPage() {
     setError('')
     setSubmitting(true)
 
-    const res = await fetch('/api/thai-friend/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-    const data = await res.json()
-    setSubmitting(false)
+    try {
+      const res = await fetch('/api/thai-friend/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-    if (!res.ok) {
-      setError(data.error || 'Something went wrong. Please try again.')
-      return
+      let data: any = {}
+      try {
+        data = await res.json()
+      } catch {
+        setError(`Server returned an unexpected response (status ${res.status}). Check Vercel function logs for /api/thai-friend/register.`)
+        return
+      }
+
+      if (!res.ok) {
+        setError(data.error || `Something went wrong (status ${res.status}).`)
+        return
+      }
+
+      setThaiFriendSession({ id: data.id, email: data.email })
+      router.push('/thai-friend/characters')
+    } catch (err: any) {
+      setError(`Network error: ${err?.message || 'could not reach the server.'}`)
+    } finally {
+      setSubmitting(false)
     }
-
-    localStorage.setItem('thai_friend_session', JSON.stringify({ id: data.id, email: data.email }))
-    router.push('/thai-friend/characters')
   }
 
   return (
