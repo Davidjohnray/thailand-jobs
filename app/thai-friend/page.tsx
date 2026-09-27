@@ -149,10 +149,10 @@ export default function ThaiFriendLandingPage() {
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
-            <CharacterCard emoji="🧑" name="Bank" place="Bangkok, 21" tagline="Easygoing uni student, loves street food and K-pop" />
-            <CharacterCard emoji="🙋‍♀️" name="Nueng" place="Chiang Mai, 27" tagline="Warm, patient, runs her family's guesthouse" />
-            <CharacterCard emoji="👵" name="Tong" place="Bangkok, 54" tagline="Chatty market vendor, moved from Isaan years ago" />
-            <CharacterCard emoji="👩‍💼" name="Ploy" place="Bangkok, 29" tagline="Busy marketing professional, sharp and polished" />
+            <CharacterCard slug="bank" name="Bank" place="Bangkok, 21" tagline="Easygoing uni student, loves street food and K-pop" />
+            <CharacterCard slug="somchai" name="Somchai" place="Ayutthaya, 58" tagline="Retired schoolteacher, warm storyteller" />
+            <CharacterCard slug="nueng" name="Nueng" place="Chiang Mai, 27" tagline="Warm, patient, runs her family's guesthouse" />
+            <CharacterCard slug="tong" name="Tong" place="Bangkok, 54" tagline="Chatty market vendor, moved from Isaan years ago" />
           </div>
         </div>
       </section>
@@ -196,13 +196,15 @@ function ChatBubble({ thai, roman, en, mine }: { thai: string; roman: string; en
   )
 }
 
-function CharacterCard({ emoji, name, place, tagline }: { emoji: string; name: string; place: string; tagline: string }) {
+function CharacterCard({ slug, name, place, tagline }: { slug: string; name: string; place: string; tagline: string }) {
   return (
-    <div style={{ background: 'rgba(245,239,225,0.05)', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '16px', padding: '24px' }}>
-      <div style={{ fontSize: '32px', marginBottom: '12px' }}>{emoji}</div>
-      <p className="ff-display" style={{ fontSize: '19px', fontWeight: 700, margin: '0 0 4px' }}>{name}</p>
-      <p style={{ fontSize: '13px', color: 'rgba(245,239,225,0.55)', margin: '0 0 10px' }}>{place}</p>
-      <p style={{ fontSize: '13.5px', color: 'rgba(245,239,225,0.8)', lineHeight: 1.5, margin: 0 }}>{tagline}</p>
+    <div style={{ background: 'rgba(245,239,225,0.05)', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '16px', overflow: 'hidden' }}>
+      <div style={{ height: '140px', background: `url('/thai-friend/characters/${slug}.svg')`, backgroundSize: 'cover', backgroundPosition: 'top center' }} />
+      <div style={{ padding: '20px' }}>
+        <p className="ff-display" style={{ fontSize: '19px', fontWeight: 700, margin: '0 0 4px' }}>{name}</p>
+        <p style={{ fontSize: '13px', color: 'rgba(245,239,225,0.55)', margin: '0 0 10px' }}>{place}</p>
+        <p style={{ fontSize: '13.5px', color: 'rgba(245,239,225,0.8)', lineHeight: 1.5, margin: 0 }}>{tagline}</p>
+      </div>
     </div>
   )
 }
