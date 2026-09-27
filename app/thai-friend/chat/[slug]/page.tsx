@@ -19,11 +19,13 @@ export default function ThaiFriendChatPage() {
   const [loading, setLoading] = useState(true)
   const [character, setCharacter] = useState<any>(null)
   const [relationshipId, setRelationshipId] = useState<string | null>(null)
+  const [proficiencyLevel, setProficiencyLevel] = useState<string>('A1')
   const [transcript, setTranscript] = useState<Turn[]>([])
   const [recording, setRecording] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [ending, setEnding] = useState(false)
+  const [levelUpMessage, setLevelUpMessage] = useState<string | null>(null)
   const [topic, setTopic] = useState<string | null>(null)
   const [showTopicPicker, setShowTopicPicker] = useState(true)
   const [languageHint, setLanguageHint] = useState<'auto' | 'th' | 'en'>('auto')
@@ -74,6 +76,7 @@ export default function ThaiFriendChatPage() {
 
     if (existingRel) {
       setRelationshipId(existingRel.id)
+      setProficiencyLevel(existingRel.proficiency_level || 'A1')
     } else {
       const { data: newRel } = await supabase
         .from('thai_friend_relationships')
@@ -166,7 +169,7 @@ export default function ThaiFriendChatPage() {
       const speakRes = await fetch('/api/thai-friend/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: conversationData.thai, characterSlug: slug }),
+        body: JSON.stringify({ text: conversationData.thai, characterSlug: slug, level: proficiencyLevel }),
       })
 
       if (speakRes.ok) {
@@ -190,7 +193,7 @@ export default function ThaiFriendChatPage() {
       const res = await fetch('/api/thai-friend/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: thaiWord, characterSlug: slug }),
+        body: JSON.stringify({ text: thaiWord, characterSlug: slug, level: proficiencyLevel }),
       })
       if (res.ok) {
         const audioArrayBuffer = await res.arrayBuffer()
@@ -212,12 +215,19 @@ export default function ThaiFriendChatPage() {
       return
     }
     setEnding(true)
-    await fetch('/api/thai-friend/end-conversation', {
+    const res = await fetch('/api/thai-friend/end-conversation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ relationshipId, transcript }),
     })
-    router.push('/thai-friend/characters')
+    const data = await res.json()
+
+    if (data.levelChanged && data.newLevel > proficiencyLevel) {
+      setLevelUpMessage(`🎉 ${character.name} thinks you're ready for ${data.newLevel}-level conversations now!`)
+      setTimeout(() => router.push('/thai-friend/characters'), 2800)
+    } else {
+      router.push('/thai-friend/characters')
+    }
   }
 
   if (loading) {
@@ -242,6 +252,17 @@ export default function ThaiFriendChatPage() {
 
       {/* Dark overlay so text stays readable over the portrait */}
       <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, rgba(20,32,28,0.55) 0%, rgba(20,32,28,0.75) 55%, rgba(20,32,28,0.95) 100%)', display: 'flex', flexDirection: 'column' }}>
+
+        {levelUpMessage && (
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,32,28,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 20, textAlign: 'center' }}>
+            <div>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+              <p style={{ fontFamily: "'Fraunces', serif", color: '#D4A24C', fontSize: '22px', fontWeight: 700, maxWidth: '340px', margin: '0 auto' }}>
+                {levelUpMessage}
+              </p>
+            </div>
+          </div>
+        )}
 
         {showTopicPicker && (
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,32,28,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 10 }}>
