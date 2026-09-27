@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     const speed = SPEED_MAP[level] || 1.0
 
     const mp3 = await openai.audio.speech.create({
-      model: 'tts-1',
+      model: 'tts-1-hd',
       voice: voice as any,
       input: text,
       speed,

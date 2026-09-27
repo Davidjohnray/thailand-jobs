@@ -37,6 +37,7 @@ export default function ThaiFriendChatPage() {
   const chunksRef = useRef<Blob[]>([])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const isProcessingRef = useRef(false) // guards against the stop handler firing twice for one recording
 
   useEffect(() => {
     init()
@@ -114,6 +115,12 @@ export default function ThaiFriendChatPage() {
   }
 
   const handleRecordingStop = async () => {
+    // MediaRecorder can occasionally fire its 'stop' event more than once for a single
+    // recording in some browsers — without this guard that would mean two full
+    // transcribe→respond→speak round trips overlapping, which sounds exactly like an echo.
+    if (isProcessingRef.current) return
+    isProcessingRef.current = true
+
     setProcessing(true)
     const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' })
 
@@ -178,6 +185,8 @@ export default function ThaiFriendChatPage() {
         const blob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' })
         const url = URL.createObjectURL(blob)
         if (audioRef.current) {
+          audioRef.current.pause()
+          audioRef.current.currentTime = 0
           audioRef.current.src = url
           audioRef.current.onplay = () => setSpeaking(true)
           audioRef.current.onended = () => setSpeaking(false)
@@ -189,6 +198,7 @@ export default function ThaiFriendChatPage() {
       setError('Something went wrong. Please try again.')
     } finally {
       setProcessing(false)
+      isProcessingRef.current = false
     }
   }
 
