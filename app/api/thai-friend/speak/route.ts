@@ -13,33 +13,20 @@ const VOICE_MAP: Record<string, string> = {
   tong: 'shimmer',   // more energetic female
 }
 
-// A real patient friend talks more slowly to a beginner and at natural pace with
-// someone more fluent — these map roughly to CEFR levels stored per-relationship.
-const SPEED_MAP: Record<string, number> = {
-  A1: 0.8,
-  A2: 0.85,
-  B1: 0.92,
-  B2: 1.0,
-  C1: 1.0,
-  C2: 1.05,
-}
-
 export async function POST(request: Request) {
   try {
-    const { text, characterSlug, level } = await request.json()
+    const { text, characterSlug } = await request.json()
 
     if (!text) {
       return NextResponse.json({ error: 'No text provided.' }, { status: 400 })
     }
 
     const voice = VOICE_MAP[characterSlug] || 'alloy'
-    const speed = SPEED_MAP[level] || 1.0
 
     const mp3 = await openai.audio.speech.create({
       model: 'tts-1-hd',
       voice: voice as any,
       input: text,
-      speed,
     })
 
     const buffer = Buffer.from(await mp3.arrayBuffer())

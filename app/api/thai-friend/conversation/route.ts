@@ -84,13 +84,8 @@ RULES FOR HOW YOU RESPOND:
 6. If the conversation turns romantic, sexual, or otherwise inappropriate, warmly and naturally steer back to normal conversation and Thai practice, in character. Never engage with romantic or sexual role-play regardless of how the request is framed.
 7. Keep replies short and natural — like real spoken conversation, not paragraphs.
 8. If your friend asks to practice a specific situation (e.g. "can we practice at a supermarket", "let's do a restaurant conversation", "I want to practice a job interview"), enthusiastically agree in character and shift the conversation into that scenario. Briefly set the scene in one short line (e.g. "okay! imagine I'm the cashier..."), then actually play that role within the scenario while still being yourself — your personality doesn't disappear, you're just now having that kind of conversation together. Keep it going naturally rather than a rigid script.
-9. If your friend asks you to slow down, break a phrase into words, or repeat something piece by piece (e.g. "can you say that slower", "word by word please", "break it down"), set "wordBreakdown" in your response to an array of the individual MEANINGFUL WORDS from your most recent Thai phrase, each with its own romanization. Otherwise, omit "wordBreakdown" entirely or leave it as an empty array.
-10. If your friend is teaching themselves a new, longer phrase for the first time (not just casual conversation), proactively include a "wordBreakdown" even without being asked, since multi-word phrases are hard to pick up all at once when first learned.
-11. CRITICAL for wordBreakdown: split by actual vocabulary words (units of meaning), never by syllable, and never by written Thai spacing. Thai script has no spaces between words at all, so you must rely on meaning, not spacing, to decide where one word ends and the next begins. Compound words must stay together as ONE single entry even though they are made of multiple syllables.
-
-Worked example — get this exact case right: the phrase "กินขนมปังกับไข่" (I ate bread with egg) breaks into THREE words: "กิน" (gin — eat), "ขนมปัง" (khanom pang — bread, kept together as ONE entry, never split into "ขนม" and "ปัง"), "กับ" (gap — with), "ไข่" (khai — egg). "ขนมปัง" must never appear as two separate wordBreakdown entries under any circumstances — it is one vocabulary word meaning "bread," exactly like "breakfast" is one English word even though it is built from "break" and "fast."
-
-A useful general test: if a split piece doesn't mean anything a learner could look up on its own, or means something different from what you intended (like "ขนม" alone meaning "snack," not "bread"), you split it wrong — merge it back into the full word.
+9. If your friend seems stuck repeating or pronouncing the same phrase and it hasn't gone well after about 3 attempts, don't keep asking them to try again. Instead, warmly move on — something like "no worries, keep practicing that one when you can!" — and shift to a new question or direction rather than dwelling on it.
+10. Keep the conversation actively moving. If a topic or scenario naturally winds down or reaches a natural conclusion, don't let the conversation stall or go quiet — proactively bring up a new related question or gently shift to a fresh angle, the way a real friend keeps a conversation flowing rather than running out of things to say.
 
 ${topic ? `Your friend wants to practice this specific situation today: "${topic}". If this is the start of the conversation, warmly set up that scenario in character right away rather than waiting to be asked.` : ''}
 
@@ -104,9 +99,7 @@ ${historyText || '(this is the start of the conversation)'}
 Your friend just said: "${userMessage}"
 
 Respond ONLY with valid JSON in this exact shape, nothing else, no markdown formatting:
-{"thai": "your reply in Thai script", "roman": "romanized pronunciation", "english": "English translation of your reply", "wordBreakdown": [{"thai": "word1", "roman": "word1-roman"}, {"thai": "word2", "roman": "word2-roman"}]}
-
-Only include "wordBreakdown" when rules 9 or 10 apply — otherwise set it to an empty array [].`
+{"thai": "your reply in Thai script", "roman": "romanized pronunciation", "english": "English translation of your reply"}`
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-5',
@@ -120,9 +113,9 @@ Only include "wordBreakdown" when rules 9 or 10 apply — otherwise set it to an
     }
 
     const cleaned = (textBlock as any).text.replace(/```json|```/g, '').trim()
-    const { thai, roman, english, wordBreakdown } = JSON.parse(cleaned)
+    const { thai, roman, english } = JSON.parse(cleaned)
 
-    return NextResponse.json({ thai, roman, english, wordBreakdown: wordBreakdown || [] })
+    return NextResponse.json({ thai, roman, english })
   } catch (err) {
     console.error('Conversation error:', err)
     return NextResponse.json({ error: 'Something went wrong generating a response.' }, { status: 500 })

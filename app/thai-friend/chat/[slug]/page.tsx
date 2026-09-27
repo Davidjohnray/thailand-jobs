@@ -8,7 +8,6 @@ type Turn = {
   thai_text?: string
   romanization?: string
   english_text: string
-  wordBreakdown?: { thai: string; roman: string }[]
 }
 
 export default function ThaiFriendChatPage() {
@@ -169,7 +168,6 @@ export default function ThaiFriendChatPage() {
         thai_text: conversationData.thai,
         romanization: conversationData.roman,
         english_text: conversationData.english,
-        wordBreakdown: conversationData.wordBreakdown || [],
       }
       setTranscript((prev) => [...prev, characterTurn])
 
@@ -177,7 +175,7 @@ export default function ThaiFriendChatPage() {
       const speakRes = await fetch('/api/thai-friend/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: conversationData.thai, characterSlug: slug, level: proficiencyLevel }),
+        body: JSON.stringify({ text: conversationData.thai, characterSlug: slug }),
       })
 
       if (speakRes.ok) {
@@ -199,27 +197,6 @@ export default function ThaiFriendChatPage() {
     } finally {
       setProcessing(false)
       isProcessingRef.current = false
-    }
-  }
-
-  const speakWord = async (thaiWord: string) => {
-    try {
-      const res = await fetch('/api/thai-friend/speak', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: thaiWord, characterSlug: slug, level: proficiencyLevel }),
-      })
-      if (res.ok) {
-        const audioArrayBuffer = await res.arrayBuffer()
-        const blob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' })
-        const url = URL.createObjectURL(blob)
-        if (audioRef.current) {
-          audioRef.current.src = url
-          audioRef.current.play()
-        }
-      }
-    } catch {
-      // Silently ignore — this is a nice-to-have, not critical
     }
   }
 
@@ -363,24 +340,6 @@ export default function ThaiFriendChatPage() {
                   <p style={{ margin: '0 0 3px', fontSize: '13px', fontStyle: 'italic', color: turn.speaker === 'student' ? 'rgba(20,32,28,0.7)' : 'rgba(245,239,225,0.7)' }}>{turn.romanization}</p>
                 )}
                 <p style={{ margin: 0, fontSize: '13px', color: turn.speaker === 'student' ? 'rgba(20,32,28,0.65)' : 'rgba(245,239,225,0.65)' }}>{turn.english_text}</p>
-
-                {turn.wordBreakdown && turn.wordBreakdown.length > 0 && (
-                  <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(245,239,225,0.15)' }}>
-                    <p style={{ fontSize: '10px', color: 'rgba(245,239,225,0.5)', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 6px' }}>Word by word</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {turn.wordBreakdown.map((w, wi) => (
-                        <button
-                          key={wi}
-                          onClick={() => speakWord(w.thai)}
-                          style={{ background: 'rgba(212,162,76,0.15)', border: '1px solid rgba(212,162,76,0.3)', borderRadius: '8px', padding: '6px 10px', cursor: 'pointer', textAlign: 'center' }}
-                        >
-                          <span style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#D4A24C' }}>{w.thai}</span>
-                          <span style={{ display: 'block', fontSize: '10px', color: 'rgba(245,239,225,0.6)' }}>{w.roman}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           ))}
