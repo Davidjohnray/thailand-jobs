@@ -27,6 +27,7 @@ export async function POST(request: Request) {
       model: 'tts-1-hd',
       voice: voice as any,
       input: text,
+      speed: 0.92, // just a touch slower than fully natural pace, for everyone
     })
 
     const buffer = Buffer.from(await mp3.arrayBuffer())

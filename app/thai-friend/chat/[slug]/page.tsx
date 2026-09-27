@@ -333,11 +333,8 @@ export default function ThaiFriendChatPage() {
           {transcript.map((turn, i) => (
             <div key={i} style={{ marginBottom: '16px', display: 'flex', justifyContent: turn.speaker === 'student' ? 'flex-end' : 'flex-start' }}>
               <div style={{ maxWidth: '80%', background: turn.speaker === 'student' ? 'rgba(212,162,76,0.9)' : 'rgba(27,43,37,0.9)', borderRadius: '14px', padding: '12px 16px' }}>
-                {turn.thai_text && (
-                  <p style={{ margin: '0 0 3px', fontSize: '17px', fontWeight: 600, color: turn.speaker === 'student' ? '#14201C' : '#F5EFE1' }}>{turn.thai_text}</p>
-                )}
                 {turn.romanization && (
-                  <p style={{ margin: '0 0 3px', fontSize: '13px', fontStyle: 'italic', color: turn.speaker === 'student' ? 'rgba(20,32,28,0.7)' : 'rgba(245,239,225,0.7)' }}>{turn.romanization}</p>
+                  <p style={{ margin: '0 0 4px', fontSize: '17px', fontWeight: 600, color: turn.speaker === 'student' ? '#14201C' : '#F5EFE1' }}>{turn.romanization}</p>
                 )}
                 <p style={{ margin: 0, fontSize: '13px', color: turn.speaker === 'student' ? 'rgba(20,32,28,0.65)' : 'rgba(245,239,225,0.65)' }}>{turn.english_text}</p>
               </div>

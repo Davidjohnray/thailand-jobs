@@ -113,11 +113,18 @@ Respond ONLY with valid JSON in this exact shape, nothing else, no markdown form
     }
 
     const cleaned = (textBlock as any).text.replace(/```json|```/g, '').trim()
-    const { thai, roman, english } = JSON.parse(cleaned)
+
+    let thai, roman, english
+    try {
+      ;({ thai, roman, english } = JSON.parse(cleaned))
+    } catch (parseErr) {
+      console.error('JSON parse failed. Raw Claude output was:', cleaned)
+      return NextResponse.json({ error: `Could not parse response. Raw output: ${cleaned.slice(0, 200)}` }, { status: 500 })
+    }
 
     return NextResponse.json({ thai, roman, english })
-  } catch (err) {
+  } catch (err: any) {
     console.error('Conversation error:', err)
-    return NextResponse.json({ error: 'Something went wrong generating a response.' }, { status: 500 })
+    return NextResponse.json({ error: `Generation error: ${err?.message || 'unknown'}` }, { status: 500 })
   }
 }
