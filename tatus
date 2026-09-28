@@ -1,0 +1,17 @@
+[33mcommit 12d0b4269bce6241a3c6ddbb79bbe5e13d7af6ca[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: David Ray <raydave8@hotmail.com>
+Date:   Mon Sep 28 11:06:48 2026 +0700
+
+    release microphone after recording, fix note under mic
+
+ app/api/thai-friend/admin/codes/route.ts   |  75 [32m++++++++++++[m
+ app/api/thai-friend/conversation/route.ts  |  17 [32m+++[m
+ app/api/thai-friend/redeem/route.ts        |  77 [32m+++++++++++++[m
+ app/api/thai-friend/register/route.ts      |  39 [32m++++++[m[31m-[m
+ app/thai-friend/characters/page.tsx        |   9 [32m+[m[31m-[m
+ app/thai-friend/chat/[slug]/page.tsx       |   4 [32m+[m[31m-[m
+ app/thai-friend/page.tsx                   |  27 [32m+++[m[31m--[m
+ app/thai-friend/subscribe/page.tsx         | 116 [32m+++++++++++++++++++[m
+ app/thai-friend/thai-friend-admin/page.tsx | 179 [32m+++++++++++++++++++++++++++++[m
+ lib/thai-friend-auth.ts                    |  14 [32m++[m[31m-[m
+ 10 files changed, 533 insertions(+), 24 deletions(-)
