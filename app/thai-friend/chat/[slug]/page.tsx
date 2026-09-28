@@ -308,8 +308,54 @@ export default function ThaiFriendChatPage() {
     }
   }
 
+  // The friend speaks first. Without this, a beginner picks a topic and then faces a blank
+  // screen with nothing to say — and no answer choices, because nothing has been asked yet.
+  const startConversation = async (selectedTopic: string | null) => {
+    if (!relationshipId || isProcessingRef.current) return
+    isProcessingRef.current = true
+    setProcessing(true)
+    setError('')
+
+    try {
+      const res = await fetch('/api/thai-friend/conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          relationshipId,
+          userMessage: '',
+          opening: true,
+          recentHistory: [],
+          topic: selectedTopic && selectedTopic !== 'Just chat freely' ? selectedTopic : null,
+          showChoices: showChoices && ['A1', 'A2'].includes(proficiencyLevel),
+        }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong getting a response.')
+        return
+      }
+
+      const openingTurn: Turn = {
+        speaker: 'character',
+        thai_text: data.thai,
+        romanization: data.roman,
+        english_text: data.english,
+        suggestions: data.suggestedReplies || [],
+      }
+      setTranscript([openingTurn])
+      await playSpeech(data.thai)
+    } catch {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setProcessing(false)
+      isProcessingRef.current = false
+    }
+  }
+
   const endConversation = async () => {
-    if (transcript.length === 0) {
+    // Nothing worth saving if the learner never said anything (only the friend's opening line).
+    if (!transcript.some((t) => t.speaker === 'student')) {
       router.push('/thai-friend/characters')
       return
     }
@@ -447,7 +493,7 @@ export default function ThaiFriendChatPage() {
                 {TOPIC_SUGGESTIONS.map((t) => (
                   <button
                     key={t}
-                    onClick={() => { setTopic(t); setShowTopicPicker(false) }}
+                    onClick={() => { setTopic(t); setShowTopicPicker(false); startConversation(t) }}
                     style={{
                       background: t === 'Just chat freely' ? '#D4A24C' : 'rgba(245,239,225,0.08)',
                       color: t === 'Just chat freely' ? '#14201C' : '#F5EFE1',
@@ -487,7 +533,7 @@ export default function ThaiFriendChatPage() {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px', overflowY: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
           {transcript.length === 0 && (
             <p style={{ color: 'rgba(245,239,225,0.6)', textAlign: 'center', fontSize: '14px' }}>
-              Tap the microphone to say hello to {character.name}
+              {processing ? `${character.name} is saying hello...` : `Tap the microphone to say hello to ${character.name}`}
             </p>
           )}
 

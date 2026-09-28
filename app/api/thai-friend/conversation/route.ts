@@ -12,9 +12,9 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request: Request) {
   try {
-    const { relationshipId, userMessage, recentHistory, topic, showChoices } = await request.json()
+    const { relationshipId, userMessage, recentHistory, topic, showChoices, opening } = await request.json()
 
-    if (!relationshipId || !userMessage) {
+    if (!relationshipId || (!userMessage && !opening)) {
       return NextResponse.json({ error: 'Missing relationshipId or userMessage.' }, { status: 400 })
     }
 
@@ -123,7 +123,9 @@ If this is the very start of the conversation (no recent history below), let the
 Recent conversation so far:
 ${historyText || '(this is the start of the conversation)'}
 
-Your friend just said: "${userMessage}"
+${opening
+  ? 'Your friend has just opened the chat and has not said anything yet. YOU speak first: greet them warmly in a way that fits the time of day and how long it has been since you last talked, then ask ONE simple, easy question to get the conversation going (about their day, or about the situation they chose, if they picked one). Keep it at their level.'
+  : `Your friend just said: "${userMessage}"`}
 
 Respond ONLY with valid JSON in this exact shape, nothing else, no markdown formatting:
 {"thai": "your reply in Thai script", "roman": "romanized pronunciation", "english": "English translation of your reply", "studentMessageRoman": "romanization of what your friend just said, ONLY if their message was in Thai script — otherwise just repeat their message as-is"${offerChoices ? ', "suggestedReplies": [{"thai": "Thai script", "roman": "romanization", "english": "English meaning"}, {"thai": "...", "roman": "...", "english": "..."}, {"thai": "...", "roman": "...", "english": "..."}]' : ''}}`
