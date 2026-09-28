@@ -35,6 +35,8 @@ export default function ThaiFriendChatPage() {
   const [levelNotice, setLevelNotice] = useState<string | null>(null)
   const [languageHint, setLanguageHint] = useState<'auto' | 'th' | 'en'>('auto')
   const [showChoices, setShowChoices] = useState(true)
+  const [pastConversations, setPastConversations] = useState<{ id: string; started_at: string; transcript: Turn[] }[]>([])
+
 
   const TOPIC_SUGGESTIONS = ['Just chat freely', 'At the supermarket', 'Ordering food', 'Asking for directions', 'At the doctor', 'Meeting for the first time']
 
@@ -52,6 +54,8 @@ export default function ThaiFriendChatPage() {
   const chunksRef = useRef<Blob[]>([])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const savedRef = useRef(false) // true once this conversation has been saved, so it is never saved twice
+  const transcriptRef = useRef<Turn[]>([]) // always holds the latest transcript, for the leave-the-page save
   const isProcessingRef = useRef(false) // guards against the stop handler firing twice for one recording
 
   useEffect(() => {
@@ -67,6 +71,40 @@ export default function ThaiFriendChatPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [transcript])
+
+  useEffect(() => {
+    transcriptRef.current = transcript
+  }, [transcript])
+
+  // Save the conversation even if the learner just closes the tab or presses back,
+  // so it always shows up in their history instead of being lost.
+  useEffect(() => {
+    const saveOnLeave = () => {
+      if (savedRef.current || !relationshipId) return
+      const t = transcriptRef.current
+      if (!t.some((x) => x.speaker === 'student')) return
+      savedRef.current = true
+      const blob = new Blob([JSON.stringify({ relationshipId, transcript: t })], { type: 'application/json' })
+      navigator.sendBeacon('/api/thai-friend/end-conversation', blob)
+    }
+    window.addEventListener('pagehide', saveOnLeave)
+    return () => {
+      window.removeEventListener('pagehide', saveOnLeave)
+      saveOnLeave()
+    }
+  }, [relationshipId])
+
+  // Loads earlier conversations with this friend so they sit above the current one,
+  // like scrolling up in a normal chat app. Oldest first, newest just above today.
+  const loadPast = async (relId: string) => {
+    const { data } = await supabase
+      .from('thai_friend_conversations')
+      .select('id, started_at, transcript')
+      .eq('relationship_id', relId)
+      .order('started_at', { ascending: false })
+      .limit(15)
+    setPastConversations(((data as any) || []).reverse())
+  }
 
   const init = async () => {
     setLoading(true)
@@ -108,6 +146,7 @@ export default function ThaiFriendChatPage() {
       setRelationshipId(existingRel.id)
       setProficiencyLevel(existingRel.proficiency_level || 'A1')
       setShowTopicPicker(true) // returning relationship — level already known, skip straight to topic
+      loadPast(existingRel.id)
     } else {
       const { data: newRel } = await supabase
         .from('thai_friend_relationships')
@@ -360,6 +399,7 @@ export default function ThaiFriendChatPage() {
       return
     }
     setEnding(true)
+    savedRef.current = true
     const res = await fetch('/api/thai-friend/end-conversation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -530,7 +570,43 @@ export default function ThaiFriendChatPage() {
         </div>
 
         {/* SUBTITLE AREA */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px', overflowY: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto', maxHeight: 'calc(100vh - 220px)' }}>
+          {/* pushes short conversations to the bottom without breaking scrolling when they get long */}
+          <div style={{ marginTop: 'auto' }} />
+
+          {pastConversations.map((pc) => {
+            const turns = Array.isArray(pc.transcript) ? pc.transcript : []
+            return (
+              <div key={pc.id} style={{ opacity: 0.85 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '14px 0', color: 'rgba(245,239,225,0.55)', fontSize: '11px' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(245,239,225,0.15)' }} />
+                  <span>{new Date(pc.started_at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(245,239,225,0.15)' }} />
+                </div>
+                {turns.map((t, ti) => (
+                  <div key={ti} style={{ marginBottom: '12px', display: 'flex', justifyContent: t.speaker === 'student' ? 'flex-end' : 'flex-start' }}>
+                    <div style={{ maxWidth: '80%', background: t.speaker === 'student' ? 'rgba(212,162,76,0.75)' : 'rgba(27,43,37,0.85)', borderRadius: '14px', padding: '10px 14px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                      {t.speaker === 'character' && t.thai_text && (
+                        <button onClick={() => playSpeech(t.thai_text as string)} aria-label="Hear this" style={{ background: '#D4A24C', border: 'none', borderRadius: '50%', width: '26px', height: '26px', cursor: 'pointer', fontSize: '12px', flexShrink: 0 }}>🔊</button>
+                      )}
+                      <div>
+                        {t.romanization && <p style={{ margin: '0 0 3px', fontSize: '15px', fontWeight: 600, color: t.speaker === 'student' ? '#14201C' : '#F5EFE1' }}>{t.romanization}</p>}
+                        <p style={{ margin: 0, fontSize: '12px', color: t.speaker === 'student' ? 'rgba(20,32,28,0.7)' : 'rgba(245,239,225,0.65)' }}>{t.english_text}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })}
+
+          {pastConversations.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '18px 0 14px', color: '#D4A24C', fontSize: '11px', fontWeight: 700 }}>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(212,162,76,0.4)' }} />
+              <span>Today's conversation · scroll up to review earlier ones</span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(212,162,76,0.4)' }} />
+            </div>
+          )}
           {transcript.length === 0 && (
             <p style={{ color: 'rgba(245,239,225,0.6)', textAlign: 'center', fontSize: '14px' }}>
               {processing ? `${character.name} is saying hello...` : `Tap the microphone to say hello to ${character.name}`}
