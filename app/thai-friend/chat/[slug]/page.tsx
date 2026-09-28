@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { supabase, getCurrentThaiFriendUser } from '../../../../lib/thai-friend-auth'
+import { supabase, getCurrentThaiFriendUser, getFullUserRecord, trialStatus } from '../../../../lib/thai-friend-auth'
 
 type Turn = {
   speaker: 'student' | 'character'
@@ -46,10 +46,17 @@ export default function ThaiFriendChatPage() {
   ]
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const isProcessingRef = useRef(false) // guards against the stop handler firing twice for one recording
+
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((track) => track.stop())
+    }
+  }, [])
 
   useEffect(() => {
     init()
@@ -65,6 +72,13 @@ export default function ThaiFriendChatPage() {
     const user = await getCurrentThaiFriendUser()
     if (!user) {
       router.push('/thai-friend/login')
+      return
+    }
+
+    // No access left (trial or paid time ended) — send them to add a code.
+    const fullUser = await getFullUserRecord(user.id)
+    if (!trialStatus(fullUser).active) {
+      router.push('/thai-friend/subscribe')
       return
     }
 
@@ -133,11 +147,19 @@ export default function ThaiFriendChatPage() {
     setError('')
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      streamRef.current = stream
       const recorder = new MediaRecorder(stream)
       chunksRef.current = []
 
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data)
-      recorder.onstop = handleRecordingStop
+      recorder.onstop = () => {
+        // Release the microphone the moment recording ends. Leaving it open keeps the
+        // browser's recording indicator on and forces Bluetooth earbuds into low-quality
+        // headset mode, which makes the voice playback sound muffled or garbled.
+        stream.getTracks().forEach((track) => track.stop())
+        streamRef.current = null
+        handleRecordingStop()
+      }
 
       mediaRecorderRef.current = recorder
       recorder.start()
@@ -552,7 +574,7 @@ export default function ThaiFriendChatPage() {
           )}
 
           <p style={{ color: 'rgba(245,239,225,0.45)', fontSize: '11px', margin: 0, textAlign: 'center', maxWidth: '300px' }}>
-            If the voice sounds unclear or garbled, it's usually a connection hiccup — just tap Please repeat.
+            If the voice sounds unclear, the words on screen are still correct — tap Please repeat to hear it again.
           </p>
         </div>
       </div>
