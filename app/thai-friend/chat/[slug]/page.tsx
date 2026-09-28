@@ -30,6 +30,8 @@ export default function ThaiFriendChatPage() {
   const [topic, setTopic] = useState<string | null>(null)
   const [showTopicPicker, setShowTopicPicker] = useState(false)
   const [showLevelPicker, setShowLevelPicker] = useState(false)
+  const [changingLevel, setChangingLevel] = useState(false) // true when opened from the header mid-conversation
+  const [levelNotice, setLevelNotice] = useState<string | null>(null)
   const [languageHint, setLanguageHint] = useState<'auto' | 'th' | 'en'>('auto')
 
   const TOPIC_SUGGESTIONS = ['Just chat freely', 'At the supermarket', 'Ordering food', 'Asking for directions', 'At the doctor', 'Meeting for the first time']
@@ -109,7 +111,22 @@ export default function ThaiFriendChatPage() {
       await supabase.from('thai_friend_relationships').update({ proficiency_level: level }).eq('id', relationshipId)
     }
     setShowLevelPicker(false)
-    setShowTopicPicker(true)
+
+    if (changingLevel) {
+      // Changed mid-conversation: no need to pick a topic again, just carry on.
+      // The conversation route reads the level fresh from the database each turn,
+      // so the very next reply already uses the new level.
+      setChangingLevel(false)
+      setLevelNotice(`Switched to ${level} — ${character?.name} will adjust from the next reply.`)
+      setTimeout(() => setLevelNotice(null), 4000)
+    } else {
+      setShowTopicPicker(true)
+    }
+  }
+
+  const openLevelChanger = () => {
+    setChangingLevel(true)
+    setShowLevelPicker(true)
   }
 
   const startRecording = async () => {
@@ -344,10 +361,12 @@ export default function ThaiFriendChatPage() {
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,32,28,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', zIndex: 15, overflowY: 'auto' }}>
             <div style={{ maxWidth: '440px', width: '100%' }}>
               <p style={{ fontFamily: "'Fraunces', serif", color: 'white', fontSize: '22px', fontWeight: 700, marginBottom: '8px', textAlign: 'center' }}>
-                What's your Thai level?
+                {changingLevel ? 'Change your level' : "What's your Thai level?"}
               </p>
               <p style={{ color: 'rgba(245,239,225,0.65)', fontSize: '13px', marginBottom: '24px', textAlign: 'center' }}>
-                {character?.name} will match how they talk to you based on this — don't worry, it can always adjust as you go.
+                {changingLevel
+                  ? `Too hard? Too easy? Pick a level and ${character?.name} will change how they talk to you straight away.`
+                  : `${character?.name} will match how they talk to you based on this — don't worry, you can change it any time.`}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {LEVEL_OPTIONS.map((opt) => (
@@ -355,8 +374,8 @@ export default function ThaiFriendChatPage() {
                     key={opt.level}
                     onClick={() => selectLevel(opt.level)}
                     style={{
-                      background: 'rgba(245,239,225,0.06)',
-                      border: '1px solid rgba(245,239,225,0.15)',
+                      background: opt.level === proficiencyLevel ? 'rgba(212,162,76,0.18)' : 'rgba(245,239,225,0.06)',
+                      border: opt.level === proficiencyLevel ? '1px solid #D4A24C' : '1px solid rgba(245,239,225,0.15)',
                       borderRadius: '12px',
                       padding: '12px 16px',
                       textAlign: 'left',
@@ -374,6 +393,14 @@ export default function ThaiFriendChatPage() {
                   </button>
                 ))}
               </div>
+              {changingLevel && (
+                <button
+                  onClick={() => { setShowLevelPicker(false); setChangingLevel(false) }}
+                  style={{ display: 'block', margin: '18px auto 0', background: 'none', border: 'none', color: 'rgba(245,239,225,0.6)', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -416,9 +443,14 @@ export default function ThaiFriendChatPage() {
 
         {/* HEADER */}
         <div style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button onClick={endConversation} disabled={ending} style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: '#F5EFE1', borderRadius: '20px', padding: '8px 18px', fontSize: '13px', cursor: 'pointer' }}>
-            ← {ending ? 'Saving...' : 'End conversation'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button onClick={endConversation} disabled={ending} style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: '#F5EFE1', borderRadius: '20px', padding: '8px 18px', fontSize: '13px', cursor: 'pointer' }}>
+              ← {ending ? 'Saving...' : 'End conversation'}
+            </button>
+            <button onClick={openLevelChanger} style={{ background: 'rgba(212,162,76,0.25)', border: '1px solid rgba(212,162,76,0.5)', color: '#D4A24C', borderRadius: '20px', padding: '8px 14px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+              Level {proficiencyLevel} ▾
+            </button>
+          </div>
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontFamily: "'Fraunces', serif", color: 'white', fontSize: '18px', fontWeight: 700, margin: 0 }}>{character.name}</p>
             <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '12px', margin: 0 }}>{character.hometown} · AI Character</p>
@@ -445,6 +477,10 @@ export default function ThaiFriendChatPage() {
           ))}
           <div ref={bottomRef} />
         </div>
+
+        {levelNotice && (
+          <p style={{ color: '#D4A24C', textAlign: 'center', fontSize: '13px', margin: '0 24px 12px' }}>{levelNotice}</p>
+        )}
 
         {error && (
           <p style={{ color: '#e8a3a3', textAlign: 'center', fontSize: '13px', margin: '0 24px 12px' }}>{error}</p>
