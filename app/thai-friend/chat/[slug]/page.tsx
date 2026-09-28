@@ -26,6 +26,7 @@ export default function ThaiFriendChatPage() {
   const [ending, setEnding] = useState(false)
   const [levelUpMessage, setLevelUpMessage] = useState<string | null>(null)
   const [speaking, setSpeaking] = useState(false)
+  const [repeating, setRepeating] = useState(false)
   const [topic, setTopic] = useState<string | null>(null)
   const [showTopicPicker, setShowTopicPicker] = useState(false)
   const [showLevelPicker, setShowLevelPicker] = useState(false)
@@ -206,40 +207,61 @@ export default function ThaiFriendChatPage() {
       setTranscript((prev) => [...prev, characterTurn])
 
       // 3. Speak the reply aloud
-      const speakRes = await fetch('/api/thai-friend/speak', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: conversationData.thai, characterSlug: slug }),
-      })
-
-      if (speakRes.ok) {
-        const audioArrayBuffer = await speakRes.arrayBuffer()
-        const blob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' })
-        const url = URL.createObjectURL(blob)
-        if (audioRef.current) {
-          const audioEl = audioRef.current
-          audioEl.pause()
-          audioEl.currentTime = 0
-          audioEl.onplay = () => setSpeaking(true)
-          audioEl.onended = () => setSpeaking(false)
-          audioEl.onpause = () => setSpeaking(false)
-
-          // Wait until enough of the file is actually buffered before playing —
-          // playing immediately on src assignment can sometimes start before the
-          // browser has decoded enough audio, causing a choppy/unclear start.
-          audioEl.oncanplaythrough = () => {
-            audioEl.oncanplaythrough = null
-            audioEl.play()
-          }
-          audioEl.src = url
-          audioEl.load()
-        }
-      }
+      await playSpeech(conversationData.thai)
     } catch (err) {
       setError('Something went wrong. Please try again.')
     } finally {
       setProcessing(false)
       isProcessingRef.current = false
+    }
+  }
+
+  // Fetches fresh audio for a piece of Thai text and plays it once it's buffered.
+  // Used for normal replies AND the Repeat button — the Repeat button deliberately
+  // re-requests the audio instead of replaying the old file, so a glitch that happened
+  // during generation or download can't simply repeat itself.
+  const playSpeech = async (thaiText: string) => {
+    const speakRes = await fetch('/api/thai-friend/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: thaiText, characterSlug: slug }),
+    })
+
+    if (!speakRes.ok) return
+
+    const audioArrayBuffer = await speakRes.arrayBuffer()
+    const blob = new Blob([audioArrayBuffer], { type: 'audio/mpeg' })
+    const url = URL.createObjectURL(blob)
+    if (audioRef.current) {
+      const audioEl = audioRef.current
+      audioEl.pause()
+      audioEl.currentTime = 0
+      audioEl.onplay = () => setSpeaking(true)
+      audioEl.onended = () => setSpeaking(false)
+      audioEl.onpause = () => setSpeaking(false)
+
+      // Wait until enough of the file is buffered before playing, to avoid a choppy start.
+      audioEl.oncanplaythrough = () => {
+        audioEl.oncanplaythrough = null
+        audioEl.play()
+      }
+      audioEl.src = url
+      audioEl.load()
+    }
+  }
+
+  const repeatLast = async () => {
+    const lastCharacterTurn = [...transcript].reverse().find((t) => t.speaker === 'character' && t.thai_text)
+    if (!lastCharacterTurn?.thai_text || repeating || processing) return
+
+    setRepeating(true)
+    setError('')
+    try {
+      await playSpeech(lastCharacterTurn.thai_text)
+    } catch {
+      setError('Could not play that again — please try once more.')
+    } finally {
+      setRepeating(false)
     }
   }
 
@@ -471,6 +493,30 @@ export default function ThaiFriendChatPage() {
           </button>
           <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '13px', margin: 0 }}>
             {processing ? 'Thinking...' : recording ? 'Tap to stop' : 'Tap to speak'}
+          </p>
+
+          {transcript.some((t) => t.speaker === 'character') && (
+            <button
+              onClick={repeatLast}
+              disabled={repeating || processing || recording}
+              style={{
+                background: 'rgba(245,239,225,0.1)',
+                color: '#F5EFE1',
+                border: '1px solid rgba(245,239,225,0.25)',
+                borderRadius: '20px',
+                padding: '8px 20px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: repeating || processing || recording ? 'not-allowed' : 'pointer',
+                opacity: repeating || processing || recording ? 0.5 : 1,
+              }}
+            >
+              {repeating ? 'Repeating...' : '🔁 Please repeat'}
+            </button>
+          )}
+
+          <p style={{ color: 'rgba(245,239,225,0.45)', fontSize: '11px', margin: 0, textAlign: 'center', maxWidth: '300px' }}>
+            If the voice sounds unclear or garbled, it's usually a connection hiccup — just tap Please repeat.
           </p>
         </div>
       </div>
