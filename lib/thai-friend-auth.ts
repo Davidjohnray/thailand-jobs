@@ -41,12 +41,16 @@ export async function getFullUserRecord(userId: string) {
   return data
 }
 
+// Access runs until whichever of the two expiry dates is later. Codes update both,
+// so this covers free trials and paid time in one check.
 export function trialStatus(user: any): { active: boolean; hoursLeft: number } {
   if (!user) return { active: false, hoursLeft: 0 }
-  if (user.subscription_status === 'active') return { active: true, hoursLeft: Infinity as any }
-  const now = new Date().getTime()
-  const trialEnd = new Date(user.trial_ends_at).getTime()
-  const hoursLeft = Math.max(0, (trialEnd - now) / (1000 * 60 * 60))
+
+  const trialEnd = user.trial_ends_at ? new Date(user.trial_ends_at).getTime() : 0
+  const paidEnd = user.subscription_expires_at ? new Date(user.subscription_expires_at).getTime() : 0
+  const expiry = Math.max(trialEnd, paidEnd)
+
+  const hoursLeft = Math.max(0, (expiry - Date.now()) / (1000 * 60 * 60))
   return { active: hoursLeft > 0, hoursLeft }
 }
 

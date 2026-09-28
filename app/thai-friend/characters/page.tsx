@@ -91,16 +91,17 @@ export default function CharacterPickerPage() {
       <div style={{ padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1000px', margin: '0 auto' }}>
         <span style={{ fontFamily: "'Fraunces', serif", fontSize: '20px', fontWeight: 700 }}>Thai Friend</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {trial.active && trial.hoursLeft < Infinity && (
+          {trial.active && (
             <span style={{ fontSize: '13px', background: 'rgba(212,162,76,0.15)', color: '#D4A24C', padding: '6px 14px', borderRadius: '20px', fontWeight: 600 }}>
-              {Math.round(trial.hoursLeft)}h left in trial
+              {trial.hoursLeft > 72 ? `${Math.ceil(trial.hoursLeft / 24)} days left` : `${Math.round(trial.hoursLeft)}h left`}
             </span>
           )}
           {!trial.active && (
             <span style={{ fontSize: '13px', background: 'rgba(232,163,163,0.15)', color: '#e8a3a3', padding: '6px 14px', borderRadius: '20px', fontWeight: 600 }}>
-              Trial ended
+              Access ended
             </span>
           )}
+          <a href="/thai-friend/subscribe" style={{ color: 'rgba(245,239,225,0.6)', fontSize: '13px', textDecoration: 'none' }}>Add code</a>
           <button onClick={logout} style={{ background: 'none', border: 'none', color: 'rgba(245,239,225,0.6)', fontSize: '13px', cursor: 'pointer' }}>Log out</button>
         </div>
       </div>
@@ -116,7 +117,7 @@ export default function CharacterPickerPage() {
         {!trial.active && (
           <div style={{ background: 'rgba(232,163,163,0.1)', border: '1px solid rgba(232,163,163,0.3)', borderRadius: '14px', padding: '20px 24px', marginBottom: '32px' }}>
             <p style={{ margin: 0, fontSize: '14px', color: '#e8a3a3' }}>
-              Your free trial has ended. Subscribe to keep talking with your friends. <a href="/thai-friend/subscribe" style={{ color: '#D4A24C', fontWeight: 700 }}>Subscribe now →</a>
+              Your access has ended. Enter a new access code to keep talking with your friends. <a href="/thai-friend/subscribe" style={{ color: '#D4A24C', fontWeight: 700 }}>Add a code →</a>
             </p>
           </div>
         )}

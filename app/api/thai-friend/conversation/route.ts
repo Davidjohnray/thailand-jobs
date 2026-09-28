@@ -28,6 +28,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Relationship not found.' }, { status: 404 })
     }
 
+    // Server-side access check — without this the paywall would only be cosmetic,
+    // since anyone could skip the page redirect and call this route directly.
+    const { data: accessUser } = await supabase
+      .from('thai_friend_users')
+      .select('trial_ends_at, subscription_expires_at')
+      .eq('id', relationship.user_id)
+      .maybeSingle()
+
+    const expiry = Math.max(
+      accessUser?.trial_ends_at ? new Date(accessUser.trial_ends_at).getTime() : 0,
+      accessUser?.subscription_expires_at ? new Date(accessUser.subscription_expires_at).getTime() : 0
+    )
+    if (!accessUser || expiry <= Date.now()) {
+      return NextResponse.json({ error: 'Your access has ended. Please add a new access code to keep talking.' }, { status: 403 })
+    }
+
     const character = relationship.thai_friend_characters
     const knownFacts: string[] = relationship.known_facts || []
     const commonMistakes: string[] = relationship.common_mistakes || []
@@ -92,6 +108,7 @@ RULES FOR HOW YOU RESPOND:
 8. If your friend asks to practice a specific situation (e.g. "can we practice at a supermarket", "let's do a restaurant conversation", "I want to practice a job interview"), enthusiastically agree in character and shift the conversation into that scenario. Briefly set the scene in one short line (e.g. "okay! imagine I'm the cashier..."), then actually play that role within the scenario while still being yourself — your personality doesn't disappear, you're just now having that kind of conversation together. Keep it going naturally rather than a rigid script.
 9. If your friend seems stuck repeating or pronouncing the same phrase and it hasn't gone well after about 3 attempts, don't keep asking them to try again. Instead, warmly move on — something like "no worries, keep practicing that one when you can!" — and shift to a new question or direction rather than dwelling on it.
 10. Keep the conversation actively moving. If a topic or scenario naturally winds down or reaches a natural conclusion, don't let the conversation stall or go quiet — proactively bring up a new related question or gently shift to a fresh angle, the way a real friend keeps a conversation flowing rather than running out of things to say.
+11. If your friend asks you to repeat or say something again (in English or Thai — for example "can you say that again", "please repeat", "I didn't catch that"), simply say your last message again, in the same words or slightly simpler. Do not move on to a new topic or ask a new question until they have had the chance to hear it clearly.
 
 ${topic ? `Your friend wants to practice this specific situation today: "${topic}". If this is the start of the conversation, warmly set up that scenario in character right away rather than waiting to be asked.` : ''}
 

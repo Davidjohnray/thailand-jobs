@@ -573,8 +573,8 @@ export default function ThaiFriendChatPage() {
             </button>
           )}
 
-          <p style={{ color: 'rgba(245,239,225,0.45)', fontSize: '11px', margin: 0, textAlign: 'center', maxWidth: '300px' }}>
-            If the voice sounds unclear, the words on screen are still correct — tap Please repeat to hear it again.
+          <p style={{ color: 'rgba(245,239,225,0.45)', fontSize: '11px', margin: 0, textAlign: 'center', maxWidth: '340px' }}>
+            Voice unclear? The words on screen are always right. Tap Please repeat — or ask your friend in English, like “Can you say that again?”
           </p>
         </div>
       </div>

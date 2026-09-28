@@ -7,6 +7,7 @@ export default function ThaiFriendLandingPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [code, setCode] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [showSignup, setShowSignup] = useState(false)
@@ -14,6 +15,10 @@ export default function ThaiFriendLandingPage() {
   const startTrial = async () => {
     if (!email.trim() || !password.trim()) {
       setError('Please enter your email and a password.')
+      return
+    }
+    if (!code.trim()) {
+      setError('Please enter your access code.')
       return
     }
     if (password.length < 8) {
@@ -27,7 +32,7 @@ export default function ThaiFriendLandingPage() {
       const res = await fetch('/api/thai-friend/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, code }),
       })
 
       let data: any = {}
@@ -83,7 +88,7 @@ export default function ThaiFriendLandingPage() {
               className="ff-display"
               style={{ background: '#D4A24C', color: '#14201C', border: 'none', padding: '16px 36px', borderRadius: '10px', fontSize: '17px', fontWeight: 700, cursor: 'pointer' }}
             >
-              Start your 48-hour free trial
+              Create your account
             </button>
           ) : (
             <div style={{ background: 'rgba(245,239,225,0.06)', border: '1px solid rgba(245,239,225,0.15)', borderRadius: '14px', padding: '24px', maxWidth: '360px' }}>
@@ -100,7 +105,14 @@ export default function ThaiFriendLandingPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && startTrial()}
                 placeholder="Password (min 8 characters)"
-                style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(245,239,225,0.2)', borderRadius: '8px', padding: '12px 14px', color: '#F5EFE1', fontSize: '14px', boxSizing: 'border-box', marginBottom: '12px' }}
+                style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(245,239,225,0.2)', borderRadius: '8px', padding: '12px 14px', color: '#F5EFE1', fontSize: '14px', boxSizing: 'border-box', marginBottom: '10px' }}
+              />
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === 'Enter' && startTrial()}
+                placeholder="Access code (TF-XXXXXX)"
+                style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(212,162,76,0.5)', borderRadius: '8px', padding: '12px 14px', color: '#F5EFE1', fontSize: '14px', letterSpacing: '1px', boxSizing: 'border-box', marginBottom: '12px' }}
               />
               {error && <p style={{ color: '#e8a3a3', fontSize: '13px', marginBottom: '10px' }}>{error}</p>}
               <button
@@ -110,8 +122,9 @@ export default function ThaiFriendLandingPage() {
               >
                 {submitting ? 'Setting up...' : 'Create account & start talking'}
               </button>
-              <p style={{ fontSize: '12px', color: 'rgba(245,239,225,0.55)', marginTop: '10px', marginBottom: 0 }}>
-                Free for 48 hours. No card needed to start.
+              <p style={{ fontSize: '12px', color: 'rgba(245,239,225,0.55)', marginTop: '10px', marginBottom: 0, lineHeight: 1.5 }}>
+                Don't have a code? Email <a href="mailto:Admin@jobsinthailand.net?subject=Thai%20Friend%20access%20code" style={{ color: '#D4A24C' }}>Admin@jobsinthailand.net</a> for a free 48-hour trial code.
+                <br />Already have an account? <a href="/thai-friend/login" style={{ color: '#D4A24C' }}>Log in</a>
               </p>
             </div>
           )}
@@ -171,13 +184,13 @@ export default function ThaiFriendLandingPage() {
       {/* FINAL CTA */}
       <section style={{ background: '#1B2B25', padding: '72px 32px', textAlign: 'center' }}>
         <h2 className="ff-display" style={{ fontSize: '30px', fontWeight: 700, marginBottom: '16px' }}>Ready to make a Thai friend?</h2>
-        <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '15px', marginBottom: '28px' }}>48 hours free. No card required.</p>
+        <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '15px', marginBottom: '28px' }}>Email us for a free 48-hour trial code.</p>
         <button
           onClick={() => { setShowSignup(true); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
           className="ff-display"
           style={{ background: '#D4A24C', color: '#14201C', border: 'none', padding: '16px 36px', borderRadius: '10px', fontSize: '17px', fontWeight: 700, cursor: 'pointer' }}
         >
-          Start your free trial
+          Get started
         </button>
       </section>
     </main>
