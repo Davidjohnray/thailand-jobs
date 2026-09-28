@@ -10,6 +10,31 @@ const supabase = createClient(
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
+// Reads Claude's reply as JSON. Tolerates code fences and stray text around the JSON.
+function readJson(text: string): any {
+  const cleaned = text.replace(/```json|```/g, '').trim()
+  const first = cleaned.indexOf('{')
+  const last = cleaned.lastIndexOf('}')
+  const candidate = first >= 0 && last > first ? cleaned.slice(first, last + 1) : cleaned
+  return JSON.parse(candidate)
+}
+
+// Last resort: if the full JSON is broken (for example cut off partway through the
+// answer choices), still recover the main reply so the learner isn't left with an error.
+function salvageMainReply(text: string) {
+  const grab = (key: string): string | null => {
+    const m = text.match(new RegExp('"' + key + '"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"'))
+    return m ? m[1] : null
+  }
+  const thai = grab('thai')
+  const roman = grab('roman')
+  const english = grab('english')
+  if (thai && roman && english) {
+    return { thai, roman, english, studentMessageRoman: grab('studentMessageRoman') || '', suggestedReplies: [] }
+  }
+  return null
+}
+
 export async function POST(request: Request) {
   try {
     const { relationshipId, userMessage, recentHistory, topic, showChoices, opening } = await request.json()
@@ -130,26 +155,36 @@ ${opening
 Respond ONLY with valid JSON in this exact shape, nothing else, no markdown formatting:
 {"thai": "your reply in Thai script", "roman": "romanized pronunciation", "english": "English translation of your reply", "studentMessageRoman": "romanization of what your friend just said, ONLY if their message was in Thai script — otherwise just repeat their message as-is"${offerChoices ? ', "suggestedReplies": [{"thai": "Thai script", "roman": "romanization", "english": "English meaning"}, {"thai": "...", "roman": "...", "english": "..."}, {"thai": "...", "roman": "...", "english": "..."}]' : ''}}`
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-5',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: systemPrompt }],
-    })
+    // Ask up to twice: an occasional malformed reply is fixed by simply asking again.
+    let parsed: any = null
+    let lastText = ''
+    for (let attempt = 1; attempt <= 2 && !parsed; attempt++) {
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-5',
+        max_tokens: 2500, // Thai text uses many tokens; with answer choices a reply can be long
+        messages: [{ role: 'user', content: systemPrompt }],
+      })
 
-    const textBlock = response.content.find((b: any) => b.type === 'text')
-    if (!textBlock) {
-      return NextResponse.json({ error: 'No response generated.' }, { status: 500 })
+      const textBlock = response.content.find((b: any) => b.type === 'text')
+      if (!textBlock) continue
+      lastText = (textBlock as any).text
+
+      if (response.stop_reason === 'max_tokens') {
+        console.error(`Reply hit the token limit (attempt ${attempt})`)
+      }
+      try {
+        parsed = readJson(lastText)
+      } catch {
+        console.error(`JSON parse failed (attempt ${attempt}). Raw output was:`, lastText)
+      }
     }
 
-    const cleaned = (textBlock as any).text.replace(/```json|```/g, '').trim()
-
-    let thai, roman, english, studentMessageRoman, suggestedReplies
-    try {
-      ;({ thai, roman, english, studentMessageRoman, suggestedReplies } = JSON.parse(cleaned))
-    } catch (parseErr) {
-      console.error('JSON parse failed. Raw Claude output was:', cleaned)
-      return NextResponse.json({ error: `Could not parse response. Raw output: ${cleaned.slice(0, 400)}` }, { status: 500 })
+    if (!parsed) parsed = salvageMainReply(lastText)
+    if (!parsed) {
+      return NextResponse.json({ error: 'Sorry, that reply did not come through properly. Please tap the mic and try again.' }, { status: 500 })
     }
+
+    const { thai, roman, english, studentMessageRoman, suggestedReplies } = parsed
 
     return NextResponse.json({
       thai,

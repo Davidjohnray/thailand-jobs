@@ -407,6 +407,14 @@ export default function ThaiFriendChatPage() {
     })
     const data = await res.json()
 
+    if (data.saved === false) {
+      // Don't hide this: a conversation that isn't saved will never appear in the history.
+      setError(`This conversation could not be saved: ${data.saveError || 'unknown error'}`)
+      setEnding(false)
+      setTimeout(() => router.push('/thai-friend/characters'), 6000)
+      return
+    }
+
     if (data.levelChanged && data.newLevel > proficiencyLevel) {
       setLevelUpMessage(`🎉 ${character.name} thinks you're ready for ${data.newLevel}-level conversations now!`)
       setTimeout(() => router.push('/thai-friend/characters'), 2800)

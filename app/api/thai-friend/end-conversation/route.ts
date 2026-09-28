@@ -29,11 +29,12 @@ export async function POST(request: Request) {
     }
 
     // Save the full conversation transcript
-    await supabase.from('thai_friend_conversations').insert({
+    const { error: saveError } = await supabase.from('thai_friend_conversations').insert({
       relationship_id: relationshipId,
       transcript,
       ended_at: new Date().toISOString(),
     })
+    if (saveError) console.error('Could not save conversation:', saveError.message)
 
     // Ask Claude to extract new personal facts and notable mistakes from this conversation
     const conversationText = transcript
@@ -114,7 +115,7 @@ If there is nothing new to add for facts or mistakes, return an empty array for 
       })
       .eq('id', relationshipId)
 
-    return NextResponse.json({ ok: true, newFacts, newMistakes, levelChanged: newLevel !== currentLevel, newLevel, levelReasoning })
+    return NextResponse.json({ ok: true, saved: !saveError, saveError: saveError?.message || null, newFacts, newMistakes, levelChanged: newLevel !== currentLevel, newLevel, levelReasoning })
   } catch (err) {
     console.error('End conversation error:', err)
     return NextResponse.json({ error: 'Something went wrong saving the conversation.' }, { status: 500 })
