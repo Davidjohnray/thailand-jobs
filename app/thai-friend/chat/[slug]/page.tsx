@@ -8,6 +8,7 @@ type Turn = {
   thai_text?: string
   romanization?: string
   english_text: string
+  suggestions?: { thai: string; roman: string; english: string }[]
 }
 
 export default function ThaiFriendChatPage() {
@@ -33,6 +34,7 @@ export default function ThaiFriendChatPage() {
   const [changingLevel, setChangingLevel] = useState(false) // true when opened from the header mid-conversation
   const [levelNotice, setLevelNotice] = useState<string | null>(null)
   const [languageHint, setLanguageHint] = useState<'auto' | 'th' | 'en'>('auto')
+  const [showChoices, setShowChoices] = useState(true)
 
   const TOPIC_SUGGESTIONS = ['Just chat freely', 'At the supermarket', 'Ordering food', 'Asking for directions', 'At the doctor', 'Meeting for the first time']
 
@@ -215,6 +217,7 @@ export default function ThaiFriendChatPage() {
           userMessage: transcribeData.text,
           recentHistory: updatedTranscript.slice(-8),
           topic: topic && topic !== 'Just chat freely' ? topic : null,
+          showChoices: showChoices && ['A1', 'A2'].includes(proficiencyLevel),
         }),
       })
       const conversationData = await conversationRes.json()
@@ -242,6 +245,7 @@ export default function ThaiFriendChatPage() {
         thai_text: conversationData.thai,
         romanization: conversationData.roman,
         english_text: conversationData.english,
+        suggestions: conversationData.suggestedReplies || [],
       }
       setTranscript((prev) => [...prev, characterTurn])
 
@@ -497,6 +501,34 @@ export default function ThaiFriendChatPage() {
               </div>
             </div>
           ))}
+          {(() => {
+            const last = transcript[transcript.length - 1]
+            if (!last || last.speaker !== 'character' || !last.suggestions || last.suggestions.length === 0) return null
+            return (
+              <div style={{ marginBottom: '16px', maxWidth: '90%' }}>
+                <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '12px', margin: '0 0 8px' }}>
+                  🎙 Try saying one of these out loud. Tap 🔊 to hear it first.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {last.suggestions.map((sug, si) => (
+                    <div key={si} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(212,162,76,0.14)', border: '1px solid rgba(212,162,76,0.4)', borderRadius: '12px', padding: '10px 12px' }}>
+                      <button
+                        onClick={() => { setLanguageHint('th'); playSpeech(sug.thai) }}
+                        aria-label="Hear this"
+                        style={{ background: '#D4A24C', color: '#14201C', border: 'none', borderRadius: '50%', width: '34px', height: '34px', fontSize: '15px', cursor: 'pointer', flexShrink: 0 }}
+                      >
+                        🔊
+                      </button>
+                      <div>
+                        <p style={{ margin: '0 0 2px', fontSize: '15px', fontWeight: 600, color: '#F5EFE1' }}>{sug.roman}</p>
+                        <p style={{ margin: 0, fontSize: '12px', color: 'rgba(245,239,225,0.6)' }}>{sug.english}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
           <div ref={bottomRef} />
         </div>
 
@@ -510,6 +542,15 @@ export default function ThaiFriendChatPage() {
 
         {/* MIC CONTROL */}
         <div style={{ padding: '24px 24px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' }}>
+
+          {['A1', 'A2'].includes(proficiencyLevel) && (
+            <button
+              onClick={() => setShowChoices((v) => !v)}
+              style={{ background: showChoices ? 'rgba(212,162,76,0.2)' : 'transparent', color: showChoices ? '#D4A24C' : 'rgba(245,239,225,0.6)', border: '1px solid rgba(212,162,76,0.4)', borderRadius: '16px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+            >
+              💡 Answer choices: {showChoices ? 'On' : 'Off'}
+            </button>
+          )}
 
           <div style={{ display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.25)', borderRadius: '20px', padding: '4px' }}>
             {(['auto', 'th', 'en'] as const).map((opt) => (

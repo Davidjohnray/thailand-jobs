@@ -12,7 +12,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request: Request) {
   try {
-    const { relationshipId, userMessage, recentHistory, topic } = await request.json()
+    const { relationshipId, userMessage, recentHistory, topic, showChoices } = await request.json()
 
     if (!relationshipId || !userMessage) {
       return NextResponse.json({ error: 'Missing relationshipId or userMessage.' }, { status: 400 })
@@ -45,6 +45,9 @@ export async function POST(request: Request) {
     }
 
     const character = relationship.thai_friend_characters
+
+    // Model answers are only for beginners (A1/A2), and only when the learner has them switched on.
+    const offerChoices = !!showChoices && ['A1', 'A2'].includes(relationship.proficiency_level || 'A1')
     const knownFacts: string[] = relationship.known_facts || []
     const commonMistakes: string[] = relationship.common_mistakes || []
 
@@ -108,7 +111,8 @@ RULES FOR HOW YOU RESPOND:
 8. If your friend asks to practice a specific situation (e.g. "can we practice at a supermarket", "let's do a restaurant conversation", "I want to practice a job interview"), enthusiastically agree in character and shift the conversation into that scenario. Briefly set the scene in one short line (e.g. "okay! imagine I'm the cashier..."), then actually play that role within the scenario while still being yourself — your personality doesn't disappear, you're just now having that kind of conversation together. Keep it going naturally rather than a rigid script.
 9. If your friend seems stuck repeating or pronouncing the same phrase and it hasn't gone well after about 3 attempts, don't keep asking them to try again. Instead, warmly move on — something like "no worries, keep practicing that one when you can!" — and shift to a new question or direction rather than dwelling on it.
 10. Keep the conversation actively moving. If a topic or scenario naturally winds down or reaches a natural conclusion, don't let the conversation stall or go quiet — proactively bring up a new related question or gently shift to a fresh angle, the way a real friend keeps a conversation flowing rather than running out of things to say.
-11. If your friend asks you to repeat or say something again (in English or Thai — for example "can you say that again", "please repeat", "I didn't catch that"), simply say your last message again, in the same words or slightly simpler. Do not move on to a new topic or ask a new question until they have had the chance to hear it clearly.
+11. If your friend asks you to repeat or say something again (in English or Thai — for example "can you say that again", "please repeat", "I didn't catch that"), simply say your last message again, in the same words or slightly simpler. Do not move on to a new topic or ask a new question until they have had the chance to hear it clearly.${offerChoices ? `
+12. ANSWER CHOICES ARE SWITCHED ON for this learner, who is a beginner. After your reply, give 3 short, natural things your friend could say next, in "suggestedReplies". Each one must be a real answer to the question you just asked (or, if you did not ask a question, a natural thing to say back — like thanking you or asking you something). Vary the key detail so there is a genuine choice: for example, if you ask where they come from, offer three different countries. Keep every option at their level — for A1, only 3 to 7 Thai words and only very common vocabulary. Give each option its Thai script, its romanization (in the same style as your own reply) and its English meaning.` : ''}
 
 ${topic ? `Your friend wants to practice this specific situation today: "${topic}". If this is the start of the conversation, warmly set up that scenario in character right away rather than waiting to be asked.` : ''}
 
@@ -122,7 +126,7 @@ ${historyText || '(this is the start of the conversation)'}
 Your friend just said: "${userMessage}"
 
 Respond ONLY with valid JSON in this exact shape, nothing else, no markdown formatting:
-{"thai": "your reply in Thai script", "roman": "romanized pronunciation", "english": "English translation of your reply", "studentMessageRoman": "romanization of what your friend just said, ONLY if their message was in Thai script — otherwise just repeat their message as-is"}`
+{"thai": "your reply in Thai script", "roman": "romanized pronunciation", "english": "English translation of your reply", "studentMessageRoman": "romanization of what your friend just said, ONLY if their message was in Thai script — otherwise just repeat their message as-is"${offerChoices ? ', "suggestedReplies": [{"thai": "Thai script", "roman": "romanization", "english": "English meaning"}, {"thai": "...", "roman": "...", "english": "..."}, {"thai": "...", "roman": "...", "english": "..."}]' : ''}}`
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-5',
@@ -137,15 +141,21 @@ Respond ONLY with valid JSON in this exact shape, nothing else, no markdown form
 
     const cleaned = (textBlock as any).text.replace(/```json|```/g, '').trim()
 
-    let thai, roman, english, studentMessageRoman
+    let thai, roman, english, studentMessageRoman, suggestedReplies
     try {
-      ;({ thai, roman, english, studentMessageRoman } = JSON.parse(cleaned))
+      ;({ thai, roman, english, studentMessageRoman, suggestedReplies } = JSON.parse(cleaned))
     } catch (parseErr) {
       console.error('JSON parse failed. Raw Claude output was:', cleaned)
       return NextResponse.json({ error: `Could not parse response. Raw output: ${cleaned.slice(0, 400)}` }, { status: 500 })
     }
 
-    return NextResponse.json({ thai, roman, english, studentMessageRoman })
+    return NextResponse.json({
+      thai,
+      roman,
+      english,
+      studentMessageRoman,
+      suggestedReplies: offerChoices && Array.isArray(suggestedReplies) ? suggestedReplies.slice(0, 4) : [],
+    })
   } catch (err: any) {
     console.error('Conversation error:', err)
     return NextResponse.json({ error: `Generation error: ${err?.message || 'unknown'}` }, { status: 500 })
