@@ -54,6 +54,10 @@ export async function GET(request: Request) {
 
     const character = rel.thai_friend_characters
     const user = rel.thai_friend_users
+
+    // Accounts are code-only now, so most people have no email to send a check-in to.
+    // Skip them entirely rather than paying for a message that can't be delivered.
+    if (!user?.email) continue
     const knownFacts: string[] = rel.known_facts || []
 
     const prompt = `You are ${character.name}, a Thai person with this background: ${character.full_bio}

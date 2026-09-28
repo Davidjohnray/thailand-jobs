@@ -8,6 +8,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+// Accepts "tf-k7m2-qx9p", "TFK7M2QX9P", "k7m2 qx9p" etc. and returns "TF-K7M2-QX9P".
+function normalizeCode(input: string): string {
+  const raw = String(input || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+  if (raw.length === 8) return `TF-${raw.slice(0, 4)}-${raw.slice(4)}`
+  if (raw.startsWith('TF') && raw.length === 10) return `TF-${raw.slice(2, 6)}-${raw.slice(6)}`
+  return raw
+}
+
 export async function POST(request: Request) {
   try {
     const { userId, code } = await request.json()
@@ -16,7 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Please enter your access code.' }, { status: 400 })
     }
 
-    const normalizedCode = String(code).trim().toUpperCase()
+    const normalizedCode = normalizeCode(code)
 
     const { data: user } = await supabase
       .from('thai_friend_users')

@@ -5,41 +5,31 @@ import { setThaiFriendSession } from '../../lib/thai-friend-auth'
 
 export default function ThaiFriendLandingPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [code, setCode] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [showSignup, setShowSignup] = useState(false)
 
   const startTrial = async () => {
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter your email and a password.')
-      return
-    }
     if (!code.trim()) {
       setError('Please enter your access code.')
-      return
-    }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
       return
     }
     setError('')
     setSubmitting(true)
 
     try {
-      const res = await fetch('/api/thai-friend/register', {
+      const res = await fetch('/api/thai-friend/enter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, code }),
+        body: JSON.stringify({ code }),
       })
 
       let data: any = {}
       try {
         data = await res.json()
       } catch {
-        setError(`Server returned an unexpected response (status ${res.status}). Check Vercel function logs for /api/thai-friend/register.`)
+        setError(`Server returned an unexpected response (status ${res.status}).`)
         return
       }
 
@@ -48,10 +38,10 @@ export default function ThaiFriendLandingPage() {
         return
       }
 
-      setThaiFriendSession({ id: data.id, email: data.email })
+      setThaiFriendSession({ id: data.id, email: '' })
       router.push('/thai-friend/characters')
     } catch (err: any) {
-      setError(`Network error: ${err?.message || 'could not reach the server.'}`)
+      setError('Could not reach the server. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -88,31 +78,20 @@ export default function ThaiFriendLandingPage() {
               className="ff-display"
               style={{ background: '#D4A24C', color: '#14201C', border: 'none', padding: '16px 36px', borderRadius: '10px', fontSize: '17px', fontWeight: 700, cursor: 'pointer' }}
             >
-              Create your account
+              Enter your access code
             </button>
           ) : (
             <div style={{ background: 'rgba(245,239,225,0.06)', border: '1px solid rgba(245,239,225,0.15)', borderRadius: '14px', padding: '24px', maxWidth: '360px' }}>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(245,239,225,0.2)', borderRadius: '8px', padding: '12px 14px', color: '#F5EFE1', fontSize: '14px', boxSizing: 'border-box', marginBottom: '10px' }}
-              />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && startTrial()}
-                placeholder="Password (min 8 characters)"
-                style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(245,239,225,0.2)', borderRadius: '8px', padding: '12px 14px', color: '#F5EFE1', fontSize: '14px', boxSizing: 'border-box', marginBottom: '10px' }}
-              />
+              <p style={{ fontSize: '13px', color: 'rgba(245,239,225,0.7)', margin: '0 0 12px', lineHeight: 1.5 }}>
+                Enter your access code to start. If you've been here before, use the same code as last time.
+              </p>
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 onKeyDown={(e) => e.key === 'Enter' && startTrial()}
-                placeholder="Access code (TF-XXXXXX)"
-                style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(212,162,76,0.5)', borderRadius: '8px', padding: '12px 14px', color: '#F5EFE1', fontSize: '14px', letterSpacing: '1px', boxSizing: 'border-box', marginBottom: '12px' }}
+                placeholder="TF-XXXX-XXXX"
+                autoFocus
+                style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(212,162,76,0.5)', borderRadius: '8px', padding: '14px', color: '#F5EFE1', fontSize: '16px', letterSpacing: '1.5px', textAlign: 'center', boxSizing: 'border-box', marginBottom: '12px' }}
               />
               {error && <p style={{ color: '#e8a3a3', fontSize: '13px', marginBottom: '10px' }}>{error}</p>}
               <button
@@ -120,11 +99,10 @@ export default function ThaiFriendLandingPage() {
                 disabled={submitting}
                 style={{ width: '100%', background: '#D4A24C', color: '#14201C', border: 'none', padding: '13px', borderRadius: '8px', fontWeight: 700, fontSize: '15px', cursor: submitting ? 'not-allowed' : 'pointer' }}
               >
-                {submitting ? 'Setting up...' : 'Create account & start talking'}
+                {submitting ? 'Checking...' : 'Enter & start talking'}
               </button>
               <p style={{ fontSize: '12px', color: 'rgba(245,239,225,0.55)', marginTop: '10px', marginBottom: 0, lineHeight: 1.5 }}>
                 Don't have a code? Email <a href="mailto:Admin@jobsinthailand.net?subject=Thai%20Friend%20access%20code" style={{ color: '#D4A24C' }}>Admin@jobsinthailand.net</a> for a free 48-hour trial code.
-                <br />Already have an account? <a href="/thai-friend/login" style={{ color: '#D4A24C' }}>Log in</a>
               </p>
             </div>
           )}

@@ -74,7 +74,7 @@ export default function ThaiFriendAdminPage() {
   }
 
   const messageFor = (code: string, days: number) =>
-    `Here is your Thai Friend access code: ${code}\n\nIt gives you ${days} days of access, starting when you use it.\n\n1. Go to https://www.jobsinthailand.net/thai-friend\n2. Enter your email, a password and this code\n3. Pick a friend and start talking!\n\nAlready have an account? Log in, then go to https://www.jobsinthailand.net/thai-friend/subscribe to add this code.`
+    `Here is your Thai Friend access code: ${code}\n\nIt gives you ${days} days of access, starting the first time you use it.\n\n1. Go to https://www.jobsinthailand.net/thai-friend\n2. Enter this code — no email or password needed\n3. Pick a friend and start talking!\n\nKeep this code safe: it is also how you log back in. When your time runs out, log in with it and add your new code on the page it shows you.`
 
   if (!authed) {
     return (
@@ -152,7 +152,7 @@ export default function ThaiFriendAdminPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ textAlign: 'left', color: 'rgba(245,239,225,0.55)' }}>
-                <th style={th}>Code</th><th style={th}>Length</th><th style={th}>Status</th><th style={th}>Used by</th><th style={th}>Note</th>
+                <th style={th}>Code</th><th style={th}>Length</th><th style={th}>Status</th><th style={th}>Used on</th><th style={th}>Note</th>
               </tr>
             </thead>
             <tbody>
@@ -161,7 +161,7 @@ export default function ThaiFriendAdminPage() {
                   <td style={td}><code>{c.code}</code></td>
                   <td style={td}>{c.duration_days}d</td>
                   <td style={{ ...td, color: c.status === 'unused' ? '#7fd6a3' : 'rgba(245,239,225,0.5)' }}>{c.status}</td>
-                  <td style={td}>{c.thai_friend_users?.email || '—'}</td>
+                  <td style={td}>{c.redeemed_at ? new Date(c.redeemed_at).toLocaleDateString('en-GB') : '—'}</td>
                   <td style={td}>{c.note || ''}</td>
                 </tr>
               ))}

@@ -12,12 +12,14 @@ const supabase = createClient(
 // No 0/O or 1/I so codes are easy to read out or type from a message.
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
+// 8 characters (about a trillion combinations). The code is now also the login,
+// so it has to be long enough that nobody can guess someone else's.
 function makeCode(): string {
   let out = ''
-  const bytes = new Uint8Array(6)
+  const bytes = new Uint8Array(8)
   crypto.getRandomValues(bytes)
-  for (let i = 0; i < 6; i++) out += ALPHABET[bytes[i] % ALPHABET.length]
-  return `TF-${out}`
+  for (let i = 0; i < 8; i++) out += ALPHABET[bytes[i] % ALPHABET.length]
+  return `TF-${out.slice(0, 4)}-${out.slice(4)}`
 }
 
 function isAuthorised(request: Request): boolean {
