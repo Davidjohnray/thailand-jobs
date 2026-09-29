@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { setThaiFriendSession } from '../../lib/thai-friend-auth'
+import TrackView from '../../components/TrackView'
 
 export default function ThaiFriendLandingPage() {
   const router = useRouter()
@@ -49,6 +50,9 @@ export default function ThaiFriendLandingPage() {
 
   return (
     <main style={{ fontFamily: "'Work Sans', sans-serif", background: '#14201C', minHeight: '100vh', color: '#F5EFE1' }}>
+
+      {/* Just a page-view count for how many people look at this landing page — no click tracking needed. */}
+      <TrackView scope="thai-friend" />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600&family=Work+Sans:wght@400;500;600;700&display=swap');
