@@ -15,6 +15,7 @@ const TRACKED_SCOPES: { scope: string; label: string; trackClicks?: boolean }[] 
   { scope: 'partner-teach-bridge', label: 'Teach Bridge Asia', trackClicks: false },
   { scope: 'banner-essential-tefl', label: 'Essential TEFL', trackClicks: true },
   { scope: 'banner-teachers', label: 'Teachers Directory (Job Pages)', trackClicks: true },
+  { scope: 'banner-world-tesol', label: 'World TESOL Academy', trackClicks: true },
 ]
 
 // ESL Resources hub — these only track clicks (into the section), not views.
@@ -33,7 +34,6 @@ function bangkokToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(new Date())
 }
 
-// 'live' = today only, auto-refreshing. Anything else = a fixed historical range.
 type RangeMode = 'live' | number | 'custom'
 
 export default function LiveStatsPage() {
@@ -106,7 +106,6 @@ export default function LiveStatsPage() {
     setLoading(false)
   }, [])
 
-  // Scope stats: refetch whenever the range changes, and poll only in live mode.
   useEffect(() => {
     fetchScopeStats()
     if (rangeMode === 'live') {
@@ -115,7 +114,6 @@ export default function LiveStatsPage() {
     }
   }, [fetchScopeStats, rangeMode])
 
-  // Jobs: lifetime totals, not date-scoped — fetched once, refreshed alongside live polling.
   useEffect(() => {
     fetchJobs()
     if (rangeMode === 'live') {
@@ -136,7 +134,7 @@ export default function LiveStatsPage() {
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
-      <div style={{ maxWidth: '760px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: NAVY }}>Stats</h1>
@@ -150,54 +148,24 @@ export default function LiveStatsPage() {
 
         {/* Range controls */}
         <div style={{ background: NAVY, borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
-          <button
-            onClick={() => setRangeMode('live')}
-            style={{
-              background: rangeMode === 'live' ? GOLD : 'rgba(255,255,255,0.12)',
-              color: rangeMode === 'live' ? NAVY : 'white',
-              border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
-            }}
-          >
+          <button onClick={() => setRangeMode('live')}
+            style={{ background: rangeMode === 'live' ? GOLD : 'rgba(255,255,255,0.12)', color: rangeMode === 'live' ? NAVY : 'white', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
             🔴 Live
           </button>
           {RANGE_OPTIONS.map(opt => (
-            <button
-              key={opt}
-              onClick={() => setRangeMode(opt)}
-              style={{
-                background: rangeMode === opt ? GOLD : 'rgba(255,255,255,0.12)',
-                color: rangeMode === opt ? NAVY : 'white',
-                border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
-              }}
-            >
+            <button key={opt} onClick={() => setRangeMode(opt)}
+              style={{ background: rangeMode === opt ? GOLD : 'rgba(255,255,255,0.12)', color: rangeMode === opt ? NAVY : 'white', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
               {opt}d
             </button>
           ))}
           <span style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.2)' }} />
-          <input
-            type="date"
-            value={customFrom}
-            onChange={e => setCustomFrom(e.target.value)}
-            style={{ background: 'rgba(255,255,255,0.12)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '6px 10px', fontSize: '13px' }}
-          />
+          <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)}
+            style={{ background: 'rgba(255,255,255,0.12)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '6px 10px', fontSize: '13px' }} />
           <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>to</span>
-          <input
-            type="date"
-            value={customTo}
-            onChange={e => setCustomTo(e.target.value)}
-            style={{ background: 'rgba(255,255,255,0.12)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '6px 10px', fontSize: '13px' }}
-          />
-          <button
-            onClick={handleCustomSearch}
-            disabled={!customFrom || !customTo}
-            style={{
-              background: rangeMode === 'custom' ? GOLD : 'rgba(255,255,255,0.12)',
-              color: rangeMode === 'custom' ? NAVY : 'white',
-              border: 'none', borderRadius: '8px', padding: '6px 16px', fontSize: '13px', fontWeight: 700,
-              cursor: customFrom && customTo ? 'pointer' : 'not-allowed',
-              opacity: customFrom && customTo ? 1 : 0.5,
-            }}
-          >
+          <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)}
+            style={{ background: 'rgba(255,255,255,0.12)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', padding: '6px 10px', fontSize: '13px' }} />
+          <button onClick={handleCustomSearch} disabled={!customFrom || !customTo}
+            style={{ background: rangeMode === 'custom' ? GOLD : 'rgba(255,255,255,0.12)', color: rangeMode === 'custom' ? NAVY : 'white', border: 'none', borderRadius: '8px', padding: '6px 16px', fontSize: '13px', fontWeight: 700, cursor: customFrom && customTo ? 'pointer' : 'not-allowed', opacity: customFrom && customTo ? 1 : 0.5 }}>
             Search
           </button>
         </div>
@@ -242,22 +210,8 @@ export default function LiveStatsPage() {
 
         {/* Resources — collapsible */}
         <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '20px', overflow: 'hidden' }}>
-          <button
-            onClick={() => setResourcesOpen(o => !o)}
-            style={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '16px 18px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 700,
-              color: '#333',
-            }}
-          >
+          <button onClick={() => setResourcesOpen(o => !o)}
+            style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 18px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 700, color: '#333' }}>
             <span>📚 Resources — {rangeLabel}</span>
             <span style={{ color: '#999', fontSize: '13px' }}>{resourcesOpen ? '▲ Hide' : '▼ Show'}</span>
           </button>
@@ -297,9 +251,7 @@ export default function LiveStatsPage() {
                   <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < featuredJobs.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {job.title}
-                        </div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{job.title}</div>
                         <div style={{ fontSize: '12px', color: '#999' }}>{job.company} · {daysLeft} day{daysLeft === 1 ? '' : 's'} left</div>
                       </div>
                       <div style={{ fontSize: '15px', fontWeight: 700, color: NAVY, flexShrink: 0 }}>{job.view_count ?? 0} views</div>
@@ -326,9 +278,7 @@ export default function LiveStatsPage() {
                   <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < regularJobs.length - 1 ? '1px solid #f0f0f0' : 'none' }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {job.title}
-                        </div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{job.title}</div>
                         <div style={{ fontSize: '12px', color: '#999' }}>{job.company} · {daysLeft} day{daysLeft === 1 ? '' : 's'} left</div>
                       </div>
                       <div style={{ fontSize: '15px', fontWeight: 700, color: NAVY, flexShrink: 0 }}>{job.view_count ?? 0} views</div>
