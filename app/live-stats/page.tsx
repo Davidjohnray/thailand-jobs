@@ -16,6 +16,7 @@ const TRACKED_SCOPES: { scope: string; label: string; trackClicks?: boolean }[] 
   { scope: 'banner-essential-tefl', label: 'Essential TEFL', trackClicks: true },
   { scope: 'banner-teachers', label: 'Teachers Directory (Job Pages)', trackClicks: true },
   { scope: 'banner-world-tesol', label: 'World TESOL Academy', trackClicks: true },
+  { scope: 'thai-friend', label: 'Thai Friend', trackClicks: false },
 ]
 
 // ESL Resources hub — these only track clicks (into the section), not views.
