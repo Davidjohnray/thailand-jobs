@@ -52,6 +52,41 @@ export default function TEFLPage() {
         </div>
       </section>
 
+      {/* WORLD TESOL ACADEMY PARTNER CARD */}
+      <section style={{ padding: '48px 24px', background: 'white', borderBottom: '1px solid #eee' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+            <span style={{ background: '#f59e0b', color: '#1a1a2e', fontSize: '12px', fontWeight: '800', padding: '4px 14px', borderRadius: '20px', letterSpacing: '1px', textTransform: 'uppercase' }}>⭐ Recommended TEFL Provider</span>
+          </div>
+          <div style={{ background: 'linear-gradient(135deg, #1a1a3e 0%, #2d1b69 100%)', borderRadius: '20px', padding: '36px', display: 'flex', gap: '32px', alignItems: 'center', flexWrap: 'wrap', boxShadow: '0 8px 32px rgba(45,27,105,0.3)' }}>
+            <div style={{ flexShrink: 0, textAlign: 'center' }}>
+              <img src="/world-tesol-academy.png" alt="World TESOL Academy" style={{ width: '120px', height: '120px', objectFit: 'contain', borderRadius: '12px', background: 'white', padding: '8px' }} />
+            </div>
+            <div style={{ flex: 1, minWidth: '240px' }}>
+              <div style={{ color: '#f59e0b', fontSize: '13px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>World TESOL Academy</div>
+              <h3 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: '0 0 10px' }}>Award-Winning Accredited TESOL/TEFL Certification</h3>
+              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', margin: '0 0 16px', lineHeight: '1.6' }}>
+                Get your internationally recognised 120-hour TESOL/TEFL certificate online — study at your own pace and start teaching in Thailand and beyond. Winners of Best TEFL Provider 2022 & 2023.
+              </p>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                {['✅ Dual Accredited', '✅ UK Registered', '✅ Award-Winning', '✅ Tutor Support'].map(tag => (
+                  <span key={tag} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>{tag}</span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <a href="https://www.worldtesolacademy.com/?study=138946" target="_blank" rel="noopener noreferrer"
+                  style={{ background: '#f59e0b', color: '#1a1a2e', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '15px' }}>
+                  Enroll Now — From $36 →
+                </a>
+                <Link href="/partners/world-tesol-academy" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', textDecoration: 'underline' }}>
+                  Learn more →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* WHAT IS TEFL */}
       <section id="what-is-tefl" style={{ padding: '80px 24px', background: 'white' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -211,8 +246,6 @@ export default function TEFLPage() {
             </div>
           ) : (
             <div style={{ background: 'white', borderRadius: '20px', padding: '40px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-
-              {/* Interest selector */}
               <div style={{ marginBottom: '28px' }}>
                 <label style={{ fontWeight: 'bold', fontSize: '15px', color: '#1a1a2e', display: 'block', marginBottom: '12px' }}>What are you interested in? *</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
