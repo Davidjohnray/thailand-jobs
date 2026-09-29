@@ -1,13 +1,11 @@
+'use client'
 import Link from 'next/link'
-
-export const metadata = {
-  title: 'World TESOL Academy | Accredited TESOL/TEFL Certification',
-  description: 'Get your internationally recognised 120-hour TESOL/TEFL certificate online with World TESOL Academy. Award-winning, dual accredited, UK registered. From $36.',
-}
+import TrackView, { trackClick } from '../../../components/TrackView'
 
 export default function WorldTESOLAcademyPage() {
   return (
     <main style={{ background: '#f8f9fa', minHeight: '100vh' }}>
+      <TrackView scope="banner-world-tesol" />
 
       {/* HERO */}
       <section style={{ background: 'linear-gradient(135deg, #1a1a3e 0%, #2d1b69 100%)', padding: '60px 24px', textAlign: 'center' }}>
@@ -21,6 +19,7 @@ export default function WorldTESOLAcademyPage() {
           <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', margin: '0 0 32px' }}>Winners of Best TEFL Provider 2022 & 2023 · Dual Accredited · UK Registered</p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a href="https://www.worldtesolacademy.com/?study=138946" target="_blank" rel="noopener noreferrer"
+              onClick={() => trackClick('banner-world-tesol')}
               style={{ background: '#f59e0b', color: '#1a1a2e', padding: '16px 36px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '17px' }}>
               Enroll Now — From $36 →
             </a>
@@ -54,6 +53,7 @@ export default function WorldTESOLAcademyPage() {
           </div>
           <div style={{ textAlign: 'center', marginTop: '28px' }}>
             <a href="https://www.worldtesolacademy.com/?study=138946" target="_blank" rel="noopener noreferrer"
+              onClick={() => trackClick('banner-world-tesol')}
               style={{ background: '#f59e0b', color: '#1a1a2e', padding: '14px 36px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '16px', display: 'inline-block' }}>
               View All Courses & Enroll →
             </a>
@@ -86,6 +86,7 @@ export default function WorldTESOLAcademyPage() {
           <h2 style={{ color: 'white', fontSize: '24px', fontWeight: '900', margin: '0 0 12px' }}>Ready to get TEFL certified?</h2>
           <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '15px', margin: '0 0 24px' }}>Join thousands of teachers worldwide who have certified with World TESOL Academy</p>
           <a href="https://www.worldtesolacademy.com/?study=138946" target="_blank" rel="noopener noreferrer"
+            onClick={() => trackClick('banner-world-tesol')}
             style={{ background: '#f59e0b', color: '#1a1a2e', padding: '16px 48px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '18px', display: 'inline-block' }}>
             Enroll Now — From $36 →
           </a>
