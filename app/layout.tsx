@@ -3,6 +3,7 @@ import './globals.css'
 import Navbar from '../components/Navbar'
 import VisitorCounter from '../components/VisitorCounter'
 import TrackView from '../components/TrackView'
+import ThaiFriendBanner from '../components/ThaiFriendBanner'
 
 export const metadata: Metadata = {
   title: {
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ margin: 0, fontFamily: 'Arial, sans-serif', background: '#f9f9f9' }}>
         <Navbar />
+        <ThaiFriendBanner />
         {children}
         <VisitorCounter />
         <TrackView scope="site" />
