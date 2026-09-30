@@ -224,7 +224,7 @@ export default function FrenchFriendChatPage() {
   if (!character) return <main style={{ background: '#14201C', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F5EFE1' }}>Friend not found.</main>
 
   return (
-    <main style={{ minHeight: '100vh', background: `url('/french-friend/characters/${slug}.svg') center/cover no-repeat, #14201C`, display: 'flex', flexDirection: 'column', fontFamily: "'Work Sans', sans-serif" }}>
+    <main style={{ minHeight: '100vh', background: `url('/french-friend/characters/${slug}.jpg') center/cover no-repeat, #14201C`, display: 'flex', flexDirection: 'column', fontFamily: "'Work Sans', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=Work+Sans:wght@400;500;600;700&display=swap');
         @keyframes waveform-bounce { 0%, 100% { height: 8px; } 50% { height: 28px; } }

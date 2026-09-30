@@ -143,7 +143,7 @@ function ChatBubble({ fr, en, mine }: { fr: string; en: string; mine: boolean })
 function CharacterCard({ slug, name, place, tagline }: { slug: string; name: string; place: string; tagline: string }) {
   return (
     <div style={{ background: 'rgba(245,239,225,0.05)', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '16px', overflow: 'hidden' }}>
-      <div style={{ height: '140px', background: `url('/french-friend/characters/${slug}.svg')`, backgroundSize: 'cover', backgroundPosition: 'top center' }} />
+      <div style={{ height: '140px', background: `url('/french-friend/characters/${slug}.jpg')`, backgroundSize: 'cover', backgroundPosition: 'top center' }} />
       <div style={{ padding: '20px' }}>
         <p className="ff-display" style={{ fontSize: '19px', fontWeight: 700, margin: '0 0 4px' }}>{name}</p>
         <p style={{ fontSize: '13px', color: 'rgba(245,239,225,0.55)', margin: '0 0 10px' }}>{place}</p>

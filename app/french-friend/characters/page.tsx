@@ -86,7 +86,7 @@ export default function CharacterPickerPage() {
             return (
               <div key={char.id} onClick={() => trial.active && selectCharacter(char.slug)}
                 style={{ background: '#1B2B25', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '18px', overflow: 'hidden', cursor: trial.active ? 'pointer' : 'not-allowed', opacity: trial.active ? 1 : 0.5 }}>
-                <div style={{ height: '160px', background: `url('/french-friend/characters/${char.slug}.svg')`, backgroundSize: 'cover', backgroundPosition: 'top center', position: 'relative' }}>
+                <div style={{ height: '160px', background: `url('/french-friend/characters/${char.slug}.jpg')`, backgroundSize: 'cover', backgroundPosition: 'top center', position: 'relative' }}>
                   <span style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(20,32,28,0.75)', color: 'rgba(245,239,225,0.85)', fontSize: '10px', fontWeight: 600, padding: '4px 8px', borderRadius: '10px' }}>AI Character</span>
                 </div>
                 <div style={{ padding: '20px' }}>
