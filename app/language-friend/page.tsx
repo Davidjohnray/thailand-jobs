@@ -21,9 +21,9 @@ const LANGUAGES: {
   {
     name: 'French',
     flag: '🇫🇷',
-    tagline: 'Make a French friend and practice speaking naturally.',
+    tagline: 'Talk with Léo, Henri, Camille or Odette — each remembers you separately.',
     href: '/french-friend',
-    status: 'soon',
+    status: 'live',
   },
 ]
 
