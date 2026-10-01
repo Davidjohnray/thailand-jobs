@@ -48,8 +48,12 @@ export default function FrenchFriendAdminPage() {
     setCopied(key); setTimeout(() => setCopied(null), 1800)
   }
 
-  const messageFor = (code: string, days: number) =>
-    `Voici ton code d'accès French Friend : ${code}\n\nIl te donne ${days} jours d'accès, à partir du moment où tu l'utilises.\n\n1. Va sur https://www.jobsinthailand.net/french-friend\n2. Entre ce code — pas besoin d'email ni de mot de passe\n3. Choisis un ami et commence à parler !\n\nGarde bien ce code : c'est aussi ce qui te permet de te reconnecter.`
+  const priceFor = (days: number) => (days === 30 ? '฿199' : days === 90 ? '฿549' : null)
+
+  const messageFor = (code: string, days: number) => {
+    const price = priceFor(days)
+    return `Merci de ton inscription à French Friend${price ? ` (${days} jours — ${price})` : ''} !\n\nVoici ton code d'accès : ${code}\n\n1. Va sur https://www.jobsinthailand.net/french-friend\n2. Entre ce code — pas besoin d'email ni de mot de passe\n3. Choisis un ami et commence à parler !\n\nGarde bien ce code : c'est aussi ce qui te permet de te reconnecter.`
+  }
 
   if (!authed) {
     return (

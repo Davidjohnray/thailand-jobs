@@ -73,8 +73,12 @@ export default function ThaiFriendAdminPage() {
     setTimeout(() => setCopied(null), 1800)
   }
 
-  const messageFor = (code: string, days: number) =>
-    `Here is your Thai Friend access code: ${code}\n\nIt gives you ${days} days of access, starting the first time you use it.\n\n1. Go to https://www.jobsinthailand.net/thai-friend\n2. Enter this code — no email or password needed\n3. Pick a friend and start talking!\n\nKeep this code safe: it is also how you log back in. When your time runs out, log in with it and add your new code on the page it shows you.`
+  const priceFor = (days: number) => (days === 30 ? '฿199' : days === 90 ? '฿549' : null)
+
+  const messageFor = (code: string, days: number) => {
+    const price = priceFor(days)
+    return `Thanks for registering for Thai Friend${price ? ` (${days} days — ${price})` : ''}!\n\nHere is your access code: ${code}\n\n1. Go to https://www.jobsinthailand.net/thai-friend\n2. Enter this code — no email or password needed\n3. Pick a friend and start talking!\n\nKeep this code safe: it is also how you log back in. When your time runs out, log in with it and add your new code on the page it shows you.`
+  }
 
   if (!authed) {
     return (

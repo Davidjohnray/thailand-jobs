@@ -97,8 +97,19 @@ export default function ThaiFriendSubscribePage() {
           </p>
         )}
 
-        <div style={{ marginTop: '26px', paddingTop: '20px', borderTop: '1px solid rgba(245,239,225,0.12)', textAlign: 'center' }}>
-          <p style={{ fontSize: '13px', color: 'rgba(245,239,225,0.7)', marginBottom: '12px' }}>Don't have a code yet?</p>
+        <div style={{ marginTop: '26px', paddingTop: '20px', borderTop: '1px solid rgba(245,239,225,0.12)' }}>
+          <p style={{ fontSize: '12px', color: 'rgba(245,239,225,0.5)', textAlign: 'center', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pricing</p>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '18px' }}>
+            <div style={{ flex: 1, background: 'rgba(245,239,225,0.05)', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+              <p style={{ margin: '0 0 2px', fontSize: '20px', fontWeight: 700, color: '#D4A24C' }}>฿199</p>
+              <p style={{ margin: 0, fontSize: '12px', color: 'rgba(245,239,225,0.6)' }}>30 days</p>
+            </div>
+            <div style={{ flex: 1, background: 'rgba(245,239,225,0.05)', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+              <p style={{ margin: '0 0 2px', fontSize: '20px', fontWeight: 700, color: '#D4A24C' }}>฿549</p>
+              <p style={{ margin: 0, fontSize: '12px', color: 'rgba(245,239,225,0.6)' }}>90 days</p>
+            </div>
+          </div>
+          <p style={{ fontSize: '13px', color: 'rgba(245,239,225,0.7)', marginBottom: '12px', textAlign: 'center' }}>Email us to register and pay — we'll send your code.</p>
           <a href={mailto} style={{ display: 'inline-block', background: 'rgba(245,239,225,0.1)', border: '1px solid rgba(245,239,225,0.25)', color: '#F5EFE1', textDecoration: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
             ✉️ Email {ADMIN_EMAIL}
           </a>
