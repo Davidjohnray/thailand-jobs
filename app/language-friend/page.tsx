@@ -55,6 +55,16 @@ export default function LanguageFriendHub() {
           ))}
         </div>
       </section>
+
+      <section style={{ maxWidth: '600px', margin: '0 auto', padding: '0 32px 80px', textAlign: 'center' }}>
+        <p style={{ fontSize: '13px', color: 'rgba(245,239,225,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '14px' }}>Pricing</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '28px', flexWrap: 'wrap' }}>
+          <div><span style={{ color: '#D4A24C', fontWeight: 700, fontSize: '18px' }}>Free</span> <span style={{ color: 'rgba(245,239,225,0.6)', fontSize: '13px' }}>48hr trial</span></div>
+          <div><span style={{ color: '#D4A24C', fontWeight: 700, fontSize: '18px' }}>฿199</span> <span style={{ color: 'rgba(245,239,225,0.6)', fontSize: '13px' }}>30 days</span></div>
+          <div><span style={{ color: '#D4A24C', fontWeight: 700, fontSize: '18px' }}>฿549</span> <span style={{ color: 'rgba(245,239,225,0.6)', fontSize: '13px' }}>90 days</span></div>
+        </div>
+        <p style={{ fontSize: '12px', color: 'rgba(245,239,225,0.45)', marginTop: '14px' }}>Same pricing for every language. Email Admin@jobsinthailand.net to register.</p>
+      </section>
     </main>
   )
 }

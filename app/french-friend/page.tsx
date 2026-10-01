@@ -117,6 +117,28 @@ export default function FrenchFriendLandingPage() {
         </div>
       </section>
 
+
+      {/* PRICING */}
+      <section style={{ padding: '0 32px 72px', maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
+        <h2 className="ff-display" style={{ fontSize: '26px', fontWeight: 700, marginBottom: '8px' }}>Simple pricing</h2>
+        <p style={{ color: 'rgba(245,239,225,0.65)', fontSize: '14px', marginBottom: '32px' }}>Start with a free 48-hour trial, then keep going for as long as you like.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+          <div style={{ background: 'rgba(245,239,225,0.05)', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '14px', padding: '20px' }}>
+            <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(245,239,225,0.6)' }}>Free trial</p>
+            <p style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: '#D4A24C' }}>48 hours</p>
+          </div>
+          <div style={{ background: 'rgba(245,239,225,0.05)', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '14px', padding: '20px' }}>
+            <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(245,239,225,0.6)' }}>30 days</p>
+            <p style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: '#D4A24C' }}>฿199</p>
+          </div>
+          <div style={{ background: 'rgba(245,239,225,0.05)', border: '1px solid rgba(245,239,225,0.12)', borderRadius: '14px', padding: '20px' }}>
+            <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(245,239,225,0.6)' }}>90 days</p>
+            <p style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: '#D4A24C' }}>฿549</p>
+          </div>
+        </div>
+        <p style={{ color: 'rgba(245,239,225,0.5)', fontSize: '12px', marginTop: '18px' }}>Email Admin@jobsinthailand.net to register and pay.</p>
+      </section>
+
       <section style={{ background: '#1B2B25', padding: '72px 32px', textAlign: 'center' }}>
         <h2 className="ff-display" style={{ fontSize: '30px', fontWeight: 700, marginBottom: '16px' }}>Ready to make a French friend?</h2>
         <p style={{ color: 'rgba(245,239,225,0.7)', fontSize: '15px', marginBottom: '28px' }}>Email us for a free 48-hour trial code.</p>
