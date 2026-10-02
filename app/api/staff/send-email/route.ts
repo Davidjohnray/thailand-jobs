@@ -11,17 +11,18 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const { to, subject, message, sentBy } = await req.json()
+    const { to, subject, message, sentBy, replyTo } = await req.json()
 
     // Validate inputs
     if (!to || !subject || !message || !sentBy) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Send email via Resend
+    // Send email via Resend with Reply-To header
     const { data, error } = await resend.emails.send({
       from: 'Jobs in Thailand Recruitment <recruitment@jobsinthailand.net>',
       to: to,
+      replyTo: replyTo || 'recruitment@jobsinthailand.net',
       subject: subject,
       text: message,
       html: `

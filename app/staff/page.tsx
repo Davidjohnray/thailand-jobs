@@ -10,6 +10,7 @@ export default function StaffPage() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [password, setPassword] = useState('')
   const [staffName, setStaffName] = useState('')
+  const [staffEmail, setStaffEmail] = useState('')
   const [loginError, setLoginError] = useState('')
   
   const [to, setTo] = useState('')
@@ -24,9 +25,11 @@ export default function StaffPage() {
   useEffect(() => {
     const saved = localStorage.getItem('staffLoggedIn')
     const savedName = localStorage.getItem('staffName')
-    if (saved === 'true' && savedName) {
+    const savedEmail = localStorage.getItem('staffEmail')
+    if (saved === 'true' && savedName && savedEmail) {
       setLoggedIn(true)
       setStaffName(savedName)
+      setStaffEmail(savedEmail)
       loadHistory(savedName)
     }
   }, [])
@@ -36,9 +39,14 @@ export default function StaffPage() {
       setLoginError('Please enter your name')
       return
     }
+    if (!staffEmail.trim() || !staffEmail.includes('@')) {
+      setLoginError('Please enter a valid email')
+      return
+    }
     if (password === STAFF_PASSWORD) {
       localStorage.setItem('staffLoggedIn', 'true')
       localStorage.setItem('staffName', staffName.trim())
+      localStorage.setItem('staffEmail', staffEmail.trim())
       setLoggedIn(true)
       setLoginError('')
       loadHistory(staffName.trim())
@@ -50,8 +58,10 @@ export default function StaffPage() {
   const handleLogout = () => {
     localStorage.removeItem('staffLoggedIn')
     localStorage.removeItem('staffName')
+    localStorage.removeItem('staffEmail')
     setLoggedIn(false)
     setStaffName('')
+    setStaffEmail('')
     setPassword('')
     setHistory([])
   }
@@ -75,7 +85,6 @@ export default function StaffPage() {
       return
     }
 
-    // Basic email validation
     if (!to.includes('@')) {
       alert('Please enter a valid email address')
       return
@@ -92,7 +101,8 @@ export default function StaffPage() {
           to: to.trim(),
           subject: subject.trim(),
           message: message.trim(),
-          sentBy: staffName
+          sentBy: staffName,
+          replyTo: staffEmail
         })
       })
 
@@ -134,6 +144,14 @@ export default function StaffPage() {
           />
           
           <input
+            type="email"
+            placeholder="Your Email (for replies)"
+            value={staffEmail}
+            onChange={(e) => setStaffEmail(e.target.value)}
+            style={{ width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', marginBottom: '12px', boxSizing: 'border-box' }}
+          />
+          
+          <input
             type="password"
             placeholder="Password"
             value={password}
@@ -150,6 +168,10 @@ export default function StaffPage() {
           >
             Login →
           </button>
+          
+          <p style={{ color: '#999', fontSize: '12px', marginTop: '16px' }}>
+            Replies will be sent to your email address
+          </p>
         </div>
       </main>
     )
@@ -161,10 +183,11 @@ export default function StaffPage() {
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>📧 Email Outbox</h1>
             <p style={{ color: '#666', fontSize: '14px', margin: '4px 0 0' }}>Sending as: <strong>{FROM_EMAIL}</strong></p>
+            <p style={{ color: '#999', fontSize: '12px', margin: '2px 0 0' }}>Replies go to: <strong>{staffEmail}</strong></p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ color: '#666', fontSize: '14px' }}>👤 {staffName}</span>
@@ -180,7 +203,7 @@ export default function StaffPage() {
           
           {sent && (
             <div style={{ background: '#d4edda', color: '#155724', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px', fontWeight: 'bold' }}>
-              ✅ Email sent successfully!
+              ✅ Email sent successfully! Replies will go to {staffEmail}
             </div>
           )}
           
