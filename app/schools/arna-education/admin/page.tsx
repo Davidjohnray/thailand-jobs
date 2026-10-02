@@ -30,7 +30,12 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export default function ArnaAdminPage() {
-  const [authed, setAuthed] = useState(false)
+  const [authed, setAuthed] = useState(() => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('arna_admin_authed') === 'true'
+  }
+  return false
+})
   const [pw, setPw] = useState('')
   const [pwError, setPwError] = useState('')
   const [applications, setApplications] = useState<Application[]>([])
@@ -70,7 +75,11 @@ export default function ArnaAdminPage() {
   }, [authed])
 
   const login = () => {
-    if (pw === ADMIN_PASSWORD) { setAuthed(true); setPwError('') }
+    if (pw === ADMIN_PASSWORD) { 
+  setAuthed(true)
+  localStorage.setItem('arna_admin_authed', 'true')
+  setPwError('') 
+}
     else setPwError('Incorrect password')
   }
 
