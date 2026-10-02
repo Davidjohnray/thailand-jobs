@@ -798,6 +798,7 @@ export default function AdminPage() {
     <option value='nnes'>🌏 NNES</option>
     <option value='oneness'>🏫 Oneness</option>
     <option value='teachsiam'>🇹🇭 TeachSiam</option>
+    <option value='arna-education'>🏢 ARNA Education</option>
   </select>
   {jobLogoMap[job.id] && (
     <img src={jobLogoMap[job.id]!} alt="logo" style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'contain', border: '1px solid #eee', background: 'white' }} />
