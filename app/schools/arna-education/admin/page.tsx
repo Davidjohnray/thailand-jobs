@@ -31,11 +31,11 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function ArnaAdminPage() {
   const [authed, setAuthed] = useState(() => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('arna_admin_authed') === 'true'
-  }
-  return false
-})
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('arna_admin_authed') === 'true'
+    }
+    return false
+  })
   const [pw, setPw] = useState('')
   const [pwError, setPwError] = useState('')
   const [applications, setApplications] = useState<Application[]>([])
@@ -75,12 +75,16 @@ export default function ArnaAdminPage() {
   }, [authed])
 
   const login = () => {
-    if (pw === ADMIN_PASSWORD) { 
-  setAuthed(true)
-  localStorage.setItem('arna_admin_authed', 'true')
-  setPwError('') 
-}
-    else setPwError('Incorrect password')
+    if (pw === ADMIN_PASSWORD) {
+      setAuthed(true)
+      localStorage.setItem('arna_admin_authed', 'true')
+      setPwError('')
+    } else setPwError('Incorrect password')
+  }
+
+  const logout = () => {
+    setAuthed(false)
+    localStorage.removeItem('arna_admin_authed')
   }
 
   const updateStatus = async (id: string, status: string) => {
@@ -102,29 +106,34 @@ export default function ArnaAdminPage() {
     showToast('🗑️ Application removed')
   }
 
+  const openGmail = (to: string, subject: string, body: string) => {
+    const url = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    window.open(url, '_blank')
+  }
+
   const sendForwardEmail = (app: Application) => {
-    const subject = encodeURIComponent(`Application for: ${app.job_title}`)
-    const body = encodeURIComponent(
+    openGmail(
+      app.email,
+      `Your application for: ${app.job_title}`,
       `Hi ${app.full_name},\n\nThank you for applying for the position of ${app.job_title} through Jobs in Thailand.\n\nWe are pleased to let you know that your application has been reviewed and your CV has been forwarded to ARNA Education & Services for their consideration.\n\nIf your profile is a good match for the position, ARNA will be in touch with you directly to arrange the next steps.\n\nWe will keep you updated on the progress of your application.\n\nBest regards,\nJobs in Thailand Team\nAdmin@jobsinthailand.net`
     )
-    window.open(`mailto:${app.email}?subject=${subject}&body=${body}`)
     updateStatus(app.id, 'forwarded')
   }
 
   const sendToArna = (app: Application) => {
-    const subject = encodeURIComponent(`Teacher Application: ${app.job_title} — ${app.full_name}`)
-    const body = encodeURIComponent(
+    openGmail(
+      'Thitiporn536@gmail.com',
+      `Teacher Application: ${app.job_title} — ${app.full_name}`,
       `Hi Arna,\n\nPlease find below the details of a teacher who has applied for the position of ${app.job_title}.\n\nName: ${app.full_name}\nEmail: ${app.email}\nNationality: ${app.nationality}\nWhatsApp: ${app.whatsapp || 'Not provided'}\nQualifications: ${app.qualifications}\nExperience: ${app.experience}\n\nAbout:\n${app.about}\n\nResume: ${app.resume_url}\nPhoto: ${app.photo_url}${app.video_url ? `\nIntro video: ${app.video_url}` : ''}\n\nBest regards,\nDavid\nJobs in Thailand`
     )
-    window.open(`mailto:Thitiporn536@gmail.com?subject=${subject}&body=${body}`)
   }
 
   const sendRejectionEmail = (app: Application) => {
-    const subject = encodeURIComponent(`Your application for ${app.job_title}`)
-    const body = encodeURIComponent(
+    openGmail(
+      app.email,
+      `Your application for ${app.job_title}`,
       `Hi ${app.full_name},\n\nThank you for your interest in the position of ${app.job_title} through Jobs in Thailand and ARNA Education & Services.\n\nAfter careful review, we regret to inform you that on this occasion your application has not been successful for this particular position.\n\nWe would encourage you to keep your profile updated and apply for other positions that match your skills and experience. You can browse all available vacancies at www.jobsinthailand.net.\n\nWe wish you all the best in your job search.\n\nKind regards,\nJobs in Thailand Team\nAdmin@jobsinthailand.net`
     )
-    window.open(`mailto:${app.email}?subject=${subject}&body=${body}`)
     updateStatus(app.id, 'rejected')
   }
 
@@ -163,10 +172,14 @@ export default function ArnaAdminPage() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <img src="/arna-education.png" alt="ARNA" style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px' }} />
-          <div>
+          <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: '22px', fontWeight: '900', color: '#0a0f2e', margin: 0 }}>ARNA Applications Dashboard</h1>
             <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>{applications.length} total application{applications.length !== 1 ? 's' : ''}</p>
           </div>
+          <button onClick={logout}
+            style={{ background: '#f3f4f6', color: '#666', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+            🔓 Log Out
+          </button>
         </div>
 
         {/* Filter by job */}
@@ -199,7 +212,7 @@ export default function ArnaAdminPage() {
               {filtered.map(app => (
                 <div key={app.id}
                   onClick={() => setSelectedApp(selectedApp?.id === app.id ? null : app)}
-                  style={{ background: 'white', borderRadius: '12px', padding: '16px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: `2px solid ${selectedApp?.id === app.id ? '#D9A441' : '#eee'}`, cursor: 'pointer', transition: 'border-color 0.2s' }}>
+                  style={{ background: 'white', borderRadius: '12px', padding: '16px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: `2px solid ${selectedApp?.id === app.id ? '#D9A441' : '#eee'}`, cursor: 'pointer' }}>
                   <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                     <img src={app.photo_url} alt={app.full_name}
                       style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '2px solid #D9A441' }} />
