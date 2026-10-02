@@ -182,26 +182,40 @@ export default function JobDetailClient({ id }: { id: string }) {
             <p style={{ color: '#444', lineHeight: '1.8', fontSize: '15px', whiteSpace: 'pre-wrap' }}>{job.benefits}</p>
           </div>
         )}
-        <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
-          <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
-          <p style={{ color: '#ccc', marginBottom: '16px', fontSize: '15px' }}>Send your CV directly to the employer</p>
-          <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#ffd', border: '1px solid rgba(255,255,255,0.2)' }}>
-            📌 Please mention <strong>Jobs in Thailand (www.jobsinthailand.net)</strong> in your application!
-          </div>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
-            <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
-              style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-              Apply via Gmail →
-            </a>
-            <a href={mailtoUrl}
-              style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-              Apply via Email App →
-            </a>
-          </div>
-          <p style={{ color: '#aaa', fontSize: '13px', marginTop: '8px' }}>
-            Or email directly: <span style={{ color: 'white', fontWeight: 'bold' }}>{job.email}</span>
-          </p>
-        </div>
+        {job.company === 'Arna Education and Services LTD.' ? (
+  <div style={{ background: '#0a0f2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px', border: '2px solid #D9A441' }}>
+    <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
+    <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: '0 0 8px' }}>Apply for this position</h2>
+    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: '0 0 20px', lineHeight: '1.6' }}>
+      This position is managed by ARNA Education & Services. Please apply through our site — upload your photo and CV and we will review and forward your application.
+    </p>
+    <a href={`/schools/arna-education/apply/${job.id}`}
+      style={{ background: '#D9A441', color: '#0a0f2e', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '16px', display: 'inline-block' }}>
+      Apply via Jobs in Thailand →
+    </a>
+  </div>
+) : (
+  <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
+    <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
+    <p style={{ color: '#ccc', marginBottom: '16px', fontSize: '15px' }}>Send your CV directly to the employer</p>
+    <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#ffd', border: '1px solid rgba(255,255,255,0.2)' }}>
+      📌 Please mention <strong>Jobs in Thailand (www.jobsinthailand.net)</strong> in your application!
+    </div>
+    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
+      <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
+        style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+        Apply via Gmail →
+      </a>
+      <a href={mailtoUrl}
+        style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+        Apply via Email App →
+      </a>
+    </div>
+    <p style={{ color: '#aaa', fontSize: '13px', marginTop: '8px' }}>
+      Or email directly: <span style={{ color: 'white', fontWeight: 'bold' }}>{job.email}</span>
+    </p>
+  </div>
+)}
         <CommunityBars />
       </div>
     </main>
