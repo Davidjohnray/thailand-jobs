@@ -771,6 +771,7 @@ export default function AdminPage() {
       if (logo === NNES_LOGO) return 'nnes'
       if (logo === ONENESS_LOGO) return 'oneness'
       if (logo === TEACHSIAM_LOGO) return 'teachsiam'
+      if (logo === ARNA_LOGO) return 'arna-education'
       return ''
     })()}
     onChange={async e => {
@@ -778,7 +779,7 @@ export default function AdminPage() {
       setSavingLogo(job.id)
       const logoMap: Record<string, string> = {
         'mine': JIT_LOGO, 'tb': TB_LOGO, 'filipino': FILIPINO_LOGO,
-        'nnes': NNES_LOGO, 'oneness': ONENESS_LOGO, 'teachsiam': TEACHSIAM_LOGO,
+        'nnes': NNES_LOGO, 'oneness': ONENESS_LOGO, 'teachsiam': TEACHSIAM_LOGO, 'arna-education': ARNA_LOGO,
       }
       const logo = val ? logoMap[val] : null
       const tbPartner = partners.find((p: any) => p.name?.toLowerCase().includes('teach bridge'))
