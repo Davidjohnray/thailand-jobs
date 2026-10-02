@@ -11,7 +11,7 @@ const FILIPINO_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/objec
 const NNES_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/partner-cvs/nnes-global-logo.png'
 const ONENESS_LOGO = 'https://coldsoilakctfcswqwge.supabase.co/storage/v1/object/public/teacher-images/ONENESS.png'
 const TEACHSIAM_LOGO = '/teachsiam.png'
-const ARNA_LOGO = '/arna-education.png'
+const ARNA_LOGO = 'https://www.jobsinthailand.net/arna-education.png'
 
 function EmailMembers() {
   const [subject, setSubject] = useState('')
