@@ -39,19 +39,24 @@ export default function SchoolsPage() {
         stat_type: 'click'
       })
     } catch (e) {
-      console.log('Tracking error:', e)
+      // Fallback to direct insert
+      await supabase.from('daily_stats').upsert({
+        scope: scope,
+        stat_date: new Date().toISOString().split('T')[0],
+        clicks: 1
+      }, { onConflict: 'scope,stat_date' })
     }
   }
 
   return (
     <main style={{ minHeight: '100vh', background: '#f8f8f6', padding: '40px 16px' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#1a1a1a', marginBottom: '8px' }}>
+        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a1a', marginBottom: '8px' }}>
             School Partner Pages
           </h1>
-          <p style={{ fontSize: '15px', color: '#555', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '15px', color: '#555', lineHeight: '1.6', maxWidth: '700px', margin: '0 auto' }}>
             Register your interest directly with a school or agency. Browse their current vacancies and join their private teacher pool — the HR team will contact you when a suitable role opens up.
           </p>
         </div>
@@ -65,7 +70,11 @@ export default function SchoolsPage() {
             No partner schools available yet.
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '24px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '24px'
+          }}>
             {schools.map((school) => (
               <Link 
                 key={school.id} 
@@ -79,64 +88,66 @@ export default function SchoolsPage() {
                   overflow: 'hidden',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                   transition: 'transform 0.2s, box-shadow 0.2s',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  height: '100%'
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.12)'
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.15)'
                 }}
                 onMouseOut={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)'
                   e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
                 }}
                 >
-                  {/* Banner */}
+                  {/* Banner Image */}
                   <div style={{
-                    height: '180px',
+                    height: '200px',
                     backgroundImage: school.banner_url ? `url(${school.banner_url})` : 'linear-gradient(135deg, #E85D26 0%, #c94a1a 100%)',
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    position: 'relative'
-                  }}>
-                    <div style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-                      padding: '40px 20px 16px'
-                    }}>
-                      <h2 style={{ color: '#fff', fontSize: '22px', fontWeight: 'bold', margin: 0 }}>
-                        {school.name}
-                      </h2>
-                      {school.programme && (
-                        <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '14px', margin: '4px 0 0' }}>
-                          {school.programme}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                    backgroundPosition: 'center'
+                  }} />
 
-                  {/* Footer */}
-                  <div style={{
-                    padding: '16px 20px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
-                    <span style={{ fontSize: '14px', color: '#666' }}>
-                      📍 {school.location || 'Thailand'}
-                    </span>
-                    <span style={{
-                      background: '#E85D26',
-                      color: '#fff',
-                      padding: '8px 16px',
-                      borderRadius: '20px',
-                      fontSize: '13px',
-                      fontWeight: '600'
+                  {/* Card Content */}
+                  <div style={{ padding: '20px' }}>
+                    <h2 style={{ 
+                      fontSize: '20px', 
+                      fontWeight: 'bold', 
+                      color: '#1a1a1a', 
+                      marginBottom: '6px' 
                     }}>
-                      View Details →
-                    </span>
+                      {school.name}
+                    </h2>
+                    
+                    {school.programme && (
+                      <p style={{ 
+                        fontSize: '14px', 
+                        color: '#666', 
+                        marginBottom: '12px' 
+                      }}>
+                        {school.programme}
+                      </p>
+                    )}
+
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <span style={{ fontSize: '14px', color: '#888' }}>
+                        📍 {school.location || 'Thailand'}
+                      </span>
+                      <span style={{
+                        background: '#E85D26',
+                        color: '#fff',
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        fontSize: '13px',
+                        fontWeight: '600'
+                      }}>
+                        View Details →
+                      </span>
+                    </div>
                   </div>
                 </div>
               </Link>
