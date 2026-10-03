@@ -28,11 +28,8 @@ export async function GET(
   }
 
   const isFeatured = job.featured === true
-  const navyBg = '#14172B'
-  const goldAccent = '#D9A441'
-  const orangeBg = '#E85D26'
-  const primaryBg = isFeatured ? navyBg : orangeBg
-  const accentColor = isFeatured ? goldAccent : '#ffffff'
+  const primaryBg = isFeatured ? '#14172B' : '#E85D26'
+  const accentColor = isFeatured ? '#D9A441' : '#ffffff'
 
   // Convert relative URLs to absolute
   const getAbsoluteUrl = (url: string | null | undefined): string | null => {
@@ -44,76 +41,53 @@ export async function GET(
 
   const logoUrl = getAbsoluteUrl(job.logo_url) || getAbsoluteUrl(job.logo)
 
-  const description = job.description
-    ? job.description.substring(0, 120) + (job.description.length > 120 ? '...' : '')
-    : ''
-
-  const expiresAt = job.expires_at ? new Date(job.expires_at).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  }) : null
-
   return new ImageResponse(
     (
-      <div style={{ width: '100%', height: '100%', display: 'flex', backgroundColor: '#ffffff' }}>
-        {/* Left side */}
-        <div style={{ width: '70%', height: '100%', display: 'flex', flexDirection: 'column', padding: '40px', backgroundColor: '#ffffff' }}>
+      <div style={{ display: 'flex', width: '100%', height: '100%', backgroundColor: '#ffffff' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', width: '70%', padding: '40px' }}>
           
-          {logoUrl && (
-            <img src={logoUrl} width={80} height={80} style={{ objectFit: 'contain', borderRadius: '8px', marginBottom: '20px' }} />
-          )}
+          {logoUrl ? (
+            <div style={{ display: 'flex', marginBottom: '20px' }}>
+              <img src={logoUrl} width={80} height={80} style={{ borderRadius: '8px' }} />
+            </div>
+          ) : null}
 
-          {isFeatured && (
+          {isFeatured ? (
             <div style={{ display: 'flex', marginBottom: '12px' }}>
-              <span style={{ backgroundColor: goldAccent, color: navyBg, padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 700 }}>
-                ⭐ FEATURED JOB
-              </span>
+              <div style={{ display: 'flex', backgroundColor: '#D9A441', color: '#14172B', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 700 }}>
+                FEATURED JOB
+              </div>
             </div>
-          )}
+          ) : null}
 
-          <div style={{ fontSize: '36px', fontWeight: 700, color: '#1a1a2e', marginBottom: '12px', lineHeight: 1.2 }}>
-            {job.title}
+          <div style={{ display: 'flex', fontSize: '36px', fontWeight: 700, color: '#1a1a2e', marginBottom: '12px' }}>
+            {job.title || 'Job Title'}
           </div>
 
-          <div style={{ fontSize: '24px', color: '#666666', marginBottom: '16px' }}>
-            {job.company}
+          <div style={{ display: 'flex', fontSize: '24px', color: '#666666', marginBottom: '16px' }}>
+            {job.company || 'Company'}
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-            {job.location && <span style={{ fontSize: '18px', color: '#888888' }}>📍 {job.location}</span>}
-            {job.job_type && <span style={{ fontSize: '18px', color: '#888888' }}>💼 {job.job_type}</span>}
+          <div style={{ display: 'flex', fontSize: '18px', color: '#888888', marginBottom: '8px' }}>
+            {job.location ? `📍 ${job.location}` : ''}
           </div>
 
-          {description && (
-            <div style={{ fontSize: '16px', color: '#666666', lineHeight: 1.5, marginBottom: '16px' }}>
-              {description}
-            </div>
-          )}
+          <div style={{ display: 'flex', fontSize: '18px', color: '#888888' }}>
+            {job.job_type ? `💼 ${job.job_type}` : ''}
+          </div>
 
-          <div style={{ marginTop: 'auto', fontSize: '16px', color: '#999999' }}>
+          <div style={{ display: 'flex', marginTop: 'auto', fontSize: '16px', color: '#999999' }}>
             jobsinthailand.net
           </div>
         </div>
 
-        {/* Right side */}
-        <div style={{ width: '30%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: primaryBg, padding: '40px 20px' }}>
-          {job.salary && (
-            <>
-              <div style={{ fontSize: '16px', color: accentColor, marginBottom: '8px', opacity: 0.9 }}>SALARY</div>
-              <div style={{ fontSize: '24px', fontWeight: 700, color: '#ffffff', textAlign: 'center', lineHeight: 1.3 }}>{job.salary}</div>
-            </>
-          )}
-
-          {expiresAt && (
-            <div style={{ marginTop: '40px', fontSize: '14px', color: accentColor, opacity: 0.8 }}>
-              Deadline: {expiresAt}
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '30%', backgroundColor: primaryBg, padding: '40px' }}>
+          {job.salary ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ display: 'flex', fontSize: '16px', color: accentColor, marginBottom: '8px' }}>SALARY</div>
+              <div style={{ display: 'flex', fontSize: '22px', fontWeight: 700, color: '#ffffff', textAlign: 'center' }}>{job.salary}</div>
             </div>
-          )}
-
-          {job.visa_sponsor && (
-            <div style={{ marginTop: '20px', backgroundColor: 'rgba(255,255,255,0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '14px', color: '#ffffff' }}>
-              ✓ Visa Sponsored
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     ),
