@@ -11,171 +11,209 @@ interface School {
   location: string
   banner_url: string
   website_url: string
+  active: boolean
 }
 
 export default function SchoolsPage() {
   const [schools, setSchools] = useState<School[]>([])
+  const [counts, setCounts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchSchools = async () => {
-      const { data } = await supabase
+      const { data: schoolData } = await supabase
         .from('schools')
         .select('*')
         .eq('active', true)
         .order('created_at', { ascending: true })
-      if (data) setSchools(data)
+
+      if (schoolData) {
+        setSchools(schoolData)
+
+        const { data: countData } = await supabase
+          .from('school_registrations')
+          .select('school_id')
+
+        if (countData) {
+          const countMap: Record<string, number> = {}
+          countData.forEach((row: { school_id: string }) => {
+            countMap[row.school_id] = (countMap[row.school_id] || 0) + 1
+          })
+          setCounts(countMap)
+        }
+      }
       setLoading(false)
     }
     fetchSchools()
   }, [])
 
-  // Track banner click
+  // Track banner click - using direct SQL that works
   const trackClick = async (slug: string) => {
     const scope = `banner-${slug}`
+    const today = new Date().toISOString().split('T')[0]
+    
     try {
-      await supabase.rpc('increment_daily_stat', {
-        stat_scope: scope,
-        stat_type: 'click'
-      })
+      // Check if row exists
+      const { data: existing } = await supabase
+        .from('daily_stats')
+        .select('clicks')
+        .eq('scope', scope)
+        .eq('stat_date', today)
+        .single()
+      
+      if (existing) {
+        // Update existing row
+        await supabase
+          .from('daily_stats')
+          .update({ clicks: (existing.clicks || 0) + 1 })
+          .eq('scope', scope)
+          .eq('stat_date', today)
+      } else {
+        // Insert new row
+        await supabase
+          .from('daily_stats')
+          .insert({ scope, stat_date: today, views: 0, clicks: 1 })
+      }
     } catch (e) {
-      // Fallback to direct insert
-      await supabase.from('daily_stats').upsert({
-        scope: scope,
-        stat_date: new Date().toISOString().split('T')[0],
-        clicks: 1
-      }, { onConflict: 'scope,stat_date' })
+      console.log('Tracking error:', e)
     }
   }
 
   return (
     <main style={{ minHeight: '100vh', background: '#f8f8f6', padding: '40px 16px' }}>
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
-        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a1a', marginBottom: '8px' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 'bold', color: '#1a1a1a', marginBottom: '8px' }}>
             School Partner Pages
           </h1>
-          <p style={{ fontSize: '15px', color: '#555', lineHeight: '1.6', maxWidth: '700px', margin: '0 auto' }}>
-            Register your interest directly with a school or agency. Browse their current vacancies and join their private teacher pool — the HR team will contact you when a suitable role opens up.
+          <p style={{ fontSize: '15px', color: '#555', lineHeight: '1.6' }}>
+            Register your interest directly with a school. Browse their current vacancies and join their private teacher pool — the HR team will contact you when a suitable role opens up.
           </p>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#888' }}>
-            Loading schools...
-          </div>
-        ) : schools.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#888' }}>
-            No partner schools available yet.
-          </div>
+          <div style={{ textAlign: 'center', padding: '60px', color: '#888' }}>Loading schools...</div>
         ) : (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '24px'
-          }}>
-            {schools.map((school) => (
-              <Link 
-                key={school.id} 
-                href={`/schools/${school.slug}`}
-                onClick={() => trackClick(school.slug)}
-                style={{ textDecoration: 'none' }}
-              >
-                <div style={{
-                  background: '#fff',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  cursor: 'pointer',
-                  height: '100%'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.15)'
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
-                }}
+          <>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
+              gap: '20px',
+              marginBottom: '32px'
+            }}>
+              {schools.map((school) => (
+                <Link
+                  key={school.id}
+                  href={`/schools/${school.slug}`}
+                  onClick={() => trackClick(school.slug)}
+                  style={{ textDecoration: 'none' }}
                 >
-                  {/* Banner Image */}
                   <div style={{
-                    height: '200px',
-                    backgroundImage: school.banner_url ? `url(${school.banner_url})` : 'linear-gradient(135deg, #E85D26 0%, #c94a1a 100%)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }} />
-
-                  {/* Card Content */}
-                  <div style={{ padding: '20px' }}>
-                    <h2 style={{ 
-                      fontSize: '20px', 
-                      fontWeight: 'bold', 
-                      color: '#1a1a1a', 
-                      marginBottom: '6px' 
-                    }}>
-                      {school.name}
-                    </h2>
-                    
-                    {school.programme && (
-                      <p style={{ 
-                        fontSize: '14px', 
-                        color: '#666', 
-                        marginBottom: '12px' 
+                    background: 'white',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    border: '1px solid #e8e8e8',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.15s, box-shadow 0.15s',
+                  }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLDivElement).style.borderColor = '#ccc'
+                      ;(e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.borderColor = '#e8e8e8'
+                      ;(e.currentTarget as HTMLDivElement).style.boxShadow = 'none'
+                    }}
+                  >
+                    {/* Banner */}
+                    <div style={{ position: 'relative', height: '130px', overflow: 'hidden' }}>
+                      {school.banner_url ? (
+                        <img
+                          src={school.banner_url}
+                          alt={school.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '100%', height: '100%',
+                          background: '#E85D26',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                          <span style={{ color: 'white', fontSize: '15px', fontWeight: 'bold' }}>{school.name}</span>
+                        </div>
+                      )}
+                      <div style={{
+                        position: 'absolute', top: '10px', right: '10px',
+                        background: '#22c55e', color: 'white',
+                        fontSize: '11px', fontWeight: 'bold',
+                        padding: '3px 10px', borderRadius: '20px'
                       }}>
-                        {school.programme}
-                      </p>
-                    )}
+                        Hiring
+                      </div>
+                    </div>
 
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <span style={{ fontSize: '14px', color: '#888' }}>
-                        📍 {school.location || 'Thailand'}
-                      </span>
-                      <span style={{
-                        background: '#E85D26',
-                        color: '#fff',
-                        padding: '8px 16px',
-                        borderRadius: '20px',
-                        fontSize: '13px',
-                        fontWeight: '600'
-                      }}>
-                        View Details →
-                      </span>
+                    {/* Card body */}
+                    <div style={{ padding: '14px 16px' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a1a1a', marginBottom: '3px' }}>
+                        {school.name}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#666', marginBottom: '12px' }}>
+                        {school.programme && `${school.programme} · `}{school.location}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '12px', color: '#888' }}>
+                          👥 {counts[school.id] || 0} teacher{counts[school.id] !== 1 ? 's' : ''} registered
+                        </span>
+                        <span style={{
+                          background: '#E85D26', color: 'white',
+                          fontSize: '12px', fontWeight: 'bold',
+                          padding: '6px 14px', borderRadius: '6px'
+                        }}>
+                          View page →
+                        </span>
+                      </div>
                     </div>
                   </div>
+                </Link>
+              ))}
+
+              {/* Your school here card */}
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                border: '1.5px dashed #d0d0d0',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '220px',
+                padding: '32px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '36px', marginBottom: '12px' }}>🏫</div>
+                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#888', marginBottom: '6px' }}>
+                  Your school here
                 </div>
-              </Link>
-            ))}
-          </div>
+                <div style={{ fontSize: '13px', color: '#aaa', marginBottom: '16px' }}>
+                  Get your own branded recruitment page and private teacher pool
+                </div>
+                <a
+                  href="mailto:david@jobsinthailand.net"
+                  style={{
+                    background: '#E85D26', color: 'white',
+                    fontSize: '12px', fontWeight: 'bold',
+                    padding: '8px 16px', borderRadius: '6px',
+                    textDecoration: 'none'
+                  }}
+                >
+                  Get in touch
+                </a>
+              </div>
+            </div>
+          </>
         )}
-
-        {/* CTA for schools */}
-        <div style={{
-          marginTop: '48px',
-          padding: '24px',
-          background: '#fff',
-          borderRadius: '12px',
-          textAlign: 'center',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-        }}>
-          <p style={{ fontSize: '15px', color: '#555', marginBottom: '12px' }}>
-            Are you a school looking to join our partner programme?
-          </p>
-          <Link href="/school-partners" style={{
-            color: '#E85D26',
-            fontWeight: '600',
-            textDecoration: 'none'
-          }}>
-            Learn more about School Partner Pages →
-          </Link>
-        </div>
-
       </div>
     </main>
   )
