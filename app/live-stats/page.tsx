@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../src/lib/supabase'
 
@@ -15,7 +15,7 @@ const TRACKED_SCOPES: { scope: string; label: string; trackClicks?: boolean }[] 
   { scope: 'partner-teach-bridge', label: 'Teach Bridge Asia', trackClicks: false },
   { scope: 'banner-essential-tefl', label: 'Essential TEFL', trackClicks: true },
   { scope: 'banner-teachers', label: 'Teachers Directory (Job Pages)', trackClicks: true },
-    { scope: 'banner-arna-education', label: 'ARNA Education', trackClicks: true },
+  { scope: 'banner-arna-education', label: 'ARNA Education', trackClicks: true },
   { scope: 'banner-world-tesol', label: 'World TESOL Academy', trackClicks: true },
   { scope: 'thai-friend', label: 'Thai Friend', trackClicks: false },
 ]
@@ -32,8 +32,40 @@ const RESOURCE_SCOPES: { scope: string; label: string }[] = [
 const REFRESH_MS = 8000
 const RANGE_OPTIONS = [7, 30, 90]
 
+// Prime Time heatmap
+const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const HEATMAP_LIVE_DAYS = 30 // "Live" mode shows the last 30 days — one day isn't enough to spot a pattern
+const DAY_MS = 24 * 60 * 60 * 1000
+
 function bangkokToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(new Date())
+}
+
+function bangkokDaysAgo(n: number) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(new Date(Date.now() - n * DAY_MS))
+}
+
+// Monday = 0 … Sunday = 6
+function weekdayIndex(dateStr: string) {
+  return (new Date(dateStr + 'T00:00:00Z').getUTCDay() + 6) % 7
+}
+
+// How many Mondays, Tuesdays… fall inside the range, so we can average fairly
+function countWeekdays(from: string, to: string) {
+  const counts = [0, 0, 0, 0, 0, 0, 0]
+  const end = new Date(to + 'T00:00:00Z').getTime()
+  for (let t = new Date(from + 'T00:00:00Z').getTime(); t <= end; t += DAY_MS) {
+    counts[(new Date(t).getUTCDay() + 6) % 7]++
+  }
+  return counts
+}
+
+function formatHour(h: number) {
+  return `${String(h).padStart(2, '0')}:00`
+}
+
+function emptyGrid() {
+  return Array.from({ length: 7 }, () => Array(24).fill(0) as number[])
 }
 
 type RangeMode = 'live' | number | 'custom'
@@ -49,6 +81,12 @@ export default function LiveStatsPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [loading, setLoading] = useState(true)
   const [resourcesOpen, setResourcesOpen] = useState(false)
+
+  // Prime Time heatmap state
+  const [heatScope, setHeatScope] = useState('site')
+  const [heatGrid, setHeatGrid] = useState<number[][]>(emptyGrid())
+  const [heatRange, setHeatRange] = useState<{ from: string; to: string } | null>(null)
+  const [heatLoading, setHeatLoading] = useState(true)
 
   const fetchScopeStats = useCallback(async () => {
     let from: string
@@ -85,6 +123,50 @@ export default function LiveStatsPage() {
     setLastUpdated(new Date())
   }, [rangeMode, customFrom, customTo])
 
+  const fetchHeatmap = useCallback(async () => {
+    let from: string
+    let to: string
+
+    if (rangeMode === 'live') {
+      from = bangkokDaysAgo(HEATMAP_LIVE_DAYS - 1)
+      to = bangkokToday()
+    } else if (rangeMode === 'custom') {
+      if (!customFrom || !customTo) return
+      from = customFrom
+      to = customTo
+    } else {
+      from = bangkokDaysAgo(rangeMode)
+      to = bangkokToday()
+    }
+
+    setHeatLoading(true)
+    const grid = emptyGrid()
+    const PAGE = 1000
+
+    // Supabase caps responses at 1000 rows, so page through
+    for (let offset = 0; ; offset += PAGE) {
+      const { data, error } = await supabase
+        .from('hourly_stats')
+        .select('stat_date, hour, views')
+        .eq('scope', heatScope)
+        .gte('stat_date', from)
+        .lte('stat_date', to)
+        .order('stat_date')
+        .order('hour')
+        .range(offset, offset + PAGE - 1)
+
+      if (error || !data) break
+      for (const row of data) {
+        grid[weekdayIndex(row.stat_date)][row.hour] += row.views || 0
+      }
+      if (data.length < PAGE) break
+    }
+
+    setHeatGrid(grid)
+    setHeatRange({ from, to })
+    setHeatLoading(false)
+  }, [rangeMode, customFrom, customTo, heatScope])
+
   const fetchJobs = useCallback(async () => {
     const now = new Date().toISOString()
 
@@ -117,12 +199,39 @@ export default function LiveStatsPage() {
   }, [fetchScopeStats, rangeMode])
 
   useEffect(() => {
+    fetchHeatmap()
+  }, [fetchHeatmap])
+
+  useEffect(() => {
     fetchJobs()
     if (rangeMode === 'live') {
       const interval = setInterval(fetchJobs, REFRESH_MS)
       return () => clearInterval(interval)
     }
   }, [fetchJobs, rangeMode])
+
+  // Average views per slot (so a range with 5 Mondays and 4 Sundays compares fairly)
+  const heat = useMemo(() => {
+    const weekdayCounts = heatRange ? countWeekdays(heatRange.from, heatRange.to) : [1, 1, 1, 1, 1, 1, 1]
+    const avg = heatGrid.map((row, d) => row.map(v => (weekdayCounts[d] > 0 ? v / weekdayCounts[d] : 0)))
+
+    let max = 0
+    let total = 0
+    const slots: { d: number; h: number; v: number }[] = []
+    avg.forEach((row, d) => row.forEach((v, h) => {
+      if (v > max) max = v
+      total += v
+      if (v > 0) slots.push({ d, h, v })
+    }))
+    slots.sort((a, b) => b.v - a.v)
+
+    const dayTotals = avg.map(row => row.reduce((a, b) => a + b, 0))
+    const hourTotals = Array.from({ length: 24 }, (_, h) => avg.reduce((a, row) => a + row[h], 0))
+    const bestDay = dayTotals.indexOf(Math.max(...dayTotals))
+    const bestHour = hourTotals.indexOf(Math.max(...hourTotals))
+
+    return { avg, max, total, topSlots: slots.slice(0, 3), bestDay, bestHour }
+  }, [heatGrid, heatRange])
 
   const handleCustomSearch = () => {
     if (customFrom && customTo) setRangeMode('custom')
@@ -133,6 +242,7 @@ export default function LiveStatsPage() {
     rangeMode === 'live' ? 'Today' :
     rangeMode === 'custom' ? `${customFrom} to ${customTo}` :
     `Last ${rangeMode} Days`
+  const heatRangeLabel = rangeMode === 'live' ? `Last ${HEATMAP_LIVE_DAYS} Days` : rangeLabel
 
   return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
@@ -208,6 +318,93 @@ export default function LiveStatsPage() {
               </div>
             )
           })}
+        </div>
+
+        {/* Prime Time heatmap */}
+        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '6px' }}>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#333' }}>🕒 Prime time (Bangkok time)</div>
+              <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>
+                Average views per hour, {heatRangeLabel.toLowerCase()}
+              </div>
+            </div>
+            <select value={heatScope} onChange={e => setHeatScope(e.target.value)}
+              style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '6px 10px', fontSize: '13px', color: NAVY, background: 'white' }}>
+              {TRACKED_SCOPES.map(s => (
+                <option key={s.scope} value={s.scope}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {heatLoading ? (
+            <p style={{ fontSize: '13px', color: '#999', marginTop: '14px' }}>Loading…</p>
+          ) : heat.total === 0 ? (
+            <p style={{ fontSize: '13px', color: '#999', marginTop: '14px', lineHeight: 1.6 }}>
+              No hourly data for this range yet. Hourly tracking starts from the day the hourly_stats SQL was run, so give it a week for a useful pattern.
+            </p>
+          ) : (
+            <>
+              {/* Summary */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', margin: '14px 0 18px' }}>
+                <div style={{ background: NAVY, color: 'white', borderRadius: '10px', padding: '10px 14px' }}>
+                  <div style={{ fontSize: '11px', color: GOLD, fontWeight: 700 }}>Busiest day</div>
+                  <div style={{ fontSize: '16px', fontWeight: 800 }}>{DAY_LABELS[heat.bestDay]}</div>
+                </div>
+                <div style={{ background: NAVY, color: 'white', borderRadius: '10px', padding: '10px 14px' }}>
+                  <div style={{ fontSize: '11px', color: GOLD, fontWeight: 700 }}>Busiest hour</div>
+                  <div style={{ fontSize: '16px', fontWeight: 800 }}>{formatHour(heat.bestHour)}–{formatHour((heat.bestHour + 1) % 24)}</div>
+                </div>
+                {heat.topSlots.length > 0 && (
+                  <div style={{ background: '#FBF0DC', borderRadius: '10px', padding: '10px 14px', flex: '1 1 220px' }}>
+                    <div style={{ fontSize: '11px', color: '#9a6d1c', fontWeight: 700 }}>Best slots to post</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: NAVY, marginTop: '2px' }}>
+                      {heat.topSlots.map(s => `${DAY_LABELS[s.d]} ${formatHour(s.h)}`).join(', ')}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Grid */}
+              <div style={{ overflowX: 'auto' }}>
+                <div style={{ minWidth: '680px', display: 'grid', gridTemplateColumns: '40px repeat(24, 1fr)', gap: '3px' }}>
+                  <div />
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <div key={h} style={{ fontSize: '10px', color: '#999', textAlign: 'center' }}>
+                      {h % 3 === 0 ? String(h).padStart(2, '0') : ''}
+                    </div>
+                  ))}
+                  {heat.avg.map((row, d) => (
+                    <div key={d} style={{ display: 'contents' }}>
+                      <div style={{ fontSize: '11px', color: '#666', fontWeight: 600, display: 'flex', alignItems: 'center' }}>
+                        {DAY_LABELS[d]}
+                      </div>
+                      {row.map((v, h) => (
+                        <div key={h}
+                          title={`${DAY_LABELS[d]} ${formatHour(h)}–${formatHour((h + 1) % 24)}: ${v.toFixed(1)} avg views`}
+                          style={{
+                            height: '26px',
+                            borderRadius: '4px',
+                            background: v === 0 || heat.max === 0
+                              ? '#f2f2f2'
+                              : `rgba(217, 164, 65, ${0.15 + 0.85 * (v / heat.max)})`,
+                          }} />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Legend */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', fontSize: '11px', color: '#999' }}>
+                Quieter
+                {[0.15, 0.4, 0.65, 1].map(o => (
+                  <span key={o} style={{ width: '16px', height: '12px', borderRadius: '3px', background: `rgba(217, 164, 65, ${o})` }} />
+                ))}
+                Busier
+              </div>
+            </>
+          )}
         </div>
 
         {/* Resources — collapsible */}
