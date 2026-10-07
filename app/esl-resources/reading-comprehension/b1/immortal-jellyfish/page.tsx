@@ -28,63 +28,63 @@ const LANGUAGES = [
 
 const PARTS = [
   {
-    number: 1, title: 'Arsonist Birds', emoji: '🦅', color: '#dc2626',
-    text: `In the vast, fire-prone landscapes of northern Australia, Aboriginal people have known for thousands of years that certain birds deliberately spread fire. They pick up burning sticks or embers from existing bushfires, carry them in their talons or beaks, and drop them in dry grass ahead of the fire line — intentionally starting new fires.\n\nFor a long time, Western scientists dismissed these accounts as myth or misinterpretation. Birds starting fires? It seemed too extraordinary to be true. But in recent years, multiple research teams have confirmed what Aboriginal Australians always knew: at least three species of Australian raptors — the black kite, the whistling kite, and the brown falcon — deliberately spread fire as a hunting strategy.\n\nThe behaviour has been documented by firefighters, pilots, park rangers, and researchers across northern Australia. Birds have been observed picking up burning sticks, flying them to unburnt areas, and dropping them to ignite new grassfires. When the fire flushes out insects, lizards, rodents, and small mammals, the birds swoop in to catch the fleeing prey.\n\n"I have seen a hawk pick up a smouldering stick in its talons, fly it about 50 metres, and drop it in dry grass," said one fire management officer. "The grass ignited. The hawk waited. And when a lizard ran out, it grabbed it. This was not accidental. The bird knew exactly what it was doing."\n\nAboriginal languages have specific words for these birds. The Alawa people call them "fire-hawks." Their traditional fire management practices specifically account for the birds behaviour — something that Western science took decades to accept.`,
+    number: 1, title: 'The Animal That Cheats Death', emoji: '♾️', color: '#dc2626',
+    text: `Somewhere in the warm oceans of the world, there is a jellyfish smaller than your fingernail that can do something no other animal on Earth can do: reverse its own aging.\n\nTurritopsis dohrnii — commonly known as the "immortal jellyfish" — is a tiny, transparent creature about 4.5 millimetres across. It looks like any other small jellyfish. It drifts with the currents, catches tiny prey with its tentacles, and reproduces in the normal way.\n\nBut when it is injured, sick, old, or stressed, something extraordinary happens. Instead of dying, the jellyfish sinks to the ocean floor and transforms itself back into a polyp — the earliest stage of its life cycle. It essentially becomes a baby again. Then it grows up all over again, into a fully formed adult jellyfish. And it can do this over and over — potentially forever.\n\nNo other animal can do this. Lobsters can regrow claws. Starfish can regrow arms. Salamanders can regrow tails. But only Turritopsis dohrnii can rewind its entire body to a younger state. It does not just heal damage — it reverses the aging process itself.\n\nScientists discovered this ability in the 1990s and have been studying it ever since. The jellyfish has become one of the most researched creatures in marine biology — not because it is large, beautiful, or dangerous, but because it holds a secret that humans have been searching for since the beginning of civilisation: how to defeat death.`,
     vocab: [
-      { word: 'Arsonist', definition: 'Someone who deliberately starts fires — committing the crime of arson.' },
-      { word: 'Embers', definition: 'Small pieces of burning wood or coal — still glowing but no longer in flames.' },
-      { word: 'Raptors', definition: 'Birds of prey — hawks, eagles, falcons, and owls that hunt other animals.' },
-      { word: 'Ignite', definition: 'To set on fire — causing something to catch fire and burn.' },
+      { word: 'Immortal', definition: 'Living forever — never dying of old age.' },
+      { word: 'Polyp', definition: 'The earliest, simplest stage of a jellyfish life — a tiny tube-shaped organism attached to the ocean floor.' },
+      { word: 'Life cycle', definition: 'The series of stages an organism goes through from birth to death — and in this case, back to birth.' },
+      { word: 'Transparent', definition: 'See-through — you can look right through it to the other side.' },
     ],
     questions: [
-      { n: 1, q: 'Birds that deliberately start fires. Was your first reaction disbelief? Why does this seem so hard to accept?' },
-      { n: 2, q: 'Aboriginal Australians knew about firehawks for thousands of years. Scientists only recently believed them. What does this tell us about different kinds of knowledge?' },
-      { n: 3, q: 'The birds spread fire to flush out prey. Is this intelligent behaviour, or just instinct?' },
+      { n: 1, q: 'A jellyfish that can become young again. Was your first reaction amazement, disbelief, or something else?' },
+      { n: 2, q: 'The jellyfish does this when it is stressed or injured. Why might danger trigger a return to youth instead of death?' },
+      { n: 3, q: 'Humans have searched for immortality for thousands of years. Could a tiny jellyfish hold the answer?' },
     ]
   },
   {
-    number: 2, title: 'Fire as a Tool', emoji: '🛠️', color: '#b91c1c',
-    text: `What makes the firehawk behaviour so remarkable is that it involves using fire as a tool — something that was once considered exclusively human.\n\nFor most of human history, scientists believed that humans were the only species that used tools. Then Jane Goodall observed chimpanzees using sticks to fish for termites in the 1960s, and the definition of "tool use" had to be expanded. Since then, tool use has been documented in dozens of species — crows that bend wire into hooks, octopuses that carry coconut shells for shelter, dolphins that use sponges to protect their noses while foraging.\n\nBut fire is different. Fire is not just a tool — it is a transformative force. When humans learned to control fire approximately one million years ago, it changed everything: cooking made food more nutritious and digestible, fire provided warmth and protection from predators, and eventually fire was used to clear land, forge metals, and power the Industrial Revolution. Control of fire is arguably the single most important achievement in human history.\n\nThe firehawks have not achieved anything on that scale. They are not cooking their food or building civilisations. But they are doing something that no other non-human animal has been documented doing: deliberately using fire to manipulate their environment for their own benefit. They understand that fire changes the landscape, and they use that understanding to feed themselves.\n\nThis raises a profound question: how smart do you have to be to use fire? Smarter than we thought, apparently — but perhaps not as smart as we assumed only we could be.`,
+    number: 2, title: 'How It Works', emoji: '🔬', color: '#b91c1c',
+    text: `The process by which Turritopsis dohrnii reverses its age is called "transdifferentiation" — and it is one of the most remarkable biological mechanisms ever discovered.\n\nIn most animals, cells become specialised early in development. A muscle cell stays a muscle cell. A nerve cell stays a nerve cell. A skin cell stays a skin cell. Once a cell has committed to its role, it cannot change. This is called cellular differentiation, and it is one of the fundamental rules of biology.\n\nThe immortal jellyfish breaks this rule. When it transforms back into a polyp, its specialised adult cells — muscle cells, nerve cells, digestive cells — revert to their unspecialised state. They become stem cells — cells that can become anything. Then they re-specialise into completely different cell types as the polyp grows into a new adult.\n\nImagine if you could turn your muscle cells into brain cells, or your skin cells into heart cells, whenever you needed to. That is essentially what this jellyfish does — except it does it with its entire body, all at once.\n\nScientists have identified some of the genes involved in this process. Fascinatingly, humans have many of the same genes — we just cannot activate them in the same way. The genetic instructions for cellular reversal may already be in our DNA. We simply do not know how to switch them on.\n\nThis is why researchers are so interested in the immortal jellyfish. Not because they expect to make humans immortal, but because understanding how one organism reverses aging could lead to treatments for age-related diseases — cancer, dementia, heart disease — that kill millions of people every year.`,
     vocab: [
-      { word: 'Transformative', definition: 'Causing a fundamental change — altering something in a deep and lasting way.' },
-      { word: 'Foraging', definition: 'Searching for food in the wild — looking for things to eat in nature.' },
-      { word: 'Forge', definition: 'To shape metal using heat — heating and hammering metal into tools and objects.' },
-      { word: 'Manipulate', definition: 'To control or change something skilfully — using something for your own purpose.' },
+      { word: 'Transdifferentiation', definition: 'When a specialised cell transforms into a completely different type of specialised cell.' },
+      { word: 'Stem cells', definition: 'Cells that have not yet specialised — they can become any type of cell in the body.' },
+      { word: 'Differentiation', definition: 'The process by which cells become specialised for a particular function — a general cell becoming a specific type.' },
+      { word: 'Genes', definition: 'Instructions in DNA that control how organisms develop and function — the code of life.' },
     ],
     questions: [
-      { n: 4, q: 'Humans, chimps, crows, dolphins, and now hawks all use tools. What does this tell us about intelligence in the animal kingdom?' },
-      { n: 5, q: 'Control of fire changed everything for humans. Could fire-use evolve further in birds over millions of years?' },
-      { n: 6, q: 'How smart do you have to be to use fire? Is it intelligence, instinct, or something in between?' },
+      { n: 4, q: 'Specialised cells reverting to stem cells breaks a fundamental rule of biology. Why is rule-breaking so important in science?' },
+      { n: 5, q: 'Humans have many of the same genes but cannot activate them. What if we could? Would you want to reverse your aging?' },
+      { n: 6, q: 'Understanding this jellyfish could lead to treatments for cancer and dementia. Is studying tiny animals worth the investment?' },
     ]
   },
   {
-    number: 3, title: 'Fire and Australia', emoji: '🦘', color: '#991b1b',
-    text: `The firehawk story is inseparable from the Australian landscape — a continent where fire is not a disaster but a fundamental part of how nature works.\n\nAustralia is the most fire-prone continent on Earth. Many Australian plants have evolved not just to survive fire but to depend on it. Eucalyptus trees have bark that burns quickly, creating intense fires that kill competing species while leaving the eucalyptus unharmed. Banksia plants require fire to open their seed pods — without fire, they cannot reproduce. And some Australian grasses grow back faster after fire than any other plant, dominating the landscape in the weeks after a burn.\n\nAboriginal Australians understood this relationship for at least 65,000 years — the longest continuous culture in human history. They used controlled burning — called "fire-stick farming" — to manage the landscape: clearing undergrowth, encouraging new growth, driving game animals, and preventing the buildup of fuel that could cause catastrophic wildfires.\n\nThe firehawks are part of this fire ecology. They have evolved alongside Australia fire-dependent landscape, exploiting a natural process that has been shaping the continent for millions of years. In a sense, the birds are doing what Aboriginal Australians have done for millennia — using fire to manage the land and find food. The parallel is striking.\n\nThailand has its own relationship with fire — agricultural burning is a major issue in northern Thailand every year, causing air pollution and health problems. But unlike Australia, where fire is ecologically necessary, much of Thailand burning is driven by agricultural practices that could be replaced with less harmful alternatives.`,
+    number: 3, title: 'Immortal but Not Invincible', emoji: '⚠️', color: '#991b1b',
+    text: `Before you get too excited about the immortal jellyfish, there is an important caveat: "immortal" does not mean "indestructible."\n\nTurritopsis dohrnii can reverse its aging — but it can still be eaten by a fish, killed by a disease, or destroyed by pollution. In the wild, most immortal jellyfish die long before they get the chance to reverse their age. Their theoretical immortality is exactly that — theoretical. The ocean is a dangerous place, and being able to become young again does not help if a turtle eats you first.\n\nThere is also a question about whether "immortality" is even the right word. When the jellyfish transforms back into a polyp and then grows into a new adult, is the new adult the same individual? Or is it a new organism that happens to share the same DNA? Philosophers and biologists disagree.\n\nIf you reset a computer to factory settings, is it the same computer? If you rebuild a ship by replacing every plank, is it the same ship? (This is actually a famous philosophical question called the Ship of Theseus, asked by ancient Greek philosophers more than 2,000 years ago.) The immortal jellyfish raises the same question in biological form.\n\nThe answer may depend on what you think identity means. If identity is about continuous experience and memory, then the jellyfish is not the same individual — because it loses its nervous system during transformation. If identity is about genetic continuity, then it is the same individual — because its DNA is unchanged. The jellyfish does not care about the philosophical debate. It just keeps living.`,
     vocab: [
-      { word: 'Fire-prone', definition: 'Likely to experience fires — an environment where fires are common and expected.' },
-      { word: 'Undergrowth', definition: 'Small plants, shrubs, and dead material on the forest floor — the lower layer of vegetation.' },
-      { word: 'Fire ecology', definition: 'The study of how fire affects ecosystems — the role fire plays in nature.' },
-      { word: 'Millennia', definition: 'Thousands of years — extremely long periods of time.' },
+      { word: 'Caveat', definition: 'A warning or condition — an important exception that limits a statement.' },
+      { word: 'Indestructible', definition: 'Impossible to destroy — cannot be damaged or killed by any means.' },
+      { word: 'Ship of Theseus', definition: 'A famous philosophical question about whether something remains the same if all its parts are replaced.' },
+      { word: 'Genetic continuity', definition: 'Having the same DNA throughout — the genetic code remaining unchanged.' },
     ],
     questions: [
-      { n: 7, q: 'Australian plants need fire to survive. How can fire be both destructive and essential?' },
-      { n: 8, q: 'Aboriginal Australians used controlled burning for 65,000 years. Is this the world oldest environmental management?' },
-      { n: 9, q: 'Northern Thailand has serious air pollution from agricultural burning. How is this different from Australian fire ecology?' },
+      { n: 7, q: 'Immortal but can still be eaten by a fish. Is theoretical immortality really immortality?' },
+      { n: 8, q: 'If the jellyfish resets to a baby and grows up again, is it the same individual? What makes you "you"?' },
+      { n: 9, q: 'The Ship of Theseus is 2,000 years old and still unanswered. Will we ever solve questions about identity?' },
     ]
   },
   {
-    number: 4, title: 'What Animals Teach Us About Ourselves', emoji: '🪞', color: '#7f1d1d',
-    text: `The firehawk challenges one of humanity oldest beliefs: that we are fundamentally different from other animals.\n\nFor centuries, humans defined themselves by what they could do that animals could not. We use tools — but so do chimps, crows, and octopuses. We have language — but whales, dolphins, and elephants communicate in ways we are only beginning to understand. We use fire — but so do Australian hawks. We build structures — but so do beavers, termites, and weaver birds. We farm — but so do leaf-cutter ants, which cultivate fungus gardens.\n\nEach time we draw a line between humans and animals, an animal crosses it. This does not mean there is no difference between humans and other species — clearly there is. No hawk is writing poetry or building a computer. But the differences may be of degree rather than kind — we are smarter, not fundamentally different.\n\nThe firehawk reminds us that intelligence, creativity, and problem-solving are not uniquely human traits. They are widespread in the animal kingdom — appearing in different forms, at different scales, in organisms with very different brains. A hawk that uses fire to hunt is not thinking in human terms. But it is solving a problem in a way that deserves our respect and our curiosity.\n\nThe natural world is full of animals doing things we thought only we could do. The more we study them, the more we discover that the gap between human and animal is smaller than we believed — and that the line we drew between ourselves and the rest of nature was always more about our pride than about reality.`,
+    number: 4, title: 'What Death Means', emoji: '🌊', color: '#7f1d1d',
+    text: `The immortal jellyfish forces us to think about something that most people prefer not to think about: death.\n\nEvery culture in human history has grappled with death. Religions offer afterlives. Philosophers debate whether death gives life meaning. Scientists search for ways to extend life. And ordinary people, when they are honest with themselves, admit that the idea of not existing is frightening, mysterious, and fundamentally beyond comprehension.\n\nWould immortality be a good thing? At first glance, it seems obviously desirable. Who would not want to live forever? But think about it more carefully. Would life have meaning without an ending? Would you take risks if you knew you could not die? Would relationships matter if you had infinite time? Would you ever feel urgency, passion, or the bittersweet beauty of a moment you know will never come again?\n\nMany philosophers argue that death is what gives life its value. Because time is limited, each moment matters. Because we will not live forever, the people we love are precious. Because everything ends, beauty is poignant rather than ordinary. A sunset is beautiful precisely because it disappears.\n\nThe immortal jellyfish does not experience any of this. It has no brain, no consciousness, no awareness that it is alive — much less that it cannot die. Its immortality is biological, not experiential. It does not enjoy living forever because it does not enjoy anything at all.\n\nPerhaps that is the real lesson of the immortal jellyfish: eternal life without consciousness is meaningless. What makes life valuable is not its length but its depth — the ability to feel, to love, to wonder, and to know that one day it will end. The jellyfish lives forever. But it does not live at all.`,
     vocab: [
-      { word: 'Cultivate', definition: 'To grow and care for plants or other organisms deliberately — farming.' },
-      { word: 'Degree rather than kind', definition: 'A difference in amount, not in type — more of the same thing, not something completely different.' },
-      { word: 'Curiosity', definition: 'A strong desire to learn and understand — wanting to know more about something.' },
-      { word: 'Pride', definition: 'A feeling of being better or more important — sometimes unjustified self-importance.' },
+      { word: 'Grappled', definition: 'Struggled to deal with a difficult problem — wrestling with something mentally.' },
+      { word: 'Comprehension', definition: 'The ability to fully understand something — grasping its meaning.' },
+      { word: 'Poignant', definition: 'Producing a sharp sense of sadness mixed with beauty — touching and bittersweet.' },
+      { word: 'Consciousness', definition: 'The state of being aware — knowing that you exist and experiencing the world.' },
     ],
     questions: [
-      { n: 10, q: 'Every line we draw between humans and animals gets crossed. Is there anything truly unique about humans?' },
-      { n: 11, q: 'The differences between humans and animals may be of degree, not kind. What does this mean for how we treat animals?' },
-      { n: 12, q: 'The gap between humans and animals is smaller than we believed. Does this idea excite you, humble you, or bother you?' },
+      { n: 10, q: 'Would you want to live forever? Think carefully before answering.' },
+      { n: 11, q: 'Death gives life its value because time is limited. Do you agree with this idea?' },
+      { n: 12, q: 'The jellyfish lives forever but has no awareness. What matters more — length of life or quality of life?' },
     ]
   },
 ]
@@ -159,7 +159,7 @@ function ConversationBox({ question, color, translationLang, speed }: { question
   const recognitionRef = useRef<any>(null)
   const transcriptRef = useRef('')
 
-  const SYSTEM = `You are a thoughtful English conversation partner helping a B1 intermediate student practise discussion skills. The reading topic is "The Bird That Sets Fires on Purpose". The current discussion question is: "${question}". Keep responses to 2-3 sentences. Use sophisticated but accessible B1-level English. End with one probing follow-up question. If the student makes a significant grammar error, gently correct it using "💡 Quick tip: ..." at the very end. Be intellectually engaging and encouraging.`
+  const SYSTEM = `You are a thoughtful English conversation partner helping a B1 intermediate student practise discussion skills. The reading topic is "The Immortal Jellyfish That Can Live Forever". The current discussion question is: "${question}". Keep responses to 2-3 sentences. Use sophisticated but accessible B1-level English. End with one probing follow-up question. If the student makes a significant grammar error, gently correct it using "💡 Quick tip: ..." at the very end. Be intellectually engaging and encouraging.`
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return
@@ -262,7 +262,7 @@ function ConversationBox({ question, color, translationLang, speed }: { question
   )
 }
 
-export default function FirehawkPage() {
+export default function ImmortalJellyfishPage() {
   const [speed, setSpeed] = useState(0.9)
   const [translationLang, setTranslationLang] = useState('none')
   const [selectedText, setSelectedText] = useState<string | null>(null)
@@ -327,15 +327,15 @@ export default function FirehawkPage() {
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
           <Link href="/esl-resources/reading-comprehension/b1" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← B1 Reading Comprehension</Link>
           <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            <div style={{ fontSize: '72px', flexShrink: 0 }}>🔥</div>
+            <div style={{ fontSize: '72px', flexShrink: 0 }}>🪼</div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
                 <span style={{ background: '#6366f1', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>B1 Intermediate</span>
                 <span style={{ background: 'rgba(99,102,241,0.5)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>Nature</span>
                 <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>4 Parts · 12 Questions</span>
               </div>
-              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>The Bird That Sets Fires on Purpose</h1>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>Australian hawks deliberately pick up burning sticks and drop them to start new fires. Why? To flush out prey. The firehawk and animals that use tools in ways we never expected.</p>
+              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px', lineHeight: '1.3' }}>The Immortal Jellyfish That Can Live Forever</h1>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', margin: 0, lineHeight: '1.6' }}>A tiny jellyfish can reverse its own aging and become young again. The strangest animal on Earth and what it could teach us about death.</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '20px', marginTop: '28px', flexWrap: 'wrap' }}>
