@@ -120,9 +120,15 @@ export default function TeacherRegisterPage() {
     if (!file) return
     setPhoto(file)
     setPhotoPreview(URL.createObjectURL(file))
+    setError('')
   }
 
   async function handleSubmit() {
+    // Check photo first
+    if (!photo) {
+      setError('Please upload a profile photo — profiles with photos get more views from schools!')
+      return
+    }
     if (!form.name || !form.nationality || !form.location || !form.email) {
       setError('Please fill in all required fields (name, nationality, location, email)')
       return
@@ -211,21 +217,28 @@ export default function TeacherRegisterPage() {
 
           {error && <div style={{ background: '#ffeaea', borderRadius: '8px', padding: '12px 16px', color: '#c62828', fontSize: '14px', marginBottom: '20px' }}>{error}</div>}
 
-          {/* PHOTO */}
+          {/* PHOTO - NOW REQUIRED */}
           <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+            <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#555', display: 'block', marginBottom: '10px' }}>
+              Profile Photo * <span style={{ color: '#E85D26', fontWeight: 'normal' }}>(required)</span>
+            </label>
             <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display: 'none' }} />
             {photoPreview ? (
               <div>
                 <img src={photoPreview} alt="Preview" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #E85D26', marginBottom: '8px' }} />
                 <br />
+                <span style={{ color: '#16a34a', fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>✅ Photo added!</span>
                 <button type="button" onClick={() => fileRef.current?.click()} style={{ background: 'none', border: 'none', color: '#E85D26', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>Change photo</button>
               </div>
             ) : (
-              <button type="button" onClick={() => fileRef.current?.click()}
-                style={{ width: '100px', height: '100px', borderRadius: '50%', border: '3px dashed #ddd', background: '#f9f9f9', cursor: 'pointer', fontSize: '28px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '4px' }}>
-                <span>📷</span>
-                <span style={{ fontSize: '10px', color: '#888' }}>Add Photo</span>
-              </button>
+              <div>
+                <button type="button" onClick={() => fileRef.current?.click()}
+                  style={{ width: '100px', height: '100px', borderRadius: '50%', border: '3px dashed #E85D26', background: '#fff3ed', cursor: 'pointer', fontSize: '28px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '4px' }}>
+                  <span>📷</span>
+                  <span style={{ fontSize: '10px', color: '#E85D26', fontWeight: 'bold' }}>Add Photo</span>
+                </button>
+                <p style={{ color: '#E85D26', fontSize: '12px', marginTop: '8px' }}>⚠️ Photo is required — profiles with photos get 5x more views!</p>
+              </div>
             )}
           </div>
 
