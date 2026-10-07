@@ -29,7 +29,7 @@ const STATUSES = [
 ]
 
 const AGENCIES = [
-  'ARNA Education', 'Teach Bridge Asia', 'Other'
+  'Teach Bridge Asia', 'Other'
 ]
 
 interface Applicant {
@@ -81,6 +81,7 @@ export default function TeachBridgeAdmin() {
     nationality: '',
     nationality_other: '',
     agency: '',
+    agency_other: '',
     school: '',
     subject: '',
     subject_other: '',
@@ -128,6 +129,7 @@ export default function TeachBridgeAdmin() {
       nationality: '',
       nationality_other: '',
       agency: '',
+      agency_other: '',
       school: '',
       subject: '',
       subject_other: '',
@@ -173,6 +175,7 @@ export default function TeachBridgeAdmin() {
       nationality: applicant.nationality || '',
       nationality_other: applicant.nationality_other || '',
       agency: applicant.agency || '',
+      agency_other: (applicant as any).agency_other || '',
       school: applicant.school || '',
       subject: applicant.subject || '',
       subject_other: applicant.subject_other || '',
@@ -352,7 +355,7 @@ export default function TeachBridgeAdmin() {
                 {/* Details */}
                 <div style={{ padding: '16px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '13px', marginBottom: '12px' }}>
-                    <div><span style={{ color: '#888' }}>Agency:</span> <span style={{ color: '#333' }}>{applicant.agency || '-'}</span></div>
+                    <div><span style={{ color: '#888' }}>Agency:</span> <span style={{ color: '#333' }}>{applicant.agency === 'Other' ? (applicant as any).agency_other : applicant.agency || '-'}</span></div>
                     <div><span style={{ color: '#888' }}>School:</span> <span style={{ color: '#333' }}>{applicant.school || '-'}</span></div>
                     <div><span style={{ color: '#888' }}>Subject:</span> <span style={{ color: '#333' }}>{applicant.subject === 'Other' ? applicant.subject_other : applicant.subject || '-'}</span></div>
                     <div><span style={{ color: '#888' }}>Commission:</span> <span style={{ color: '#333' }}>{applicant.commission_amount ? `฿${applicant.commission_amount.toLocaleString()}` : '-'}</span></div>
@@ -493,6 +496,14 @@ export default function TeachBridgeAdmin() {
                       {AGENCIES.map(a => <option key={a} value={a}>{a}</option>)}
                     </select>
                   </div>
+
+                  {/* Agency Other */}
+                  {form.agency === 'Other' && (
+                    <div>
+                      <label style={{ display: 'block', fontSize: '13px', color: '#666', marginBottom: '4px' }}>Specify Agency</label>
+                      <input type="text" value={form.agency_other} onChange={e => setForm({ ...form, agency_other: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', boxSizing: 'border-box' }} />
+                    </div>
+                  )}
 
                   {/* School */}
                   <div>
