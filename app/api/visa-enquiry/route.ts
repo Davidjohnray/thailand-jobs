@@ -28,12 +28,14 @@ export async function POST(req: Request) {
   if (body?.website) return NextResponse.json({ ref: 'VISA-0000' })
 
   const f = {
+    help_needed: clean(body?.helpNeeded, 80),
     name: clean(body?.name, 120),
     email: clean(body?.email, 200),
     whatsapp: clean(body?.whatsapp, 40),
     line_id: clean(body?.lineId, 60),
     preferred_contact: clean(body?.preferredContact, 20),
     nationality: clean(body?.nationality, 60),
+    partner_nationality: clean(body?.partnerNationality, 60),
     current_visa: clean(body?.currentVisa, 60),
     in_thailand: clean(body?.inThailand, 20),
     marriage_status: clean(body?.marriageStatus, 60),
@@ -67,14 +69,14 @@ export async function POST(req: Request) {
   // One notification email to you (counts as 1 against Resend's daily limit)
   if (process.env.RESEND_API_KEY) {
     const rows: [string, string][] = [
-      ['Name', f.name], ['Email', f.email], ['WhatsApp', f.whatsapp], ['LINE', f.line_id],
-      ['Preferred contact', f.preferred_contact], ['Nationality', f.nationality],
+      ['Help needed', f.help_needed], ['Name', f.name], ['Email', f.email], ['WhatsApp', f.whatsapp], ['LINE', f.line_id],
+      ['Preferred contact', f.preferred_contact], ['Nationality', f.nationality], ['Partner nationality', f.partner_nationality],
       ['Current visa', f.current_visa], ['In Thailand now', f.in_thailand],
       ['Marriage', f.marriage_status], ['Province', f.province], ['Teacher', f.is_teacher],
     ]
     const html = `
 <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1a1a2e">
-  <h2 style="margin:0 0 4px">New marriage visa enquiry</h2>
+  <h2 style="margin:0 0 4px">New marriage / visa enquiry</h2>
   <p style="color:#666;margin:0 0 16px">Reference ${data.ref}</p>
   <table style="border-collapse:collapse;width:100%;font-size:14px">
     ${rows.filter(([, v]) => v).map(([k, v]) => `<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#666;width:40%">${k}</td><td style="padding:6px 8px;border-bottom:1px solid #eee"><strong>${esc(v)}</strong></td></tr>`).join('')}
@@ -90,7 +92,7 @@ export async function POST(req: Request) {
           from: FROM,
           to: [NOTIFY_EMAIL],
           reply_to: f.email,
-          subject: `Marriage visa enquiry: ${f.name} (${data.ref})`,
+          subject: `Marriage enquiry: ${f.help_needed || 'General'} — ${f.name} (${data.ref})`,
           html,
         }),
       })

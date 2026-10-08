@@ -7,13 +7,13 @@ import MarriageVisaForm from './MarriageVisaForm'
 const LAST_CHECKED = 'October 2026'
 
 export const metadata: Metadata = {
-  title: 'Thai Marriage Visa for Teachers (Non-O) | Jobs in Thailand',
+  title: 'Fast-Track Marriage in Thailand & Marriage Visa Help | Jobs in Thailand',
   description:
-    'Married to a Thai national? How the Non-O marriage visa works for teachers in Thailand: work permits, changing schools, yearly extensions, 90-day reports, and free help with your application.',
+    'Getting married in Thailand? Fast-track marriage registration and MFA document legalisation in Bangkok, usually in around a week, for foreigners marrying a Thai or any nationality. Plus help with the Non-O marriage visa for teachers.',
   alternates: { canonical: 'https://www.jobsinthailand.net/visa/marriage' },
   openGraph: {
-    title: 'Thai Marriage Visa for Teachers',
-    description: 'Stay, work and change schools on your own visa. Free help for teachers married to a Thai national.',
+    title: 'Fast-Track Marriage in Thailand & Marriage Visa Help',
+    description: 'Marriage registration and MFA documents in Bangkok, usually in around a week. Foreigner to Thai or any nationality.',
     url: 'https://www.jobsinthailand.net/visa/marriage',
     type: 'website',
   },
@@ -28,6 +28,36 @@ const card: CSSProperties = {
 const h2: CSSProperties = { fontSize: '22px', fontWeight: 800, color: NAVY, margin: '0 0 14px' }
 const p: CSSProperties = { color: '#444', fontSize: '15px', lineHeight: 1.75, margin: '0 0 12px' }
 
+const SERVICES = [
+  {
+    icon: '💍',
+    title: 'Fast-track marriage in Thailand',
+    who: 'Foreigner marrying a Thai national, or two foreigners of any nationality',
+    points: [
+      'Embassy, translation and MFA legalisation paperwork handled for you',
+      'Marriage registered at the district office (amphur)',
+      'Usually completed in around one week in Bangkok',
+    ],
+  },
+  {
+    icon: '🛂',
+    title: 'Marriage visa (Non-O)',
+    who: 'Foreigners married to a Thai national',
+    points: [
+      'Non-O visa and one-year extension based on marriage',
+      'Live and work in Thailand without a school sponsoring your visa',
+      'Help with documents, finances and yearly renewals',
+    ],
+  },
+]
+
+const MARRIAGE_STEPS = [
+  { title: 'Embassy document', text: 'Each foreign partner gets a document from their embassy confirming they are free to marry (often called an affirmation of freedom to marry).' },
+  { title: 'Translation and MFA legalisation', text: 'The documents are translated into Thai and legalised at the Ministry of Foreign Affairs (Department of Consular Affairs) in Bangkok.' },
+  { title: 'Register the marriage', text: 'You both attend the district office (amphur) to register the marriage and receive your Thai marriage certificate.' },
+  { title: 'Use it for your visa', text: 'If your spouse is Thai, the marriage certificate is the basis for your marriage visa (see below).' },
+]
+
 const BENEFITS = [
   { icon: '💼', title: 'You can work', text: 'A work permit can be issued on a marriage extension, so you can teach without needing a school to sponsor a Non-B visa.' },
   { icon: '🔄', title: 'Change schools more easily', text: 'Your right to stay comes from your marriage, not your job. Leaving a school doesn\'t mean losing your visa.' },
@@ -35,8 +65,8 @@ const BENEFITS = [
   { icon: '📅', title: 'Renew every year', text: 'Once granted, the one-year extension can be renewed each year for as long as you stay married and meet the requirements.' },
 ]
 
-const STEPS = [
-  { title: 'Register your marriage', text: 'The marriage must be legally registered. A marriage registered abroad usually needs to be recognised in Thailand first.' },
+const VISA_STEPS = [
+  { title: 'Register your marriage', text: 'The marriage must be legally registered in Thailand. A marriage registered abroad usually needs to be recognised here first.' },
   { title: 'Get a Non-Immigrant O visa', text: 'Apply at a Thai embassy, through Thailand\'s e-Visa website, or in some cases change your visa type at immigration without leaving the country.' },
   { title: 'Apply for the one-year extension', text: 'Near the end of your Non-O stay, apply at your local immigration office with your marriage documents and financial evidence.' },
   { title: 'Keep it valid', text: 'Report your address every 90 days, get a re-entry permit before travelling abroad, and renew the extension each year.' },
@@ -53,6 +83,18 @@ const DOCUMENTS = [
 
 const FAQS = [
   {
+    q: 'Can two foreigners get married in Thailand?',
+    a: 'Yes. Foreigners of any nationality can register their marriage in Thailand. Each partner needs documents from their own embassy, which are translated and legalised before the marriage is registered at a district office.',
+  },
+  {
+    q: 'How long does it take to get married in Thailand?',
+    a: 'With the paperwork handled for you, the marriage and MFA documents can usually be completed in around one week in Bangkok. Timing depends on your embassy and the documents you already have.',
+  },
+  {
+    q: 'If I marry another foreigner, can I get a marriage visa?',
+    a: 'No. The Thai marriage visa is only for spouses of Thai nationals. If your foreign spouse holds a work visa, you may be able to get a dependent visa based on theirs instead. Ask us and we\'ll check your options.',
+  },
+  {
     q: 'Can I work as a teacher on a marriage visa?',
     a: 'Yes. A work permit can be issued while you hold a marriage-based extension. You still need the work permit itself before you start working.',
   },
@@ -61,26 +103,36 @@ const FAQS = [
     a: 'Your visa stays valid because it is based on your marriage, not your employer. Only the work permit is tied to the job, so your new school arranges a new one.',
   },
   {
-    q: 'Can I switch from a Non-B to a marriage visa without leaving Thailand?',
-    a: 'Often yes, but it depends on your immigration office and your situation. Leave your details below and we\'ll help you check.',
-  },
-  {
-    q: 'How much money do I need?',
+    q: 'How much money do I need for the marriage visa?',
     a: 'There is a financial requirement, met through money in a Thai bank account, monthly income, or a mix of both. The exact rules and paperwork vary between immigration offices, so we\'ll confirm what applies to you.',
   },
   {
     q: 'Does this apply to same-sex couples?',
-    a: 'Yes. Since Thailand\'s Marriage Equality Act took effect in January 2025, same-sex spouses of Thai nationals have the same right to the marriage visa.',
+    a: 'Yes. Since Thailand\'s Marriage Equality Act took effect in January 2025, same-sex couples can register their marriage, and same-sex spouses of Thai nationals have the same right to the marriage visa.',
   },
   {
     q: 'What if I leave Thailand on holiday?',
-    a: 'Get a re-entry permit before you leave. Without one, your extension ends when you exit the country and you would have to start again.',
-  },
-  {
-    q: 'What happens if we divorce?',
-    a: 'The marriage is the basis for the extension, so it ends with the marriage. You would need to change to another visa type, such as a Non-B for work.',
+    a: 'Get a re-entry permit before you leave. Without one, your marriage extension ends when you exit the country and you would have to start again.',
   },
 ]
+
+function Steps({ steps }: { steps: { title: string; text: string }[] }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {steps.map((s, i) => (
+        <div key={s.title} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+          <div style={{ flexShrink: 0, width: '34px', height: '34px', borderRadius: '50%', background: ORANGE, color: 'white', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {i + 1}
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, color: NAVY, fontSize: '16px', marginBottom: '2px' }}>{s.title}</div>
+            <div style={{ color: '#555', fontSize: '15px', lineHeight: 1.6 }}>{s.text}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function MarriageVisaPage() {
   const faqJsonLd = {
@@ -97,27 +149,55 @@ export default function MarriageVisaPage() {
       <section style={{ background: NAVY, padding: '56px 24px 48px' }}>
         <div style={{ maxWidth: '820px', margin: '0 auto', textAlign: 'center' }}>
           <div style={{ display: 'inline-block', background: 'rgba(232,93,38,0.18)', color: ORANGE, fontSize: '13px', fontWeight: 700, padding: '5px 14px', borderRadius: '20px', marginBottom: '16px' }}>
-            Visa help for teachers
+            Marriage &amp; visa help
           </div>
           <h1 style={{ color: 'white', fontSize: 'clamp(28px, 5vw, 40px)', fontWeight: 900, lineHeight: 1.2, margin: '0 0 14px' }}>
-            Married to a Thai national? Teach in Thailand on your own visa
+            Getting married in Thailand? We'll fast-track it
           </h1>
-          <p style={{ color: '#ccc', fontSize: '17px', lineHeight: 1.6, margin: '0 auto 26px', maxWidth: '640px' }}>
-            The marriage visa (Non-O) lets you live and work in Thailand without depending on a school to sponsor you.
-            Here's how it works, and how we can help you get it.
+          <p style={{ color: '#ccc', fontSize: '17px', lineHeight: 1.6, margin: '0 auto 10px', maxWidth: '660px' }}>
+            Marriage registration and MFA documents in Bangkok, usually in around one week.
+            For foreigners marrying a Thai national <strong style={{ color: 'white' }}>or a partner of any nationality</strong>.
+          </p>
+          <p style={{ color: '#aaa', fontSize: '15px', lineHeight: 1.6, margin: '0 auto 26px', maxWidth: '620px' }}>
+            Married to a Thai? We also help with the marriage visa, so you can live and teach on your own visa.
           </p>
           <a href="#get-help"
             style={{ background: ORANGE, color: 'white', padding: '15px 34px', borderRadius: '10px', textDecoration: 'none', fontWeight: 800, fontSize: '16px', display: 'inline-block' }}>
-            Get free help →
+            Get free advice →
           </a>
         </div>
       </section>
 
       <div style={{ maxWidth: '820px', margin: '0 auto', padding: '32px 16px 48px' }}>
 
-        {/* Why it matters */}
+        {/* Services */}
+        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+          {SERVICES.map(s => (
+            <div key={s.title} style={{ ...card, marginBottom: 0, borderTop: `4px solid ${ORANGE}` }}>
+              <div style={{ fontSize: '30px', marginBottom: '6px' }}>{s.icon}</div>
+              <div style={{ fontWeight: 900, color: NAVY, fontSize: '19px', marginBottom: '4px' }}>{s.title}</div>
+              <div style={{ color: ORANGE, fontSize: '13px', fontWeight: 700, marginBottom: '12px' }}>{s.who}</div>
+              <ul style={{ margin: 0, paddingLeft: '18px', color: '#444', fontSize: '14px', lineHeight: 1.8 }}>
+                {s.points.map(pt => <li key={pt}>{pt}</li>)}
+              </ul>
+            </div>
+          ))}
+        </section>
+
+        {/* Getting married */}
         <section style={card}>
-          <h2 style={h2}>Why it matters for teachers</h2>
+          <h2 style={h2}>Getting married in Thailand</h2>
+          <p style={p}>
+            Foreigners can legally marry in Thailand, whether your partner is Thai or another nationality. The hard part is the
+            paperwork: embassy documents, Thai translations and legalisation at the Ministry of Foreign Affairs. Done yourself, it can
+            take several trips to Bangkok. Our partner has the contacts to get it done quickly, usually in around one week.
+          </p>
+          <Steps steps={MARRIAGE_STEPS} />
+        </section>
+
+        {/* Why the visa matters */}
+        <section style={card}>
+          <h2 style={h2}>Married to a Thai? Why the marriage visa matters for teachers</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
             {BENEFITS.map(b => (
               <div key={b.title} style={{ background: '#f7f7f9', borderRadius: '10px', padding: '18px' }}>
@@ -137,32 +217,20 @@ export default function MarriageVisaPage() {
             Thai national, followed by a <strong>one-year extension of stay</strong> granted by immigration. That extension is renewed every year.
           </p>
           <p style={{ ...p, margin: 0 }}>
-            Since 2025 the initial Non-O visa can also be applied for online through Thailand's e-Visa system, and same-sex
-            married couples have the same rights as any other couple.
+            It's only available to spouses of Thai nationals. Since 2025 the initial Non-O visa can also be applied for online through
+            Thailand's e-Visa system, and same-sex married couples have the same rights as any other couple.
           </p>
         </section>
 
-        {/* Steps */}
+        {/* Visa steps */}
         <section style={card}>
-          <h2 style={h2}>How it works</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {STEPS.map((s, i) => (
-              <div key={s.title} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                <div style={{ flexShrink: 0, width: '34px', height: '34px', borderRadius: '50%', background: ORANGE, color: 'white', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {i + 1}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 800, color: NAVY, fontSize: '16px', marginBottom: '2px' }}>{s.title}</div>
-                  <div style={{ color: '#555', fontSize: '15px', lineHeight: 1.6 }}>{s.text}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <h2 style={h2}>How the marriage visa works</h2>
+          <Steps steps={VISA_STEPS} />
         </section>
 
         {/* Documents */}
         <section style={card}>
-          <h2 style={h2}>Documents you'll usually need</h2>
+          <h2 style={h2}>Documents you'll usually need for the visa</h2>
           <ul style={{ margin: '0 0 12px', paddingLeft: '20px', color: '#444', fontSize: '15px', lineHeight: 1.9 }}>
             {DOCUMENTS.map(d => <li key={d}>{d}</li>)}
           </ul>
@@ -185,9 +253,10 @@ export default function MarriageVisaPage() {
 
         {/* Form */}
         <section id="get-help" style={{ ...card, border: `2px solid ${ORANGE}`, scrollMarginTop: '20px' }}>
-          <h2 style={{ ...h2, marginBottom: '6px' }}>Get help with your marriage visa</h2>
+          <h2 style={{ ...h2, marginBottom: '6px' }}>Get free advice</h2>
           <p style={{ ...p, marginBottom: '20px' }}>
-            Leave your details and our visa partner will contact you to talk through your situation. There's no obligation.
+            Tell us whether you're getting married, need the visa, or both. Our partner will contact you to talk through your situation.
+            There's no obligation.
           </p>
           <MarriageVisaForm />
         </section>
@@ -218,8 +287,8 @@ export default function MarriageVisaPage() {
 
         {/* Disclaimer */}
         <p style={{ fontSize: '12px', color: '#999', lineHeight: 1.6, textAlign: 'center', margin: '8px 0 0' }}>
-          General information only, not legal advice. Thai immigration rules change and vary between offices, so always confirm
-          your own situation with immigration or a qualified visa professional. Last checked: {LAST_CHECKED}.
+          General information only, not legal advice. Thai marriage and immigration rules change and vary between offices, and
+          timings depend on your embassy and documents. Always confirm your own situation with a qualified professional. Last checked: {LAST_CHECKED}.
         </p>
       </div>
     </main>

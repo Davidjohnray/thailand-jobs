@@ -11,6 +11,13 @@ const inputStyle: CSSProperties = {
 }
 const labelStyle: CSSProperties = { display: 'block', color: '#444', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }
 
+const HELP_OPTIONS = [
+  'Getting married in Thailand (fast-track)',
+  'Marriage visa (Non-O)',
+  'Both: getting married and the visa',
+  'Not sure yet',
+]
+
 function Select({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: string[] }) {
   return (
     <select value={value} onChange={e => onChange(e.target.value)} style={inputStyle}>
@@ -21,12 +28,14 @@ function Select({ value, onChange, options }: { value: string; onChange: (v: str
 }
 
 export default function MarriageVisaForm() {
+  const [helpNeeded, setHelpNeeded] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
   const [lineId, setLineId] = useState('')
   const [preferredContact, setPreferredContact] = useState('')
   const [nationality, setNationality] = useState('')
+  const [partnerNationality, setPartnerNationality] = useState('')
   const [currentVisa, setCurrentVisa] = useState('')
   const [inThailand, setInThailand] = useState('')
   const [marriageStatus, setMarriageStatus] = useState('')
@@ -46,9 +55,10 @@ export default function MarriageVisaForm() {
 
   const submit = async () => {
     setError('')
+    if (!helpNeeded) return setError('Choose what you need help with.')
     if (!name.trim()) return setError('Enter your name.')
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError('Enter a valid email address.')
-    if (!consent) return setError('Tick the consent box so we can contact you about your visa.')
+    if (!consent) return setError('Tick the consent box so we can contact you.')
 
     setSubmitting(true)
     try {
@@ -56,8 +66,8 @@ export default function MarriageVisaForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name, email, whatsapp, lineId, preferredContact, nationality, currentVisa,
-          inThailand, marriageStatus, province, isTeacher, message, consent, website,
+          helpNeeded, name, email, whatsapp, lineId, preferredContact, nationality, partnerNationality,
+          currentVisa, inThailand, marriageStatus, province, isTeacher, message, consent, website,
         }),
       })
       const data = await res.json()
@@ -77,7 +87,7 @@ export default function MarriageVisaForm() {
         <h3 style={{ color: NAVY, fontSize: '20px', fontWeight: 'bold', margin: '0 0 6px' }}>Thanks, we have your details</h3>
         <p style={{ color: '#555', fontSize: '15px', margin: '0 0 4px' }}>Your reference is <strong>{ref}</strong>.</p>
         <p style={{ color: '#555', fontSize: '15px', margin: 0, lineHeight: 1.6 }}>
-          We'll be in touch about your marriage visa{preferredContact ? ` by ${preferredContact}` : ''}.
+          We'll be in touch{preferredContact ? ` by ${preferredContact}` : ''} to talk through the next steps.
         </p>
       </div>
     )
@@ -85,16 +95,22 @@ export default function MarriageVisaForm() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div>
+        <label style={labelStyle}>What do you need help with? *</label>
+        <Select value={helpNeeded} onChange={setHelpNeeded} options={HELP_OPTIONS} />
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
         <div><label style={labelStyle}>Full name *</label><input value={name} onChange={e => setName(e.target.value)} style={inputStyle} autoComplete="name" /></div>
         <div><label style={labelStyle}>Email *</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} autoComplete="email" /></div>
         <div><label style={labelStyle}>WhatsApp number</label><input type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} style={inputStyle} autoComplete="tel" /></div>
         <div><label style={labelStyle}>LINE ID</label><input value={lineId} onChange={e => setLineId(e.target.value)} style={inputStyle} /></div>
         <div><label style={labelStyle}>Best way to contact you</label><Select value={preferredContact} onChange={setPreferredContact} options={['Email', 'WhatsApp', 'LINE']} /></div>
-        <div><label style={labelStyle}>Nationality</label><input value={nationality} onChange={e => setNationality(e.target.value)} style={inputStyle} /></div>
-        <div><label style={labelStyle}>Current visa</label><Select value={currentVisa} onChange={setCurrentVisa} options={['Non-B (work)', 'Non-O', 'Tourist / visa exempt', 'ED', 'DTV', 'Retirement', 'Other / not sure']} /></div>
+        <div><label style={labelStyle}>Your nationality</label><input value={nationality} onChange={e => setNationality(e.target.value)} style={inputStyle} /></div>
+        <div><label style={labelStyle}>Your partner's nationality</label><input value={partnerNationality} onChange={e => setPartnerNationality(e.target.value)} style={inputStyle} placeholder="e.g. Thai, British, Filipino" /></div>
+        <div><label style={labelStyle}>Marriage</label><Select value={marriageStatus} onChange={setMarriageStatus} options={['Planning to marry in Thailand', 'Already registered in Thailand', 'Married abroad']} /></div>
+        <div><label style={labelStyle}>Your current visa</label><Select value={currentVisa} onChange={setCurrentVisa} options={['Non-B (work)', 'Non-O', 'Tourist / visa exempt', 'ED', 'DTV', 'Retirement', 'Other / not sure']} /></div>
         <div><label style={labelStyle}>Are you in Thailand now?</label><Select value={inThailand} onChange={setInThailand} options={['Yes', 'No']} /></div>
-        <div><label style={labelStyle}>Marriage</label><Select value={marriageStatus} onChange={setMarriageStatus} options={['Registered in Thailand', 'Registered abroad', 'Planning to marry']} /></div>
         <div><label style={labelStyle}>Province you live in (or will)</label><input value={province} onChange={e => setProvince(e.target.value)} style={inputStyle} placeholder="e.g. Bangkok, Ayutthaya" /></div>
         <div><label style={labelStyle}>Do you work as a teacher?</label><Select value={isTeacher} onChange={setIsTeacher} options={['Yes', 'Looking for teaching work', 'No']} /></div>
       </div>
@@ -102,7 +118,7 @@ export default function MarriageVisaForm() {
       <div>
         <label style={labelStyle}>Anything else we should know?</label>
         <textarea value={message} onChange={e => setMessage(e.target.value)} rows={4} style={{ ...inputStyle, resize: 'vertical' }}
-          placeholder="e.g. my Non-B ends in March when my contract finishes" />
+          placeholder="e.g. we'd like to marry in December, or my Non-B ends in March" />
       </div>
 
       {/* Honeypot — hidden from people, bots fill it in */}
@@ -111,7 +127,7 @@ export default function MarriageVisaForm() {
 
       <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', color: '#555', fontSize: '13px', lineHeight: 1.5, cursor: 'pointer' }}>
         <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} style={{ marginTop: '3px' }} />
-        I agree to Jobs in Thailand storing my details and sharing them with our visa partner so they can contact me about a marriage visa.
+        I agree to Jobs in Thailand storing my details and sharing them with our marriage and visa partner so they can contact me.
       </label>
 
       {error && (
@@ -122,7 +138,7 @@ export default function MarriageVisaForm() {
 
       <button onClick={submit} disabled={submitting}
         style={{ background: ORANGE, color: 'white', padding: '15px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.7 : 1 }}>
-        {submitting ? 'Sending…' : 'Get help with my marriage visa'}
+        {submitting ? 'Sending…' : 'Get free advice'}
       </button>
     </div>
   )
