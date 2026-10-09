@@ -24,6 +24,11 @@ export default function JobDetailClient({ id }: { id: string }) {
       // view (last 7/30/90 days) becomes possible later — separate from
       // the lifetime total above.
       supabase.rpc('increment_daily_stat', { p_scope: `job-${id}`, p_metric: 'views' }).then(() => {}, () => {})
+
+      // Track ARNA job views separately for their stats dashboard
+      if (data && data.company === 'Arna Education and Services LTD.') {
+        supabase.rpc('increment_daily_stat', { p_scope: 'jobs-arna-education', p_metric: 'views' }).then(() => {}, () => {})
+      }
     }
     init()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
