@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
+import { RegisterPerks, RegisterSuccessNext } from '../../../components/RegisterPromos'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -69,6 +70,10 @@ export default function RegisterPage() {
         <p style={{ color: '#666', marginBottom: '24px', lineHeight: '1.6' }}>
           Please check your email and click the confirmation link to activate your account.
         </p>
+
+        {/* Job seekers: promote Teacher Directory + Supporters */}
+        {role === 'job_seeker' && <RegisterSuccessNext role="job_seeker" />}
+
         {role === 'rental_member' && (
           <div style={{ background: '#fff3ed', borderRadius: '10px', padding: '16px', marginBottom: '24px', fontSize: '14px', color: '#E85D26', textAlign: 'left' }}>
             🏠 Once your email is confirmed, log in and message us to activate your Rental Member account after payment.
@@ -90,9 +95,8 @@ export default function RegisterPage() {
           <p style={{ color: '#666', fontSize: '14px' }}>Join thousands of expats and job seekers in Thailand</p>
         </div>
 
-        <div style={{ background: '#fff3ed', borderRadius: '10px', padding: '14px 16px', marginBottom: '24px', fontSize: '13px', color: '#E85D26' }}>
-          ⭐ Members see new jobs 1 hour early & can message us directly!
-        </div>
+        {/* MEMBER PERKS + SUPPORTER PROMO */}
+        <RegisterPerks />
 
         {/* ROLE SELECTION */}
         <div style={{ marginBottom: '24px' }}>
@@ -104,7 +108,7 @@ export default function RegisterPage() {
               <span style={{ fontSize: '28px' }}>👤</span>
               <div>
                 <div style={{ fontWeight: 'bold', fontSize: '14px', color: role === 'job_seeker' ? '#E85D26' : '#333' }}>Find a Job</div>
-                <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>Job seeker — see new jobs 1 hour early, free to join</div>
+                <div style={{ fontSize: '12px', color: '#999', marginTop: '2px' }}>Job seeker / teacher — see new jobs early, free Teacher Directory profile</div>
               </div>
             </button>
 
