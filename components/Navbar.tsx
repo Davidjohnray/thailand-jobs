@@ -111,6 +111,14 @@ export default function Navbar() {
             </button>
             {jobsOpen && (
               <div style={dropdownStyle}>
+                {/* Supporters — top of Jobs dropdown */}
+                <Link href="/supporters" onClick={() => setJobsOpen(false)}
+                  style={{ ...dropdownLinkStyle, color: '#b45309', fontWeight: '800', background: '#fffbeb' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#fef3c7')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#fffbeb')}>
+                  ⭐ See Jobs First (Supporters)
+                </Link>
+                <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
                 {jobsItems.map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setJobsOpen(false)}
                     style={dropdownLinkStyle}
@@ -122,6 +130,12 @@ export default function Navbar() {
               </div>
             )}
           </div>
+
+          {/* Supporters */}
+          <Link href="/supporters"
+            style={{ color: '#1a1a2e', textDecoration: 'none', fontSize: '14px', padding: '8px 14px', borderRadius: '6px', background: '#FFC83D', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+            ⭐ Supporters
+          </Link>
 
           {/* Services dropdown */}
           <div ref={servicesRef} style={{ position: 'relative' }}>
@@ -271,6 +285,12 @@ export default function Navbar() {
               ))}
             </div>
           )}
+
+          {/* Supporters */}
+          <Link href="/supporters" onClick={closeMobile}
+            style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: '#FFC83D', fontWeight: 'bold' }}>
+            ⭐ Supporters — See Jobs First
+          </Link>
 
           {/* Services */}
           <button onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
