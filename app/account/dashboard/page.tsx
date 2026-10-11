@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
+import DashboardPromos from '../../../components/DashboardPromos'
 
 const thaiProvinces = [
   'All Thailand',
@@ -164,6 +165,9 @@ export default function DashboardPage() {
       </div>
 
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 24px' }}>
+
+        {/* SUPPORTER UPDATE + SUPPORTER STATUS + TEACHER DIRECTORY PROMO */}
+        <DashboardPromos />
 
         {/* RENTAL MEMBER CARD */}
         {rentalProfile && (
