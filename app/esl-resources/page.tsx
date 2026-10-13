@@ -55,6 +55,16 @@ export default function ESLResourcesPage() {
       shadow: 'rgba(220,38,38,0.3)',
       scope: 'resource-conversation-topics',
     },
+    {
+      href: '/esl-resources/courses',
+      emoji: '📚',
+      title: 'Courses',
+      desc: 'Interactive courses with real scenarios, roleplay, cultural insights, and the phrases you actually need.',
+      cta: 'Browse Courses →',
+      gradient: 'linear-gradient(135deg, #022c22, #047857)',
+      shadow: 'rgba(4,120,87,0.3)',
+      scope: 'resource-courses',
+    },
   ]
 
   return (
@@ -79,7 +89,7 @@ export default function ESLResourcesPage() {
         </div>
       </div>
 
-      {/* SECTION BUTTONS — 3 + 2 */}
+      {/* SECTION BUTTONS — 3 + 3 */}
       <div style={{ padding: '48px 24px 64px' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '24px' }}>Choose a section</p>
