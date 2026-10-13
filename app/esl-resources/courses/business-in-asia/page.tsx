@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 const LESSONS = [
   { id: 'business-card-ceremony', title: 'The Business Card Ceremony', emoji: '🪪', description: 'First impressions in Japan, Korea, China and Thailand', available: true },
-  { id: 'drinking-with-the-boss', title: 'Drinking with the Boss', emoji: '🍻', description: 'After-work culture from Seoul to Singapore', available: false },
+  { id: 'drinking-with-the-boss', title: 'Drinking with the Boss', emoji: '🍻', description: 'After-work culture from Seoul to Singapore', available: true },
   { id: 'losing-face', title: 'Losing Face', emoji: '😶', description: 'The most important concept in Asian business', available: false },
   { id: 'saying-no-without-saying-no', title: 'The Art of Saying No Without Saying No', emoji: '🤐', description: 'Indirect communication across cultures', available: false },
   { id: 'guanxi', title: 'Guanxi — It\'s Who You Know', emoji: '🤝', description: 'Relationships, networks and trust in China', available: false },
