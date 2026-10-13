@@ -1,82 +1,92 @@
 'use client'
 import Link from 'next/link'
 
-const COURSES = [
-  {
-    id: 'business-in-asia',
-    title: 'Business in Asia',
-    emoji: '🏯',
-    description: 'Real life and culture of doing business across Asia',
-    color: '#047857',
-    gradient: 'linear-gradient(135deg, #022c22 0%, #047857 100%)',
-    level: 'B1',
-    lessonCount: 10,
-    availableLessons: 1,
-    detail: 'Go beyond textbook Business English. This course puts you inside real situations — exchanging business cards in Tokyo, drinking with colleagues in Seoul, navigating family empires in Bangkok. Each lesson is built around scenarios, cultural rules, and the phrases you actually need.',
-    tags: ['10 lessons', 'Interactive', 'Cultural scenarios'],
-  },
+const LESSONS = [
+  { id: 'business-card-ceremony', title: 'The Business Card Ceremony', emoji: '🪪', description: 'First impressions in Japan, Korea, China and Thailand', available: true },
+  { id: 'drinking-with-the-boss', title: 'Drinking with the Boss', emoji: '🍻', description: 'After-work culture from Seoul to Singapore', available: false },
+  { id: 'losing-face', title: 'Losing Face', emoji: '😶', description: 'The most important concept in Asian business', available: false },
+  { id: 'saying-no-without-saying-no', title: 'The Art of Saying No Without Saying No', emoji: '🤐', description: 'Indirect communication across cultures', available: false },
+  { id: 'guanxi', title: 'Guanxi — It\'s Who You Know', emoji: '🤝', description: 'Relationships, networks and trust in China', available: false },
+  { id: 'salarymans-day', title: 'The Salaryman\'s Day', emoji: '🚶', description: 'A day in the life of a Japanese office worker', available: false },
+  { id: 'family-business-empires', title: 'Family Business Empires', emoji: '👨‍👩‍👦', description: 'The dynasties behind Asia\'s biggest companies', available: false },
+  { id: 'bowing-waiing-shaking-hands', title: 'Bowing, Wai-ing, and Shaking Hands', emoji: '🙏', description: 'Greetings and body language across Asia', available: false },
+  { id: 'night-market-entrepreneur', title: 'The Night Market Entrepreneur', emoji: '🏮', description: 'Street business, hustle and the Asian dream', available: false },
+  { id: 'when-east-meets-west', title: 'When East Meets West', emoji: '🌏', description: 'Clashes, compromises and finding common ground', available: false },
 ]
 
-export default function CoursesHub() {
+const COLOR = '#047857'
+
+export default function BusinessInAsiaPage() {
+  const available = LESSONS.filter(l => l.available).length
+
   return (
     <main style={{ background: '#f4f6fa', minHeight: '100vh' }}>
       {/* Header */}
       <section style={{ background: 'linear-gradient(135deg, #022c22 0%, #047857 60%, #059669 100%)', padding: '56px 24px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-          <Link href="/esl-resources" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← ESL Resources</Link>
+          <Link href="/esl-resources/courses" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '20px' }}>← All Courses</Link>
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '16px', padding: '16px 24px', textAlign: 'center', minWidth: '80px' }}>
-              <div style={{ color: 'white', fontSize: '36px', lineHeight: 1 }}>📚</div>
-              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>COURSES</div>
-            </div>
+            <div style={{ fontSize: '64px' }}>🏯</div>
             <div>
-              <h1 style={{ color: 'white', fontSize: '28px', fontWeight: 'bold', margin: '0 0 6px' }}>Courses</h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', margin: 0, lineHeight: '1.5', maxWidth: '520px' }}>Interactive courses that go beyond reading. Scenarios, cultural insights, and the phrases you actually need.</p>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                <span style={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '12px', fontWeight: 'bold', padding: '4px 12px', borderRadius: '20px' }}>B1 Intermediate</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>10 Lessons</span>
+                <span style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>30–60 min each</span>
+              </div>
+              <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px' }}>Business in Asia</h1>
+              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '15px', margin: 0, lineHeight: '1.6', maxWidth: '560px' }}>Go beyond textbook Business English. This course puts you inside real situations — exchanging business cards in Tokyo, drinking with colleagues in Seoul, navigating family empires in Bangkok.</p>
             </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
+            {['Cultural scenarios', 'Real phrases', 'AI conversation partner', '13-language translation', 'Pause & resume audio'].map(f => (
+              <span key={f} style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: '20px', color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: '600' }}>{f}</span>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Course Cards */}
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        {COURSES.map(course => (
-          <Link key={course.id} href={`/esl-resources/courses/${course.id}`} style={{ textDecoration: 'none' }}>
-            <div
-              style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb', transition: 'transform 0.2s', cursor: 'pointer' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
-            >
-              <div style={{ background: course.gradient, padding: '32px 28px', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: '16px', right: '20px', background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px' }}>
-                  <span style={{ color: 'white', fontSize: '12px', fontWeight: '700' }}>{course.level} Intermediate</span>
-                </div>
-                <div style={{ fontSize: '48px', marginBottom: '12px' }}>{course.emoji}</div>
-                <h2 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', margin: '0 0 8px' }}>{course.title}</h2>
-                <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '14px', margin: '0 0 16px', lineHeight: '1.6', maxWidth: '600px' }}>{course.detail}</p>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {course.tags.map(tag => (
-                    <span key={tag} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px' }}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-              <div style={{ padding: '20px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#374151' }}>{course.availableLessons} of {course.lessonCount} lessons available</span>
-                  <div style={{ flex: 1, maxWidth: '200px', background: '#e5e7eb', borderRadius: '20px', height: '8px', overflow: 'hidden' }}>
-                    <div style={{ width: `${(course.availableLessons / course.lessonCount) * 100}%`, background: course.color, height: '100%', borderRadius: '20px' }} />
-                  </div>
-                </div>
-                <div style={{ background: course.color, color: 'white', padding: '10px 24px', borderRadius: '10px', fontSize: '14px', fontWeight: '700' }}>View Course →</div>
-              </div>
-            </div>
-          </Link>
-        ))}
+      {/* Progress */}
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: '#374151' }}>{available} of {LESSONS.length} lessons available</span>
+        </div>
+        <div style={{ background: '#e5e7eb', borderRadius: '20px', height: '8px', overflow: 'hidden' }}>
+          <div style={{ width: `${(available / LESSONS.length) * 100}%`, background: COLOR, height: '100%', borderRadius: '20px', transition: 'width 0.3s' }} />
+        </div>
+      </div>
 
-        {/* Coming soon placeholder */}
-        <div style={{ background: 'white', borderRadius: '20px', border: '2px dashed #d1d5db', padding: '48px 28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-          <div style={{ fontSize: '48px' }}>🌏</div>
-          <div style={{ color: '#9ca3af', fontSize: '18px', fontWeight: '700', textAlign: 'center' }}>More courses coming soon</div>
-          <div style={{ color: '#d1d5db', fontSize: '14px', textAlign: 'center', maxWidth: '400px' }}>New interactive courses on culture, travel, and real-world English are in development.</div>
+      {/* Lesson List */}
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px 24px 64px' }}>
+        <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          {LESSONS.map((lesson, idx) => (
+            lesson.available ? (
+              <Link key={lesson.id} href={`/esl-resources/courses/business-in-asia/${lesson.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px 24px', borderBottom: idx < LESSONS.length - 1 ? '1px solid #f3f4f6' : 'none', transition: 'background 0.15s', cursor: 'pointer' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = '#f0fdf4' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
+                >
+                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: COLOR, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '800', flexShrink: 0 }}>{idx + 1}</div>
+                  <div style={{ fontSize: '32px', flexShrink: 0 }}>{lesson.emoji}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '16px', fontWeight: '700', color: '#1a1a2e' }}>{lesson.title}</div>
+                    <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '3px' }}>{lesson.description}</div>
+                  </div>
+                  <div style={{ background: COLOR, color: 'white', padding: '10px 20px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', flexShrink: 0 }}>Start →</div>
+                </div>
+              </Link>
+            ) : (
+              <div key={lesson.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px 24px', borderBottom: idx < LESSONS.length - 1 ? '1px solid #f3f4f6' : 'none', opacity: 0.45 }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#d1d5db', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '800', flexShrink: 0 }}>{idx + 1}</div>
+                <div style={{ fontSize: '32px', flexShrink: 0 }}>{lesson.emoji}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '16px', fontWeight: '700', color: '#1a1a2e' }}>{lesson.title}</div>
+                  <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '3px' }}>{lesson.description}</div>
+                </div>
+                <span style={{ background: '#f3f4f6', color: '#9ca3af', padding: '8px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', flexShrink: 0 }}>Coming Soon</span>
+              </div>
+            )
+          ))}
         </div>
       </div>
     </main>
