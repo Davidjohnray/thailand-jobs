@@ -12,6 +12,12 @@ const videos = [
     desc: 'The honest breakdown — government, private and international school salaries, a real monthly budget, and red flags to watch before you sign.',
     category: 'Salaries',
   },
+  {
+  id: 'YOUR_YOUTUBE_VIDEO_ID',
+  title: 'Thailand Teaching Jobs — Week of October 14, 2026',
+  desc: 'Weekly roundup of teaching jobs across Thailand including positions in Bangkok, Nonthaburi, Chonburi, and more.',
+  category: 'Jobs',
+},
   // Add more videos below like this:
   // {
   //   id: 'YOUTUBE_VIDEO_ID',
