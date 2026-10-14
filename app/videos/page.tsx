@@ -7,24 +7,17 @@ import Link from 'next/link'
 // ============================================================
 const videos = [
   {
+    id: 'bLGmJ7HvZU4',
+    title: 'Thailand Teaching Jobs — Week of October 14, 2026',
+    desc: 'Weekly roundup of 20+ teaching positions across Thailand including Bangkok, Nonthaburi, Chonburi, Phuket and more. All with visa support.',
+    category: 'Jobs',
+  },
+  {
     id: 'JzNIp4C9H7U',
     title: 'How Much Do Teachers Earn in Thailand in 2025?',
     desc: 'The honest breakdown — government, private and international school salaries, a real monthly budget, and red flags to watch before you sign.',
     category: 'Salaries',
   },
-  {
-  id: 'YOUR_YOUTUBE_VIDEO_ID',
-  title: 'Thailand Teaching Jobs — Week of October 14, 2026',
-  desc: 'Weekly roundup of teaching jobs across Thailand including positions in Bangkok, Nonthaburi, Chonburi, and more.',
-  category: 'Jobs',
-},
-  // Add more videos below like this:
-  // {
-  //   id: 'YOUTUBE_VIDEO_ID',
-  //   title: 'Your Video Title Here',
-  //   desc: 'Short description of what the video covers.',
-  //   category: 'Teaching',
-  // },
 ]
 
 const CATEGORIES = ['All', 'Salaries', 'Teaching', 'Cities', 'Visas', 'Jobs', 'Lifestyle']
