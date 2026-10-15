@@ -7,6 +7,12 @@ import Link from 'next/link'
 // ============================================================
 const videos = [
   {
+    id: 'ZK1CFIiBbTk',
+    title: 'What to Expect Your First Week Teaching in Thailand',
+    desc: 'From orientation day to finding your classroom confidence — an honest guide to surviving and thriving in week one.',
+    category: 'Teaching',
+  },
+  {
     id: 'bLGmJ7HvZU4',
     title: 'Thailand Teaching Jobs — Week of October 14, 2026',
     desc: 'Weekly roundup of 20+ teaching positions across Thailand including Bangkok, Nonthaburi, Chonburi, Phuket and more. All with visa support.',
