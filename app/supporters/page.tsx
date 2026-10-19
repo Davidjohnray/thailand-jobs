@@ -4,11 +4,22 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 // ── Settings ─────────────────────────────────────────────
-const MONTHLY_GOAL = 4500
-const PRICE = 50
+const LAUNCH_PRICE = 100                                                // launch offer: 100 baht for 6 months
+const LAUNCH_MONTHS = 6
+const LAUNCH_DEADLINE = new Date('2026-11-01T00:00:00+07:00').getTime() // offer ends at the end of 31 Oct
+const LAUNCH_END_LABEL = '31 October'
+const MONTHLY_PRICE = 50                                                // regular: 50 baht / 30 days
 const DAYS = 30
+const SIX_MONTH_PRICE = 250                                             // regular: 250 baht / 6 months
+const MONTHLY_GOAL = 4500
 const CONTACT_EMAIL = 'Admin@jobsinthailand.net'
-const FACEBOOK_URL = '' // optional: paste your Facebook page link here to show a "Message on Facebook" button
+const FACEBOOK_URL = '' // optional: your Facebook page link, to show a "Message on Facebook" button
+
+// Optional: show bank details on the page so people can pay straight away.
+// Leave blank to keep "email me for the bank details".
+const BANK_NAME = ''
+const ACCOUNT_NAME = ''
+const ACCOUNT_NUMBER = ''
 
 type Status = 'loading' | 'public' | 'member' | 'supporter'
 type WallEntry = { display_name: string; months_total: number }
@@ -30,11 +41,14 @@ function levelBadge(months: number) {
 export default function SupportersPage() {
   const [status, setStatus] = useState<Status>('loading')
   const [until, setUntil] = useState<string | null>(null)
+  const [permanent, setPermanent] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [wall, setWall] = useState<WallEntry[]>([])
   const [raised, setRaised] = useState<number | null>(null)
+  const [launch, setLaunch] = useState(true)
 
   useEffect(() => {
+    setLaunch(Date.now() < LAUNCH_DEADLINE)
     let active = true
 
     const load = async () => {
@@ -53,6 +67,7 @@ export default function SupportersPage() {
         if (active) {
           setStatus(isSupporter ? 'supporter' : 'member')
           setUntil(isSupporter ? data!.supporter_until : null)
+          setPermanent(isSupporter && new Date(data!.supporter_until).getFullYear() >= 2090)
         }
       }
 
@@ -63,7 +78,7 @@ export default function SupportersPage() {
         .order('months_total', { ascending: false })
       if (active && wallData) setWall(wallData as WallEntry[])
 
-      // 3. Monthly total
+      // 3. Total raised this month
       const { data: total } = await supabase.rpc('supporter_month_total')
       if (active && typeof total === 'number') setRaised(total)
     }
@@ -72,11 +87,18 @@ export default function SupportersPage() {
     return () => { active = false }
   }, [])
 
+  const showBank = !!(BANK_NAME && ACCOUNT_NUMBER)
+  const amountText = launch
+    ? `${LAUNCH_PRICE} baht (${LAUNCH_MONTHS} months)`
+    : `${MONTHLY_PRICE} baht (${DAYS} days) or ${SIX_MONTH_PRICE} baht (6 months)`
+
+  const mailBody = launch
+    ? `Hi David,\n\nI'd like the Supporter launch offer: ${LAUNCH_PRICE} baht for ${LAUNCH_MONTHS} months.\n\nMy jobsinthailand.net account email is: ${userEmail || '____'}\n\nThanks!`
+    : `Hi David,\n\nI'd like to become a Supporter:\n[ ] ${MONTHLY_PRICE} baht / ${DAYS} days\n[ ] ${SIX_MONTH_PRICE} baht / 6 months\n\nMy jobsinthailand.net account email is: ${userEmail || '____'}\n\nThanks!`
+
   const mailto =
     `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Become a Supporter')}` +
-    `&body=${encodeURIComponent(
-      `Hi David,\n\nI'd like to become a Supporter (${PRICE} baht / ${DAYS} days).\n\nMy jobsinthailand.net account email is: ${userEmail || '____'}\n\nThanks!`
-    )}`
+    `&body=${encodeURIComponent(mailBody)}`
 
   const percent = raised !== null ? Math.min(100, Math.round((raised / MONTHLY_GOAL) * 100)) : 0
 
@@ -99,28 +121,64 @@ export default function SupportersPage() {
 
         {/* ── HERO ── */}
         <section style={{ ...card, textAlign: 'center', borderTop: `5px solid ${ORANGE}` }}>
-          <div style={{ fontSize: '42px', marginBottom: '8px' }}>⭐</div>
+          <div style={{ fontSize: '42px', marginBottom: '8px' }}>{launch ? '🎉' : '⭐'}</div>
           <h1 style={{ color: NAVY, fontSize: '30px', margin: '0 0 10px' }}>Become a Supporter</h1>
           <p style={{ color: '#555', fontSize: '16px', lineHeight: 1.6, maxWidth: '620px', margin: '0 auto 18px' }}>
             Get every new job the moment it's posted, and help keep jobsinthailand.net free for everyone.
           </p>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: ORANGE, marginBottom: '18px' }}>
-            {PRICE} baht <span style={{ fontSize: '16px', color: '#666', fontWeight: 'normal' }}>/ {DAYS} days</span>
-          </div>
 
-          {/* Status-aware call to action */}
-          {status === 'supporter' && until && (
-            <div style={{ background: '#E8F7EE', color: '#1B7A43', borderRadius: '10px', padding: '14px', fontWeight: 'bold' }}>
-              ✅ You're a Supporter until {formatDate(until)}. Thank you! 🙏
-              <div style={{ fontWeight: 'normal', fontSize: '14px', marginTop: '6px' }}>
-                Want to renew early? <a href={mailto} style={{ color: '#1B7A43' }}>Email me</a>. New days are added after your current end date.
+          {launch ? (
+            <div style={{ marginBottom: '18px' }}>
+              <div style={{ display: 'inline-block', background: '#FFC83D', color: NAVY, fontWeight: 'bold', fontSize: '13px', padding: '4px 12px', borderRadius: '999px', marginBottom: '10px' }}>
+                🎉 Launch offer — ends {LAUNCH_END_LABEL}
+              </div>
+              <div style={{ fontSize: '30px', fontWeight: 'bold', color: ORANGE }}>
+                {LAUNCH_PRICE} baht{' '}
+                <span style={{ fontSize: '16px', color: '#666', fontWeight: 'normal' }}>for {LAUNCH_MONTHS} months</span>
+              </div>
+              <div style={{ color: '#888', fontSize: '13px', marginTop: '6px' }}>
+                After {LAUNCH_MONTHS} months, renew for {MONTHLY_PRICE} baht / {DAYS} days or {SIX_MONTH_PRICE} baht / 6 months.
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '18px' }}>
+              <div style={{ border: '1px solid #eee', borderRadius: '12px', padding: '14px 20px', minWidth: '160px' }}>
+                <div style={{ fontSize: '26px', fontWeight: 'bold', color: ORANGE }}>{MONTHLY_PRICE} baht</div>
+                <div style={{ color: '#666', fontSize: '14px' }}>{DAYS} days</div>
+              </div>
+              <div style={{ border: `2px solid ${ORANGE}`, borderRadius: '12px', padding: '14px 20px', minWidth: '160px', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: ORANGE, color: 'white', fontSize: '11px', fontWeight: 'bold', padding: '2px 10px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+                  SAVE 50 BAHT
+                </div>
+                <div style={{ fontSize: '26px', fontWeight: 'bold', color: ORANGE }}>{SIX_MONTH_PRICE} baht</div>
+                <div style={{ color: '#666', fontSize: '14px' }}>6 months</div>
               </div>
             </div>
           )}
 
-          {status === 'member' && (
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href={mailto} style={btn}>📧 Email to Become a Supporter</a>
+          {/* Status */}
+          {status === 'supporter' && permanent && (
+            <div style={{ background: '#E8F7EE', color: '#1B7A43', borderRadius: '10px', padding: '14px', fontWeight: 'bold' }}>
+              ✅ You're a Supporter. Thank you! 🙏
+            </div>
+          )}
+
+          {status === 'supporter' && !permanent && until && (
+            <div style={{ background: '#E8F7EE', color: '#1B7A43', borderRadius: '10px', padding: '14px', fontWeight: 'bold' }}>
+              ✅ You have Supporter access until {formatDate(until)}.
+              <div style={{ fontWeight: 'normal', fontSize: '14px', marginTop: '6px' }}>
+                {launch
+                  ? `Add ${LAUNCH_MONTHS} months for ${LAUNCH_PRICE} baht before ${LAUNCH_END_LABEL}. It starts after your current access ends.`
+                  : 'Renew any time. New time is added after your current end date.'}
+              </div>
+            </div>
+          )}
+
+          {(status === 'member' || (status === 'supporter' && !permanent)) && (
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '14px' }}>
+              <a href={mailto} style={btn}>
+                📧 {launch ? `Get ${LAUNCH_MONTHS} Months for ${LAUNCH_PRICE} Baht` : status === 'supporter' ? 'Renew My Membership' : 'Become a Supporter'}
+              </a>
               {FACEBOOK_URL && <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" style={btnOutline}>💬 Message on Facebook</a>}
             </div>
           )}
@@ -149,7 +207,6 @@ export default function SupportersPage() {
             free for everyone. Thank you! 🙏 <strong>— David</strong>
           </p>
 
-          {/* Goal bar */}
           {raised !== null && (
             <div style={{ marginTop: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#555', marginBottom: '6px' }}>
@@ -211,14 +268,37 @@ export default function SupportersPage() {
         {/* ── HOW TO JOIN ── */}
         <section style={card}>
           <h2 style={{ color: NAVY, fontSize: '20px', margin: '0 0 12px' }}>How to become a Supporter</h2>
+
+          {showBank && (
+            <div style={{ background: '#f7f7f9', border: '1px solid #eee', borderRadius: '10px', padding: '14px 16px', marginBottom: '14px', fontSize: '14px', color: '#333', lineHeight: 1.8 }}>
+              <div><strong>Bank:</strong> {BANK_NAME}</div>
+              {ACCOUNT_NAME && <div><strong>Account name:</strong> {ACCOUNT_NAME}</div>}
+              <div><strong>Account number:</strong> {ACCOUNT_NUMBER}</div>
+              <div><strong>Amount:</strong> {amountText}</div>
+            </div>
+          )}
+
           <ol style={{ color: '#444', lineHeight: 1.9, paddingLeft: '20px', margin: 0 }}>
-            <li>Email <a href={mailto} style={{ color: ORANGE, fontWeight: 'bold' }}>{CONTACT_EMAIL}</a>{FACEBOOK_URL ? ' or message me on Facebook' : ''} with the email address you use on the site.</li>
-            <li>I'll reply with the bank details.</li>
-            <li>Send {PRICE} baht and reply with your transfer slip.</li>
-            <li>I'll upgrade your account. Your {DAYS} days start straight away, or are added on after your current membership if you renew early.</li>
+            {showBank ? (
+              <>
+                <li>Transfer <strong>{amountText}</strong> to the account above.</li>
+                <li>Email your transfer slip to <a href={mailto} style={{ color: ORANGE, fontWeight: 'bold' }}>{CONTACT_EMAIL}</a> with the email address you use on the site.</li>
+                <li>I'll upgrade your account, usually the same day.</li>
+              </>
+            ) : (
+              <>
+                <li>Email <a href={mailto} style={{ color: ORANGE, fontWeight: 'bold' }}>{CONTACT_EMAIL}</a>{FACEBOOK_URL ? ' or message me on Facebook' : ''} with the email address you use on the site.</li>
+                <li>I'll reply with the bank details.</li>
+                <li>Send <strong>{amountText}</strong> and reply with your transfer slip.</li>
+                <li>I'll upgrade your account, usually the same day.</li>
+              </>
+            )}
           </ol>
+
           <p style={{ color: '#777', fontSize: '13px', margin: '14px 0 0' }}>
-            Supporter membership doesn't renew automatically. When your {DAYS} days end, you simply go back to being a free member. Nothing is lost.
+            {launch && `The launch offer ends on ${LAUNCH_END_LABEL}. `}
+            No automatic payments: if you don't renew, you simply go back to being a free member. Nothing is lost.
+            If you renew early, the new time is added after your current end date.
           </p>
         </section>
 

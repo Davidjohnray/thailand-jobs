@@ -1,20 +1,29 @@
 'use client'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 const ORANGE = '#E85D26'
 const NAVY = '#1a1a2e'
 
-// Free week offer for anyone who registers before launch day (14 Oct 2026, Thai time)
-const TRIAL_DEADLINE = new Date('2026-10-14T00:00:00+07:00').getTime()
+const LAUNCH_PRICE = 100
+const LAUNCH_MONTHS = 6
+const LAUNCH_DEADLINE = new Date('2026-11-01T00:00:00+07:00').getTime()
+const LAUNCH_END_LABEL = '31 October'
+const MONTHLY_PRICE = 50
+const DAYS = 30
 
-function trialOfferActive() {
-  return Date.now() < TRIAL_DEADLINE
+function useLaunchOffer() {
+  const [active, setActive] = useState(true)
+  useEffect(() => { setActive(Date.now() < LAUNCH_DEADLINE) }, [])
+  return active
 }
 
 // ─────────────────────────────────────────────────────────
 // 1. Shown ABOVE the registration form
 // ─────────────────────────────────────────────────────────
 export function RegisterPerks() {
+  const launch = useLaunchOffer()
+
   return (
     <div style={{ background: '#fff3ed', borderRadius: '10px', padding: '16px', marginBottom: '24px', border: `1px solid ${ORANGE}33` }}>
       <div style={{ fontWeight: 'bold', color: NAVY, fontSize: '14px', marginBottom: '10px' }}>
@@ -26,23 +35,27 @@ export function RegisterPerks() {
         <li>Message us directly and read replies in your account</li>
       </ul>
       <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: `1px dashed ${ORANGE}55`, fontSize: '13px', color: '#444' }}>
-        ⭐ <strong style={{ color: ORANGE }}>Supporters</strong> (50 baht / 30 days) see every new job <strong>instantly</strong>.{' '}
+        {launch ? (
+          <>
+            🎉 <strong style={{ color: ORANGE }}>Launch offer:</strong> see every new job <strong>instantly</strong> for{' '}
+            {LAUNCH_MONTHS} months, just {LAUNCH_PRICE} baht (until {LAUNCH_END_LABEL}).{' '}
+          </>
+        ) : (
+          <>
+            ⭐ <strong style={{ color: ORANGE }}>Supporters</strong> (from {MONTHLY_PRICE} baht / {DAYS} days) see every new job <strong>instantly</strong>.{' '}
+          </>
+        )}
         <Link href="/supporters" style={{ color: ORANGE, fontWeight: 'bold' }}>Learn more</Link>
       </div>
-      {trialOfferActive() && (
-        <div style={{ marginTop: '10px', background: 'white', borderRadius: '8px', padding: '10px', fontSize: '13px', color: '#1B7A43', fontWeight: 'bold', textAlign: 'center' }}>
-          🎁 Sign up before 14 October and get 7 days of Supporter access free!
-        </div>
-      )}
     </div>
   )
 }
 
 // ─────────────────────────────────────────────────────────
 // 2. Shown on the "Account Created!" success screen
-//    role: 'job_seeker' | 'employer' | '' (from the register form)
 // ─────────────────────────────────────────────────────────
 export function RegisterSuccessNext({ role }: { role?: string }) {
+  const launch = useLaunchOffer()
   const isJobSeeker = role !== 'employer'
 
   const box: React.CSSProperties = {
@@ -59,12 +72,6 @@ export function RegisterSuccessNext({ role }: { role?: string }) {
         While you wait for the email:
       </div>
 
-      {trialOfferActive() && (
-        <div style={{ ...box, background: '#E8F7EE', color: '#1B7A43', fontSize: '14px', fontWeight: 'bold', textAlign: 'center' }}>
-          🎁 You're in time! You'll get 7 days of Supporter access free from 14 October.
-        </div>
-      )}
-
       {isJobSeeker && (
         <div style={{ ...box, background: '#F1F4FF', border: '1px solid #3B4FB533' }}>
           <div style={{ fontWeight: 'bold', color: NAVY, fontSize: '15px' }}>👩‍🏫 Are you a teacher?</div>
@@ -79,10 +86,13 @@ export function RegisterSuccessNext({ role }: { role?: string }) {
       )}
 
       <div style={{ ...box, background: '#fff3ed', border: `1px solid ${ORANGE}33` }}>
-        <div style={{ fontWeight: 'bold', color: NAVY, fontSize: '15px' }}>⭐ See jobs the moment they're posted</div>
+        <div style={{ fontWeight: 'bold', color: NAVY, fontSize: '15px' }}>
+          {launch ? `🎉 Launch offer: ${LAUNCH_MONTHS} months for ${LAUNCH_PRICE} baht` : "⭐ See jobs the moment they're posted"}
+        </div>
         <div style={{ color: '#555', fontSize: '13px', lineHeight: 1.6, marginTop: '4px' }}>
-          Supporters (50 baht / 30 days) get every new job <strong>instantly</strong>, so you can contact schools
-          before anyone else, and help keep the site free for everyone.
+          {launch
+            ? <>Become a Supporter and get every new job <strong>instantly</strong> for {LAUNCH_MONTHS} months. Offer ends {LAUNCH_END_LABEL}.</>
+            : <>Supporters (from {MONTHLY_PRICE} baht / {DAYS} days) get every new job <strong>instantly</strong>, so you can contact schools before anyone else.</>}
         </div>
         <Link href="/supporters" style={{ ...btn, background: ORANGE }}>
           Become a Supporter →
