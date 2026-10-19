@@ -6,12 +6,12 @@ const LESSONS = [
   { id: 'drinking-with-the-boss', title: 'Drinking with the Boss', emoji: '🍻', description: 'After-work culture from Seoul to Singapore', available: true },
   { id: 'losing-face', title: 'Losing Face', emoji: '😶', description: 'The most important concept in Asian business', available: true },
   { id: 'saying-no-without-saying-no', title: 'The Art of Saying No Without Saying No', emoji: '🤐', description: 'Indirect communication across cultures', available: true },
-  { id: 'guanxi', title: 'Guanxi — It\'s Who You Know', emoji: '🤝', description: 'Relationships, networks and trust in China', available: false },
-  { id: 'salarymans-day', title: 'The Salaryman\'s Day', emoji: '🚶', description: 'A day in the life of a Japanese office worker', available: false },
-  { id: 'family-business-empires', title: 'Family Business Empires', emoji: '👨‍👩‍👦', description: 'The dynasties behind Asia\'s biggest companies', available: false },
-  { id: 'bowing-waiing-shaking-hands', title: 'Bowing, Wai-ing, and Shaking Hands', emoji: '🙏', description: 'Greetings and body language across Asia', available: false },
-  { id: 'night-market-entrepreneur', title: 'The Night Market Entrepreneur', emoji: '🏮', description: 'Street business, hustle and the Asian dream', available: false },
-  { id: 'when-east-meets-west', title: 'When East Meets West', emoji: '🌏', description: 'Clashes, compromises and finding common ground', available: false },
+  { id: 'guanxi', title: 'Guanxi — It\'s Who You Know', emoji: '🤝', description: 'Relationships, networks and trust across Asia', available: true },
+  { id: 'salarymans-day', title: 'The Salaryman\'s Day', emoji: '🚶', description: 'Work culture in Japan, Korea and China', available: true },
+  { id: 'family-business-empires', title: 'Family Business Empires', emoji: '👨‍👩‍👦', description: 'The dynasties behind Asia\'s biggest companies', available: true },
+  { id: 'bowing-waiing-shaking-hands', title: 'Bowing, Wai-ing, and Shaking Hands', emoji: '🙏', description: 'Greetings and body language across Asia', available: true },
+  { id: 'night-market-entrepreneur', title: 'The Night Market Entrepreneur', emoji: '🏮', description: 'Street business, hustle and the Asian dream', available: true },
+  { id: 'when-east-meets-west', title: 'When East Meets West', emoji: '🌏', description: 'Clashes, compromises and finding common ground', available: true },
 ]
 
 const COLOR = '#047857'
