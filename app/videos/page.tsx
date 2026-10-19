@@ -7,6 +7,12 @@ import Link from 'next/link'
 // ============================================================
 const videos = [
   {
+    id: 'KYaEKH6lMq8',
+    title: '5 Mistakes New Teachers Make in Thailand',
+    desc: 'Avoid these common mistakes — from visa issues to contract traps. Watch before you sign anything.',
+    category: 'Teaching',
+  },
+  {
     id: 'ZK1CFIiBbTk',
     title: 'What to Expect Your First Week Teaching in Thailand',
     desc: 'From orientation day to finding your classroom confidence — an honest guide to surviving and thriving in week one.',
