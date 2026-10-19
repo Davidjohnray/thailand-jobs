@@ -11,7 +11,7 @@ const COURSES = [
     gradient: 'linear-gradient(135deg, #022c22 0%, #047857 100%)',
     level: 'B1',
     lessonCount: 10,
-    availableLessons: 2,
+    availableLessons: 3,
     detail: 'Go beyond textbook Business English. This course puts you inside real situations — exchanging business cards in Tokyo, drinking with colleagues in Seoul, navigating family empires in Bangkok. Each lesson is built around scenarios, cultural rules, and the phrases you actually need.',
     tags: ['10 lessons', 'Interactive', 'Cultural scenarios'],
   },
