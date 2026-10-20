@@ -13,6 +13,12 @@ const videos = [
     category: 'Teaching',
   },
   {
+    id: '66Bq6FesJ-A',
+    title: 'Teaching in Thailand as a Non-Native Speaker — The Honest Truth',
+    desc: "Can you teach in Thailand if you're not from a native English-speaking country? Here's what you need to know.",
+    category: 'Teaching',
+  },
+  {
     id: 'ZK1CFIiBbTk',
     title: 'What to Expect Your First Week Teaching in Thailand',
     desc: 'From orientation day to finding your classroom confidence — an honest guide to surviving and thriving in week one.',
@@ -31,6 +37,7 @@ const videos = [
     category: 'Salaries',
   },
 ]
+
 
 const CATEGORIES = ['All', 'Salaries', 'Teaching', 'Cities', 'Visas', 'Jobs', 'Lifestyle']
 
