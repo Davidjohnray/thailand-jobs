@@ -1,8 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { supabase } from '../src/lib/supabase'
-import { MemberLockCard, isJobLocked } from './MemberLock'
+import { MemberLockCard, isJobLocked, useAccessTier } from './MemberLock'
 
 // Featured colors — kept separate from the site's orange brand color
 // so featured jobs read as "premium" rather than blending into nav/ad orange.
@@ -14,21 +12,13 @@ const BLUE_SOFT = '#EAF0FF'
 const BLUE_TEXT = '#2D5BD0'
 
 export default function HomeFeaturedJobs({ jobs }: { jobs: any[] }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session))
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
+  const tier = useAccessTier()
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {jobs.map((job: any) => (
-        !isLoggedIn && isJobLocked(job.created_at) ? (
-          <MemberLockCard key={job.id} job={job} />
+        isJobLocked(job.created_at, tier) ? (
+          <MemberLockCard key={job.id} job={job} tier={tier} />
         ) : (
           <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
             <div style={{
@@ -74,18 +64,18 @@ export default function HomeFeaturedJobs({ jobs }: { jobs: any[] }) {
                 <div className="job-card-inner" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px', flexWrap: 'wrap' }}>
-  {job.source_logo && (
-    <img
-      src={job.source_logo}
-      alt="Company logo"
-      style={{ width: '56px', height: '56px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee', background: 'white', padding: '3px', flexShrink: 0 }}
-    />
-  )}
-  <span style={{ fontWeight: '800', fontSize: '19px', color: '#1a1a2e' }}>{job.title}</span>
+                      {job.source_logo && (
+                        <img
+                          src={job.source_logo}
+                          alt="Company logo"
+                          style={{ width: '56px', height: '56px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #eee', background: 'white', padding: '3px', flexShrink: 0 }}
+                        />
+                      )}
+                      <span style={{ fontWeight: '800', fontSize: '19px', color: '#1a1a2e' }}>{job.title}</span>
                       {job.visa_sponsor && (
                         <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '3px 9px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>
                       )}
-                      {isLoggedIn && isJobLocked(job.created_at) && (
+                      {tier !== 'public' && isJobLocked(job.created_at) && (
                         <span style={{ background: GOLD_SOFT, color: GOLD_TEXT, fontSize: '11px', padding: '3px 9px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Early Access</span>
                       )}
                     </div>

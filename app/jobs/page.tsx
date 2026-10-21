@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../src/lib/supabase'
-import { MemberLockCard, isJobLocked } from '../../components/MemberLock'
+import { MemberLockCard, isJobLocked, useAccessTier } from '../../components/MemberLock'
+import LocationFilter, { ALL_LOCATIONS, matchesLocation } from '../../components/LocationFilter'
 
 // Featured colors — matches the homepage featured job styling.
 const NAVY = '#14172B'
@@ -18,22 +19,6 @@ function JobLogo({ job }: { job: any }) {
   )
 }
 
-const thaiProvinces = [
-  'All Locations',
-  'Bangkok', 'Nonthaburi', 'Pathum Thani', 'Samut Prakan', 'Samut Sakhon', 'Samut Songkhram',
-  'Nakhon Pathom', 'Suphan Buri', 'Ratchaburi', 'Kanchanaburi', 'Phetchaburi', 'Prachuap Khiri Khan',
-  'Ayutthaya', 'Ang Thong', 'Lopburi', 'Sing Buri', 'Chai Nat', 'Saraburi', 'Nakhon Nayok',
-  'Chachoengsao', 'Prachin Buri', 'Sa Kaeo',
-  'Chon Buri', 'Rayong', 'Chanthaburi', 'Trat',
-  'Chiang Mai', 'Chiang Rai', 'Lampang', 'Lamphun', 'Mae Hong Son', 'Nan', 'Phayao', 'Phrae', 'Uttaradit',
-  'Tak', 'Sukhothai', 'Phitsanulok', 'Phichit', 'Nakhon Sawan', 'Uthai Thani', 'Kamphaeng Phet', 'Phetchabun',
-  'Nakhon Ratchasima', 'Khon Kaen', 'Udon Thani', 'Ubon Ratchathani', 'Buriram', 'Surin', 'Si Sa Ket',
-  'Chaiyaphum', 'Loei', 'Nong Khai', 'Nong Bua Lamphu', 'Sakon Nakhon', 'Nakhon Phanom', 'Mukdahan',
-  'Kalasin', 'Maha Sarakham', 'Roi Et', 'Yasothon', 'Amnat Charoen', 'Bueng Kan',
-  'Surat Thani', 'Chumphon', 'Ranong', 'Phangnga', 'Phuket', 'Krabi', 'Nakhon Si Thammarat',
-  'Trang', 'Phatthalung', 'Songkhla', 'Satun', 'Pattani', 'Yala', 'Narathiwat', 'Remote',
-]
-
 const allCategories = ['Teaching', 'Hospitality', 'Technology', 'Tourism', 'Finance', 'Marketing', 'Healthcare', 'Creative', 'Other']
 const jobTypes = ['Full Time', 'Part Time', 'Contract', 'Remote']
 
@@ -42,20 +27,12 @@ export default function JobsPage() {
   const [filtered, setFiltered] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [location, setLocation] = useState('All Locations')
+  const [location, setLocation] = useState(ALL_LOCATIONS)
   const [jobType, setJobType] = useState<string[]>([])
   const [category, setCategory] = useState<string[]>([])
   const [visaOnly, setVisaOnly] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }: any) => setIsLoggedIn(!!session))
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-      setIsLoggedIn(!!session)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
+  const tier = useAccessTier()
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -76,9 +53,7 @@ export default function JobsPage() {
       j.title?.toLowerCase().includes(search.toLowerCase()) ||
       j.company?.toLowerCase().includes(search.toLowerCase())
     )
-    if (location !== 'All Locations') result = result.filter(j =>
-      j.location?.toLowerCase().trim() === location.toLowerCase().trim()
-    )
+    result = result.filter(j => matchesLocation(j.location, location))
     if (jobType.length > 0) result = result.filter(j => jobType.includes(j.job_type))
     if (category.length > 0) result = result.filter(j => category.includes(j.category))
     if (visaOnly) result = result.filter(j => j.visa_sponsor)
@@ -87,16 +62,13 @@ export default function JobsPage() {
 
   const toggleJobType = (type: string) => setJobType(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
   const toggleCategory = (cat: string) => setCategory(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat])
-  const resetFilters = () => { setLocation('All Locations'); setJobType([]); setCategory([]); setVisaOnly(false); setSearch('') }
+  const resetFilters = () => { setLocation(ALL_LOCATIONS); setJobType([]); setCategory([]); setVisaOnly(false); setSearch('') }
 
   const Sidebar = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
         <h3 style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '12px' }}>Province / Location</h3>
-        <select value={location} onChange={e => setLocation(e.target.value)}
-          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', background: 'white', outline: 'none' }}>
-          {thaiProvinces.map(p => <option key={p}>{p}</option>)}
-        </select>
+        <LocationFilter value={location} onChange={setLocation} />
       </div>
       <div style={{ background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
         <h3 style={{ fontWeight: 'bold', fontSize: '15px', marginBottom: '12px' }}>Category</h3>
@@ -142,10 +114,16 @@ export default function JobsPage() {
         <p style={{ color: '#ccc', fontSize: '16px' }}>{filtered.length} jobs available right now</p>
       </section>
 
-      {!isLoggedIn && (
+      {tier === 'public' && (
         <div style={{ background: '#fff3ed', borderBottom: '2px solid #E85D26', padding: '12px 24px', textAlign: 'center' }}>
-          <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>⭐ Members see new jobs 1 hour early! </span>
+          <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>⭐ Free members see new jobs 1 hour sooner, Supporters see them instantly! </span>
           <Link href="/account/register" style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', textDecoration: 'underline' }}>Join free →</Link>
+        </div>
+      )}
+      {tier === 'member' && (
+        <div style={{ background: '#fff3ed', borderBottom: '2px solid #E85D26', padding: '12px 24px', textAlign: 'center' }}>
+          <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>⭐ Supporters see new jobs the moment they're posted. </span>
+          <Link href="/supporters" style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px', textDecoration: 'underline' }}>Become a Supporter →</Link>
         </div>
       )}
 
@@ -157,7 +135,7 @@ export default function JobsPage() {
 
         <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }} className="mobile-stack">
           <div style={{ width: '240px', flexShrink: 0 }} className={showFilters ? 'mobile-full' : 'mobile-hide-sidebar'}>
-            <Sidebar />
+            {Sidebar()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }} className="mobile-stack mobile-gap">
@@ -172,8 +150,8 @@ export default function JobsPage() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {filtered.length > 0 ? filtered.map((job: any) => (
-                  !isLoggedIn && isJobLocked(job.created_at) ? (
-                    <MemberLockCard key={job.id} job={job} />
+                  isJobLocked(job.created_at, tier) ? (
+                    <MemberLockCard key={job.id} job={job} tier={tier} />
                   ) : (
                     <Link href={`/jobs/${job.id}`} key={job.id} style={{ textDecoration: 'none' }}>
                       <div style={{
@@ -210,7 +188,7 @@ export default function JobsPage() {
                                 <JobLogo job={job} />
                                 <span style={{ fontWeight: job.featured ? '800' : 'bold', fontSize: job.featured ? '18px' : '16px', color: '#1a1a2e' }}>{job.title}</span>
                                 {job.visa_sponsor && <span style={{ background: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>✓ Visa</span>}
-                                {isLoggedIn && isJobLocked(job.created_at) && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Early Access</span>}
+                                {tier !== 'public' && isJobLocked(job.created_at) && <span style={{ background: '#fff3ed', color: '#E85D26', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>⭐ Early Access</span>}
                                 {!job.source_logo && <span style={{ background: '#e8f0fe', color: '#2D6BE4', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>🏫 Employer</span>}
                               </div>
                               <div style={{ color: '#666', fontSize: '14px', marginBottom: '4px' }}>{job.company} • {job.location}</div>

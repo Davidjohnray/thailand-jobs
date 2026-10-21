@@ -2,18 +2,29 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
+import { useAccessTier, MEMBER_DELAY_MS, PUBLIC_DELAY_MS } from '../../../components/MemberLock'
+
+function formatLeft(ms: number) {
+  const total = Math.max(0, Math.floor(ms / 1000))
+  const hrs = Math.floor(total / 3600)
+  const mins = Math.floor((total % 3600) / 60)
+  const secs = total % 60
+  return hrs > 0
+    ? `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    : `${mins}:${secs.toString().padStart(2, '0')}`
+}
 
 export default function JobDetailClient({ id }: { id: string }) {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [timeLeft, setTimeLeft] = useState('')
+  const [timeLeft, setTimeLeft] = useState('')     // until THIS viewer can see the job
+  const [publicLeft, setPublicLeft] = useState('') // until visitors can see it (for the early access banner)
   const [locked, setLocked] = useState(false)
+  const [aheadOfPublic, setAheadOfPublic] = useState(false)
+  const tier = useAccessTier()
 
   useEffect(() => {
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setIsLoggedIn(!!session)
       const { data } = await supabase.from('jobs').select('*').eq('id', id).single()
       setJob(data)
       setLoading(false)
@@ -31,27 +42,27 @@ export default function JobDetailClient({ id }: { id: string }) {
       }
     }
     init()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session)
-    })
-    return () => subscription.unsubscribe()
   }, [id])
 
   useEffect(() => {
     if (!job) return
+    const delay = tier === 'supporter' ? 0 : tier === 'member' ? MEMBER_DELAY_MS : PUBLIC_DELAY_MS
     const update = () => {
       const created = new Date(job.created_at).getTime()
-      const remaining = 3600000 - (Date.now() - created)
-      if (remaining <= 0) { setLocked(false); return }
-      setLocked(true)
-      const mins = Math.floor(remaining / 60000)
-      const secs = Math.floor((remaining % 60000) / 1000)
-      setTimeLeft(`${mins}:${secs.toString().padStart(2, '0')}`)
+      const now = Date.now()
+
+      const remaining = created + delay - now
+      setLocked(remaining > 0)
+      setTimeLeft(formatLeft(remaining))
+
+      const remainingPublic = created + PUBLIC_DELAY_MS - now
+      setAheadOfPublic(tier !== 'public' && remainingPublic > 0)
+      setPublicLeft(formatLeft(remainingPublic))
     }
     update()
     const interval = setInterval(update, 1000)
     return () => clearInterval(interval)
-  }, [job])
+  }, [job, tier])
 
   if (loading) return (
     <main style={{ textAlign: 'center', padding: '80px 24px' }}><p>Loading...</p></main>
@@ -89,7 +100,7 @@ export default function JobDetailClient({ id }: { id: string }) {
     </div>
   )
 
-  if (locked && !isLoggedIn) return (
+  if (locked) return (
     <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
       <div style={{ maxWidth: '700px', margin: '0 auto' }}>
         <Link href="/jobs" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '24px' }}>← Back to all jobs</Link>
@@ -112,23 +123,39 @@ export default function JobDetailClient({ id }: { id: string }) {
         </div>
         <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '40px 32px', textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
-          <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Members Early Access</h2>
+          <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>
+            {tier === 'member' ? 'Supporters Early Access' : 'Early Access'}
+          </h2>
           <p style={{ color: '#ccc', fontSize: '15px', marginBottom: '8px' }}>
-            This job was just posted! Members get to see new jobs <strong style={{ color: '#E85D26' }}>1 hour before everyone else.</strong>
+            {tier === 'member' ? (
+              <>This job was just posted! <strong style={{ color: '#E85D26' }}>Supporters see new jobs instantly</strong>, and free members after 1 hour.</>
+            ) : (
+              <>This job was just posted! <strong style={{ color: '#E85D26' }}>Supporters see new jobs instantly</strong>, free members after 1 hour, and everyone else after 2 hours.</>
+            )}
           </p>
           <div style={{ background: 'rgba(232,93,38,0.2)', borderRadius: '8px', padding: '12px 24px', display: 'inline-block', marginBottom: '24px' }}>
-            <span style={{ color: '#ccc', fontSize: '14px' }}>Available to all in </span>
+            <span style={{ color: '#ccc', fontSize: '14px' }}>{tier === 'member' ? 'Available to you in ' : 'Available to all in '}</span>
             <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '24px' }}> {timeLeft}</span>
           </div>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/account/register" style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
-              Join Free — View Now →
-            </Link>
-            <Link href="/account/login" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontSize: '16px' }}>
-              Login
-            </Link>
+            {tier === 'member' ? (
+              <Link href="/supporters" style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+                ⭐ Become a Supporter — See It Now →
+              </Link>
+            ) : (
+              <>
+                <Link href="/account/register" style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+                  Join Free — See Jobs Sooner →
+                </Link>
+                <Link href="/account/login" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontSize: '16px' }}>
+                  Login
+                </Link>
+              </>
+            )}
           </div>
-          <p style={{ color: '#666', fontSize: '13px', marginTop: '16px' }}>Free to join • No spam • Cancel anytime</p>
+          {tier === 'public' && (
+            <p style={{ color: '#666', fontSize: '13px', marginTop: '16px' }}>Free to join • No spam</p>
+          )}
         </div>
         <CommunityBars />
       </div>
@@ -141,10 +168,12 @@ export default function JobDetailClient({ id }: { id: string }) {
         <Link href="/jobs" style={{ color: '#E85D26', textDecoration: 'none', fontSize: '14px', display: 'inline-block', marginBottom: '24px' }}>
           Back to all jobs
         </Link>
-        {isLoggedIn && locked && (
+        {aheadOfPublic && (
           <div style={{ background: '#fff3ed', border: '2px solid #E85D26', borderRadius: '10px', padding: '12px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '20px' }}>⭐</span>
-            <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>You're seeing this job {timeLeft} before the public — members early access!</span>
+            <span style={{ color: '#E85D26', fontWeight: 'bold', fontSize: '14px' }}>
+              You're seeing this job {publicLeft} before the public — {tier === 'supporter' ? 'Supporter' : 'member'} early access!
+            </span>
           </div>
         )}
         <div style={{ background: 'white', borderRadius: '12px', padding: '32px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
@@ -188,39 +217,39 @@ export default function JobDetailClient({ id }: { id: string }) {
           </div>
         )}
         {job.company === 'Arna Education and Services LTD.' ? (
-  <div style={{ background: '#0a0f2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px', border: '2px solid #D9A441' }}>
-    <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
-    <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: '0 0 8px' }}>Apply for this position</h2>
-    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: '0 0 20px', lineHeight: '1.6' }}>
-      This position is managed by ARNA Education & Services. Please apply through our site — upload your photo and CV and we will review and forward your application.
-    </p>
-    <a href={`/schools/arna-education/apply/${job.id}`}
-      style={{ background: '#D9A441', color: '#0a0f2e', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '16px', display: 'inline-block' }}>
-      Apply via Jobs in Thailand →
-    </a>
-  </div>
-) : (
-  <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
-    <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
-    <p style={{ color: '#ccc', marginBottom: '16px', fontSize: '15px' }}>Send your CV directly to the employer</p>
-    <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#ffd', border: '1px solid rgba(255,255,255,0.2)' }}>
-      📌 Please mention <strong>Jobs in Thailand (www.jobsinthailand.net)</strong> in your application!
-    </div>
-    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
-      <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
-        style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-        Apply via Gmail →
-      </a>
-      <a href={mailtoUrl}
-        style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-        Apply via Email App →
-      </a>
-    </div>
-    <p style={{ color: '#aaa', fontSize: '13px', marginTop: '8px' }}>
-      Or email directly: <span style={{ color: 'white', fontWeight: 'bold' }}>{job.email}</span>
-    </p>
-  </div>
-)}
+          <div style={{ background: '#0a0f2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px', border: '2px solid #D9A441' }}>
+            <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
+            <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: '0 0 8px' }}>Apply for this position</h2>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: '0 0 20px', lineHeight: '1.6' }}>
+              This position is managed by ARNA Education & Services. Please apply through our site — upload your photo and CV and we will review and forward your application.
+            </p>
+            <a href={`/schools/arna-education/apply/${job.id}`}
+              style={{ background: '#D9A441', color: '#0a0f2e', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '16px', display: 'inline-block' }}>
+              Apply via Jobs in Thailand →
+            </a>
+          </div>
+        ) : (
+          <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
+            <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
+            <p style={{ color: '#ccc', marginBottom: '16px', fontSize: '15px' }}>Send your CV directly to the employer</p>
+            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#ffd', border: '1px solid rgba(255,255,255,0.2)' }}>
+              📌 Please mention <strong>Jobs in Thailand (www.jobsinthailand.net)</strong> in your application!
+            </div>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
+              <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
+                style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+                Apply via Gmail →
+              </a>
+              <a href={mailtoUrl}
+                style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+                Apply via Email App →
+              </a>
+            </div>
+            <p style={{ color: '#aaa', fontSize: '13px', marginTop: '8px' }}>
+              Or email directly: <span style={{ color: 'white', fontWeight: 'bold' }}>{job.email}</span>
+            </p>
+          </div>
+        )}
         <CommunityBars />
       </div>
     </main>
