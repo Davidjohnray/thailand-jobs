@@ -15,6 +15,19 @@ const COURSES = [
     detail: 'Go beyond textbook Business English. This course puts you inside real situations — exchanging business cards in Tokyo, drinking with colleagues in Seoul, navigating family empires in Bangkok. Each lesson is built around scenarios, cultural rules, and the phrases you actually need.',
     tags: ['10 lessons', 'Interactive', 'Cultural scenarios'],
   },
+  {
+    id: 'business-in-latin-america',
+    title: 'Business in Latin America',
+    emoji: '🌎',
+    description: 'Real life and culture of doing business across Latin America',
+    color: '#c2410c',
+    gradient: 'linear-gradient(135deg, #431407 0%, #c2410c 100%)',
+    level: 'B1',
+    lessonCount: 10,
+    availableLessons: 1,
+    detail: 'From cheek kisses in Mexico City to three-hour lunches in Buenos Aires and the Brazilian jeitinho. This course puts you inside real business situations across Latin America — with scenarios, cultural rules, and key phrases in Spanish and Portuguese.',
+    tags: ['10 lessons', 'Interactive', 'Spanish & Portuguese phrases'],
+  },
 ]
 
 export default function CoursesHub() {
