@@ -6,12 +6,12 @@ const LESSONS = [
   { id: 'ahorita-meaning-of-time', title: '"Ahorita" and the Meaning of Time', emoji: '⏰', description: 'Now, later, or never? Time and deadlines', available: true },
   { id: 'confianza', title: 'Confianza — Trust Before Business', emoji: '🤲', description: 'Why relationships come before contracts', available: true },
   { id: 'the-long-lunch', title: 'The Long Lunch', emoji: '🍽️', description: 'Sobremesa, churrasco, asado and cafezinho', available: true },
-  { id: 'jeitinho-brasileiro', title: 'O Jeitinho Brasileiro', emoji: '🪄', description: 'Creative problem-solving — or bending the rules?', available: false },
-  { id: 'paperwork-heroes', title: 'Paperwork Heroes', emoji: '📑', description: 'Bureaucracy, trámites, despachantes and gestores', available: false },
-  { id: 'family-empires', title: 'Family Empires', emoji: '🏛️', description: 'The families behind Latin America\'s biggest companies', available: false },
-  { id: 'markets-and-mobile-money', title: 'Markets, Mercados and Mobile Money', emoji: '🛒', description: 'From street markets to Pix and Mercado Libre', available: false },
-  { id: 'when-the-country-stops', title: 'When the Country Stops', emoji: '⚽', description: 'Football, Carnival and the business calendar', available: false },
-  { id: 'asia-meets-latin-america', title: 'Asia Meets Latin America', emoji: '🌏', description: 'Japanese-Brazilians, Asian investment and new bridges', available: false },
+  { id: 'jeitinho-brasileiro', title: 'O Jeitinho Brasileiro', emoji: '🪄', description: 'Creative problem-solving — or bending the rules?', available: true },
+  { id: 'paperwork-heroes', title: 'Paperwork Heroes', emoji: '📑', description: 'Bureaucracy, trámites, despachantes and gestores', available: true },
+  { id: 'family-empires', title: 'Family Empires', emoji: '🏛️', description: 'The families behind Latin America\'s biggest companies', available: true },
+  { id: 'markets-and-mobile-money', title: 'Markets, Mercados and Mobile Money', emoji: '🛒', description: 'From street markets to Pix and Mercado Libre', available: true },
+  { id: 'when-the-country-stops', title: 'When the Country Stops', emoji: '⚽', description: 'Football, Carnival and the business calendar', available: true },
+  { id: 'asia-meets-latin-america', title: 'Asia Meets Latin America', emoji: '🌏', description: 'Japanese-Brazilians, Asian investment and new bridges', available: true },
 ]
 
 const COLOR = '#c2410c'

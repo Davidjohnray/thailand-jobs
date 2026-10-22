@@ -24,7 +24,7 @@ const COURSES = [
     gradient: 'linear-gradient(135deg, #431407 0%, #c2410c 100%)',
     level: 'B1',
     lessonCount: 10,
-    availableLessons: 4,
+    availableLessons: 10,
     detail: 'From cheek kisses in Mexico City to three-hour lunches in Buenos Aires and the Brazilian jeitinho. This course puts you inside real business situations across Latin America — with scenarios, cultural rules, and key phrases in Spanish and Portuguese.',
     tags: ['10 lessons', 'Interactive', 'Spanish & Portuguese phrases'],
   },
