@@ -3,9 +3,9 @@ import Link from 'next/link'
 
 const LESSONS = [
   { id: 'besos-abrazos-handshakes', title: 'Besos, Abrazos and Handshakes', emoji: '🤝', description: 'Greetings and first impressions across Latin America', available: true },
-  { id: 'ahorita-meaning-of-time', title: '"Ahorita" and the Meaning of Time', emoji: '⏰', description: 'Now, later, or never? Time and deadlines', available: false },
-  { id: 'confianza', title: 'Confianza — Trust Before Business', emoji: '🤲', description: 'Why relationships come before contracts', available: false },
-  { id: 'the-long-lunch', title: 'The Long Lunch', emoji: '🍽️', description: 'Sobremesa, churrasco, asado and cafezinho', available: false },
+  { id: 'ahorita-meaning-of-time', title: '"Ahorita" and the Meaning of Time', emoji: '⏰', description: 'Now, later, or never? Time and deadlines', available: true },
+  { id: 'confianza', title: 'Confianza — Trust Before Business', emoji: '🤲', description: 'Why relationships come before contracts', available: true },
+  { id: 'the-long-lunch', title: 'The Long Lunch', emoji: '🍽️', description: 'Sobremesa, churrasco, asado and cafezinho', available: true },
   { id: 'jeitinho-brasileiro', title: 'O Jeitinho Brasileiro', emoji: '🪄', description: 'Creative problem-solving — or bending the rules?', available: false },
   { id: 'paperwork-heroes', title: 'Paperwork Heroes', emoji: '📑', description: 'Bureaucracy, trámites, despachantes and gestores', available: false },
   { id: 'family-empires', title: 'Family Empires', emoji: '🏛️', description: 'The families behind Latin America\'s biggest companies', available: false },
