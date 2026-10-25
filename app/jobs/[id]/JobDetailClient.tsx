@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 import { useAccessTier, MEMBER_DELAY_MS, PUBLIC_DELAY_MS } from '../../../components/MemberLock'
+import AutoApplyForm from '../../../components/AutoApplyForm'
 
 function formatLeft(ms: number) {
   const total = Math.max(0, Math.floor(ms / 1000))
@@ -21,13 +22,13 @@ export default function JobDetailClient({ id }: { id: string }) {
   const [publicLeft, setPublicLeft] = useState('') // until visitors can see it (for the early access banner)
   const [locked, setLocked] = useState(false)
   const [aheadOfPublic, setAheadOfPublic] = useState(false)
+  const [autoApply, setAutoApply] = useState(false) // job belongs to a school with auto-apply switched on
   const tier = useAccessTier()
 
   useEffect(() => {
     const init = async () => {
       const { data } = await supabase.from('jobs').select('*').eq('id', id).single()
       setJob(data)
-      setLoading(false)
       // Fire-and-forget view count increment — doesn't block rendering,
       // and errors here shouldn't affect the visitor's experience.
       supabase.rpc('increment_job_views', { job_id: id }).then(() => {}, () => {})
@@ -40,6 +41,14 @@ export default function JobDetailClient({ id }: { id: string }) {
       if (data && data.company === 'Arna Education and Services LTD.') {
         supabase.rpc('increment_daily_stat', { p_scope: 'jobs-arna-education', p_metric: 'views' }).then(() => {}, () => {})
       }
+
+      // Auto-apply schools (Oneness and any added later): check the school is switched on
+      if (data && data.apply_partner) {
+        const { data: partner } = await supabase.from('apply_partners_public').select('key').eq('key', data.apply_partner).maybeSingle()
+        if (partner) setAutoApply(true)
+        supabase.rpc('increment_daily_stat', { p_scope: `jobs-${data.apply_partner}`, p_metric: 'views' }).then(() => {}, () => {})
+      }
+      setLoading(false)
     }
     init()
   }, [id])
@@ -228,6 +237,8 @@ export default function JobDetailClient({ id }: { id: string }) {
               Apply via Jobs in Thailand →
             </a>
           </div>
+        ) : autoApply ? (
+          <AutoApplyForm job={job} />
         ) : (
           <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
             <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
