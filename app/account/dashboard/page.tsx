@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import DashboardPromos from '../../../components/DashboardPromos'
+import ApplyProCard from '../../../components/ApplyProCard'
 
 const thaiProvinces = [
   'All Thailand',
@@ -168,6 +169,9 @@ export default function DashboardPage() {
 
         {/* SUPPORTER UPDATE + SUPPORTER STATUS + TEACHER DIRECTORY PROMO */}
         <DashboardPromos />
+
+        {/* APPLY PRO + MY APPLICATIONS */}
+        <ApplyProCard />
 
         {/* RENTAL MEMBER CARD */}
         {rentalProfile && (

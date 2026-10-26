@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 import { useAccessTier, MEMBER_DELAY_MS, PUBLIC_DELAY_MS } from '../../../components/MemberLock'
-import AutoApplyForm from '../../../components/AutoApplyForm'
+import ApplyPanel from '../../../components/ApplyPanel'
+import { proEligibleJob, ARNA_COMPANY } from '../../../src/lib/applyRules'
 
 function formatLeft(ms: number) {
   const total = Math.max(0, Math.floor(ms / 1000))
@@ -38,7 +39,7 @@ export default function JobDetailClient({ id }: { id: string }) {
       supabase.rpc('increment_daily_stat', { p_scope: `job-${id}`, p_metric: 'views' }).then(() => {}, () => {})
 
       // Track ARNA job views separately for their stats dashboard
-      if (data && data.company === 'Arna Education and Services LTD.') {
+      if (data && data.company === ARNA_COMPANY) {
         supabase.rpc('increment_daily_stat', { p_scope: 'jobs-arna-education', p_metric: 'views' }).then(() => {}, () => {})
       }
 
@@ -87,6 +88,30 @@ export default function JobDetailClient({ id }: { id: string }) {
   const emailBody = `Dear Hiring Manager,%0A%0AI am writing to apply for the ${encodeURIComponent(job.title)} position at ${encodeURIComponent(job.company)}, as advertised on Jobs in Thailand (www.jobsinthailand.net).%0A%0APlease find my CV attached.%0A%0AKind regards%0A%0A---%0ARef: Jobs in Thailand - www.jobsinthailand.net%0AJob ID: ${job.id}`
   const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=' + job.email + '&su=Job Application - ' + encodeURIComponent(job.title) + '&body=' + emailBody
   const mailtoUrl = 'mailto:' + job.email + '?subject=Job Application - ' + encodeURIComponent(job.title) + '&body=' + emailBody
+
+  // The usual "apply directly" box with the employer's contact details
+  const contactBox = (
+    <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
+      <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
+      <p style={{ color: '#ccc', marginBottom: '16px', fontSize: '15px' }}>Send your CV directly to the employer</p>
+      <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#ffd', border: '1px solid rgba(255,255,255,0.2)' }}>
+        📌 Please mention <strong>Jobs in Thailand (www.jobsinthailand.net)</strong> in your application!
+      </div>
+      <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
+        <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
+          style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+          Apply via Gmail →
+        </a>
+        <a href={mailtoUrl}
+          style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
+          Apply via Email App →
+        </a>
+      </div>
+      <p style={{ color: '#aaa', fontSize: '13px', marginTop: '8px' }}>
+        Or email directly: <span style={{ color: 'white', fontWeight: 'bold' }}>{job.email}</span>
+      </p>
+    </div>
+  )
 
   const CommunityBars = () => (
     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -225,7 +250,10 @@ export default function JobDetailClient({ id }: { id: string }) {
             <p style={{ color: '#444', lineHeight: '1.8', fontSize: '15px', whiteSpace: 'pre-wrap' }}>{job.benefits}</p>
           </div>
         )}
-        {job.company === 'Arna Education and Services LTD.' ? (
+        {autoApply ? (
+          // Partner schools (Oneness, and ARNA once it's added as a partner): the site form, open to everyone
+          <ApplyPanel job={job} partner eligible={false} contactBox={contactBox} />
+        ) : job.company === ARNA_COMPANY ? (
           <div style={{ background: '#0a0f2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px', border: '2px solid #D9A441' }}>
             <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
             <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '900', margin: '0 0 8px' }}>Apply for this position</h2>
@@ -237,29 +265,9 @@ export default function JobDetailClient({ id }: { id: string }) {
               Apply via Jobs in Thailand →
             </a>
           </div>
-        ) : autoApply ? (
-          <AutoApplyForm job={job} />
         ) : (
-          <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '16px' }}>
-            <h2 style={{ color: 'white', fontSize: '22px', fontWeight: 'bold', marginBottom: '8px' }}>Interested in this job?</h2>
-            <p style={{ color: '#ccc', marginBottom: '16px', fontSize: '15px' }}>Send your CV directly to the employer</p>
-            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#ffd', border: '1px solid rgba(255,255,255,0.2)' }}>
-              📌 Please mention <strong>Jobs in Thailand (www.jobsinthailand.net)</strong> in your application!
-            </div>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
-              <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
-                style={{ background: '#E85D26', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-                Apply via Gmail →
-              </a>
-              <a href={mailtoUrl}
-                style={{ background: 'white', color: '#1a1a2e', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-                Apply via Email App →
-              </a>
-            </div>
-            <p style={{ color: '#aaa', fontSize: '13px', marginTop: '8px' }}>
-              Or email directly: <span style={{ color: 'white', fontWeight: 'bold' }}>{job.email}</span>
-            </p>
-          </div>
+          // Everyone else: Apply Pro form for paying members / free try, contact details for everyone else
+          <ApplyPanel job={job} partner={false} eligible={proEligibleJob(job)} contactBox={contactBox} />
         )}
         <CommunityBars />
       </div>
