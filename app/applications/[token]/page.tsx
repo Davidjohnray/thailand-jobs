@@ -75,11 +75,15 @@ export default async function ApplicationPage({ params, searchParams }: {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '20px' }}>
-            <a href={`mailto:${app.email}?subject=${encodeURIComponent('Your application: ' + (app.job_title || ''))}`}
-              style={{ background: '#E85D26', color: 'white', padding: '12px 22px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📧 Email candidate</a>
+            <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(app.email)}&su=${encodeURIComponent('Your application: ' + (app.job_title || '') + ' (' + ref + ')')}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ background: '#E85D26', color: 'white', padding: '12px 22px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📧 Reply in Gmail</a>
+            <a href={`mailto:${app.email}?subject=${encodeURIComponent('Your application: ' + (app.job_title || '') + ' (' + ref + ')')}`}
+              style={{ background: 'white', color: '#1a1a2e', border: '1px solid #ddd', padding: '12px 22px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>✉️ Other email app</a>
             {resumeUrl && <a href={resumeUrl} target="_blank" rel="noopener noreferrer"
               style={{ background: '#1a1a2e', color: 'white', padding: '12px 22px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📄 Download resume</a>}
           </div>
+          <p style={{ color: '#999', fontSize: '12px', margin: '12px 0 0' }}>Or simply press Reply on the email you received — it goes straight to {app.name}.</p>
         </div>
 
         {app.message && (

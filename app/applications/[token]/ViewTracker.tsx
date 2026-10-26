@@ -11,13 +11,16 @@ export default function ViewTracker({ token, skip }: { token: string; skip?: boo
     try { if (sessionStorage.getItem(key)) return } catch {}
     const t = setTimeout(async () => {
       try {
-        await fetch('/api/applications/viewed', {
+        const res = await fetch('/api/applications/viewed', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
           body: JSON.stringify({ token }),
           keepalive: true,
         })
-        try { sessionStorage.setItem(key, '1') } catch {}
+        const data = await res.json().catch(() => ({}))
+        // Only remember it once a real view has been counted, so a skipped view (too soon, or the
+        // teacher's own) can still count later in the same tab
+        if (data?.counted) { try { sessionStorage.setItem(key, '1') } catch {} }
       } catch {}
     }, 4000)
     return () => clearTimeout(t)

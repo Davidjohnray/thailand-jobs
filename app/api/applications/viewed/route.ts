@@ -35,5 +35,5 @@ export async function POST(req: Request) {
     .update({ viewed_at: app.viewed_at || new Date().toISOString(), view_count: (app.view_count || 0) + 1 })
     .eq('id', app.id)
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, counted: true })
 }
