@@ -118,6 +118,20 @@ export default function Navbar() {
                   onMouseLeave={e => (e.currentTarget.style.background = '#fffbeb')}>
                   ⭐ See Jobs First (Supporters)
                 </Link>
+                <Link href="/apply-pro" onClick={() => setJobsOpen(false)}
+                  style={{ ...dropdownLinkStyle, color: '#E85D26', fontWeight: '800', background: '#fff3ed', marginTop: '4px' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#ffe6d6')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#fff3ed')}>
+                  ⚡ Apply Pro — One-Click Apply + AI
+                </Link>
+                {isLoggedIn && (
+                  <Link href="/account/applications" onClick={() => setJobsOpen(false)}
+                    style={dropdownLinkStyle}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f9f9f9')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                    👀 My Applications
+                  </Link>
+                )}
                 <div style={{ borderTop: '1px solid #eee', margin: '6px 0' }} />
                 {jobsItems.map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setJobsOpen(false)}
@@ -291,6 +305,18 @@ export default function Navbar() {
             style={{ display: 'block', color: '#1a1a2e', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: '#FFC83D', fontWeight: 'bold' }}>
             ⭐ Supporters — See Jobs First
           </Link>
+
+          {/* Apply Pro */}
+          <Link href="/apply-pro" onClick={closeMobile}
+            style={{ display: 'block', color: '#E85D26', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'white', fontWeight: 'bold' }}>
+            ⚡ Apply Pro — One-Click Apply + AI
+          </Link>
+          {isLoggedIn && (
+            <Link href="/account/applications" onClick={closeMobile}
+              style={{ display: 'block', color: 'white', textDecoration: 'none', fontSize: '15px', padding: '12px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', fontWeight: 'bold' }}>
+              👀 My Applications
+            </Link>
+          )}
 
           {/* Services */}
           <button onClick={() => setMobileServicesOpen(!mobileServicesOpen)}

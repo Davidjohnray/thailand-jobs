@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useState } from 'react'
 import { useApplyStatus } from '../../components/applyClient'
 import { AI_MONTHLY_LIMIT, PRO_PRICE_30_DAYS, PRO_PRICE_6_MONTHS, fmtDate } from '../../src/lib/applyRules'
 
@@ -24,8 +25,14 @@ const FAQ = [
 
 export default function ApplyProPage() {
   const { status } = useApplyStatus()
-  const mail = (plan: string) =>
-    `mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent('Apply Pro — ' + plan)}&body=${encodeURIComponent(`Hi David,\n\nI'd like Apply Pro (${plan}).\nMy Jobs in Thailand account email: ${status?.email || ''}\n\nPlease send me the bank details. Thank you!`)}`
+  const [copied, setCopied] = useState(false)
+  const subject = (plan: string) => encodeURIComponent('Apply Pro — ' + plan)
+  const body = (plan: string) => encodeURIComponent(`Hi David,\n\nI'd like Apply Pro (${plan}).\nMy Jobs in Thailand account email: ${status?.email || ''}\n\nPlease send me the bank details. Thank you!`)
+  // Gmail in the browser works on almost every computer and phone (mailto needs an email app set up)
+  const gmail = (plan: string) => `https://mail.google.com/mail/?view=cm&fs=1&to=${ADMIN_EMAIL}&su=${subject(plan)}&body=${body(plan)}`
+  const copyEmail = async () => {
+    try { await navigator.clipboard.writeText(ADMIN_EMAIL); setCopied(true); setTimeout(() => setCopied(false), 2000) } catch {}
+  }
 
   const plans = [
     { name: '30 days', price: PRO_PRICE_30_DAYS, note: 'Try it for a month', highlight: false },
@@ -89,7 +96,7 @@ export default function ApplyProPage() {
                 <li>"Viewed" alerts in My Applications</li>
               </ul>
               {status?.loggedIn ? (
-                <a href={mail(p.name)} style={{ background: p.highlight ? '#E85D26' : '#1a1a2e', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px', display: 'block' }}>
+                <a href={gmail(p.name)} target="_blank" rel="noopener noreferrer" style={{ background: p.highlight ? '#E85D26' : '#1a1a2e', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px', display: 'block' }}>
                   Get {p.name} →
                 </a>
               ) : (
@@ -100,9 +107,26 @@ export default function ApplyProPage() {
             </div>
           ))}
         </div>
-        <div style={{ background: 'white', borderRadius: '12px', padding: '20px 22px', marginTop: '20px', border: '1px solid #eee', color: '#555', fontSize: '14px', lineHeight: '1.7' }}>
-          <strong style={{ color: '#1a1a2e' }}>How to get Apply Pro:</strong> email <a href={`mailto:${ADMIN_EMAIL}`} style={{ color: '#E85D26' }}>{ADMIN_EMAIL}</a> or message us on Facebook with the email you use on Jobs in Thailand.
-          We'll send you our bank details, and switch Apply Pro on as soon as your payment arrives — usually the same day.
+        <div style={{ background: 'white', borderRadius: '12px', padding: '22px', marginTop: '20px', border: '2px solid #E85D26', color: '#555', fontSize: '14px', lineHeight: '1.7' }}>
+          <h3 style={{ color: '#1a1a2e', fontSize: '18px', margin: '0 0 12px' }}>How to get Apply Pro</h3>
+          <ol style={{ margin: '0 0 16px', paddingLeft: '20px' }}>
+            <li><strong>Register free</strong> on Jobs in Thailand (if you haven't already).</li>
+            <li><strong>Email us</strong> at <strong style={{ color: '#E85D26' }}>{ADMIN_EMAIL}</strong> with the email address you use on the site, and which plan you'd like (30 days or 6 months).</li>
+            <li>We'll reply with our <strong>Thai bank details</strong>.</li>
+            <li>Send your payment — we switch Apply Pro on as soon as it arrives, usually the same day.</li>
+          </ol>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ background: '#f9f9f9', border: '1px solid #eee', borderRadius: '8px', padding: '10px 14px', fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>{ADMIN_EMAIL}</div>
+            <button type="button" onClick={copyEmail}
+              style={{ background: '#1a1a2e', color: 'white', border: 'none', borderRadius: '8px', padding: '11px 16px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+              {copied ? '✅ Copied' : '📋 Copy email'}
+            </button>
+            <a href={gmail('30 days')} target="_blank" rel="noopener noreferrer"
+              style={{ background: '#E85D26', color: 'white', borderRadius: '8px', padding: '11px 16px', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none' }}>
+              📧 Email us in Gmail
+            </a>
+          </div>
+          <p style={{ color: '#999', fontSize: '12px', margin: '12px 0 0' }}>You can also message us on Facebook. No automatic payments — Apply Pro simply stops at the end of your time, and you renew whenever you like.</p>
         </div>
       </section>
 
