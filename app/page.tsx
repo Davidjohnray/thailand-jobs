@@ -4,6 +4,7 @@ import HomeFeaturedJobs from '../components/HomeFeaturedJobs'
 import BuyMeCoffee from '../components/BuyMeCoffee'
 import PVAdvisoryBanner from '../components/PVAdvisoryBanner'
 import EssentialTeflBanner from '../components/ads/EssentialTeflBanner'
+import ApplyProBanner from '../components/ApplyProBanner'
 
 export const revalidate = 0
 
@@ -106,6 +107,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* APPLY PRO */}
+      <ApplyProBanner />
 
       {/* MAIN CONTENT */}
       <section className="main-content" style={{ maxWidth: '1300px', margin: '0 auto', padding: '40px 16px', display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
