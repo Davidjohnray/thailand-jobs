@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
 import { getSupabaseAdmin, SITE_URL } from '../../../src/lib/supabaseAdmin'
+import { getUserFromRequest, getAccess, emailsSentToday, DAILY_EMAIL_CAP } from '../../../src/lib/applyServer'
+import { proEligibleJob, firstEmail, normaliseVideoLink, USER_DAILY_APPLY_CAP } from '../../../src/lib/applyRules'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 const FROM = process.env.APPLICATIONS_FROM_EMAIL || 'Jobs in Thailand <applications@jobsinthailand.net>'
 
@@ -11,9 +14,11 @@ const esc = (s: any) =>
 
 const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
 
+const fail = (error: string, status = 400, code?: string) => NextResponse.json({ error, code }, { status })
+
 export async function POST(req: Request) {
   let body: any
-  try { body = await req.json() } catch { return NextResponse.json({ error: 'Invalid request' }, { status: 400 }) }
+  try { body = await req.json() } catch { return fail('Invalid request') }
 
   // Honeypot: bots fill hidden fields, people don't
   if (body.website) return NextResponse.json({ ok: true, ref: 'JIT-0000' })
@@ -23,42 +28,66 @@ export async function POST(req: Request) {
   const email = String(body.email || '').trim().slice(0, 200)
   const phone = String(body.phone || '').trim().slice(0, 40)
   const nationality = String(body.nationality || '').trim().slice(0, 60)
-  const message = String(body.message || '').trim().slice(0, 3000)
+  const message = String(body.message || '').trim().slice(0, 4000)
+  const coverLetter = String(body.coverLetter || '').trim().slice(0, 8000) || null
+  const messageTh = String(body.messageTh || '').trim().slice(0, 6000) || null
   const resumePath = String(body.resumePath || '')
   const photoPath = String(body.photoPath || '')
-  const videoPath = body.videoPath ? String(body.videoPath) : null
+  const video = normaliseVideoLink(body.videoLink)
 
-  if (!jobId || !name || !isEmail(email)) {
-    return NextResponse.json({ error: 'Please enter your name and a valid email.' }, { status: 400 })
-  }
-  if (!resumePath || !photoPath) {
-    return NextResponse.json({ error: 'Your resume and photo are both required.' }, { status: 400 })
-  }
-  // Uploaded files must belong to this job's folder
-  for (const p of [resumePath, photoPath, videoPath].filter(Boolean) as string[]) {
-    if (!p.startsWith(`${jobId}/`) || p.includes('..')) {
-      return NextResponse.json({ error: 'Invalid file upload.' }, { status: 400 })
-    }
-  }
+  if (!jobId || !name || !isEmail(email)) return fail('Please enter your name and a valid email.')
+  if (!resumePath || !photoPath) return fail('Your resume and photo are both required.')
+  if (!video.ok) return fail(video.error || 'Invalid video link.')
 
   const db = getSupabaseAdmin()
+  const user = await getUserFromRequest(req, db)
 
-  const { data: job } = await db
-    .from('jobs')
-    .select('id, title, company, location, apply_partner')
-    .eq('id', jobId)
-    .single()
-  if (!job || !job.apply_partner) {
-    return NextResponse.json({ error: 'This job does not accept applications through the site.' }, { status: 400 })
+  // Uploaded files must be in this job's folder (guests) or the member's own folder
+  const prefixes = [`${jobId}/`, ...(user ? [`members/${user.id}/`] : [])]
+  for (const p of [resumePath, photoPath]) {
+    if (p.includes('..') || !prefixes.some(pre => p.startsWith(pre))) return fail('Invalid file upload.')
   }
 
-  const { data: partner } = await db
-    .from('apply_partners')
-    .select('key, name, apply_email, active')
-    .eq('key', job.apply_partner)
-    .single()
-  if (!partner || !partner.active) {
-    return NextResponse.json({ error: 'This job does not accept applications through the site.' }, { status: 400 })
+  const { data: job } = await db.from('jobs').select('*').eq('id', jobId).maybeSingle()
+  if (!job) return fail('This job could not be found.', 404)
+
+  // Which kind of application is this?
+  let mode: 'partner' | 'pro' | 'free_try' | null = null
+  let partner: any = null
+  let toEmail: string | null = null
+
+  if (job.apply_partner) {
+    const { data } = await db.from('apply_partners').select('key, name, apply_email, active').eq('key', job.apply_partner).maybeSingle()
+    if (data && data.active) { partner = data; mode = 'partner'; toEmail = data.apply_email }
+  }
+
+  if (!mode) {
+    if (!proEligibleJob(job)) return fail('This job does not accept applications through the site.')
+    if (!user) return fail('Please log in to apply through Jobs in Thailand.', 401, 'login')
+    const access = await getAccess(db, user.id)
+    if (!access.enabled) return fail('One-click apply is paused right now. Please use the employer\'s contact details.', 400, 'off')
+    if (access.isPro) mode = 'pro'
+    else if (access.freeTryAvailable) mode = 'free_try'
+    else return fail('You\'ve used your free try. Upgrade to Apply Pro to keep applying in one click.', 403, 'upgrade')
+    toEmail = firstEmail(job.email)
+  }
+  if (!toEmail) return fail('This job does not accept applications through the site.')
+
+  // Same person, same job — once only (failed emails don't count, so they can try again)
+  let dupQuery = db.from('job_applications').select('id').eq('job_id', String(job.id)).neq('email_status', 'failed').limit(1)
+  dupQuery = user ? dupQuery.eq('user_id', user.id) : dupQuery.ilike('email', email)
+  const { data: dup } = await dupQuery
+  if (dup && dup.length) return fail('You have already applied for this job.', 409, 'duplicate')
+
+  if (user) {
+    const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString()
+    const { count } = await db.from('job_applications').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('created_at', since)
+    if ((count || 0) >= USER_DAILY_APPLY_CAP) return fail(`You can send up to ${USER_DAILY_APPLY_CAP} applications a day. Please try again tomorrow.`, 429, 'user_limit')
+  }
+
+  // Protect the daily email allowance — partner schools always go through
+  if (mode !== 'partner' && (await emailsSentToday(db)) >= DAILY_EMAIL_CAP) {
+    return fail('One-click apply is busy today. Please use the employer\'s contact details below.', 429, 'daily_limit')
   }
 
   const viewToken = randomBytes(24).toString('hex')
@@ -68,24 +97,32 @@ export async function POST(req: Request) {
     .insert([{
       view_token: viewToken,
       job_id: String(job.id),
-      partner_key: partner.key,
+      partner_key: partner?.key || null,
+      apply_type: mode,
+      user_id: user?.id || null,
+      to_email: toEmail,
       job_title: job.title,
       company: job.company,
       name, email, phone, nationality, message,
+      cover_letter: coverLetter,
+      message_th: messageTh,
       resume_path: resumePath,
       photo_path: photoPath,
-      video_path: videoPath,
+      video_path: null,
+      video_link: video.url,
     }])
     .select('id, ref_no')
     .single()
 
   if (insertError || !app) {
     console.error('apply insert failed', insertError)
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
+    return fail('Something went wrong. Please try again.', 500)
   }
 
   const ref = `JIT-${app.ref_no}`
   const profileUrl = `${SITE_URL}/applications/${viewToken}`
+  const extras = [coverLetter ? 'Cover Letter' : '', video.url ? 'Video' : ''].filter(Boolean)
+  const buttonText = `View Resume, Photo${extras.length ? ', ' + extras.join(' &amp; ') : ''}`
 
   const html = `
 <div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #eee;border-radius:10px;overflow:hidden">
@@ -104,8 +141,9 @@ export async function POST(req: Request) {
       <tr><td style="padding:6px 0;color:#888">Reference</td><td style="padding:6px 0">${ref}</td></tr>
     </table>
     ${message ? `<div style="background:#f9f9f9;border-radius:8px;padding:14px;margin:18px 0;font-size:14px;color:#444;line-height:1.6;white-space:pre-wrap">${esc(message)}</div>` : ''}
+    ${messageTh ? `<div style="background:#fff8f3;border:1px solid #ffe0cc;border-radius:8px;padding:14px;margin:18px 0;font-size:14px;color:#444;line-height:1.7;white-space:pre-wrap"><div style="color:#E85D26;font-weight:bold;font-size:12px;margin-bottom:6px">ภาษาไทย</div>${esc(messageTh)}</div>` : ''}
     <div style="text-align:center;margin:26px 0 10px">
-      <a href="${profileUrl}" style="background:#E85D26;color:#ffffff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;display:inline-block">View Resume, Photo${videoPath ? ' &amp; Video' : ''} &rarr;</a>
+      <a href="${profileUrl}" style="background:#E85D26;color:#ffffff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;display:inline-block">${buttonText} &rarr;</a>
     </div>
     <p style="font-size:13px;color:#888;text-align:center;margin:12px 0 0">Press <strong>Reply</strong> to contact ${esc(name)} directly.</p>
   </div>
@@ -120,8 +158,8 @@ export async function POST(req: Request) {
 Position: ${job.title}${job.location ? ' - ' + job.location : ''}
 Name: ${name}
 Email: ${email}${phone ? '\nPhone: ' + phone : ''}${nationality ? '\nNationality: ' + nationality : ''}
-${message ? '\nMessage:\n' + message + '\n' : ''}
-View resume, photo${videoPath ? ' and video' : ''}: ${profileUrl}
+${message ? '\nMessage:\n' + message + '\n' : ''}${messageTh ? '\nภาษาไทย:\n' + messageTh + '\n' : ''}
+View resume, photo${coverLetter ? ', cover letter' : ''}${video.url ? ' and video' : ''}: ${profileUrl}
 
 Reply to this email to contact the candidate directly.
 --
@@ -136,7 +174,7 @@ This candidate applied through www.jobsinthailand.net`
       headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: FROM,
-        to: [partner.apply_email],
+        to: [toEmail],
         reply_to: email,
         subject: `New application: ${job.title} — ${name} (${ref}) via Jobs in Thailand`,
         html,
@@ -155,6 +193,19 @@ This candidate applied through www.jobsinthailand.net`
     .update({ email_status: emailStatus, email_error: emailError, emailed_at: emailStatus === 'sent' ? new Date().toISOString() : null })
     .eq('id', app.id)
 
-  // The application is saved either way; a failed email shows up in your admin stats so you can resend it.
-  return NextResponse.json({ ok: true, ref })
+  // Save the member's details so the form is filled in next time
+  if (user) {
+    const saved: any = { user_id: user.id, full_name: name, phone, nationality, video_link: video.url, updated_at: new Date().toISOString() }
+    if (resumePath.startsWith(`members/${user.id}/`)) saved.resume_path = resumePath
+    if (photoPath.startsWith(`members/${user.id}/`)) saved.photo_path = photoPath
+    await db.from('apply_profiles').upsert([saved], { onConflict: 'user_id' })
+  }
+
+  // Pro / free-try applications that failed to email: tell the teacher so they can use the contact details
+  if (emailStatus === 'failed' && mode !== 'partner') {
+    return fail('Sorry — we couldn\'t send your application just now. Please use the employer\'s contact details below.', 502, 'daily_limit')
+  }
+
+  // Partner applications are saved either way; a failed email shows up in your admin stats so you can resend it.
+  return NextResponse.json({ ok: true, ref, mode })
 }
