@@ -14,6 +14,7 @@ const TYPE_BADGE: Record<string, { label: string; bg: string; color: string }> =
 export default function ApplicationStatsPage() {
   const [pw, setPw] = useState('')
   const [authed, setAuthed] = useState(false)
+  const [checking, setChecking] = useState(true) // true while we look for a saved password on page load
   const [wrong, setWrong] = useState(false)
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -40,7 +41,10 @@ export default function ApplicationStatsPage() {
 
   useEffect(() => {
     // Remembered on this computer (until you log out), so closing the tab doesn't sign you out
-    try { const saved = localStorage.getItem('jitAdminPw') || sessionStorage.getItem('adminPw'); if (saved) { setPw(saved); load(saved) } } catch {}
+    let saved: string | null = null
+    try { saved = localStorage.getItem('jitAdminPw') || sessionStorage.getItem('adminPw') } catch {}
+    if (saved) { setPw(saved); load(saved).finally(() => setChecking(false)) }
+    else setChecking(false)
   }, [])
 
   const proAction = async (body: any, success: string) => {
@@ -61,6 +65,10 @@ export default function ApplicationStatsPage() {
     }
     setBusy(false)
   }
+
+  if (!authed && checking) return (
+    <main style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ccc' }}>Loading…</main>
+  )
 
   if (!authed) return (
     <main style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
