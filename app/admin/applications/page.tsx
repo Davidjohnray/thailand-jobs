@@ -29,17 +29,18 @@ export default function ApplicationStatsPage() {
     const res = await fetch('/api/admin/applications', { headers: { 'x-admin-password': password }, cache: 'no-store' })
     if (res.status === 401) {
       setWrong(true); setAuthed(false)
-      try { sessionStorage.removeItem('adminPw') } catch {}
+      try { localStorage.removeItem('jitAdminPw'); sessionStorage.removeItem('adminPw') } catch {}
       setLoading(false); return
     }
     setData(await res.json())
     setAuthed(true)
-    try { sessionStorage.setItem('adminPw', password) } catch {}
+    try { localStorage.setItem('jitAdminPw', password); sessionStorage.setItem('adminPw', password) } catch {}
     setLoading(false)
   }
 
   useEffect(() => {
-    try { const saved = sessionStorage.getItem('adminPw'); if (saved) { setPw(saved); load(saved) } } catch {}
+    // Remembered on this computer (until you log out), so closing the tab doesn't sign you out
+    try { const saved = localStorage.getItem('jitAdminPw') || sessionStorage.getItem('adminPw'); if (saved) { setPw(saved); load(saved) } } catch {}
   }, [])
 
   const proAction = async (body: any, success: string) => {
@@ -101,6 +102,8 @@ export default function ApplicationStatsPage() {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button onClick={() => load(pw)} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}>🔄 Refresh</button>
+          <button onClick={() => { try { localStorage.removeItem('jitAdminPw'); sessionStorage.removeItem('adminPw') } catch {}; setAuthed(false); setPw('') }}
+            style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}>🔒 Log out</button>
           <Link href="/admin" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontSize: '14px' }}>← Admin</Link>
         </div>
       </div>
