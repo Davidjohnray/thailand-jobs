@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { authHeaders } from './applyClient'
-import { AI_MONTHLY_LIMIT, type ApplyLetter, type ApplyStatus } from '../src/lib/applyRules'
+import { AI_MONTHLY_LIMIT, FREE_TRIES, type ApplyLetter, type ApplyStatus } from '../src/lib/applyRules'
 
 type Ctx = { resumePath?: string | null; name?: string; nationality?: string }
 
@@ -79,7 +79,7 @@ export default function AiWriter({ job, status, getContext, onLetter, standalone
 
   const usage = status.isPro
     ? `${remaining} of ${AI_MONTHLY_LIMIT} AI applications left this month`
-    : remaining > 0 ? '1 free AI application to try' : 'Free AI application used'
+    : remaining > 0 ? `${remaining} of ${FREE_TRIES} free AI applications left` : 'Free AI applications used'
 
   const box: any = standalone
     ? { background: '#1a1a2e', borderRadius: '12px', padding: '24px', marginBottom: '16px' }

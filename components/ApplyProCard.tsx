@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useApplyStatus } from './applyClient'
-import { AI_MONTHLY_LIMIT, PRO_PRICE_30_DAYS, fmtDate } from '../src/lib/applyRules'
+import { AI_MONTHLY_LIMIT, PRO_PRICE_30_DAYS, fmtDate, freeTriesText } from '../src/lib/applyRules'
 
 // Member dashboard card: Apply Pro status, AI letters left, link to My Applications
 export default function ApplyProCard() {
@@ -38,11 +38,11 @@ export default function ApplyProCard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
             <span style={{ fontSize: '28px' }}>⚡</span>
             <span style={{ fontWeight: 'bold', fontSize: '18px', color: '#1a1a2e' }}>New: Apply Pro</span>
-            {status.freeTryAvailable && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>🎁 1 free try</span>}
+            {status.freeTryAvailable && <span style={{ background: '#E85D26', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: 'bold' }}>🎁 {freeTriesText(status.freeTriesLeft ?? 0)}</span>}
           </div>
           <p style={{ color: '#666', fontSize: '14px', margin: 0, lineHeight: '1.6' }}>
             Apply in one click, let AI write your application in English <em>and</em> Thai, and see when a school views it.
-            {status.freeTryAvailable ? ' Your first one is free — open any job to try it.' : ` ${PRO_PRICE_30_DAYS} baht / 30 days.`}
+            {status.freeTryAvailable ? ` You have ${freeTriesText(status.freeTriesLeft ?? 0)} to try — open any job to use them.` : ` ${PRO_PRICE_30_DAYS} baht / 30 days.`}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>

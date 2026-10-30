@@ -1,6 +1,6 @@
 // SERVER ONLY — helpers for Apply Pro API routes.
 import { getSupabaseAdmin } from './supabaseAdmin'
-import { AI_MONTHLY_LIMIT } from './applyRules'
+import { AI_MONTHLY_LIMIT, FREE_TRIES } from './applyRules'
 
 export type Db = ReturnType<typeof getSupabaseAdmin>
 
@@ -54,6 +54,7 @@ export type Access = {
   aiLimit: number
   aiRemaining: number
   freeTryAvailable: boolean
+  freeTriesLeft: number
 }
 
 export async function getAccess(db: Db, userId: string): Promise<Access> {
@@ -68,14 +69,16 @@ export async function getAccess(db: Db, userId: string): Promise<Access> {
   const isPro = !!proUntil && new Date(proUntil).getTime() > Date.now()
   const aiUsedThisMonth = aiMonthRes.count || 0
   const aiEver = aiEverRes.count || 0
+  const freeTriesLeft = isPro ? 0 : Math.max(0, FREE_TRIES - (freeRes.count || 0))
   return {
     enabled,
     isPro,
     proUntil,
     aiUsedThisMonth,
-    aiLimit: isPro ? AI_MONTHLY_LIMIT : 1,
-    aiRemaining: isPro ? Math.max(0, AI_MONTHLY_LIMIT - aiUsedThisMonth) : (aiEver > 0 ? 0 : 1),
-    freeTryAvailable: !isPro && (freeRes.count || 0) === 0,
+    aiLimit: isPro ? AI_MONTHLY_LIMIT : FREE_TRIES,
+    aiRemaining: isPro ? Math.max(0, AI_MONTHLY_LIMIT - aiUsedThisMonth) : Math.max(0, FREE_TRIES - aiEver),
+    freeTryAvailable: freeTriesLeft > 0,
+    freeTriesLeft,
   }
 }
 

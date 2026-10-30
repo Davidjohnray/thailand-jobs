@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { supabase } from '../src/lib/supabase'
 import { authHeaders } from './applyClient'
 import AiWriter from './AiWriter'
-import { APPLY_BUCKET, normaliseVideoLink, isDriveLink, type ApplyLetter, type ApplyStatus } from '../src/lib/applyRules'
+import { APPLY_BUCKET, FREE_TRIES, normaliseVideoLink, isDriveLink, type ApplyLetter, type ApplyStatus } from '../src/lib/applyRules'
 
 const MAX_MB = 10
 
@@ -61,7 +61,7 @@ export default function AutoApplyForm({ job, mode, status, onFallback }: {
   const [website, setWebsite] = useState('') // honeypot
   const [error, setError] = useState<{ msg: string; code?: string } | null>(null)
   const [sending, setSending] = useState(false)
-  const [done, setDone] = useState<{ ref: string; mode: string } | null>(null)
+  const [done, setDone] = useState<{ ref: string; mode: string; triesLeft?: number } | null>(null)
   const [prefilled, setPrefilled] = useState(false)
 
   // Fill in saved details once we know who this is
@@ -139,7 +139,7 @@ export default function AutoApplyForm({ job, mode, status, onFallback }: {
         if (data.code === 'daily_limit' && onFallback) { onFallback(data.error); return }
         throw Object.assign(new Error(data.error || 'Something went wrong. Please try again.'), { code: data.code })
       }
-      setDone({ ref: data.ref, mode: data.mode || mode })
+      setDone({ ref: data.ref, mode: data.mode || mode, triesLeft: Math.max(0, (status?.freeTriesLeft ?? 1) - 1) })
     } catch (err: any) {
       setError({ msg: err.message || 'Something went wrong. Please try again.', code: err.code })
     }
@@ -167,7 +167,8 @@ export default function AutoApplyForm({ job, mode, status, onFallback }: {
       )}
       {done.mode === 'free_try' && (
         <div style={{ marginTop: '18px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', padding: '14px', color: '#ddd', fontSize: '14px' }}>
-          That was your free try. <Link href="/apply-pro" style={{ color: '#ffb38a', fontWeight: 'bold' }}>Get Apply Pro</Link> to keep applying in one click — with 20 AI applications a month.
+          {done.triesLeft ? <>You have <strong style={{ color: 'white' }}>{done.triesLeft} free {done.triesLeft === 1 ? 'application' : 'applications'}</strong> left. </> : <>That was your last free application. </>}
+          <Link href="/apply-pro" style={{ color: '#ffb38a', fontWeight: 'bold' }}>Get Apply Pro</Link> to keep applying in one click — with 20 AI applications a month.
         </div>
       )}
     </div>
@@ -183,7 +184,7 @@ export default function AutoApplyForm({ job, mode, status, onFallback }: {
         Your application goes straight to {job.company} through Jobs in Thailand.
       </p>
       {mode === 'free_try' && (
-        <p style={{ color: '#ffb38a', fontSize: '13px', margin: '0 0 16px', textAlign: 'center' }}>🎁 Free try — your first one-click application is on us.</p>
+        <p style={{ color: '#ffb38a', fontSize: '13px', margin: '0 0 16px', textAlign: 'center' }}>🎁 Free try — {status?.freeTriesLeft ?? FREE_TRIES} of {FREE_TRIES} free applications left.</p>
       )}
       {mode === 'pro' && (
         <p style={{ color: '#ffb38a', fontSize: '13px', margin: '0 0 16px', textAlign: 'center' }}>⚡ Apply Pro — we'll show you when the employer views it.</p>

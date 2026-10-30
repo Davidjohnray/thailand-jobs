@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       return fail(`You've used all ${AI_MONTHLY_LIMIT} AI applications this month. They reset on the 1st.`, 403, 'limit')
     }
     if (!access.isPro && access.aiRemaining <= 0) {
-      return fail('You\'ve used your free AI application. Upgrade to Apply Pro for 20 a month.', 403, 'upgrade')
+      return fail('You\'ve used your free AI applications. Upgrade to Apply Pro for 20 a month.', 403, 'upgrade')
     }
   }
 

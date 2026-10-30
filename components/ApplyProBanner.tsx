@@ -20,7 +20,7 @@ export default function ApplyProBanner() {
             <Link href="/apply-pro" style={{ background: '#E85D26', color: 'white', padding: '13px 26px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '15px' }}>
               🎁 Try it free →
             </Link>
-            <span style={{ color: '#aaa', fontSize: '13px', alignSelf: 'center' }}>First one free · then 99 baht / 30 days</span>
+            <span style={{ color: '#aaa', fontSize: '13px', alignSelf: 'center' }}>3 free applications · then 99 baht / 30 days</span>
           </div>
         </div>
 

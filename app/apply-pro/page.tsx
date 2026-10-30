@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useApplyStatus } from '../../components/applyClient'
-import { AI_MONTHLY_LIMIT, PRO_PRICE_30_DAYS, PRO_PRICE_6_MONTHS, fmtDate } from '../../src/lib/applyRules'
+import { AI_MONTHLY_LIMIT, PRO_PRICE_30_DAYS, PRO_PRICE_6_MONTHS, FREE_TRIES, fmtDate, freeTriesText } from '../../src/lib/applyRules'
 
 const ADMIN_EMAIL = 'Admin@jobsinthailand.net'
 
@@ -19,7 +19,7 @@ const FAQ = [
   { q: 'Which jobs can I use it on?', a: 'One-click apply works on every job that lists an email address. For jobs that only use LINE, WhatsApp or phone, the AI writes your message for you to send. A few agencies use their own application system.' },
   { q: 'What counts as one AI application?', a: `Each new letter for a job counts as one. Your first 2 rewrites on the same job are free, and reusing a saved letter is always free. Your ${AI_MONTHLY_LIMIT} reset on the 1st of every month.` },
   { q: 'Does it renew automatically?', a: 'No. There are no automatic payments — when your time is up it simply stops, and you can renew whenever you like.' },
-  { q: 'Is there a free try?', a: 'Yes. Every registered member gets one free one-click application with an AI-written letter.' },
+  { q: 'Is there a free try?', a: `Yes. Every registered member gets ${FREE_TRIES} free one-click applications, each with an AI-written letter.` },
   { q: 'Does the AI make things up?', a: 'It\'s told to use only what\'s in your CV and what you tell it. Always read your letter before sending — you can edit everything.' },
 ]
 
@@ -56,11 +56,11 @@ export default function ApplyProPage() {
             </div>
           ) : status?.loggedIn && status.freeTryAvailable ? (
             <Link href="/jobs" style={{ background: '#E85D26', color: 'white', padding: '14px 30px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px', display: 'inline-block' }}>
-              🎁 Use your free try — pick a job →
+              🎁 You have {freeTriesText(status.freeTriesLeft ?? 0)} — pick a job →
             </Link>
           ) : !status?.loggedIn ? (
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/account/register" style={{ background: '#E85D26', color: 'white', padding: '14px 30px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>Join free — first one's on us →</Link>
+              <Link href="/account/register" style={{ background: '#E85D26', color: 'white', padding: '14px 30px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>Join free — {FREE_TRIES} free applications →</Link>
               <Link href="/account/login" style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '14px 30px', borderRadius: '8px', textDecoration: 'none', fontSize: '16px' }}>Log in</Link>
             </div>
           ) : null}

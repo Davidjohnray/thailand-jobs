@@ -3,6 +3,8 @@
 export const PRO_PRICE_30_DAYS = 99
 export const PRO_PRICE_6_MONTHS = 499
 export const AI_MONTHLY_LIMIT = 20       // AI applications a month for Apply Pro members
+export const FREE_TRIES = 3              // free one-click applications (with AI letters) for every registered member
+export const freeTriesText = (n: number) => n === 1 ? '1 free application' : `${n} free applications`
 export const AI_FREE_REWRITES = 2        // free "try again" rewrites per job
 export const USER_DAILY_APPLY_CAP = 25   // applications per member per 24 hours
 export const APPLY_BUCKET = 'job-applications'
@@ -25,11 +27,11 @@ export function firstEmail(s: any): string | null {
   return m ? m[0] : null
 }
 
-// A job can use the Apply Pro form when it has an email and isn't a partner / ARNA / excluded employer
+// A job can use the Apply Pro form when it has an email and isn't a partner school / excluded employer.
+// ARNA jobs work like any other job: free try / Apply Pro send straight to the email on the job.
 export function proEligibleJob(job: any): boolean {
   if (!job) return false
   if (job.apply_partner) return false
-  if (job.company === ARNA_COMPANY) return false
   if (isExcludedCompany(job.company)) return false
   return !!firstEmail(job.email)
 }
@@ -81,6 +83,7 @@ export type ApplyStatus = {
   aiLimit?: number
   aiRemaining?: number
   freeTryAvailable?: boolean
+  freeTriesLeft?: number
   profile?: {
     full_name: string
     phone: string

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '../../../src/lib/supabase'
 import { authHeaders } from '../../../components/applyClient'
-import { AI_MONTHLY_LIMIT, fmtDate, fmtDateTime } from '../../../src/lib/applyRules'
+import { AI_MONTHLY_LIMIT, fmtDate, fmtDateTime, freeTriesText } from '../../../src/lib/applyRules'
 
 export default function MyApplicationsPage() {
   const router = useRouter()
@@ -54,7 +54,7 @@ export default function MyApplicationsPage() {
           ) : (
             <div style={{ background: 'white', border: '2px solid #E85D26', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <span style={{ color: '#444', fontSize: '14px' }}>
-                {access.freeTryAvailable ? '🎁 You have 1 free one-click application — open any job to use it.' : '⚡ Keep applying in one click, with AI letters in English and Thai.'}
+                {access.freeTryAvailable ? `🎁 You have ${freeTriesText(access.freeTriesLeft ?? 0)} left — open any job to use them.` : '⚡ Keep applying in one click, with AI letters in English and Thai.'}
               </span>
               <Link href="/apply-pro" style={{ background: '#E85D26', color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>Apply Pro →</Link>
             </div>

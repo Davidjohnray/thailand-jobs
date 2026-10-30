@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     if (!access.enabled) return fail('One-click apply is paused right now. Please use the employer\'s contact details.', 400, 'off')
     if (access.isPro) mode = 'pro'
     else if (access.freeTryAvailable) mode = 'free_try'
-    else return fail('You\'ve used your free try. Upgrade to Apply Pro to keep applying in one click.', 403, 'upgrade')
+    else return fail('You\'ve used your free applications. Upgrade to Apply Pro to keep applying in one click.', 403, 'upgrade')
     toEmail = firstEmail(job.email)
   }
   if (!toEmail) return fail('This job does not accept applications through the site.')
