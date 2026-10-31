@@ -121,7 +121,8 @@ function PostFeaturedPage() {
   })
 
   if (submitted) {
-    const waMsg = encodeURIComponent(`Hi, I have just submitted a Featured Job Listing on jobsinthailand.net.\n\nJob: ${form.title}\nCompany: ${form.company}\nRef: ${jobId}\n\nPlease send payment details. Thank you!`)
+    const mailSubject = encodeURIComponent('Featured Job Payment')
+    const mailBody = encodeURIComponent(`Hi, I have just submitted a Featured Job Listing on jobsinthailand.net.\n\nJob: ${form.title}\nCompany: ${form.company}\nRef: ${jobId}\n\nPlease let me know how to arrange payment. Thank you!`)
     return (
       <main style={{ background: '#f9f9f9', minHeight: '100vh', padding: '40px 24px' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
@@ -130,40 +131,15 @@ function PostFeaturedPage() {
             <h1 style={{ fontSize: '24px', fontWeight: '900', color: '#14532d', marginBottom: '8px' }}>Job Submitted!</h1>
             <p style={{ color: '#15803d', fontSize: '15px', margin: 0 }}>Your listing has been saved. Please arrange payment of <strong>฿300</strong> to go live.</p>
           </div>
-          <div style={{ background: '#fff3ed', border: '2px solid #E85D26', borderRadius: '14px', padding: '24px', marginBottom: '24px' }}>
-            <div style={{ fontWeight: '900', color: '#E85D26', fontSize: '18px', marginBottom: '12px' }}>💳 Payment Details</div>
-            {[
-              { label: 'PromptPay', value: '0871033821' },
-              { label: 'Bank', value: 'Kasikorn Bank (KBank)' },
-              { label: 'Account Name', value: 'Jobs in Thailand' },
-              { label: 'Amount', value: '฿300' },
-            ].map(item => (
-              <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid #ffe0cc', paddingBottom: '8px', marginBottom: '8px' }}>
-                <span style={{ color: '#888' }}>{item.label}</span>
-                <span style={{ fontWeight: 'bold', color: '#1a1a2e' }}>{item.value}</span>
-              </div>
-            ))}
-          </div>
           <div style={{ background: 'white', borderRadius: '14px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-            <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>Send your payment slip via WhatsApp, LINE, Facebook or email and your job will go live within a few hours.</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href={`https://wa.me/66871033821?text=${waMsg}`} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#25D366', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
-                💬 WhatsApp
-              </a>
-              <a href="https://line.me/ti/p/+66871033821" target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#06C755', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
-                💬 LINE
-              </a>
-              <a href="https://www.facebook.com/jobsinthailand.net" target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#1877F2', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
-                📘 Facebook
-              </a>
-              <a href="mailto:Admin@jobsinthailand.net"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#1a1a2e', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
-                ✉️ Admin@jobsinthailand.net
-              </a>
-            </div>
+            <div style={{ fontWeight: '900', color: '#E85D26', fontSize: '18px', marginBottom: '12px' }}>📧 Arrange Payment</div>
+            <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+              Please contact us at <a href="mailto:Admin@jobsinthailand.net" style={{ color: '#E85D26', fontWeight: 'bold' }}>Admin@jobsinthailand.net</a> to arrange payment. Your job will go live once payment is confirmed.
+            </p>
+            <a href={`mailto:Admin@jobsinthailand.net?subject=${mailSubject}&body=${mailBody}`}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#1a1a2e', color: 'white', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '16px' }}>
+              ✉️ Email Admin@jobsinthailand.net
+            </a>
           </div>
         </div>
       </main>
@@ -178,7 +154,7 @@ function PostFeaturedPage() {
         <div style={{ background: '#fff3ed', border: '2px solid #E85D26', borderRadius: '12px', padding: '20px 24px', marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontWeight: 'bold', color: '#E85D26', fontSize: '18px' }}>⭐ Featured Listing — ฿300</div>
-            <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>Pay via PromptPay or bank transfer — live within a few hours of payment</div>
+            <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>Contact Admin@jobsinthailand.net to arrange payment — live once payment is confirmed</div>
           </div>
           <div style={{ fontSize: '36px' }}>🚀</div>
         </div>
@@ -315,10 +291,10 @@ function PostFeaturedPage() {
           </div>
 
           <div style={{ background: '#f9f9f9', borderRadius: '10px', padding: '16px', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <div style={{ fontSize: '32px' }}>💳</div>
+            <div style={{ fontSize: '32px' }}>📧</div>
             <div>
-              <div style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>Payment via PromptPay or Bank Transfer</div>
-              <div style={{ color: '#666', fontSize: '13px' }}>After submitting, contact us via WhatsApp, LINE or email with your payment slip — your job goes live within a few hours</div>
+              <div style={{ fontWeight: 'bold', color: '#1a1a2e', fontSize: '15px' }}>Arrange Payment by Email</div>
+              <div style={{ color: '#666', fontSize: '13px' }}>After submitting, contact us at <a href="mailto:Admin@jobsinthailand.net" style={{ color: '#E85D26', fontWeight: 'bold' }}>Admin@jobsinthailand.net</a> to arrange payment — your job goes live once payment is confirmed</div>
             </div>
           </div>
 
@@ -337,7 +313,7 @@ function PostFeaturedPage() {
             {jobLoading ? 'Saving job...' : '⭐ Submit Job — ฿300 →'}
           </button>
           <p style={{ textAlign: 'center', color: '#999', fontSize: '13px', marginTop: '12px' }}>
-            We will send you payment details after submission
+            Email Admin@jobsinthailand.net after submitting to arrange payment
           </p>
         </div>
       </div>
